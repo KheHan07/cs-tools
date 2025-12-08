@@ -138,6 +138,17 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         log:printDebug(string `Processing case details request for user: ${userInfo.email}, caseId: ${caseId}`);
 
+        // Validate caseId
+        if caseId.trim().length() == 0 {
+            string customError = "Case ID cannot be empty";
+            return <http:BadRequest>{
+                body: {
+                    message: customError
+                }
+            };
+
+        }
+
         entity:CaseDetails|error caseDetailsResponse = entity:fetchCaseDetails(
                 caseId = caseId, idToken = userInfo.idToken);
         if caseDetailsResponse is error {

@@ -1,21 +1,21 @@
 [customer_portal.entity]
-    csEntityBaseUrl = ""
+    csEntityBaseUrl = "<entity-service-base-url>"
 
 [customer_portal.authorization.authorizedRoles]
-    userRole  = ""
+    userRole  = "<authorized-role>"
 
 # SCIM Service Configuration
 [customer_portal.scim.scimConfig]
-serviceUrl = ""
-orgPath = ""
-tokenUrl = ""
-clientId = ""
-clientSecret = ""
-scopes = []
+serviceUrl = "<scim-service-url>"
+orgPath = "<org-path>"
+tokenUrl = "<oauth-token-url>"
+clientId = "<client-id>"
+clientSecret = "<client-secret>"
+scopes = ["<scope-1>", "<scope-2>"]
 
 # SCIM Retry Configuration
 [customer_portal.scim.retryConfig]
-count =
-interval =
-backOffFactor =
-maxWaitInterval =
+count = <retry-count>
+interval = <retry-interval>
+backOffFactor = <backoff-factor>
+maxWaitInterval = <max-wait-interval>

@@ -43,5 +43,4 @@ apps/vulnerability-management-system/bff/summary-handler/FinalReport.json
 .project
 .idea/*
 .settings/*
-udo systemctl enable mongod
 lib/*
