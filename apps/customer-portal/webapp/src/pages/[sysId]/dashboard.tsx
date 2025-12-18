@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -54,9 +54,11 @@ import { useGet } from "../../services/useApi";
 import type { ProjectMetadataResponse } from "../../types/project-metadata.types";
 import type { CaseResponse } from "../../types/support.types";
 import { useProject } from "../../context/ProjectContext";
+import { useParams } from "../../router";
+
 
 export default function Dashboard() {
-  const { sysId } = useParams<{ sysId: string }>();
+  const { sysId } = useParams("/:sysId/dashboard");
   const navigate = useNavigate();
 
   const { currentProject } = useProject();

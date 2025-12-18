@@ -14,22 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useParams } from "react-router-dom";
 import { Box, Typography, Tabs, Tab, Chip } from "@mui/material";
 import { useState, useEffect } from "react";
-// Existing icons
 import FolderIcon from "../../assets/icons/project-details/header/folder-icon";
 import BuildingIcon from "../../assets/icons/project-details/overview/building-icon";
 import ActivityIcon from "../../assets/icons/project-details/overview/activity-icon";
 import UsersIcon from "../../assets/icons/common/users-icon";
 import ZapIcon from "../../assets/icons/project-details/overview/zap-icon";
 import CrownIcon from "../../assets/icons/common/crown-icon";
-// Tab icons
 import InfoIcon from "../../assets/icons/project-details/overview/info-icon";
 import ServerIcon from "../../assets/icons/project-details/deployments/server-icon";
 import ClockIcon from "../../assets/icons/project-details/time-tracking/clock-icon";
-// Project data
-// import projects from "../../data/projects.json";
 import projectDetailsData from "../../data/project-details-mock.json";
 
 import { useProject } from "../../context/ProjectContext";

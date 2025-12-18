@@ -14,20 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useParams } from "react-router-dom";
-// import projects from "../../data/projects.json";
+import { useParams } from "../../router";
 import ProjectPageHeader from "../../components/ProjectPageHeader/ProjectPageHeader";
 import { useProject } from "../../context/ProjectContext";
 
 export default function Announcements() {
-  const { sysId } = useParams<{ sysId: string }>();
+  
+  const { sysId } = useParams("/:sysId/announcements");
   const { currentProject } = useProject();
-
   return (
     <>
       <ProjectPageHeader
-        projectName={currentProject?.name || "Project"}
-        sysId={sysId || ""}
+        projectName={currentProject?.name || ""}
+        sysId={sysId}
       />
     </>
   );
