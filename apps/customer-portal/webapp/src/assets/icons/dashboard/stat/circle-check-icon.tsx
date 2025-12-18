@@ -14,28 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import React from "react";
-
+import { BaseIcon } from "../../BaseIcon";
 import type { IconProps } from "../../../../types/icon.types";
 
-const CircleCheckIcon: React.FC<IconProps> = ({ width, height }) => {
+export const CircleCheckIcon: React.FC<IconProps> = (props) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width}
-      height={height}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <BaseIcon {...props}>
       <circle cx="12" cy="12" r="10" />
       <path d="m9 12 2 2 4-4" />
-    </svg>
+    </BaseIcon>
   );
 };
-
-export default CircleCheckIcon;
