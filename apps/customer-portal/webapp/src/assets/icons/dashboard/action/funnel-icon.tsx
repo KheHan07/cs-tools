@@ -14,19 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import React from "react";
-import { BaseIcon } from "../BaseIcon";
-import type { IconProps } from "../../../types/icon.types";
+import { BaseIcon } from "../../BaseIcon";
+import type { IconProps } from "../../../../types/icon.types";
 
-const UpdatesIcon: React.FC<IconProps> = (props) => {
+export const FunnelIcon: React.FC<IconProps> = (props) => {
   return (
     <BaseIcon {...props}>
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-      <path d="M21 3v5h-5"></path>
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-      <path d="M8 16H3v5"></path>
+      <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
     </BaseIcon>
   );
 };
-
-export { UpdatesIcon };

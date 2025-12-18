@@ -1,8 +1,7 @@
 import React from "react";
 import { Box, TextField, Button, Avatar } from "@mui/material";
-import { PaperclipIcon } from "../../assets/icons/support/PaperclipIcon";
-import { SendIcon } from "../../assets/icons/support/SendIcon";
-
+import { PaperclipIcon } from "../../assets/icons/support/action/PaperclipIcon";
+import { SendIcon } from "../../assets/icons/support/action/SendIcon";
 
 interface CaseCommentInputProps {
   onSendComment?: (comment: string) => void;

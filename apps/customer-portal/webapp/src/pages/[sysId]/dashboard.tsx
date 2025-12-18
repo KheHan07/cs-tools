@@ -32,8 +32,10 @@ import {
   Chip,
 } from "@mui/material";
 import { Info, ExternalLink, ArrowUpDown, Plus } from "lucide-react";
-import FunnelIcon from "../../assets/icons/dashboard/funnel-icon";
-import EllipsisVerticalIcon from "../../assets/icons/dashboard/ellipsis-vertical-icon";
+import {
+  FunnelIcon,
+  EllipsisVerticalIcon,
+} from "../../assets/icons/dashboard/dashboard-icons";
 import {
   PieChart,
   Pie,

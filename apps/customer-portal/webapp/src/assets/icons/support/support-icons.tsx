@@ -14,34 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-export * from "./ArrowLeftIcon";
-export * from "./ArrowRightIcon";
-export * from "./BookOpenIcon";
-export * from "./BotIcon";
-export * from "./CalendarDaysIcon";
-export * from "./CalendarIcon";
-export * from "./ChevronDownIcon";
-export * from "./ChevronUpIcon";
-export * from "./CircleAlertIcon";
-export * from "./CircleCheckIcon";
-export * from "./CirclePauseIcon";
-export * from "./CirclePlayIcon";
-export * from "./CircleXIcon";
-export * from "./ClockIcon";
-export * from "./ExternalLinkIcon";
-export * from "./FileTextIcon";
-export * from "./InfoIcon";
-export * from "./Maximize2Icon";
-export * from "./MessageCircleIcon";
-export * from "./MessageSquareIcon";
-export * from "./PaperclipIcon";
-export * from "./PhoneIcon";
-export * from "./PhoneCallIcon";
-export * from "./PlayIcon";
-export * from "./SearchIcon";
-export * from "./SendIcon";
-export * from "./ServerIcon";
-export * from "./SlidersHorizontalIcon";
-export * from "./TrendingUpIcon";
-export * from "./UserIcon";
-export * from "./XIcon";
+// Stat Icons
+export * from "./stat/CircleAlertIcon";
+export * from "./stat/CircleCheckIcon";
+export * from "./stat/ClockIcon";
+export * from "./stat/MessageCircleIcon";
+export * from "./stat/FileTextIcon";
+
+// Navigation Icons
+export * from "./navigation/ArrowLeftIcon";
+export * from "./navigation/ArrowRightIcon";
+export * from "./navigation/ChevronDownIcon";
+export * from "./navigation/ChevronUpIcon";
+export * from "./navigation/ExternalLinkIcon";
+
+// Action Icons
+export * from "./action/PaperclipIcon";
+export * from "./action/SendIcon";
+export * from "./action/Maximize2Icon";
+export * from "./action/SearchIcon";
+export * from "./action/SlidersHorizontalIcon";
+export * from "./action/XIcon";
+export * from "./action/PlayIcon";
+export * from "./action/CirclePauseIcon";
+export * from "./action/CirclePlayIcon";
+export * from "./action/CircleXIcon";
+
+// Common Icons
+export * from "./common/InfoIcon";
+export * from "./common/UserIcon";
+export * from "./common/CalendarIcon";
+export * from "./common/CalendarDaysIcon";
+export * from "./common/PhoneIcon";
+export * from "./common/PhoneCallIcon";
+export * from "./common/MessageSquareIcon";
+export * from "./common/BookOpenIcon";
+export * from "./common/BotIcon";
+export * from "./common/ServerIcon";
+export * from "./common/TrendingUpIcon";

@@ -15,18 +15,16 @@
 // under the License.
 
 import React from "react";
-import { BaseIcon } from "../BaseIcon";
-import type { IconProps } from "../../../types/icon.types";
+import type { IconProps } from "../../../../types/icon.types";
+import { BaseIcon } from "../../BaseIcon";
 
-const UpdatesIcon: React.FC<IconProps> = (props) => {
-  return (
-    <BaseIcon {...props}>
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-      <path d="M21 3v5h-5"></path>
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-      <path d="M8 16H3v5"></path>
-    </BaseIcon>
-  );
-};
-
-export { UpdatesIcon };
+export const BotIcon: React.FC<IconProps> = (props) => (
+  <BaseIcon {...props}>
+    <path d="M12 8V4H8"></path>
+    <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+    <path d="M2 14h2"></path>
+    <path d="M20 14h2"></path>
+    <path d="M15 13v2"></path>
+    <path d="M9 13v2"></path>
+  </BaseIcon>
+);

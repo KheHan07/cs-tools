@@ -1,9 +1,7 @@
-import CircleAlertIcon from "../../../src/assets/icons/dashboard/circle-alert-icon";
-import ClockIcon from "../../../src/assets/icons/dashboard/clock-icon";
-import CircleCheckIcon from "../../../src/assets/icons/dashboard/circle-check-icon";
-import TrendingDownIcon from "../../../src/assets/icons/dashboard/trending-down-icon";
+
 import type { StatsConfig } from "./types";
 import type { ProjectMetadataResponse } from "../../../src/types/project-metadata.types";
+import { CircleAlertIcon, ClockIcon, TrendingDownIcon , CircleCheckIcon} from "../../../src/assets/icons/dashboard/dashboard-icons";
 
 export function getStatsConfig(data: ProjectMetadataResponse): StatsConfig[] {
   return [

@@ -4,16 +4,18 @@ import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useRouter } from "../../hooks/useRouter";
 import FolderOpenIcon from "../../assets/icons/common/folder-open-icon";
 import CrownIcon from "../../assets/icons/common/crown-icon";
-import SettingsIcon from "../../assets/icons/side-nav-bar/settings-icon";
-import DashboardIcon from "../../assets/icons/side-nav-bar/dashboard-icon";
-import SupportIcon from "../../assets/icons/side-nav-bar/support-icon";
-import ProjectDetailsIcon from "../../assets/icons/side-nav-bar/project-details-icon";
-import UpdatesIcon from "../../assets/icons/side-nav-bar/updates-icon";
-import SecurityCenterIcon from "../../assets/icons/side-nav-bar/security-center-icon";
-import EngagementsIcon from "../../assets/icons/side-nav-bar/engagements-icon";
-import LegalContractsIcon from "../../assets/icons/side-nav-bar/legal-contracts-icon";
-import CommunityIcon from "../../assets/icons/side-nav-bar/community-icon";
-import AnnouncementsIcon from "../../assets/icons/side-nav-bar/announcements-icon";
+import {
+  SettingsIcon,
+  DashboardIcon,
+  SupportIcon,
+  ProjectDetailsIcon,
+  UpdatesIcon,
+  SecurityCenterIcon,
+  EngagementsIcon,
+  LegalContractsIcon,
+  CommunityIcon,
+  AnnouncementsIcon,
+} from "../../assets/icons/side-nav-bar/side-nav-bar-icons";
 import Wso2Logo from "../../assets/icons/header/logo/wso2-logo";
 import type { SidebarProps } from ".";
 

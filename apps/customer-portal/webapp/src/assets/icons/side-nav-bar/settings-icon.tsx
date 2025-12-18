@@ -14,19 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import SvgIcon from "@mui/material/SvgIcon";
+import { BaseIcon } from "../BaseIcon";
 import type { IconProps } from "../../../types/icon.types";
 
-const SettingsIcon: React.FC<IconProps> = ({ width, height, color }) => {
+const SettingsIcon: React.FC<IconProps> = (props) => {
   return (
-    <SvgIcon
-      sx={{
-        width,
-        height,
-        color: color || "currentColor",
-      }}
-      viewBox="0 0 24 24"
-    >
+    <BaseIcon {...props}>
       <path
         d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
         fill="none"
@@ -45,8 +38,8 @@ const SettingsIcon: React.FC<IconProps> = ({ width, height, color }) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </SvgIcon>
+    </BaseIcon>
   );
 };
 
-export default SettingsIcon;
+export { SettingsIcon };
