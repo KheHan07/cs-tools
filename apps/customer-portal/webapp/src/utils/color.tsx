@@ -1,8 +1,7 @@
-import {
-  CircleAlertIcon,
-  ClockIcon,
-  MessageCircleIcon,
-} from "../assets/icons/support/support-icons";
+import CircleAlertIcon from "../assets/icons/dashboard/circle-alert-icon";
+import { ClockIcon } from "../assets/icons/support/ClockIcon";
+import { MessageCircleIcon } from "../assets/icons/support/MessageCircleIcon";
+
 
 export const getStatusColor = (color: string) => {
   switch (color) {

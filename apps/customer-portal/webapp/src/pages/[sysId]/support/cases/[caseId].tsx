@@ -9,15 +9,10 @@ import { CaseAttachments } from "../../../../components/CaseDetails/CaseAttachme
 import { CaseKnowledge } from "../../../../components/CaseDetails/CaseKnowledge";
 // import { CaseCommentInput } from "../../../components/CaseDetails/CaseCommentInput";
 import type { CaseDetails } from "../../../../types/case.types";
-import {
-  MessageSquareIcon,
-  InfoIcon,
-  PaperclipIcon,
-  PhoneIcon,
-  BookOpenIcon,
-} from "../../../../assets/icons/support/support-icons";
+
 import { Endpoints } from "../../../../services/endpoints";
 import { useGet } from "../../../../services/useApi";
+import { BookOpenIcon, InfoIcon, MessageSquareIcon, PaperclipIcon, PhoneIcon } from "../../../../assets/icons/support/support-icons";
 
 const CaseDetailsPage: React.FC = () => {
   const { sysId, caseId } = useParams<{ sysId: string; caseId: string }>();
