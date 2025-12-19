@@ -15,8 +15,7 @@
 // under the License.
 
 import React from "react";
-import { BaseIcon } from "../base-icon";
-import type { IconProps } from "@/types/icon.types";
+import { BaseIcon, type IconProps } from "../base-icon";
 
 export const AttachmentIcon: React.FC<IconProps> = (props) => (
   <BaseIcon {...props}>

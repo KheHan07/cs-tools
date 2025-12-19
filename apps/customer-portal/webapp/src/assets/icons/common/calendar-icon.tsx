@@ -15,8 +15,7 @@
 // under the License.
 
 import React from "react";
-import type { IconProps } from "@/types/icon.types";
-import { BaseIcon } from "../base-icon";
+import { BaseIcon, type IconProps } from "../base-icon";
 
 export const CalendarIcon: React.FC<IconProps> = (props) => (
   <BaseIcon {...props}>
