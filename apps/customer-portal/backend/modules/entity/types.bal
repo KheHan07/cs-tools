@@ -14,228 +14,301 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Entity user data structure from the entity service.
-public type EntityUser record {|
+# Pagination information.
+public type Pagination record {|
+    # Offset for pagination
+    int offset;
+    # Limit for pagination
+    int 'limit;
+    # Total records available
+    int totalRecords;
+|};
+
+# User data.
+public type UserResponse record {|
     # System ID of the user
-    string sys_id;
+    string sysId;
     # Email address of the user
     string email;
     # Full name of the user
     string name;
     # First name of the user
-    string first_name;
-    # Last name of the user
-    string last_name;
-    # Username of the user
-    string user_name;
-    # Active status of the user
-    string active;
-|};
-
-# Response structure from Entity Service.
-public type EntityUserResponse record {|
-    # Result object containing the response data
-    record {|
-        # Success status of the operation
-        boolean success;
-        # User data from the entity service
-        EntityUser data;
-        # Response message
-        string message;
-    |} result;
-|};
-
-# User info response structure.
-public type UserInfo record {|
-    # Unique identifier of the user
-    string userId;
-    # Email address of the user
-    string userEmail;
-    # First name of the user
     string firstName;
     # Last name of the user
     string lastName;
     # Username of the user
-    string username;
+    string userName;
     # Active status of the user
-    boolean active;
+    string active;
+    json...;
 |};
 
-# Projects data structure from the entity service.
-public type EntityProject record {|
-    # Name of the project
-    string name;
+# Project data from ServiceNow.
+public type Project record {|
     # System ID of the project
     string sysId;
+    # Name of the project
+    string name;
+    # Description of the project
+    string? description;
+    # Project key
+    string projectKey;
+    # Created date and time
+    string createdOn;
+    # Active chats count
+    int activeChatsCount;
+    # Open case count
+    int openCasesCount;
 |};
 
-# Entity projects response structure.
-public type EntityProjectsResponse record {|
-    # Result object containing the response data
-    record {|
-        # Success status of the operation
-        boolean success;
-        # Array of project data from the entity service
-        EntityProject[] data;
-    |} result;
-|};
-
-# Base record containing common fields for case data structures.
-public type EntityBaseCase record {|
-    # Case number
-    string number;
-    # WSO2 case identifier
-    string wso2_case_id;
-    # Short description of the case
-    string short_description;
-    # Detailed description of the case
-    string description;
-    # Type of the case
-    string case_type;
-    # Project deployment information
-    string project_deployment;
-    # Product associated with the case
-    string product;
-    # Priority level of the case
-    string priority;
-    # Current state of the case
-    string state;
-    # Contact person for the case
-    string contact;
-    # Last updated timestamp
-    string updated_on;
-    # Case opened timestamp
-    string opened_on;
-    # Case resolved timestamp
-    string resolved_on;
-    # Project information
-    record {|
-        # System ID of the project
-        string sys_id;
-        # Name of the project
-        string name;
-    |} project;
-|};
-
-# Entity case data structure from the entity service.
-public type EntityCase record {|
-    *EntityBaseCase;
-    # System ID of the case
-    string case_sys_id;
-|};
-
-# Pagination information structure.
-public type EntityPagination record {|
-    # Total number of records
-    decimal total;
-    # Offset for pagination
-    decimal offset;
-    # Limit for pagination
-    decimal 'limit;
-|};
-
-# Filter options structure.
-public type EntityFilters record {|
-    # State filter options
-    string[]? state;
-    # Contact filter options
-    string[]? contact;
-|};
-
-# Entity cases structure from the service.
-public type EntityCases record {|
-    # List of cases
-    EntityCase[] cases;
+# Projects response from ServiceNow.
+public type ProjectsResponse record {|
+    # List of projects
+    Project[] projects;
     # Pagination information
-    EntityPagination pagination;
-    # Filter information
-    EntityFilters filters;
+    Pagination pagination;
 |};
 
-# Entity cases response structure.
-public type EntityCasesResponse record {|
-    # Result object containing the response data
-    record {|
-        # Success status of the operation
-        boolean success;
-        # Data object containing cases and metadata
-        EntityCases data;
-    |} result;
+# Account owner information.
+public type AccountOwner record {|
+    # System ID of the user
+    string sysId;
+    # Name of the user
+    string name;
+    # Email of the user
+    string email;
 |};
 
-# Base record containing common case fields.
-public type BaseCase record {|
+# Project information.
+public type ProjectDetailsResponse record {|
+    *Project;
+    # Project type
+    string projectType;
+    # Subscription start date
+    string? subscriptionStart;
+    # Subscription end date
+    string? subscriptionEnd;
+    # Support tier
+    string? supportTier;
+    # SLA status
+    string slaStatus;
+    # Account owner information
+    AccountOwner accountOwner;
+    # Technical owner information
+    AccountOwner? technicalOwner;
+    json...;
+|};
+
+# Case filters.
+public type CaseFiltersResponse record {|
+    # Categories filter options
+    string[] categories;
+    # Products filter options
+    string[] products;
+    # Statuses filter options
+    string[] statuses;
+    # Severities filter options
+    string[] severities;
+    # Environments filter options
+    string[] environments;
+    json...;
+|};
+
+# Incident count by severity.
+public type IncidentCount record {|
+    # Severity 0
+    int s0;
+    # Severity 1
+    int s1;
+    # Severity 2
+    int s2;
+    # Severity 3
+    int s3;
+    # Severity 4
+    int s4;
+|};
+
+# Active case count by status.
+public type ActiveCaseCount record {|
+    # Awaiting count
+    int awaitingCount;
+    # Waiting on WSO2 count
+    int waitingOnWSO2Count;
+    # Work in progress count
+    int workInProgressCount;
+|};
+
+# Project statistics.
+public type ProjectStatistics record {|
+    # Open cases count
+    int openCasesCount;
+    # Active chats count
+    int activeChatsCount;
+    # Deployments count
+    int deploymentsCount;
+    # Total cases count
+    int totalCasesCount;
+    # In progress cases count
+    int inProgressCasesCount;
+    # Awaiting cases count
+    int awaitingCasesCount;
+    # Resolved cases count
+    int resolvedCasesCount;
+    # Current month resolved cases count
+    int currentMonthResolvedCasesCount;
+    # Average response time
+    string avgResponseTime;
+    # Incident count by severity
+    IncidentCount incidentCount;
+    # Active case count by status
+    ActiveCaseCount activeCaseCount;
+|};
+
+# Recent activity.
+public type RecentActivity record {|
+    # Total time logged
+    int totalTimeLogged;
+    # Billable hours
+    int billableHours;
+    # Last deployment timestamp
+    string lastDeploymentOn;
+    # System health status
+    string systemHealth;
+|};
+
+# Project overview response.
+public type ProjectOverviewResponse record {|
+    # Project statistics
+    ProjectStatistics projectStatistics;
+    # Recent activity
+    RecentActivity recentActivity;
+|};
+
+# Comment author information.
+public type CommentAuthor record {|
+    # Name of the author
+    string name;
+    # Role of the author
+    string role;
+|};
+
+# Case comment.
+public type CaseComment record {|
+    # Comment ID
+    string id;
+    # Author information
+    CommentAuthor author;
+    # Comment content
+    string content;
+    # Timestamp of the comment
+    string timestamp;
+    # Whether the comment is large
+    boolean isLarge;
+    # Whether the comment contains code
+    boolean hasCode;
+|};
+
+# Case attachment.
+public type CaseAttachment record {|
+    # System ID of the attachment
+    string sysId;
+    # Name of the attachment file
+    string name;
+    # Size in bytes
+    int sizeBytes;
+    # Uploaded by user email
+    string uploadedBy;
+    # Upload date
+    string uploadedDate;
+|};
+
+# Call request.
+public type CallRequest record {|
+    # System ID of the call request
+    string sysId;
+    # Call request number
+    string number;
+    # Requested date
+    string requestedDate;
+    # State of the call request
+    string state;
+    # Reason for the call
+    string reason;
+    # Duration of the call
+    string duration;
+    # Preferred time for the call
+    string preferredTime;
+|};
+
+# Knowledge base article.
+public type KbArticle record {|
+    # Article ID
+    string id;
+    # Article title
+    string title;
+    # Article summary
+    string summary;
+    # Article category
+    string category;
+    # Suggested by (AI or user)
+    string suggestedBy;
+    # Date when suggested
+    string suggestedDate;
+    # Number of views
+    int views;
+|};
+
+# Base case.
+public type Case record {|
+    # System ID of the case
+    string sysId;
     # Case number
     string number;
-    # WSO2 case identifier
-    string wso2CaseId;
-    # Short description of the case
-    string shortDescription;
-    # Type of the case
-    string caseType;
-    # Product associated with the case
-    string product;
-    # Priority level of the case
-    string priority;
-    # Current state of the case
-    string state;
-    # Contact person for the case
-    string contact;
-    # Last updated timestamp
+    # Case title
+    string title;
+    # Case description
+    string description;
+    # Case status
+    string status;
+    # Case severity
+    string severity;
+    # Created date and time
+    string createdOn;
+    # Updated date and time
     string updatedOn;
-    # Case opened timestamp
-    string openedOn;
-    # Case resolved timestamp
-    string resolvedOn;
+    # Assigned engineer name
+    string assignedEngineer;
+    # Case category
+    string category;
+    # Product information
+    string product;
 |};
 
-# Case info response structure.
-public type CaseInfo record {|
-    *BaseCase;
-    # System ID of the case
-    string caseSysId;
+# Detailed case response.
+public type CaseDetailsResponse record {|
+    *Case;
+    # Environment type
+    string environment;
+    # Account type
+    string accountType;
+    # Organization name
+    string organization;
+    # SLA information
+    string sla;
+    # Initial comments list
+    CaseComment[] initialComments;
+    # Attachments list
+    CaseAttachment[] attachments;
+    # Call requests list
+    CallRequest[] callRequests;
+    # Knowledge base articles list
+    KbArticle[] kbArticles;
 |};
 
-# Cases response structure.
-public type Cases record {|
-    # List of case information
-    CaseInfo[] cases;
-    # Pagination information
-    record {|
-        # Total number of records
-        int total;
-        # Offset for pagination
-        int offset;
-        # Limit for pagination
-        int 'limit;
-    |} pagination;
-|};
-
-# Entity case details data structure from the service.
-public type EntityCaseDetails record {|
-    *EntityBaseCase;
-    # System ID of the case
-    string sys_id;
-|};
-
-# Entity case details response structure.
-public type EntityCaseDetailsResponse record {|
-    # Result object containing the response data
-    record {|
-        # Success status of the operation
-        boolean success;
-        # Case details data from the entity service
-        EntityCaseDetails data;
-    |} result;
-|};
-
-# Case details response structure.
-public type CaseDetails record {|
-    *BaseCase;
-    # Detailed description of the case
-    string description;
-    # Project deployment information
-    string projectDeployment;
-    # Project name
-    string projectName;
+# Cases list response with pagination.
+public type CasesResponse record {|
+    # List of cases
+    Case[] cases;
+    # Pagination details
+    Pagination pagination;
 |};
