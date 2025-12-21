@@ -17,12 +17,35 @@ import customer_portal.authorization;
 import customer_portal.entity;
 import customer_portal.scim;
 
+import ballerina/cache;
 import ballerina/http;
 import ballerina/log;
+
+configurable int capacity = ?;
+configurable decimal defaultMaxAge = ?;
+configurable float evictionFactor = ?;
+configurable decimal cleanupInterval = ?;
+
+final cache:Cache userCache = new ({
+    capacity,
+    defaultMaxAge,
+    evictionFactor,
+    cleanupInterval
+});
+
+@display {
+    label: "Customer Portal",
+    id: "cs/customer-portal"
+}
 
 service class ErrorInterceptor {
     *http:ResponseErrorInterceptor;
 
+    # Intercepts the response error.
+    #
+    # + err - The error occurred during request processing
+    # + ctx - Request context object
+    # + return - Bad request response or error
     remote function interceptResponseError(error err, http:RequestContext ctx) returns http:BadRequest|error {
 
         // Handle data-binding errors.
@@ -39,60 +62,26 @@ service class ErrorInterceptor {
     }
 }
 
-@display {
-    label: "Customer Portal",
-    id: "cs/customer-portal"
-}
-service http:InterceptableService / on new http:Listener(9090) {
+service http:InterceptableService / on new http:Listener(9095) {
     public function createInterceptors() returns http:Interceptor[] =>
         [new authorization:JwtInterceptor(), new ErrorInterceptor()];
 
-    # Fetch user information of the logged in users.
+    # Service init function.
     #
-    # + ctx - Request context object
-    # + return - User info object|Error
-    resource function get user\-info(http:RequestContext ctx)
-        returns entity:UserInfo|http:InternalServerError {
-
-        // Get user info from JWT header.
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: "User information header not found!"
-                }
-            };
-        }
-
-        log:printDebug(string `Processing user-info request for user: ${userInfo.email}`);
-
-        // Fetch user info from entity service with ID token.
-        entity:UserInfo|error userInfoResponse = entity:fetchUserBasicInfo(userInfo.email, userInfo.idToken);
-
-        if userInfoResponse is error {
-            string customError = string `Error occurred while retrieving user data: ${userInfo.email}!`;
-            log:printError(customError, userInfoResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        return userInfoResponse;
+    # + return - Error if initialization fails
+    function init() returns error? {
+        log:printInfo("Customer Portal backend started.");
     }
 
-    # Fetch cases for a specific project.
+    # Fetch user information of the logged in user.
     #
     # + ctx - Request context object
-    # + offset - Offset for pagination
-    # + 'limit - Limit for pagination
-    # + return - Cases response object|Error
-    isolated resource function get cases(http:RequestContext ctx, int offset = 0, int 'limit = 10)
-        returns entity:Cases|http:BadRequest|http:InternalServerError {
+    # + return - User info object or error response
+    resource function get users/me(http:RequestContext ctx)
+        returns entity:UserResponse|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
-            log:printError("User information header not found", userInfo);
             return <http:InternalServerError>{
                 body: {
                     message: "User information header not found!"
@@ -100,35 +89,42 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        log:printDebug(string `Processing cases request for user: ${userInfo.email}`);
+        string cacheKey = string `${userInfo.email}:userinfo`;
+        if userCache.hasKey(cacheKey) {
+            entity:UserResponse|error cachedUser = userCache.get(cacheKey).ensureType();
+            if cachedUser is entity:UserResponse {
+                return cachedUser;
+            }
+            log:printWarn(`Unable to read cached user info for ${userInfo.email}`);
+        }
 
-        // Fetch cases from entity service.
-        entity:Cases|error casesResponse = entity:fetchCases(
-                email = userInfo.email, idToken = userInfo.idToken, offset = offset, 'limit = 'limit);
-
-        if casesResponse is error {
-            string customError = "Error occurred while retrieving cases data!";
-            log:printError(customError, casesResponse);
+        entity:UserResponse|error userDetails = entity:fetchUserBasicInfo(userInfo.email, userInfo.idToken);
+        if userDetails is error {
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: "Error retrieving user data"
                 }
             };
         }
-        return casesResponse;
+
+        error? cacheError = userCache.put(cacheKey, userDetails);
+        if cacheError is error {
+            log:printWarn("Error writing user information to cache", cacheError);
+        }
+        return userDetails;
     }
 
-    # Retrieve case details for a specific case.
+    # Fetch list of projects with pagination.
     #
     # + ctx - Request context object
-    # + caseId - Unique identifier of the case
-    # + return - Case details object|Error
-    isolated resource function get cases/[string caseId](http:RequestContext ctx)
-        returns entity:CaseDetails|http:BadRequest|http:InternalServerError {
+    # + offset - Pagination offset
+    # + 'limit - Pagination limit
+    # + return - Projects list or error response
+    resource function get projects(http:RequestContext ctx, int offset = DEFAULT_OFFSET, int 'limit = DEFAULT_LIMIT)
+        returns entity:ProjectsResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
-            log:printError("User information header not found", userInfo);
             return <http:InternalServerError>{
                 body: {
                     message: "User information header not found!"
@@ -136,77 +132,302 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        log:printDebug(string `Processing case details request for user: ${userInfo.email}, caseId: ${caseId}`);
-
-        // Validate caseId
-        if caseId.trim().length() == 0 {
-            string customError = "Case ID cannot be empty";
+        if offset < 0 || 'limit <= 0 {
             return <http:BadRequest>{
                 body: {
-                    message: customError
+                    message: "Invalid pagination parameters"
                 }
             };
-
         }
 
-        entity:CaseDetails|error caseDetailsResponse = entity:fetchCaseDetails(
-                caseId = caseId, idToken = userInfo.idToken);
-        if caseDetailsResponse is error {
-            string customError = string `Error occurred while retrieving case details for caseId: ${caseId}!`;
-            log:printError(customError, caseDetailsResponse);
+        string cacheKey = string `${userInfo.email}:projects:${offset}:${'limit}`;
+        if userCache.hasKey(cacheKey) {
+            entity:ProjectsResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:ProjectsResponse {
+                return cached;
+            }
+        }
+
+        entity:ProjectsResponse|error projectsList = entity:fetchProjects(userInfo.idToken, offset, 'limit);
+        if projectsList is error {
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: "Error retrieving projects list"
                 }
             };
         }
-        return caseDetailsResponse;
+
+        error? cacheError = userCache.put(cacheKey, projectsList);
+        if cacheError is error {
+            log:printWarn("Error writing projects to cache", cacheError);
+        }
+        return projectsList;
     }
 
-    # Add users to a group via SCIM operations.
+    # Fetch specific project details.
     #
     # + ctx - Request context object
-    # + group - Group name to add users to
-    # + payload - Request payload containing array of user emails
-    # + return - Created response on success, error responses on failure
+    # + projectId - Unique identifier of the project
+    # + return - Project details or error response
+    resource function get projects/[string projectId](http:RequestContext ctx)
+        returns entity:ProjectDetailsResponse|http:BadRequest|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "User information header not found!"
+                }
+            };
+        }
+
+        if projectId.trim().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Project ID cannot be empty or whitespace"
+                }
+            };
+        }
+
+        string cacheKey = string `${userInfo.email}:project:${projectId}`;
+        if userCache.hasKey(cacheKey) {
+            entity:ProjectDetailsResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:ProjectDetailsResponse {
+                return cached;
+            }
+        }
+
+        entity:ProjectDetailsResponse|error projectDetails = entity:fetchProjectDetails(projectId, userInfo.idToken);
+        if projectDetails is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "Error retrieving project information"
+                }
+            };
+        }
+
+        error? cacheError = userCache.put(cacheKey, projectDetails);
+        if cacheError is error {
+            log:printWarn("Error writing project details to cache", cacheError);
+        }
+        return projectDetails;
+    }
+
+    # Fetch case filters for a specific project.
+    #
+    # + ctx - Request context object
+    # + projectId - Unique identifier of the project
+    # + return - Case filters or error response
+    resource function get projects/[string projectId]/cases/filters(http:RequestContext ctx)
+        returns entity:CaseFiltersResponse|http:BadRequest|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "User information header not found!"
+                }
+            };
+        }
+
+        if projectId.trim().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Project ID cannot be empty or whitespace"
+                }
+            };
+        }
+
+        string cacheKey = string `${userInfo.email}:casefilters:${projectId}`;
+        if userCache.hasKey(cacheKey) {
+            entity:CaseFiltersResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:CaseFiltersResponse {
+                return cached;
+            }
+        }
+
+        entity:CaseFiltersResponse|error caseFilters = entity:fetchCasesFilters(projectId, userInfo.idToken);
+        if caseFilters is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "Error retrieving case filters"
+                }
+            };
+        }
+
+        error? cacheError = userCache.put(cacheKey, caseFilters);
+        if cacheError is error {
+            log:printWarn("Error writing case filters to cache", cacheError);
+        }
+        return caseFilters;
+    }
+
+    # Fetch cases for a project with optional filters.
+    #
+    # + ctx - Request context object
+    # + projectId - Project ID filter
+    # + offset - Pagination offset
+    # + 'limit - Pagination limit
+    # + contact - Optional contact name
+    # + status - Optional case status
+    # + severity - Optional severity level
+    # + product - Optional product name
+    # + category - Optional category
+    # + return - Paginated cases or error response
+    resource function get projects/[string projectId]/cases(http:RequestContext ctx,
+            int offset = DEFAULT_OFFSET, int 'limit = DEFAULT_LIMIT,
+            string? contact = (), string? status = (), string? severity = (),
+            string? product = (), string? category = ())
+        returns entity:CasesResponse|http:BadRequest|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "User information header not found!"
+                }
+            };
+        }
+
+        if projectId.trim().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Project ID cannot be empty or whitespace"
+                }
+            };
+        }
+
+        // Validate Pagination
+        if offset < 0 || 'limit <= 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Invalid pagination parameters"
+                }
+            };
+        }
+
+        // Validate Filters
+        if (contact is string && contact.trim().length() == 0) ||
+            (status is string && status.trim().length() == 0) ||
+            (severity is string && severity.trim().length() == 0) ||
+            (product is string && product.trim().length() == 0) ||
+            (category is string && category.trim().length() == 0) {
+            return <http:BadRequest>{
+                body: {
+                    message: "Filter values cannot be empty or whitespace"
+                }
+            };
+        }
+
+        string cacheKey = string `${userInfo.email}:cases:${projectId}:${offset}:${'limit}:${contact ?: ""}:${status ?: ""}:${severity ?: ""}:${product ?: ""}:${category ?: ""}`;
+        if userCache.hasKey(cacheKey) {
+            entity:CasesResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:CasesResponse {
+                return cached;
+            }
+        }
+
+        // Fixed: Pass the actual optional parameters instead of ()
+        entity:CasesResponse|error cases = entity:fetchCases(userInfo.idToken, offset, 'limit, projectId,
+                contact, status, severity, product, category);
+        if cases is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "Error retrieving cases"
+                }
+            };
+        }
+
+        error? cacheError = userCache.put(cacheKey, cases);
+        if cacheError is error {
+            log:printWarn("Error writing cases to cache", cacheError);
+        }
+        return cases;
+    }
+
+    # Fetch details of a specific case.
+    #
+    # + ctx - Request context object
+    # + projectId - Unique identifier of the project
+    # + caseId - Unique identifier of the case
+    # + return - Case details or error response
+    resource function get projects/[string projectId]/cases/[string caseId](http:RequestContext ctx)
+        returns entity:CaseDetailsResponse|http:BadRequest|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "User information header not found!"
+                }
+            };
+        }
+
+        if projectId.trim().length() == 0 || caseId.trim().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Project ID and Case ID cannot be empty or whitespace"
+                }
+            };
+        }
+
+        string cacheKey = string `${userInfo.email}:case:${projectId}:${caseId}`;
+        if userCache.hasKey(cacheKey) {
+            entity:CaseDetailsResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:CaseDetailsResponse {
+                return cached;
+            }
+        }
+
+        entity:CaseDetailsResponse|error caseDetails = entity:fetchCaseDetails(projectId, caseId, userInfo.idToken);
+        if caseDetails is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "Error retrieving case details"
+                }
+            };
+        }
+
+        error? cacheError = userCache.put(cacheKey, caseDetails);
+        if cacheError is error {
+            log:printWarn("Error writing case details to cache", cacheError);
+        }
+
+        return caseDetails;
+    }
+
+    # Add users to a SCIM group.
+    #
+    # + ctx - Request context object
+    # + group - Group name
+    # + payload - List of user emails
+    # + return - Created response or error
     isolated resource function post groups/[string group]/users(
             http:RequestContext ctx, @http:Payload scim:AddUsersRequest payload)
             returns http:Created|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
-            string customError = "User information header not found!";
-            log:printError(customError, userInfo);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: "User information header not found!"
                 }
             };
         }
 
-        // Adding debug logs as this involves ServiceNow integration.
-        log:printDebug(string `Processing add users to group request for user: ${userInfo.email}, group: ${group}`);
-
-        // Validate input
-        error? validation = validateGroupName(group) ?: validateEmails(payload.emails);
-        if validation is error {
-            string customError = string `Validation failed: ${validation.message()}`;
-            log:printError(customError, validation);
+        if group.trim().length() == 0 || payload.emails.length() == 0 {
             return <http:BadRequest>{
                 body: {
-                    message: customError
+                    message: "Invalid group or empty user list"
                 }
             };
         }
 
-        // Invoke SCIM operations service
         scim:AddUsersResponse|error result = scim:addUsersToGroup(group, payload);
         if result is error {
-            string customError = string `Error occurred while adding users to group: ${group}`;
-            log:printError(customError, result);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: "Error adding users to group"
                 }
             };
         }
@@ -219,40 +440,5 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
         };
     }
-
-    # Fetch projects for a user using their email.
-    #
-    # + ctx - Request context object
-    # + return - Array of projects, or an error
-    isolated resource function get projects(http:RequestContext ctx)
-        returns entity:EntityProject[]|http:InternalServerError {
-
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            string customError = "User information header not found!";
-            log:printError("User information header not found", userInfo);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        log:printDebug(string `Processing projects request for user: ${userInfo.email}`);
-
-        // Fetch projects from entity service.
-        entity:EntityProject[]|error projectsResponse = entity:fetchProjects(
-                email = userInfo.email, idToken = userInfo.idToken);
-
-        if projectsResponse is error {
-            string customError = "Error occurred while retrieving projects data!";
-            log:printError(customError, projectsResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        return projectsResponse;
-    }
 }
+
