@@ -63,7 +63,7 @@ service class ErrorInterceptor {
     }
 }
 
-service http:InterceptableService / on new http:Listener(9095) {
+service http:InterceptableService / on new http:Listener(9090) {
     public function createInterceptors() returns http:Interceptor[] =>
         [new authorization:JwtInterceptor(), new ErrorInterceptor()];
 
@@ -213,6 +213,55 @@ service http:InterceptableService / on new http:Listener(9095) {
         return projectDetails;
     }
 
+    # Fetch project overview.
+    #
+    # + ctx - Request context object
+    # + projectId - Unique identifier of the project
+    # + return - Project overview or error response
+    resource function get projects/[string projectId]/overview(http:RequestContext ctx)
+        returns entity:ProjectOverviewResponse|http:BadRequest|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "User information header not found!"
+                }
+            };
+        }
+
+        if projectId.trim().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "Project ID cannot be empty or whitespace"
+                }
+            };
+        }
+
+        string cacheKey = string `${userInfo.email}:overview:${projectId}`;
+        if userCache.hasKey(cacheKey) {
+            entity:ProjectOverviewResponse|error cached = userCache.get(cacheKey).ensureType();
+            if cached is entity:ProjectOverviewResponse {
+                return cached;
+            }
+        }
+
+        entity:ProjectOverviewResponse|error projectOverview = entity:fetchProjectOverview(projectId, userInfo.idToken);
+        if projectOverview is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: "Error retrieving project overview"
+                }
+            };
+        }
+
+        error? cacheError = userCache.put(cacheKey, projectOverview);
+        if cacheError is error {
+            log:printWarn("Error writing project overview to cache", cacheError);
+        }
+        return projectOverview;
+    }
+
     # Fetch case filters for a specific project.
     #
     # + ctx - Request context object
@@ -301,19 +350,6 @@ service http:InterceptableService / on new http:Listener(9095) {
             return <http:BadRequest>{
                 body: {
                     message: "Invalid pagination parameters"
-                }
-            };
-        }
-
-        // Validate Filters
-        if (contact is string && contact.trim().length() == 0) ||
-            (status is string && status.trim().length() == 0) ||
-            (severity is string && severity.trim().length() == 0) ||
-            (product is string && product.trim().length() == 0) ||
-            (category is string && category.trim().length() == 0) {
-            return <http:BadRequest>{
-                body: {
-                    message: "Filter values cannot be empty or whitespace"
                 }
             };
         }

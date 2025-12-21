@@ -16,8 +16,7 @@
 
 public isolated function fetchUserBasicInfo(string email, string idToken) returns UserResponse|error {
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     UserResponse|error userInfoResponse = csEntityClient->/users/me.get(
@@ -38,8 +37,7 @@ public isolated function fetchUserBasicInfo(string email, string idToken) return
 # + return - Case filters object or error
 public isolated function fetchCasesFilters(string projectId, string idToken) returns CaseFiltersResponse|error {
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     CaseFiltersResponse|error caseFiltersResponse = csEntityClient->/projects/[projectId]/cases/filters.get(
@@ -60,8 +58,7 @@ public isolated function fetchCasesFilters(string projectId, string idToken) ret
 # + return - Project overview or error
 public isolated function fetchProjectOverview(string projectId, string idToken) returns ProjectOverviewResponse|error {
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     ProjectOverviewResponse|error projectOverviewResponse = csEntityClient->/projects/[projectId]/overview.get(
@@ -82,8 +79,7 @@ public isolated function fetchProjectOverview(string projectId, string idToken) 
 # + return - Project details object or error
 public isolated function fetchProjectDetails(string projectId, string idToken) returns ProjectDetailsResponse|error {
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     ProjectDetailsResponse|error projectInformationResponse = csEntityClient->/projects/[projectId].get(
@@ -107,8 +103,7 @@ public isolated function fetchCaseDetails(string projectId, string caseId, strin
     returns CaseDetailsResponse|error {
 
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     CaseDetailsResponse|error caseDetailsResponse = csEntityClient->/projects/[projectId]/cases/[caseId].get(
@@ -130,8 +125,7 @@ public isolated function fetchCaseDetails(string projectId, string caseId, strin
 # + return - Projects object or error
 public isolated function fetchProjects(string idToken, int offset, int 'limit) returns ProjectsResponse|error {
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     ProjectsResponse|error projectsResponse = csEntityClient->/projects.get(
@@ -161,8 +155,7 @@ public isolated function fetchCases(string idToken, int offset, int 'limit, stri
         string? status, string? severity, string? product, string? category) returns CasesResponse|error {
 
     map<string|string[]> headers = {
-        "Authorization": ["Bearer " + idToken],
-        "X-JWT-Assertion": [idToken]
+        "Authorization": "Bearer " + idToken
     };
 
     map<string|string[]> queryParams = {
