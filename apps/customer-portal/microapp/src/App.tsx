@@ -35,7 +35,7 @@ const App: React.FC = () => {
     <Router>
       <AppProvider>
         <Routes>
-          <Route path="/select-project" element={<SelectProjectPage />} />
+          <Route path="/select" element={<SelectProjectPage />} />
 
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
