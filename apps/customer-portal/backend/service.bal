@@ -331,7 +331,7 @@ service http:InterceptableService / on new http:Listener(9095) {
     # + payload - Filter and pagination parameters
     # + return - Paginated cases or error response
     resource function post projects/[string projectId]/cases/search(http:RequestContext ctx,
-            @http:Payload entity:CaseFiltersRequest payload)
+            entity:CaseFiltersRequest payload)
         returns entity:CasesResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
