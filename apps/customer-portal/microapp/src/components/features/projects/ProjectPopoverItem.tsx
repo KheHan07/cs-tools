@@ -1,4 +1,4 @@
-import type { ProjectCardProps } from "@features/projects";
+import type { ProjectCardProps } from "@root/src/components/features/projects";
 import { Chip, Stack, Typography } from "@mui/material";
 import { Check, Circle } from "@mui/icons-material";
 

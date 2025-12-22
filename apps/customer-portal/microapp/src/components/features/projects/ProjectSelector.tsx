@@ -1,5 +1,5 @@
 import { Box, Popover, Stack, Typography, type PopoverProps } from "@mui/material";
-import { ProjectPopoverItem } from "@features/projects";
+import { ProjectPopoverItem } from "@components/features/projects";
 
 export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
   return (

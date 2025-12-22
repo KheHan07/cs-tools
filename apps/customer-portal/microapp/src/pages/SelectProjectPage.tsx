@@ -16,7 +16,7 @@
 
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { FolderOpen } from "@mui/icons-material";
-import { ProjectCard } from "@features/projects";
+import { ProjectCard } from "@components/features/projects";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getProjects } from "@src/services/projects";
 import { Suspense } from "react";

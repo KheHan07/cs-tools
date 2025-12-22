@@ -17,8 +17,8 @@
 import React from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import SelectProjectPage from "@pages/SelectProjectPage";
-import MainLayout from "./layout/MainLayout";
-import AppProvider from "./context/AppProvider";
+import MainLayout from "./components/layout/MainLayout";
+import AppProvider from "@context/AppProvider";
 
 import HomePage from "@pages/HomePage";
 import SupportPage from "@pages/SupportPage";
@@ -44,7 +44,7 @@ const App: React.FC = () => {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/chat" element={<ChatPage />} />
-            <Route path="/create-case" element={<CreateCasePage />} />
+            <Route path="/create" element={<CreateCasePage />} />
             <Route path="/cases">
               <Route path="all" element={<AllCasesPage type="case" />} />
               <Route path=":id" element={<DetailedPage type="case" />} />

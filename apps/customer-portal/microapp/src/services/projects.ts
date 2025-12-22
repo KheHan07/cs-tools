@@ -15,7 +15,7 @@
 // under the License.
 
 import apiClient from "@src/services/apiClient";
-import type { ProjectCardProps } from "@features/projects";
+import type { ProjectCardProps } from "@root/src/components/features/projects";
 import { PROJECTS_ENDPOINT } from "@config/endpoints";
 
 export interface ProjectsResponseType {

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { LayoutContext, type LayoutContextType } from "@src/context/layout";
 import { matchPath, useLocation } from "react-router-dom";
-import { MAIN_LAYOUT_CONFIG } from "@root/src/layout/config";
+import { MAIN_LAYOUT_CONFIG } from "@root/src/components/layout/config";
 
 export default function LayoutProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();

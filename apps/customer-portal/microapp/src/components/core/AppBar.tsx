@@ -4,10 +4,10 @@ import { AppBar as MuiAppBar, ButtonBase as Button, Chip, IconButton, Stack, Typ
 import { ArrowBack, Cloud, ExpandMore, Folder, NotificationsOutlined, ThumbUpAlt } from "@mui/icons-material";
 
 import { NotificationBadge } from "@components/ui";
+import { ProjectSelector } from "@components/features/projects";
 import { useLayout } from "@src/context/layout";
 
-import { APP_BAR_CONFIG } from "@src/layout/config";
-import { ProjectSelector } from "@root/src/features/projects";
+import { APP_BAR_CONFIG } from "@root/src/components/layout/config";
 
 export function AppBar() {
   const navigate = useNavigate();

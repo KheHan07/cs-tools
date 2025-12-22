@@ -51,7 +51,7 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     tabIndex: -1,
   },
   { path: "/chat", title: "Chat with Novera", appBarVariant: "minimal", hasBackAction: true, tabIndex: -1 },
-  { path: "/create-case", title: "Create Support Case", appBarVariant: "minimal", hasBackAction: true, tabIndex: -1 },
+  { path: "/create", title: "Create Support Case", appBarVariant: "minimal", hasBackAction: true, tabIndex: -1 },
   {
     path: "/cases/all",
     title: "All Cases",

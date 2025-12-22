@@ -32,7 +32,7 @@ export default defineConfig({
       "@src": path.resolve(__dirname, "src"),
       "@components": path.resolve(__dirname, "src/components"),
       "@config": path.resolve(__dirname, "src/config"),
-      "@features": path.resolve(__dirname, "src/features"),
+      "@context": path.resolve(__dirname, "src/context"),
       "@icons": path.resolve(__dirname, "src/icons"),
       "@pages": path.resolve(__dirname, "src/pages"),
       "@theme": path.resolve(__dirname, "src/theme"),

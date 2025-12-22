@@ -131,7 +131,7 @@ export default function ChatPage() {
           <Typography variant="body2">I can create a support case with all the details we've discussed.</Typography>
           <Button
             component={Link}
-            to="/create-case"
+            to="/create"
             variant="contained"
             sx={{ fontWeight: "bold", flexShrink: 0, height: 40 }}
           >

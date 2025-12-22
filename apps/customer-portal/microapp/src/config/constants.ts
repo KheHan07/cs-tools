@@ -27,7 +27,12 @@ import {
   ThumbUpAlt,
   type SvgIconComponent,
 } from "@mui/icons-material";
-import type { ProjectMetricKey, ProjectMetricMeta, ProjectStatus, ProjectType } from "@features/projects";
+import type {
+  ProjectMetricKey,
+  ProjectMetricMeta,
+  ProjectStatus,
+  ProjectType,
+} from "@root/src/components/features/projects";
 
 export const INPUT_INVALID_MSG_GATEWAY = "INPUT_INVALID_MSG_GATEWAY";
 
