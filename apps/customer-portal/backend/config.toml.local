@@ -1,0 +1,5 @@
+[customer_portal.entity]
+    csEntityBaseUrl = "<entity-service-base-url>"
+
+[customer_portal.authorization.authorizedRoles]
+    userRole  = "<authorized-role>"
