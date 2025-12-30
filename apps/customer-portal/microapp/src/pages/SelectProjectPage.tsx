@@ -25,7 +25,12 @@ export default function SelectProjectPage() {
   return (
     <Suspense
       fallback={
-        <Stack bgcolor="semantic.portal.background.main" minHeight="100vh" justifyContent="center" alignItems="center">
+        <Stack
+          bgcolor="components.portal.background.main"
+          minHeight="100vh"
+          justifyContent="center"
+          alignItems="center"
+        >
           <CircularProgress color="primary" />
         </Stack>
       }
@@ -42,7 +47,7 @@ function SelectProjectContent() {
   });
 
   return (
-    <Box bgcolor="semantic.portal.background.main" minHeight="100vh" px={2.5} py={5}>
+    <Box bgcolor="components.portal.background.main" minHeight="100vh" px={2.5} py={5}>
       <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
         <FolderOpen color="primary" fontSize="large" />
         <Typography variant="h4" fontWeight="bold">

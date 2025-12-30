@@ -32,7 +32,7 @@ export default function Buttons(theme: Theme): Components {
               style: {
                 background: theme.palette.background.default,
                 color: theme.palette.text.primary,
-                border: `1px solid ${theme.palette.semantic.border.subtle}`,
+                border: `1px solid ${theme.palette.border.subtle}`,
               },
             },
             {

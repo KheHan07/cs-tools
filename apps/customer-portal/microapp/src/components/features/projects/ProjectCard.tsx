@@ -65,7 +65,7 @@ export function ProjectCard({ id, name, description, type, status, metrics }: Pr
         <Chip label={type} size="small" icon={<TypeChipIcon />} sx={{ alignSelf: "start", borderRadius: 1 }} />
         <Typography variant="body2">{description}</Typography>
       </Stack>
-      <Grid bgcolor="semantic.portal.background.secondary" p={2} spacing={1.5} container>
+      <Grid bgcolor="components.portal.background.secondary" p={2} spacing={1.5} container>
         {Object.keys(metrics).map((key) => {
           const meta = PROJECT_METRIC_META[key as ProjectMetricKey];
           const value = metrics[key as ProjectMetricKey];

@@ -37,10 +37,10 @@ import type {
 export const INPUT_INVALID_MSG_GATEWAY = "INPUT_INVALID_MSG_GATEWAY";
 
 export const PROJECT_METRIC_META: Record<ProjectMetricKey, ProjectMetricMeta> = {
-  cases: { label: "Cases:", color: "semantic.portal.accent.orange", icon: ErrorOutline },
-  chats: { label: "Chats:", color: "semantic.portal.accent.blue", icon: ChatBubbleOutline },
-  service: { label: "Service:", color: "semantic.portal.accent.purple", icon: SettingsOutlined },
-  change: { label: "Change:", color: "semantic.portal.accent.cyan", icon: AutorenewOutlined },
+  cases: { label: "Cases:", color: "components.portal.accent.orange", icon: ErrorOutline },
+  chats: { label: "Chats:", color: "components.portal.accent.blue", icon: ChatBubbleOutline },
+  service: { label: "Service:", color: "components.portal.accent.purple", icon: SettingsOutlined },
+  change: { label: "Change:", color: "components.portal.accent.cyan", icon: AutorenewOutlined },
   users: { label: "Users:", color: "text.primary", icon: PeopleAltOutlined },
   date: { label: "Date:", icon: CalendarMonthOutlined },
 };

@@ -17,3 +17,13 @@
 export const stringAvatar = (name: string) => {
   return `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`;
 };
+
+export function capitalize(text: string): string {
+  if (!text) return text;
+
+  return text
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}

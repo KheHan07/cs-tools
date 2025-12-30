@@ -42,22 +42,22 @@ export default function Chips(theme: Theme): Components {
         {
           props: { color: "success" },
           style: {
-            color: theme.palette.semantic.chip.success.text,
-            backgroundColor: theme.palette.semantic.chip.success.background,
+            color: theme.palette.components.chip.success.text,
+            backgroundColor: theme.palette.components.chip.success.background,
           },
         },
         {
           props: { color: "warning" },
           style: {
-            color: theme.palette.semantic.chip.warning.text,
-            backgroundColor: theme.palette.semantic.chip.warning.background,
+            color: theme.palette.components.chip.warning.text,
+            backgroundColor: theme.palette.components.chip.warning.background,
           },
         },
         {
           props: { color: "error" },
           style: {
-            color: theme.palette.semantic.chip.error.text,
-            backgroundColor: theme.palette.semantic.chip.error.background,
+            color: theme.palette.components.chip.error.text,
+            backgroundColor: theme.palette.components.chip.error.background,
           },
         },
       ],

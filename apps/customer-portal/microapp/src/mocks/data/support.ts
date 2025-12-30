@@ -1,0 +1,100 @@
+import type { ItemCardProps, ItemType } from "@root/src/components/features/support/ItemCard";
+
+export const MOCK_METRICS = [
+  { label: "Open Cases", value: 10 },
+  { label: "Active Chats", value: 8 },
+  { label: "Service Requests", value: 3 },
+  { label: "Change Requests", value: 2 },
+];
+
+export const MOCK_ITEMS: Record<ItemType, ItemCardProps[]> = {
+  case: [
+    {
+      type: "case",
+      id: "CASE-2845",
+      title: "Identity Server LDAP connection failures",
+      status: "in progress",
+      priority: "high",
+      assignee: "Unknown User",
+      timestamp: "2 hours ago",
+      to: "/cases/1",
+    },
+    {
+      type: "case",
+      id: "CASE-2845",
+      title: "Identity Server LDAP connection failures",
+      status: "in progress",
+      priority: "high",
+      assignee: "Unknown User",
+      timestamp: "2 hours ago",
+      to: "/cases/1",
+    },
+    {
+      type: "case",
+      id: "CASE-2845",
+      title: "Identity Server LDAP connection failures",
+      status: "in progress",
+      priority: "high",
+      assignee: "Unknown User",
+      timestamp: "2 hours ago",
+      to: "/cases/1",
+    },
+  ],
+  chat: [
+    {
+      type: "chat",
+      id: "CH-2845",
+      title: "JWT Token Configuration Help",
+      status: "active",
+      count: 10,
+      kb: 3,
+      timestamp: "1 hours ago",
+      to: "/chats/1",
+    },
+    {
+      type: "chat",
+      id: "CH-2845",
+      title: "JWT Token Configuration Help",
+      status: "active",
+      count: 10,
+      kb: 3,
+      timestamp: "1 hours ago",
+      to: "/chats/1",
+    },
+    {
+      type: "chat",
+      id: "CH-2845",
+      title: "JWT Token Configuration Help",
+      status: "active",
+      count: 10,
+      kb: 3,
+      timestamp: "1 hours ago",
+      to: "/chats/1",
+    },
+  ],
+  service: [
+    {
+      type: "service",
+      id: "SR-2845",
+      title: "JWT Token Configuration Help",
+      status: "active",
+      priority: "medium",
+      category: "Database Change",
+      timestamp: "1 hours ago",
+      to: "/services/1",
+    },
+  ],
+  change: [
+    {
+      type: "change",
+      id: "CR-2845",
+      title: "JWT Token Configuration Help",
+      status: "active",
+      impact: "high",
+      category: "Security Update",
+      scheduled: "Nov 28, 2026",
+      timestamp: "1 hours ago",
+      to: "/changes/1",
+    },
+  ],
+};

@@ -151,7 +151,7 @@ Novera: Thanks for those details. Based on what you've shared, here are a few th
               Articles Reviewed
             </Typography>
             <Stack direction="row" alignItems="center" gap={1}>
-              <Article sx={{ color: "semantic.portal.accent.blue" }} />
+              <Article sx={{ color: "components.portal.accent.blue" }} />
               <Typography variant="body2" fontWeight="medium">
                 3 Articles Suggested
               </Typography>

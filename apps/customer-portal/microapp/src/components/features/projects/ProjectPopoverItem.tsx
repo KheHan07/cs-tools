@@ -15,7 +15,7 @@ export function ProjectPopoverItem({
   const statusChipColorVariant = PROJECT_STATUS_META[status].color;
 
   return (
-    <Stack bgcolor={active ? "semantic.state.active.background" : "inherit"} gap={0.6} px={2} py={0.5}>
+    <Stack bgcolor={active ? "components.popover.state.active.background" : "inherit"} gap={0.6} px={2} py={0.5}>
       <Stack direction="row" gap={1}>
         <Typography variant="subtitle1" fontWeight="medium">
           {name}

@@ -90,7 +90,7 @@ export default function ChatPage() {
               elevation={0}
               sx={{ bgcolor: "background.card" }}
             >
-              <Article sx={{ color: "semantic.portal.accent.blue" }} />
+              <Article sx={{ color: "components.portal.accent.blue" }} />
               <Stack>
                 <Typography variant="subtitle1">Troubleshooting API Gateway Timeouts</Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -107,7 +107,7 @@ export default function ChatPage() {
               elevation={0}
               sx={{ bgcolor: "background.card" }}
             >
-              <Article sx={{ color: "semantic.portal.accent.blue" }} />
+              <Article sx={{ color: "components.portal.accent.blue" }} />
               <Stack>
                 <Typography variant="subtitle1">Troubleshooting API Gateway Timeouts</Typography>
                 <Typography variant="caption" color="text.secondary">

@@ -27,7 +27,7 @@ export default function Inputs(theme: Theme): Components {
           paddingRight: 8,
           borderRadius: 8,
           fontSize: theme.typography.subtitle1.fontSize,
-          outline: `1px solid ${theme.palette.semantic.border.subtle}`,
+          outline: `1px solid ${theme.palette.border.subtle}`,
           transition: "outline-color 0.2s ease",
 
           "& .MuiInputBase-input": {
