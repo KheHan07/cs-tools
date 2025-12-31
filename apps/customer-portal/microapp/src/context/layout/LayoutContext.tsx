@@ -10,6 +10,7 @@ export type LayoutContextType = {
   appBarVariant: AppBarVariant;
   appBarSlots?: ReactNode;
   setTitleOverride: (title: string) => void;
+  setAppBarSlotsOverride: (slot: ReactNode) => void;
 
   /* TabBar Properties */
   activeTabIndex: number;

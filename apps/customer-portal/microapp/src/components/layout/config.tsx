@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { AppBarVariant } from "@src/context/layout";
-import { AllCasesAppBarSlot } from "@pages/AllCasesPage";
 import { DetailedPageAppBarSlot } from "@pages/DetailedPage";
+import { FilterAppBarSlot } from "@root/src/pages/AllItemsPage";
 
 type AppBarConfig = {
   showNotifications: boolean;
@@ -58,7 +58,7 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     appBarVariant: "minimal",
     hasBackAction: true,
     tabIndex: -1,
-    appBarSlots: <AllCasesAppBarSlot />,
+    appBarSlots: <FilterAppBarSlot type="case" />,
   },
   {
     path: "/cases/:id",
@@ -74,7 +74,7 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     appBarVariant: "minimal",
     hasBackAction: true,
     tabIndex: -1,
-    appBarSlots: <AllCasesAppBarSlot />,
+    appBarSlots: <FilterAppBarSlot type="chat" />,
   },
   {
     path: "/services/all",
@@ -82,7 +82,7 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     appBarVariant: "minimal",
     hasBackAction: true,
     tabIndex: -1,
-    appBarSlots: <AllCasesAppBarSlot />,
+    appBarSlots: <FilterAppBarSlot type="service" />,
   },
   {
     path: "/changes/all",
@@ -90,6 +90,6 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     appBarVariant: "minimal",
     hasBackAction: true,
     tabIndex: -1,
-    appBarSlots: <AllCasesAppBarSlot />,
+    appBarSlots: <FilterAppBarSlot type="change" />,
   },
 ];

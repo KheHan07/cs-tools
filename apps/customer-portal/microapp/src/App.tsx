@@ -27,7 +27,7 @@ import ProfilePage from "@pages/ProfilePage";
 import NotificationsPage from "@pages/NotificationsPage";
 import ChatPage from "@pages/ChatPage";
 import CreateCasePage from "@pages/CreateCasePage";
-import AllCasesPage from "@pages/AllCasesPage";
+import AllItemsPage from "@root/src/pages/AllItemsPage";
 import DetailedPage from "./pages/DetailedPage";
 
 const App: React.FC = () => {
@@ -46,17 +46,17 @@ const App: React.FC = () => {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/create" element={<CreateCasePage />} />
             <Route path="/cases">
-              <Route path="all" element={<AllCasesPage type="case" />} />
+              <Route path="all" element={<AllItemsPage type="case" />} />
               <Route path=":id" element={<DetailedPage type="case" />} />
             </Route>
             <Route path="/chats">
-              <Route path="all" element={<AllCasesPage type="chat" />} />
+              <Route path="all" element={<AllItemsPage type="chat" />} />
             </Route>
             <Route path="/services">
-              <Route path="all" element={<AllCasesPage type="service" />} />
+              <Route path="all" element={<AllItemsPage type="service" />} />
             </Route>
             <Route path="/changes">
-              <Route path="all" element={<AllCasesPage type="change" />} />
+              <Route path="all" element={<AllItemsPage type="change" />} />
             </Route>
           </Route>
         </Routes>
