@@ -108,4 +108,12 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
     tabIndex: -1,
     appBarSlots: <FilterAppBarSlot type="change" />,
   },
+  {
+    path: "/changes/:id",
+    title: "Update API Gateway security policies",
+    appBarVariant: "minimal",
+    hasBackAction: true,
+    tabIndex: -1,
+    appBarSlots: <DetailedPageAppBarSlot />,
+  },
 ];

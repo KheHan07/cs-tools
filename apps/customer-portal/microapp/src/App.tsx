@@ -31,6 +31,7 @@ import AllItemsPage from "@root/src/pages/AllItemsPage";
 import CaseDetailPage from "@pages/CaseDetailPage";
 import ChatDetailPage from "@pages/ChatDetailPage";
 import ServiceDetailPage from "@pages/ServiceDetailPage";
+import ChangeDetailPage from "@pages/ChangeDetailPage";
 
 const App: React.FC = () => {
   return (
@@ -61,7 +62,7 @@ const App: React.FC = () => {
             </Route>
             <Route path="/changes">
               <Route path="all" element={<AllItemsPage type="change" />} />
-              <Route path=":id" element={<CaseDetailPage />} />
+              <Route path=":id" element={<ChangeDetailPage />} />
             </Route>
           </Route>
         </Routes>

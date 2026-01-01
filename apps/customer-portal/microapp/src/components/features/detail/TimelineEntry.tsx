@@ -8,7 +8,7 @@ interface TimelineEntryBaseProps {
 }
 export interface ActivityTimelineEntryProps extends TimelineEntryBaseProps {
   variant: "activity";
-  author: string;
+  author?: string;
   title?: string;
   description?: string;
   comment?: string;
@@ -84,14 +84,14 @@ export function TimelineEntry({ timestamp, last = false, ...props }: TimelineEnt
         <Stack gap={1.5}>
           <Stack direction={progress ? "column" : "row"} justifyContent="space-between" gap={1}>
             <Stack direction="row" gap={0.5}>
-              <Typography variant="body2" fontWeight={step || progress ? "medium" : undefined}>
+              <Typography variant="body2" fontWeight={step || progress || !props.author ? "medium" : undefined}>
                 {activity && (
                   <Box component="span" fontWeight="bold" mr={0.5}>
                     {props.author}
                   </Box>
                 )}
                 {props.title}
-                {(step || progress) && (
+                {props.description && (
                   <Typography variant="subtitle2" fontWeight="regular" color="text.secondary" mt={0.2}>
                     {props.description}
                   </Typography>

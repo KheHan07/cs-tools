@@ -15,24 +15,28 @@
 // under the License.
 
 import { PeopleAlt, Person } from "@mui/icons-material";
-import { Card, Grid, Stack, Typography } from "@mui/material";
-import { Timeline } from "@mui/lab";
+import { Grid, Stack } from "@mui/material";
 import { InfoField, StickyCommentBar, TimelineEntry } from "@components/features/detail";
 import { PriorityChip, StatusChip } from "@components/features/support";
 import { useState } from "react";
+import { SectionCard } from "@components/shared";
+import { Timeline } from "@components/ui";
+import { MOCK_ACTIVITY_TIMELINE } from "../mocks/data/case";
 
 export default function CaseDetailPage() {
   const [comment, setComment] = useState("");
+  const [activities, setActivities] = useState(MOCK_ACTIVITY_TIMELINE);
 
-  const handleSend = () => {};
+  const handleSend = () => {
+    if (!comment.trim()) return;
+
+    setActivities((prev) => [...prev, { author: "You", timestamp: "Just Now", comment: comment }]);
+  };
 
   return (
     <>
       <Stack gap={2} mb={10}>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
-          <Typography variant="h5" fontWeight="medium">
-            Case Information
-          </Typography>
+        <SectionCard title="Case Information">
           <Grid spacing={1.5} container>
             <Grid size={12}>
               <InfoField
@@ -63,42 +67,14 @@ export default function CaseDetailPage() {
               <InfoField label="Last Updated" value="6 hours ago" />
             </Grid>
           </Grid>
-        </Card>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
-          <Typography variant="h5" fontWeight="medium">
-            Activity Timeline
-          </Typography>
-
-          <Timeline
-            position="right"
-            sx={{
-              p: 0,
-              [`& .MuiTimelineItem-root:before`]: {
-                flex: 0,
-                padding: 0,
-              },
-            }}
-          >
-            <TimelineEntry variant="activity" author="System" title="created this case" timestamp="2 days ago" />
-            <TimelineEntry variant="activity" author="System" title="assigned to Support Team" timestamp="2 days ago" />
-            <TimelineEntry
-              variant="activity"
-              author="System"
-              title="assigned to Support Team"
-              timestamp="2 days ago"
-              comment=""
-            />
-            <TimelineEntry
-              variant="activity"
-              author="System"
-              title="Hey Hey"
-              timestamp="2 days ago"
-              comment="I've reviewed your case. Could you please share the error logs from your authentication service?"
-              attachment="auth-service-logs.txt"
-              last
-            />
+        </SectionCard>
+        <SectionCard title="Activity Timeline">
+          <Timeline>
+            {activities.map((props, index) => (
+              <TimelineEntry key={index} variant="activity" {...props} last={index === activities.length - 1} />
+            ))}
           </Timeline>
-        </Card>
+        </SectionCard>
       </Stack>
       <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
     </>

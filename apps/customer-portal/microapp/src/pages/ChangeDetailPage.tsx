@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { Card, Chip, Grid, Stack, Typography } from "@mui/material";
+import { InfoField, StakeholderItem, StickyCommentBar, TimelineEntry } from "@components/features/detail";
+import { PriorityChip, StatusChip } from "@components/features/support";
+import { CalendarMonth, PeopleAlt, Person, Warning } from "@mui/icons-material";
+import { ChecklistItem } from "@components/features/chat";
+import { SectionCard } from "@components/shared";
+import { Timeline } from "@components/ui";
+
+import { MOCK_ACTIVITY_TIMELINE, MOCK_IMPLEMENTATION_STEPS, MOCK_STAKEHOLDERS } from "../mocks/data/change";
+
+export default function ChangeDetailPage() {
+  const [comment, setComment] = useState("");
+  const [activities, setActivities] = useState(MOCK_ACTIVITY_TIMELINE);
+
+  const handleSend = () => {
+    if (!comment.trim()) return;
+
+    setActivities((prev) => [...prev, { author: "You", description: comment, timestamp: "Just Now" }]);
+  };
+
+  return (
+    <>
+      <Stack gap={2} mb={10}>
+        <MaintenanceNoticeCard />
+        <SectionCard title="Change Information">
+          <Grid spacing={1.5} container>
+            <Grid size={12}>
+              <InfoField
+                label="Description"
+                value="Update API Gateway security policies to implement new authentication requirements and enhanced rate limiting. This change will improve security posture and prevent potential DDoS attacks."
+              />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Change Owner" value="Sarah Chen" icon={Person} />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Requested By" value="Security Team" icon={PeopleAlt} />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Priority" value={<PriorityChip size="small" priority="medium" />} />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Estimated Duration" value="1 hour" />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Approval Status" value={<StatusChip size="small" status="approved" />} />
+            </Grid>
+            <Grid size={6}>
+              <InfoField label="Approved By" value="Change Advisory Board" />
+            </Grid>
+          </Grid>
+        </SectionCard>
+        <SectionCard title="Impact Assessment">
+          <Grid spacing={1.5} container>
+            <Grid size={12}>
+              <InfoField
+                label="Affected Services"
+                value={
+                  <Stack direction="row" gap={1}>
+                    <Chip size="small" label="API Gateway" />
+                    <Chip size="small" label="Authentication Service" />
+                  </Stack>
+                }
+              />
+            </Grid>
+            <Grid size={12}>
+              <InfoField label="Affected Users" value="None - backend configuration only" />
+            </Grid>
+            <Grid size={12}>
+              <InfoField label="Expected Downtime" value={<ChecklistItem>No downtime expected</ChecklistItem>} />
+            </Grid>
+            <Grid size={12}>
+              <InfoField
+                label="Rollback Plan"
+                value={
+                  <ChecklistItem icon={Warning} color="warning">
+                    Automated rollback to previous policy version available
+                  </ChecklistItem>
+                }
+              />
+            </Grid>
+          </Grid>
+        </SectionCard>
+        <SectionCard title="Implementation Steps">
+          <Timeline>
+            {MOCK_IMPLEMENTATION_STEPS.map((step, index) => (
+              <TimelineEntry
+                key={index}
+                variant="step"
+                index={index + 1}
+                title={step.title}
+                description={step.description}
+                timestamp={step.timestamp}
+                last={index === MOCK_IMPLEMENTATION_STEPS.length - 1}
+              />
+            ))}
+          </Timeline>
+        </SectionCard>
+        <SectionCard title="Stakeholders">
+          <Stack gap={1.5}>
+            {MOCK_STAKEHOLDERS.map((stakeholder, index) => (
+              <StakeholderItem key={index} name={stakeholder.name} role={stakeholder.role} />
+            ))}
+          </Stack>
+        </SectionCard>
+        <SectionCard title="Activity Timeline">
+          <Timeline>
+            {activities.map((props, index) => (
+              <TimelineEntry key={index} variant="activity" {...props} last={index === activities.length - 1} />
+            ))}
+          </Timeline>
+        </SectionCard>
+      </Stack>
+      <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
+    </>
+  );
+}
+
+export function MaintenanceNoticeCard() {
+  return (
+    <Card
+      component={Stack}
+      direction="row"
+      alignItems="center"
+      px={2}
+      py={1.5}
+      gap={2}
+      elevation={0}
+      sx={{ bgcolor: "components.popover.state.active.background" }}
+    >
+      <CalendarMonth fontSize="large" color="primary" />
+      <Stack>
+        <Typography variant="body1" fontWeight="medium" color="primary">
+          Scheduled Maintenance Window
+        </Typography>
+        <Typography variant="subtitle2" fontWeight="medium" color="text.tertiary">
+          Nov 25, 2025 &nbsp; 10:00 PM - 11:00 PM EST
+        </Typography>
+      </Stack>
+    </Card>
+  );
+}
