@@ -1,7 +1,11 @@
 import { Box, Popover, Stack, Typography, type PopoverProps } from "@mui/material";
 import { ProjectPopoverItem } from "@components/features/projects";
+import { useProject } from "@context/project";
+import { MOCK_PROJECTS } from "@root/src/mocks/data/projects";
 
 export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
+  const { projectId, setProjectId } = useProject();
+
   return (
     <Popover
       component={Box}
@@ -37,14 +41,16 @@ export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
         Select Project
       </Typography>
       <Stack gap={1} pt={1}>
-        <ProjectPopoverItem name="Dreamworks Inc" type="Managed Cloud" status="All Good" numberOfOpenCases={3} active />
-        <ProjectPopoverItem name="Newsline Enterprise" type="Regular" status="All Good" numberOfOpenCases={1} />
-        <ProjectPopoverItem
-          name="Goods Store Mart"
-          type="Managed Cloud"
-          status="Needs Attention"
-          numberOfOpenCases={5}
-        />
+        {MOCK_PROJECTS.map((props) => (
+          <ProjectPopoverItem
+            {...props}
+            active={props.id === projectId}
+            onClick={() => {
+              setProjectId(props.id);
+              onClose?.({}, "backdropClick");
+            }}
+          />
+        ))}
       </Stack>
     </Popover>
   );

@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppBar as MuiAppBar, ButtonBase as Button, Chip, IconButton, Stack, Typography } from "@mui/material";
-import { ArrowBack, Cloud, ExpandMore, Folder, NotificationsOutlined, ThumbUpAlt } from "@mui/icons-material";
+import { ArrowBack, ExpandMore, Folder, NotificationsOutlined } from "@mui/icons-material";
 
 import { NotificationBadge } from "@components/ui";
 import { ProjectSelector } from "@components/features/projects";
 import { useLayout } from "@src/context/layout";
+import { useProject } from "@context/project";
 
-import { APP_BAR_CONFIG } from "@root/src/components/layout/config";
+import { APP_BAR_CONFIG } from "@components/layout/config";
+import { MOCK_PROJECTS } from "@src/mocks/data/projects";
+import { PROJECT_STATUS_META, PROJECT_TYPE_META } from "@config/constants";
 
 export function AppBar() {
   const navigate = useNavigate();
   const { title, appBarVariant, overlineSlot, subtitleSlot, startSlot, endSlot, appBarSlots, hasBackAction } =
     useLayout();
   const config = APP_BAR_CONFIG[appBarVariant];
+  const { projectId } = useProject();
+  const project = MOCK_PROJECTS.find((project) => project.id === projectId);
 
   const [projectSelectorAnchor, setProjectSelectorAnchor] = useState<HTMLButtonElement | null>(null);
   const isProjectSelectorOpen = Boolean(projectSelectorAnchor);
@@ -28,6 +33,12 @@ export function AppBar() {
   const closeProjectSelector = () => {
     setProjectSelectorAnchor(null);
   };
+
+  if (!project) return null;
+
+  const TypeChipIcon = PROJECT_TYPE_META[project.type].icon;
+  const StatusChipIcon = PROJECT_STATUS_META[project.status].icon;
+  const statusChipColorVariant = PROJECT_STATUS_META[project.status].color;
 
   return (
     <>
@@ -64,7 +75,7 @@ export function AppBar() {
             <Stack direction="row" gap={1}>
               <Folder sx={{ color: "text.secondary" }} />
               <Typography variant="body2" color="text.secondary">
-                Dreamsworks Inc
+                {project.name}
               </Typography>
             </Stack>
             <ExpandMore sx={{ color: "text.tertiary" }} />
@@ -72,8 +83,19 @@ export function AppBar() {
         )}
         {config.showChips && (
           <Stack direction="row" gap={2} mt={1.5}>
-            <Chip label="Managed Cloud" size="small" icon={<Cloud />} iconPosition="end" sx={{ borderRadius: 1 }} />
-            <Chip label="All Good" size="small" color="success" iconPosition="end" icon={<ThumbUpAlt />} />
+            <Chip
+              label={project.status}
+              size="small"
+              color={statusChipColorVariant}
+              icon={<StatusChipIcon />}
+              iconPosition="end"
+            />
+            <Chip
+              label={project.type}
+              size="small"
+              icon={<TypeChipIcon />}
+              sx={{ alignSelf: "start", borderRadius: 1 }}
+            />
           </Stack>
         )}
 

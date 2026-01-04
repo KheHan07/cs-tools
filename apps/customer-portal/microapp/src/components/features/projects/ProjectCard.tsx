@@ -16,6 +16,7 @@
 
 import { ArrowForward, type SvgIconComponent } from "@mui/icons-material";
 import { Box, ButtonBase as Button, Card, Chip, Grid, Stack, Typography } from "@mui/material";
+
 import { PROJECT_METRIC_META, PROJECT_STATUS_META, PROJECT_TYPE_META } from "@root/src/config/constants";
 
 export type ProjectStatus = "All Good" | "Needs Attention";
@@ -36,10 +37,13 @@ export interface ProjectCardProps {
   description: string;
   type: ProjectType;
   status: ProjectStatus;
+  numberOfOpenCases: number;
   metrics: ProjectMetrics;
+
+  onClick?: () => void;
 }
 
-export function ProjectCard({ id, name, description, type, status, metrics }: ProjectCardProps) {
+export function ProjectCard({ id, name, description, type, status, metrics, onClick }: ProjectCardProps) {
   const TypeChipIcon = PROJECT_TYPE_META[type].icon;
   const StatusChipIcon = PROJECT_STATUS_META[status].icon;
   const statusChipColorVariant = PROJECT_STATUS_META[status].color;
@@ -80,7 +84,7 @@ export function ProjectCard({ id, name, description, type, status, metrics }: Pr
         })}
       </Grid>
       <Box p={3}>
-        <Button variant="contained" sx={{ width: "100%", fontWeight: "bold" }}>
+        <Button variant="contained" sx={{ width: "100%", fontWeight: "bold" }} onClick={onClick}>
           View Dashboard
           <ArrowForward sx={(theme) => ({ fontSize: theme.typography.pxToRem(20) })} />
         </Button>

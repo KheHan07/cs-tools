@@ -10,12 +10,24 @@ export function ProjectPopoverItem({
   status,
   numberOfOpenCases,
   active = false,
-}: Pick<ProjectCardProps, "name" | "type" | "status"> & { active?: boolean; numberOfOpenCases: number }) {
+  onClick,
+}: Pick<ProjectCardProps, "name" | "type" | "status" | "numberOfOpenCases"> & {
+  active?: boolean;
+  onClick: () => void;
+}) {
   const StatusChipIcon = PROJECT_STATUS_META[status].icon;
   const statusChipColorVariant = PROJECT_STATUS_META[status].color;
 
   return (
-    <Stack bgcolor={active ? "components.popover.state.active.background" : "inherit"} gap={0.6} px={2} py={0.5}>
+    <Stack
+      component="button"
+      bgcolor={active ? "components.popover.state.active.background" : "inherit"}
+      sx={{ cursor: "pointer", border: "none" }}
+      gap={0.6}
+      px={2}
+      py={0.5}
+      onClick={onClick}
+    >
       <Stack direction="row" gap={1}>
         <Typography variant="subtitle1" fontWeight="medium">
           {name}

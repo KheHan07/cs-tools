@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { Suspense } from "react";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { FolderOpen } from "@mui/icons-material";
 import { ProjectCard } from "@components/features/projects";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getProjects } from "@src/services/projects";
-import { Suspense } from "react";
+import { useNavigate } from "react-router-dom";
+import { useProject } from "@context/project";
+// import { useSuspenseQuery } from "@tanstack/react-query";
+// import { getProjects } from "@src/services/projects";
+
+import { MOCK_PROJECTS } from "@src/mocks/data/projects";
 
 export default function SelectProjectPage() {
   return (
@@ -41,10 +45,13 @@ export default function SelectProjectPage() {
 }
 
 function SelectProjectContent() {
-  const { data } = useSuspenseQuery({
-    queryKey: ["projects"],
-    queryFn: getProjects,
-  });
+  const navigate = useNavigate();
+  const { setProjectId } = useProject();
+
+  // const { data } = useSuspenseQuery({
+  //   queryKey: ["projects"],
+  //   queryFn: getProjects,
+  // });
 
   return (
     <Box bgcolor="components.portal.background.main" minHeight="100vh" px={2.5} py={5}>
@@ -58,15 +65,14 @@ function SelectProjectContent() {
         Choose a project to access your support cases, chat history, and dashboard
       </Typography>
       <Stack mt={5} gap={3}>
-        {data.map((project) => (
+        {MOCK_PROJECTS.map((props) => (
           <ProjectCard
-            key={project.id}
-            id={project.id}
-            name={project.name}
-            description={project.description}
-            type={project.type}
-            status={project.status}
-            metrics={project.metrics}
+            key={props.id}
+            onClick={() => {
+              setProjectId(props.id);
+              navigate("/");
+            }}
+            {...props}
           />
         ))}
       </Stack>

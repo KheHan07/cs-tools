@@ -32,6 +32,7 @@ import CaseDetailPage from "@pages/CaseDetailPage";
 import ChatDetailPage from "@pages/ChatDetailPage";
 import ServiceDetailPage from "@pages/ServiceDetailPage";
 import ChangeDetailPage from "@pages/ChangeDetailPage";
+import RequireProject from "@components/layout/RequireProject";
 
 const App: React.FC = () => {
   return (
@@ -40,29 +41,31 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/select" element={<SelectProjectPage />} />
 
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="/users" element={<UsersPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/create" element={<CreateCasePage />} />
-            <Route path="/cases">
-              <Route path="all" element={<AllItemsPage type="case" />} />
-              <Route path=":id" element={<CaseDetailPage />} />
-            </Route>
-            <Route path="/chats">
-              <Route path="all" element={<AllItemsPage type="chat" />} />
-              <Route path=":id" element={<ChatDetailPage />} />
-            </Route>
-            <Route path="/services">
-              <Route path="all" element={<AllItemsPage type="service" />} />
-              <Route path=":id" element={<ServiceDetailPage />} />
-            </Route>
-            <Route path="/changes">
-              <Route path="all" element={<AllItemsPage type="change" />} />
-              <Route path=":id" element={<ChangeDetailPage />} />
+          <Route element={<RequireProject />}>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/support" element={<SupportPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/create" element={<CreateCasePage />} />
+              <Route path="/cases">
+                <Route path="all" element={<AllItemsPage type="case" />} />
+                <Route path=":id" element={<CaseDetailPage />} />
+              </Route>
+              <Route path="/chats">
+                <Route path="all" element={<AllItemsPage type="chat" />} />
+                <Route path=":id" element={<ChatDetailPage />} />
+              </Route>
+              <Route path="/services">
+                <Route path="all" element={<AllItemsPage type="service" />} />
+                <Route path=":id" element={<ServiceDetailPage />} />
+              </Route>
+              <Route path="/changes">
+                <Route path="all" element={<AllItemsPage type="change" />} />
+                <Route path=":id" element={<ChangeDetailPage />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

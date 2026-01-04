@@ -35,20 +35,16 @@ export interface ProjectsResponseType {
 
 export const getProjects = async (): Promise<ProjectCardProps[]> => {
   const response = await apiClient.get<ProjectsResponseType>(PROJECTS_ENDPOINT);
-
   return response.data.projects.map((project) => ({
     id: project.projectKey,
     name: project.name,
     description: project.description,
-
     // TODO: determine project type from backend
     // Fallback to "Managed Cloud" until backend provides explicit field
     type: "Managed Cloud",
-
     // TODO: determine project status from backend
     // Fallback to "All Good" until backend provides explicit field
     status: "All Good",
-
     metrics: {
       cases: project.openCasesCount,
       chats: project.activeChatsCount,
