@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Add, Search } from "@mui/icons-material";
 import {
-  Box,
   Card,
   Grid,
   InputBase as TextField,
@@ -26,46 +24,51 @@ import {
   ButtonBase as Button,
   Divider,
 } from "@mui/material";
+import { Add, Search } from "@mui/icons-material";
+import { MetricWidget } from "@components/features/dashboard";
+import { UserListItem } from "@components/features/users";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+
+import { MOCK_METRICS, MOCK_ROLES, MOCK_USERS } from "@src/mocks/data/users";
 
 export default function UsersPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  const baseRoute = location.pathname;
+  const searchValue = searchParams.get("search") ?? "";
+  const users = MOCK_USERS.filter((item) => item.name.toLowerCase().includes(searchValue));
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    const next = new URLSearchParams(searchParams);
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (!value) {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+
+    navigate(`${baseRoute}?${next.toString()}`, { replace: true });
+  };
+
   return (
-    <Box p={2} mb={20}>
+    <>
       <Grid spacing={1.5} container>
-        <Grid size={4}>
-          <Card component={Stack} p={1.2} gap={0.5} elevation={0}>
-            <Typography variant="h4" fontWeight="bold">
-              12
-            </Typography>
-            <Typography variant="subtitle1" fontWeight="medium" color="text.secondary">
-              Total Users
-            </Typography>
-          </Card>
-        </Grid>
-        <Grid size={4}>
-          <Card component={Stack} p={1.2} gap={0.5} elevation={0}>
-            <Typography variant="h4" fontWeight="bold">
-              4
-            </Typography>
-            <Typography variant="subtitle1" fontWeight="medium" color="text.secondary">
-              Active
-            </Typography>
-          </Card>
-        </Grid>
-        <Grid size={4}>
-          <Card component={Stack} p={1.2} gap={0.5} elevation={0}>
-            <Typography variant="h4" fontWeight="bold">
-              1
-            </Typography>
-            <Typography variant="subtitle1" fontWeight="medium" color="text.secondary">
-              Admins
-            </Typography>
-          </Card>
-        </Grid>
+        {MOCK_METRICS.map((props, index) => (
+          <Grid size={4}>
+            <MetricWidget key={index} {...props} size="small" base />
+          </Grid>
+        ))}
         <Grid size={12}>
           <TextField
             fullWidth
             type="search"
             placeholder="Search Users"
+            value={searchValue}
+            onChange={(e) => updateParams({ ["search"]: e.target.value || null })}
             startAdornment={
               <InputAdornment position="start">
                 <Search />
@@ -83,16 +86,49 @@ export default function UsersPage() {
           <Typography variant="h6" fontWeight="bold">
             All Users
           </Typography>
-          <Button component={Stack} direction="row" gap={2} sx={{ padding: 0 }} disableRipple>
-            <Typography variant="body2" color="primary" fontWeight="medium">
-              Add
-            </Typography>
-            <Add color="primary" />
-          </Button>
+          <AddButton />
         </Stack>
         <Divider />
-        <Stack gap={2} pt={1} divider={<Divider />}></Stack>
+        <Stack gap={2} pt={1} divider={<Divider />}>
+          {users.map((props, index) => (
+            <UserListItem key={index} {...props} />
+          ))}
+        </Stack>
       </Card>
-    </Box>
+      <UserRolesInfo />
+    </>
+  );
+}
+
+function AddButton() {
+  return (
+    <Button component={Link} to="/users/invite" sx={{ padding: 0 }} disableRipple>
+      <Stack direction="row" gap={1}>
+        <Typography variant="body2" color="primary" fontWeight="medium">
+          Add
+        </Typography>
+        <Add color="primary" />
+      </Stack>
+    </Button>
+  );
+}
+
+function UserRolesInfo() {
+  return (
+    <Card component={Stack} p={2} mt={2} elevation={0} sx={{ bgcolor: "components.priority.medium.background" }}>
+      <Typography variant="subtitle1" fontWeight="medium">
+        User Roles
+      </Typography>
+      <Stack gap={0.3} mt={0.5}>
+        {MOCK_ROLES.map((role) => (
+          <Typography component={Stack} direction="row" variant="subtitle2" fontWeight="medium" gap={0.5}>
+            {role.name}:
+            <Typography component="span" variant="subtitle2" fontWeight="regular">
+              {role.description}
+            </Typography>
+          </Typography>
+        ))}
+      </Stack>
+    </Card>
   );
 }

@@ -51,6 +51,8 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
   { path: "/select", title: "Select Project", tabIndex: -1 },
   { path: "/support", title: "Support Center", tabIndex: 1 },
   { path: "/users", title: "Project Users", tabIndex: 2 },
+  { path: "/users/invite", title: "Invite User", appBarVariant: "notifications", hasBackAction: true, tabIndex: -1 },
+  { path: "/users/edit/:id", title: "Edit User", appBarVariant: "notifications", hasBackAction: true, tabIndex: -1 },
   { path: "/profile", title: "My Profile", appBarVariant: "minimal", tabIndex: 3 },
   {
     path: "/notifications",

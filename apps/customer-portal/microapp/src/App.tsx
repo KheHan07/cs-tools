@@ -19,6 +19,7 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import SelectProjectPage from "@pages/SelectProjectPage";
 import MainLayout from "@components/layout/MainLayout";
 import AppProvider from "@context/AppProvider";
+import RequireProject from "@components/layout/RequireProject";
 
 import HomePage from "@pages/HomePage";
 import SupportPage from "@pages/SupportPage";
@@ -32,7 +33,7 @@ import CaseDetailPage from "@pages/CaseDetailPage";
 import ChatDetailPage from "@pages/ChatDetailPage";
 import ServiceDetailPage from "@pages/ServiceDetailPage";
 import ChangeDetailPage from "@pages/ChangeDetailPage";
-import RequireProject from "@components/layout/RequireProject";
+import EditUserPage from "@pages/EditUserPage";
 
 const App: React.FC = () => {
   return (
@@ -45,7 +46,11 @@ const App: React.FC = () => {
             <Route element={<MainLayout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/support" element={<SupportPage />} />
-              <Route path="/users" element={<UsersPage />} />
+              <Route path="/users">
+                <Route element={<UsersPage />} index />
+                <Route path="invite" element={<EditUserPage />} />
+                <Route path="edit/:id" element={<EditUserPage />} />
+              </Route>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/chat" element={<ChatPage />} />
