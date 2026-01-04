@@ -32,11 +32,16 @@ export function TextField({
   value,
   multiline = false,
   rows = 10,
+  startAdornment,
+  onChange,
 }: {
   label: string;
   value: string;
   multiline?: boolean;
   rows?: number;
+  startAdornment?: React.ReactNode;
+
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <FormControl component={Stack} gap={1} fullWidth>
@@ -48,6 +53,8 @@ export function TextField({
         multiline={multiline}
         rows={rows}
         sx={{ bgcolor: "background.paper", lineHeight: multiline ? 1.65 : undefined }}
+        startAdornment={startAdornment}
+        onChange={onChange}
       />
     </FormControl>
   );

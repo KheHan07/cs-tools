@@ -49,7 +49,7 @@ const App: React.FC = () => {
               <Route path="/users">
                 <Route element={<UsersPage />} index />
                 <Route path="invite" element={<EditUserPage />} />
-                <Route path="edit/:id" element={<EditUserPage />} />
+                <Route path="edit" element={<EditUserPage />} />
               </Route>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />

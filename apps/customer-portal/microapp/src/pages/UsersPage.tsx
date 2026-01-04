@@ -121,8 +121,8 @@ function UserRolesInfo() {
       </Typography>
       <Stack gap={0.3} mt={0.5}>
         {MOCK_ROLES.map((role) => (
-          <Typography component={Stack} direction="row" variant="subtitle2" fontWeight="medium" gap={0.5}>
-            {role.name}:
+          <Typography variant="subtitle2" fontWeight="medium">
+            {role.name}:&nbsp;
             <Typography component="span" variant="subtitle2" fontWeight="regular">
               {role.description}
             </Typography>

@@ -12,35 +12,30 @@ export const MOCK_USERS: UserListItemProps[] = [
     email: "user@example.com",
     role: "admin",
     lastActive: "2 hours ago",
-    to: "/users/edit/1",
   },
   {
     name: "Sarah Chan",
     email: "user@example.com",
     role: "developer",
     lastActive: "5 hours ago",
-    to: "/users/edit/1",
   },
   {
     name: "Mike Johnson",
     email: "user@example.com",
     role: "security",
     lastActive: "1 day ago",
-    to: "/users/edit/1",
   },
   {
     name: "Emily Rodriguez",
     email: "user@example.com",
     role: "procurement",
     lastActive: "3 days ago",
-    to: "/users/edit/1",
   },
   {
     name: "David Kim",
     email: "user@example.com",
     role: "manager",
     lastActive: "2 weeks ago",
-    to: "/users/edit/1",
   },
 ];
 

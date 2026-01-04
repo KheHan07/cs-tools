@@ -2,20 +2,26 @@ import { AdminPanelSettingsOutlined, ChevronRight, Email } from "@mui/icons-mate
 import { Card, Stack, Avatar as MuiAvatar, Typography, Chip } from "@mui/material";
 import { capitalize, stringAvatar } from "@root/src/utils/others";
 import { Link } from "react-router-dom";
+import type { RoleName } from "./RoleSelector";
 
 export interface UserListItemProps {
   name: string;
   email: string;
-  role: string;
+  role: RoleName;
   lastActive: string;
-  to: string;
 }
 
-export function UserListItem({ name, email, role, lastActive, to }: UserListItemProps) {
-  const admin = role.toLowerCase() === "admin";
+export function UserListItem({ name, email, role, lastActive }: UserListItemProps) {
+  const admin = role === "Admin";
 
   return (
-    <Card component={Link} elevation={0} to={to} sx={{ textDecoration: "none" }}>
+    <Card
+      component={Link}
+      elevation={0}
+      to="/users/edit"
+      state={{ name, email, role: capitalize(role) }}
+      sx={{ textDecoration: "none" }}
+    >
       <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2}>
         <Stack direction="row" alignItems="center" gap={2}>
           <Avatar>{name}</Avatar>
