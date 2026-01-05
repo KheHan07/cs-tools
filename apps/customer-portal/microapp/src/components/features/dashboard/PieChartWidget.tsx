@@ -19,7 +19,6 @@ export function PieChartWidget({ title, data }: PieChartWidgetProps) {
 
   return (
     <WidgetBox title={title}>
-      <Stack></Stack>
       <Box>
         <PieChart series={[{ paddingAngle: 2, innerRadius: "50%", outerRadius: "90%", data }]} hideLegend>
           <PieCenterLabel>{total}</PieCenterLabel>
