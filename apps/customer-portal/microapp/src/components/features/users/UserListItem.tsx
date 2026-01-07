@@ -12,7 +12,7 @@ export interface UserListItemProps {
 }
 
 export function UserListItem({ name, email, role, lastActive }: UserListItemProps) {
-  const admin = role === "Admin";
+  const admin = role === "admin";
 
   return (
     <Card
