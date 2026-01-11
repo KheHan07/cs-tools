@@ -3,3 +3,9 @@
 
 [customer_portal.authorization.authorizedRoles]
     userRole  = "<authorized-role>"
+
+[customer_portal.cacheConfig]
+capacity: 500,
+defaultMaxAge: 3600,
+evictionFactor: 0.2,
+cleanupInterval: 1800
