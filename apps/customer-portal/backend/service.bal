@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -139,9 +139,9 @@ service http:InterceptableService / on new http:Listener(9090) {
 
     # Fetch specific project details.
     #
-    # + projectId - Unique identifier of the project
+    # + id - ID of the project
     # + return - Project details or error response
-    resource function get projects/[string projectId](http:RequestContext ctx)
+    resource function get projects/[string id](http:RequestContext ctx)
         returns entity:ProjectDetailsResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -153,7 +153,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if projectId.trim().length() == 0 {
+        if id.trim().length() == 0 {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -163,7 +163,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        string cacheKey = string `${userInfo.email}:project:${projectId}`;
+        string cacheKey = string `${userInfo.email}:project:${id}`;
         if userCache.hasKey(cacheKey) {
             entity:ProjectDetailsResponse|error cached = userCache.get(cacheKey).ensureType();
             if cached is entity:ProjectDetailsResponse {
@@ -171,7 +171,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
         }
 
-        entity:ProjectDetailsResponse|error projectDetails = entity:fetchProjectDetails(projectId, userInfo.idToken);
+        entity:ProjectDetailsResponse|error projectDetails = entity:fetchProjectDetails(id, userInfo.idToken);
         if projectDetails is error {
             string customError = "Error retrieving project information";
             log:printError(customError, projectDetails);
@@ -191,9 +191,9 @@ service http:InterceptableService / on new http:Listener(9090) {
 
     # Fetch project overview.
     #
-    # + projectId - Unique identifier of the project
+    # + id - ID of the project
     # + return - Project overview or error response
-    resource function get projects/[string projectId]/overview(http:RequestContext ctx)
+    resource function get projects/[string id]/overview(http:RequestContext ctx)
         returns entity:ProjectOverviewResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -205,7 +205,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if projectId.trim().length() == 0 {
+        if id.trim().length() == 0 {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -215,15 +215,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        string cacheKey = string `${userInfo.email}:overview:${projectId}`;
-        if userCache.hasKey(cacheKey) {
-            entity:ProjectOverviewResponse|error cached = userCache.get(cacheKey).ensureType();
-            if cached is entity:ProjectOverviewResponse {
-                return cached;
-            }
-        }
-
-        entity:ProjectOverviewResponse|error projectOverview = entity:fetchProjectOverview(projectId, userInfo.idToken);
+        entity:ProjectOverviewResponse|error projectOverview = entity:fetchProjectOverview(id, userInfo.idToken);
         if projectOverview is error {
             string customError = "Error retrieving project overview";
             log:printError(customError, projectOverview);
@@ -233,19 +225,14 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-
-        error? cacheError = userCache.put(cacheKey, projectOverview);
-        if cacheError is error {
-            log:printWarn("Error writing project overview to cache", cacheError);
-        }
         return projectOverview;
     }
 
     # Fetch case filters for a specific project.
     #
-    # + projectId - Unique identifier of the project
+    # + id - ID of the project
     # + return - Case filters or error response
-    resource function get projects/[string projectId]/cases/filters(http:RequestContext ctx)
+    resource function get projects/[string id]/cases/filters(http:RequestContext ctx)
         returns entity:CaseFiltersResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -257,7 +244,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if projectId.trim().length() == 0 {
+        if id.trim().length() == 0 {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -267,7 +254,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        string cacheKey = string `${userInfo.email}:casefilters:${projectId}`;
+        string cacheKey = string `casefilters:${id}`;
         if userCache.hasKey(cacheKey) {
             entity:CaseFiltersResponse|error cached = userCache.get(cacheKey).ensureType();
             if cached is entity:CaseFiltersResponse {
@@ -275,7 +262,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
         }
 
-        entity:CaseFiltersResponse|error caseFilters = entity:fetchCasesFilters(projectId, userInfo.idToken);
+        entity:CaseFiltersResponse|error caseFilters = entity:fetchCasesFilters(id, userInfo.idToken);
         if caseFilters is error {
             string customError = "Error retrieving case filters";
             log:printError(customError, caseFilters);
@@ -295,11 +282,10 @@ service http:InterceptableService / on new http:Listener(9090) {
 
     # Fetch cases for a project with optional filters.
     #
-    # + projectId - Project ID filter
+    # + id - ID of the project
     # + payload - Filter and pagination parameters
     # + return - Paginated cases or error response
-    resource function post projects/[string projectId]/cases/search(http:RequestContext ctx,
-            entity:CaseFiltersRequest payload)
+    resource function post projects/[string id]/cases/search(http:RequestContext ctx, entity:CaseFiltersRequest payload)
         returns entity:CasesResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -311,7 +297,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if projectId.trim().length() == 0 {
+        if id.trim().length() == 0 {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -332,18 +318,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        string cacheKey = string `${userInfo.email}:cases:${projectId}:${payload.offset}:${payload.'limit}:${
-            payload.contact ?: ""}:${payload.status ?: ""}:${payload.severity ?: ""}:${payload.product ?: ""}:${
-            payload.category ?: ""}`;
-
-        if userCache.hasKey(cacheKey) {
-            entity:CasesResponse|error cached = userCache.get(cacheKey).ensureType();
-            if cached is entity:CasesResponse {
-                return cached;
-            }
-        }
-
-        entity:CasesResponse|error cases = entity:fetchCases(userInfo.idToken, projectId, payload);
+        entity:CasesResponse|error cases = entity:fetchCases(userInfo.idToken, id, payload);
         if cases is error {
             string customError = "Error retrieving cases";
             log:printError(customError, cases);
@@ -352,11 +327,6 @@ service http:InterceptableService / on new http:Listener(9090) {
                     message: customError
                 }
             };
-        }
-
-        error? cacheError = userCache.put(cacheKey, cases);
-        if cacheError is error {
-            log:printWarn("Error writing cases to cache", cacheError);
         }
         return cases;
     }
@@ -387,15 +357,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-
-        string cacheKey = string `${userInfo.email}:case:${projectId}:${caseId}`;
-        if userCache.hasKey(cacheKey) {
-            entity:CaseDetailsResponse|error cached = userCache.get(cacheKey).ensureType();
-            if cached is entity:CaseDetailsResponse {
-                return cached;
-            }
-        }
-
+    
         entity:CaseDetailsResponse|error caseDetails = entity:fetchCaseDetails(projectId, caseId, userInfo.idToken);
         if caseDetails is error {
             string customError = "Error retrieving case details";
@@ -406,12 +368,6 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-
-        error? cacheError = userCache.put(cacheKey, caseDetails);
-        if cacheError is error {
-            log:printWarn("Error writing case details to cache", cacheError);
-        }
-
         return caseDetails;
     }
 }

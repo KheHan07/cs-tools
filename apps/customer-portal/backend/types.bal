@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -17,11 +17,11 @@
 # Cache configuration record.
 public type CacheConfig record {|
     # Maximum number of entries in cache
-    int capacity;
+    int capacity = 500;
     # Default maximum age of cache entries in seconds
-    decimal defaultMaxAge;
+    decimal defaultMaxAge = 3600;
     # Eviction factor for cache cleanup
-    float evictionFactor;
+    float evictionFactor = 0.2;
     # Cleanup interval in seconds
-    decimal cleanupInterval;
+    decimal cleanupInterval = 1800.0;
 |};
