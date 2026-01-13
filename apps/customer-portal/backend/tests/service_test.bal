@@ -37,21 +37,24 @@ public function testGetLoggedInUserInformation() returns error? {
 public function testSearchLoggedInUserProjects() returns error? {
     // TODO: Add mock search payload
     http:Response response = check testClient->/projects/search.post({},
-        headers = {MOCK_HEADER_NAME: mockIdToken});
+        headers = {MOCK_HEADER_NAME: mockIdToken}
+    );
     json payload = check response.getJsonPayload();
     test:assertEquals(response.statusCode, http:STATUS_OK);
     test:assertEquals(payload, MOCK_PROJECTS_SEARCH_RESPONSE);
 }
 
 @test:Config
-public function testGetProjectDetails() returns error? {
+public function testSearchCasesOfProject() returns error? {
     // TODO: Add mock project ID
-    http:Response response = check testClient->/projects/[1].get(headers = {MOCK_HEADER_NAME: mockIdToken});
+    http:Response response = check testClient->/projects/[1]/cases/search.post({},
+        headers = {MOCK_HEADER_NAME: mockIdToken}
+    );
     json payload = check response.getJsonPayload();
     test:assertEquals(response.statusCode, http:STATUS_OK);
     test:assertEquals(payload, {}); // TODO: Add mock response
 
-    response = check testClient->/projects/[" "].get(headers = {MOCK_HEADER_NAME: mockIdToken});
+    response = check testClient->/projects/[" "]/cases/search.post({}, headers = {MOCK_HEADER_NAME: mockIdToken});
     test:assertEquals(response.statusCode, http:STATUS_BAD_REQUEST);
     test:assertEquals(response.getTextPayload(), "Project ID cannot be empty or whitespace");
 }

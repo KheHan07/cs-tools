@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -101,234 +101,72 @@ public type ProjectDetailsResponse record {|
     json...;
 |};
 
-# Case filters.
-public type CaseFiltersResponse record {|
-    # Categories filter options
-    string[] categories;
-    # Products filter options
-    string[] products;
-    # Statuses filter options
-    string[] statuses;
-    # Severities filter options
-    string[] severities;
-    # Environments filter options
-    string[] environments;
-    json...;
-|};
-
-# Incident count by severity.
-public type IncidentCount record {|
-    # Severity 0
-    int s0;
-    # Severity 1
-    int s1;
-    # Severity 2
-    int s2;
-    # Severity 3
-    int s3;
-    # Severity 4
-    int s4;
-|};
-
-# Active case count by status.
-public type ActiveCaseCount record {|
-    # Awaiting count
-    int awaitingCount;
-    # Waiting on WSO2 count
-    int waitingOnWSO2Count;
-    # Work in progress count
-    int workInProgressCount;
-|};
-
-# Project statistics.
-public type ProjectStatistics record {|
-    # Open cases count
-    int openCasesCount;
-    # Active chats count
-    int activeChatsCount;
-    # Deployments count
-    int deploymentsCount;
-    # Total cases count
-    int totalCasesCount;
-    # In progress cases count
-    int inProgressCasesCount;
-    # Awaiting cases count
-    int awaitingCasesCount;
-    # Resolved cases count
-    int resolvedCasesCount;
-    # Current month resolved cases count
-    int currentMonthResolvedCasesCount;
-    # Average response time
-    string avgResponseTime;
-    # Incident count by severity
-    IncidentCount incidentCount;
-    # Active case count by status
-    ActiveCaseCount activeCaseCount;
-|};
-
-# Recent activity.
-public type RecentActivity record {|
-    # Total time logged
-    int totalTimeLogged;
-    # Billable hours
-    int billableHours;
-    # Last deployment timestamp
-    string lastDeploymentOn;
-    # System health status
-    string systemHealth;
-|};
-
-# Project overview response.
-public type ProjectOverviewResponse record {|
-    # Project statistics
-    ProjectStatistics projectStatistics;
-    # Recent activity
-    RecentActivity recentActivity;
-|};
-
-# Comment author information.
-public type CommentAuthor record {|
-    # Name of the author
-    string name;
-    # Role of the author
-    string role;
-|};
-
-# Case comment.
-public type CaseComment record {|
-    # Comment ID
-    string id;
-    # Author information
-    CommentAuthor author;
-    # Comment content
-    string content;
-    # Timestamp of the comment
-    string timestamp;
-    # Whether the comment is large
-    boolean isLarge;
-    # Whether the comment contains code
-    boolean hasCode;
-|};
-
-# Case attachment.
-public type CaseAttachment record {|
-    # System ID of the attachment
-    string sysId;
-    # Name of the attachment file
-    string name;
-    # Size in bytes
-    int sizeBytes;
-    # Uploaded by user email
-    string uploadedBy;
-    # Upload date
-    string uploadedDate;
-|};
-
-# Call request.
-public type CallRequest record {|
-    # System ID of the call request
-    string sysId;
-    # Call request number
-    string number;
-    # Requested date
-    string requestedDate;
-    # State of the call request
-    string state;
-    # Reason for the call
-    string reason;
-    # Duration of the call
-    string duration;
-    # Preferred time for the call
-    string preferredTime;
-|};
-
-# Knowledge base article.
-public type KbArticle record {|
-    # Article ID
-    string id;
-    # Article title
-    string title;
-    # Article summary
-    string summary;
-    # Article category
-    string category;
-    # Suggested by (AI or user)
-    string suggestedBy;
-    # Date when suggested
-    string suggestedDate;
-    # Number of views
-    int views;
-|};
-
 # Base case.
 public type Case record {|
-    # System ID of the case
-    string sysId;
+    # Case ID
+    string caseId;
+    # System ID of the project
+    string projectId;
+    # Type of the case
+    string caseType;
     # Case number
     string number;
+    # State code
+    string state;
+    # State label
+    string stateLabel;
     # Case title
     string title;
     # Case description
     string description;
-    # Case status
-    string status;
-    # Case severity
-    string severity;
     # Created date and time
     string createdOn;
-    # Updated date and time
-    string updatedOn;
     # Assigned engineer name
     string assignedEngineer;
-    # Case category
-    string category;
-    # Product information
-    string product;
+    # Priority code
+    string? priority;
+    # Priority label
+    string? priorityLabel;
+    # Deployment name
+    string? deployment;
+    # Deployment ID
+    string? deploymentId;
 |};
 
-# Detailed case response.
-public type CaseDetailsResponse record {|
-    *Case;
-    # Environment type
-    string environment;
-    # Account type
-    string accountType;
-    # Organization name
-    string organization;
-    # SLA information
-    string sla;
-    # Initial comments list
-    CaseComment[] initialComments;
-    # Attachments list
-    CaseAttachment[] attachments;
-    # Call requests list
-    CallRequest[] callRequests;
-    # Knowledge base articles list
-    KbArticle[] kbArticles;
+# Case search filters.
+public type CaseSearchFilters record {|
+    # Status ID
+    int status?;
+    # Severity ID
+    int severity?;
+    # Deployment ID
+    string deployment?;
 |};
 
 # Cases list response with pagination.
 public type CasesResponse record {|
     # List of cases
     Case[] cases;
-    # Pagination details
-    Pagination pagination;
+    # Total records count
+    int totalRecords;
+    *Pagination;
 |};
 
-# Request body for fetching cases with filters.
-public type CaseFiltersRequest record {|
-    # Pagination offset
-    int offset;
-    # Pagination limit
-    int 'limit;
-    # Optional contact name
-    string contact?;
-    # Optional case status
-    string status?;
-    # Optional severity level
-    string severity?;
-    # Optional product name
-    string product?;
-    # Optional category
-    string category?;
+# Request body for case search.
+public type CaseSearchPayload record {|
+    # List of case types to filter
+    string[] caseTypes?;
+    # Filter criteria
+    CaseSearchFilters filters?;
+    # Sort field
+    string sortBy?;
+    # Pagination details
+    Pagination pagination?;
+|};
+
+# Request body for searching cases for entity.
+public type CaseRequestBody record {|
+    # List of project IDs to filter
+    string[] projectIds?;
+    *CaseSearchPayload;
 |};
