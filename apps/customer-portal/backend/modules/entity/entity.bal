@@ -39,14 +39,7 @@ public isolated function searchProjects(string idToken, ProjectRequest payload) 
 # + payload - Request body for searching cases
 # + return - Cases object or error
 public isolated function searchCases(string idToken, string projectId, CaseSearchPayload payload)
-    returns CasesResponse|error {
+    returns CaseSearchResponse|error {
 
-    CaseRequestPayload requestPayload = {
-        projectIds: [projectId],
-        caseTypes: payload.caseTypes,
-        pagination: payload.pagination,
-        filters: payload.filters,
-        sortBy: payload.sortBy
-    };
-    return csEntityClient->/cases/search.post(requestPayload, generateHeaders(idToken));
+    return csEntityClient->/cases/search.post(payload, generateHeaders(idToken));
 }

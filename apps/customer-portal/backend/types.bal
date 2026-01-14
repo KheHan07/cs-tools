@@ -29,18 +29,18 @@ public type CacheConfig record {|
 
 # Case search filters.
 public type CaseSearchFilters record {|
+    # List of case types to filter
+    string[] caseTypes?;
     # Status ID
-    int status?;
+    int statusId?;
     # Severity ID
-    int severity?;
+    int severityId?;
     # Deployment ID
-    string deployment?;
+    string deploymentId?;
 |};
 
 # Payload for case search.
 public type CaseSearchPayload record {|
-    # List of case types to filter
-    string[] caseTypes?;
     # Filter criteria
     CaseSearchFilters filters?;
     # Sort configuration

@@ -110,15 +110,13 @@ public type ProjectDetailsResponse record {|
 # Base case.
 public type Case record {|
     # Case ID
-    string caseId;
-    # System ID of the project
+    string id;
+    # Project ID
     string projectId;
+    # Case type
+    string 'type;
     # Case number
     string number;
-    # State code
-    int state;
-    # State label
-    string stateLabel;
     # Created date and time
     string createdOn;
     # Assigned engineer name
@@ -127,30 +125,38 @@ public type Case record {|
     string? title;
     # Case description
     string? description;
-    # Type of the case
-    string? caseType;
-    # Severity code
-    int? severity;
-    # Severity label
-    string? severityLabel;
-    # Deployment name
-    string? deployment;
+    # Severity of the case
+    KeyValue? severity;
+    # State of the case
+    KeyValue? state;
     # Deployment ID
     string? deploymentId;
 |};
 
+# Key-Value pair type.
+public type KeyValue record {|
+    # Key
+    string? key;
+    # Value
+    string? value;
+|};
+
 # Case search filters.
 public type CaseSearchFilters record {|
+    # List of project IDs to filter
+    string[] projectIds?;
+    # List of case types to filter
+    string[] caseTypes?;
     # State ID
-    int state?;
+    int stateId?;
     # Severity ID
-    int severity?;
+    int severityId?;
     # Deployment ID
-    string deployment?;
+    string deploymentId?;
 |};
 
 # Cases list response with pagination.
-public type CasesResponse record {|
+public type CaseSearchResponse record {|
     # List of cases
     Case[] cases;
     # Total records count
@@ -160,21 +166,12 @@ public type CasesResponse record {|
 
 # Payload for case search.
 public type CaseSearchPayload record {|
-    # List of case types to filter
-    string[] caseTypes?;
     # Filter criteria
     CaseSearchFilters filters?;
     # Sort configuration
     SortBy sortBy?;
     # Pagination details
     Pagination pagination?;
-|};
-
-# Request payload for searching cases for entity.
-public type CaseRequestPayload record {|
-    # List of project IDs to filter
-    string[] projectIds?;
-    *CaseSearchPayload;
 |};
 
 # Sort configuration.
