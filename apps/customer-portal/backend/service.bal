@@ -143,7 +143,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + payload - Case search request body
     # + return - Paginated cases or error
     resource function post projects/[string id]/cases/search(http:RequestContext ctx, CaseSearchPayload payload)
-        returns entity:CaseSearchResponse|http:BadRequest|http:InternalServerError {
+        returns CaseSearchResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -175,16 +175,37 @@ service http:InterceptableService / on new http:Listener(9090) {
             pagination: payload.pagination,
             sortBy: payload.sortBy
         };
-        entity:CaseSearchResponse|error cases = entity:searchCases(userInfo.idToken, id, searchPayload);
-        if cases is error {
+        entity:CaseSearchResponse|error casesResponse = entity:searchCases(userInfo.idToken, id, searchPayload);
+        if casesResponse is error {
             string customError = "Error retrieving cases";
-            log:printError(customError, cases);
+            log:printError(customError, casesResponse);
             return <http:InternalServerError>{
                 body: {
                     message: customError
                 }
             };
         }
-        return cases;
+    
+        Case[] cases = from entity:Case case in casesResponse.cases
+            select {
+                id: case.id,
+                projectId: case.projectId,
+                'type: case.'type,
+                number: case.number,
+                createdOn: case.createdOn,
+                assignedEngineer: case.assignedEngineer,
+                title: case.title,
+                description: case.description,
+                severity: case.severity,
+                status: case.state,
+                deploymentId: case.deploymentId
+            };
+
+        return {
+            cases,
+            totalRecords: casesResponse.totalRecords,
+            'limit: casesResponse.'limit,
+            offset: casesResponse.offset
+        };
     }
 }

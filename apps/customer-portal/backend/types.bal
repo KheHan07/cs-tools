@@ -48,3 +48,38 @@ public type CaseSearchPayload record {|
     # Pagination details
     entity:Pagination pagination?;
 |};
+
+# Base case.
+public type Case record {|
+    # Case ID
+    string id;
+    # Project ID
+    string projectId;
+    # Case type
+    string 'type;
+    # Case number
+    string number;
+    # Created date and time
+    string createdOn;
+    # Assigned engineer name
+    string? assignedEngineer;
+    # Case title
+    string? title;
+    # Case description
+    string? description;
+    # Severity of the case
+    entity:KeyValue? severity;
+    # State of the case
+    entity:KeyValue? status;
+    # Deployment ID
+    string? deploymentId;
+|};
+
+# Cases list response with pagination.
+public type CaseSearchResponse record {|
+    # List of cases
+    Case[] cases;
+    # Total records count
+    int totalRecords;
+    *entity:Pagination;
+|};
