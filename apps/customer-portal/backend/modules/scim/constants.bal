@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.regexp;
 
 public final regexp:RegExp REGEX_EMAIL_DOMAIN = re `^[a-zA-Z][a-zA-Z0-9_\-\.]+@wso2\.com$`;
