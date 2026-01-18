@@ -38,20 +38,14 @@ public isolated function searchCases(string idToken, string projectId, CaseSearc
     entity:CaseSearchResponse casesResponse = check entity:searchCases(idToken, searchPayload);
     Case[] cases = from entity:Case {project, 'type, deployment, state, severity, assignedEngineer, ...rest}
         in casesResponse.cases
-        let ReferenceItem? caseProject = check project.cloneWithType()
-        let ReferenceItem? caseType = check 'type.cloneWithType()
-        let ReferenceItem? caseAssignedEngineer = check assignedEngineer.cloneWithType()
-        let ReferenceItem? caseDeployment = check deployment.cloneWithType()
-        let SelectableItem? caseStatus = check state.cloneWithType()
-        let SelectableItem? caseSeverity = check severity.cloneWithType()
         select {
             ...rest,
-            project: caseProject,
-            'type: caseType,
-            deployment: caseDeployment,
-            assignedEngineer: caseAssignedEngineer,
-            severity: caseSeverity,
-            status: caseStatus
+            project: project != () ? {id: project.id, label: project.name} : (),
+            'type: 'type != () ? {id: 'type.id, label: 'type.name} : (),
+            deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
+            assignedEngineer: assignedEngineer != () ? {id: assignedEngineer.id, label: assignedEngineer.name} : (),
+            severity: severity != () ? {id: severity.id.toString(), label: severity.label} : (),
+            status: state != () ? {id: state.id.toString(), label: state.label} : ()
         };
 
     return {

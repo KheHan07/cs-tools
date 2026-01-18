@@ -72,17 +72,9 @@ public type Case record {|
     # Deployment
     ReferenceItem? deployment;
     # Severity of the case
-    SelectableItem? severity;
+    ReferenceItem? severity;
     # State of the case
-    SelectableItem? status;
-|};
-
-# Selectable item with int ID.
-public type SelectableItem record {|
-    # ID
-    int id;
-    # Label
-    string label;
+    ReferenceItem? status;
 |};
 
 # Reference item with string or int ID.
