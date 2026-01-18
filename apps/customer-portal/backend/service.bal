@@ -89,7 +89,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             log:printWarn(string `Unable to read cached user info for ${userInfo.email}`);
         }
 
-        entity:UserResponse|error userDetails = entity:fetchUserBasicInfo(userInfo.email, userInfo.idToken);
+        entity:UserResponse|error userDetails = entity:getUserBasicInfo(userInfo.email, userInfo.idToken);
         if userDetails is error {
             string customError = "Error retrieving user data from entity service";
             log:printError(customError, userDetails);
@@ -230,18 +230,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        entity:CaseSearchPayload searchPayload = {
-            filters: {
-                projectIds: [id],
-                caseTypes: payload.filters?.caseTypes,
-                severityId: payload.filters?.severityId,
-                stateId: payload.filters?.statusId,
-                deploymentId: payload.filters?.deploymentId
-            },
-            pagination: payload.pagination,
-            sortBy: payload.sortBy
-        };
-        entity:CaseSearchResponse|error casesResponse = entity:searchCases(userInfo.idToken, id, searchPayload);
+        CaseSearchResponse|error casesResponse = searchCases(userInfo.idToken, id, payload);
         if casesResponse is error {
             string customError = "Error retrieving cases";
             log:printError(customError, casesResponse);
@@ -252,17 +241,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        Case[] cases = from entity:Case {state, ...rest} in casesResponse.cases
-            select {
-                ...rest,
-                status: state
-            };
-
-        return {
-            cases,
-            totalRecords: casesResponse.totalRecords,
-            'limit: casesResponse.'limit,
-            offset: casesResponse.offset
-        };
+        return casesResponse;
     }
 }

@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Fetch logged-in user information.
+# Get logged-in user information.
 # 
 # + email - Email of the user
 # + idToken - ID token for authorization
 # + return - User response or error
-public isolated function fetchUserBasicInfo(string email, string idToken) returns UserResponse|error {
+public isolated function getUserBasicInfo(string email, string idToken) returns UserResponse|error {
     return csEntityClient->/users/me.get(generateHeaders(idToken));
 }
 
@@ -38,17 +38,14 @@ public isolated function getProject(string idToken, string projectId) returns Pr
 # + payload - Request body for searching projects
 # + return - Projects response or error
 public isolated function searchProjects(string idToken, ProjectRequest payload) returns ProjectsResponse|error {
-    return csEntityClient->/projects.post(payload, generateHeaders(idToken));
+    return csEntityClient->/projects/search.post(payload, generateHeaders(idToken));
 }
 
 # Search cases of a project.
 #
 # + idToken - ID token for authorization
-# + projectId - Unique ID of the project
 # + payload - Request body for searching cases
 # + return - Cases object or error
-public isolated function searchCases(string idToken, string projectId, CaseSearchPayload payload)
-    returns CaseSearchResponse|error {
-
+public isolated function searchCases(string idToken, CaseSearchPayload payload) returns CaseSearchResponse|error {
     return csEntityClient->/cases/search.post(payload, generateHeaders(idToken));
 }

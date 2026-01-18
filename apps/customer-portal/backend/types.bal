@@ -53,26 +53,44 @@ public type CaseSearchPayload record {|
 public type Case record {|
     # Case ID
     string id;
-    # Project ID
-    string projectId;
-    # Case type
-    string 'type;
+    # Internal case ID
+    string internalId;
     # Case number
     string number;
     # Created date and time
     string createdOn;
-    # Assigned engineer name
-    string? assignedEngineer;
     # Case title
     string? title;
     # Case description
     string? description;
+    # Assigned engineer
+    ReferenceItem? assignedEngineer;
+    # Associated project
+    ReferenceItem? project;
+    # Type of the case
+    ReferenceItem? 'type;
+    # Deployment
+    ReferenceItem? deployment;
     # Severity of the case
-    entity:IdLabel? severity;
+    SelectableItem? severity;
     # State of the case
-    entity:IdLabel? status;
-    # Deployment ID
-    string? deploymentId;
+    SelectableItem? status;
+|};
+
+# Selectable item with int ID.
+public type SelectableItem record {|
+    # ID
+    int id;
+    # Label
+    string label;
+|};
+
+# Reference item with string or int ID.
+public type ReferenceItem record {|
+    # ID
+    string id;
+    # Label
+    string label;
 |};
 
 # Cases list response with pagination.

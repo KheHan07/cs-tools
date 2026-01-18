@@ -46,6 +46,8 @@ public type UserResponse record {|
     string firstName;
     # Last name
     string lastName;
+    # Time zone
+    string? timeZone;
 |};
 
 # Project data from ServiceNow.
@@ -113,34 +115,44 @@ public type ProjectSubscription record {|
 public type Case record {|
     # Case ID
     string id;
-    # Project ID
-    string projectId;
-    # Case type
-    string 'type;
+    # Internal ID of the case
+    string internalId;
     # Case number
     string number;
     # Created date and time
     string createdOn;
-    # Assigned engineer name
-    string? assignedEngineer;
     # Case title
     string? title;
     # Case description
     string? description;
-    # Severity of the case
-    IdLabel? severity;
-    # State of the case
-    IdLabel? state;
+    # Assigned engineer
+    ReferenceTableItem? assignedEngineer;
+    # Associated project
+    ReferenceTableItem? project;
+    # Type of the case
+    ReferenceTableItem? 'type;
     # Deployment ID
-    string? deploymentId;
+    ReferenceTableItem? deployment;
+    # Status information
+    ChoiceListItem? state;
+    # Severity information
+    ChoiceListItem? severity;
 |};
 
-# ID and label pair.
-public type IdLabel record {|
+# Choice list item information.
+public type ChoiceListItem record {|
     # ID
     int id;
     # Label
-    string? label;
+    string label;
+|};
+
+# Basic table information.
+public type ReferenceTableItem record {|
+    # System ID
+    string id;
+    # Display name
+    string name;
 |};
 
 # Case search filters.
