@@ -82,7 +82,7 @@ public isolated function getCaseFilters(string idToken, string projectId) return
 #
 # + id - Project ID to validate
 # + return - True if valid, else false
-public isolated function isValidateProjectId(string id) returns boolean => id.trim().length() != 0;
+public isolated function isValidProjectId(string id) returns boolean => id.trim().length() != 0;
 
 # Get mobile phone number from SCIM users.
 #

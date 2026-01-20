@@ -161,7 +161,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidateProjectId(id) {
+        if !isValidProjectId(id) {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -201,7 +201,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidateProjectId(id) {
+        if !isValidProjectId(id) {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
@@ -241,7 +241,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidateProjectId(id) {
+        if !isValidProjectId(id) {
             string customError = "Project ID cannot be empty or whitespace";
             log:printError(customError);
             return <http:BadRequest>{
