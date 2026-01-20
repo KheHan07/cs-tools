@@ -150,7 +150,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + id - ID of the project
     # + return - Project details or error response
     resource function get projects/[string id](http:RequestContext ctx)
-        returns entity:ProjectDetails|http:BadRequest|http:InternalServerError {
+        returns entity:ProjectDetailsResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -166,7 +166,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             return validationResult;
         }
 
-        entity:ProjectDetails|error projectResponse = entity:getProject(userInfo.idToken, id);
+        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             string customError = "Error retrieving project details";
             log:printError(customError, projectResponse);
@@ -233,6 +233,7 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         http:BadRequest? validationResult = validateProjectId(id);
         if validationResult is http:BadRequest {
+            log:printWarn("Invalid project ID provided for case filters");
             return validationResult;
         }
 

@@ -89,8 +89,8 @@ public type AccountOwner record {|
     string email;
 |};
 
-# Project information.
-public type ProjectDetails record {|
+# Project details information.
+public type ProjectDetailsResponse record {|
     *Project;
     # Project type
     string 'type;

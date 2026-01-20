@@ -28,7 +28,7 @@ public isolated function getUserBasicInfo(string email, string idToken) returns 
 # + idToken - ID token for authorization
 # + projectId - Unique ID of the project
 # + return - Project details or error
-public isolated function getProject(string idToken, string projectId) returns ProjectDetails|error {
+public isolated function getProject(string idToken, string projectId) returns ProjectDetailsResponse|error {
     return csEntityClient->/projects/[projectId].get(generateHeaders(idToken));
 }
 
