@@ -23,6 +23,15 @@ public isolated function fetchUserBasicInfo(string email, string idToken) return
     return csEntityClient->/users/me.get(generateHeaders(idToken));
 }
 
+# Get project by ID.
+# 
+# + idToken - ID token for authorization
+# + projectId - Unique ID of the project
+# + return - Project details or error
+public isolated function getProject(string idToken, string projectId) returns ProjectDetails|error {
+    return csEntityClient->/projects/[projectId].get(generateHeaders(idToken));
+}
+
 # Search projects of the logged-in user.
 #
 # + idToken - ID token for authorization

@@ -68,9 +68,9 @@ public type Case record {|
     # Case description
     string? description;
     # Severity of the case
-    entity:KeyValue? severity;
+    entity:IdLabel? severity;
     # State of the case
-    entity:KeyValue? status;
+    entity:IdLabel? status;
     # Deployment ID
     string? deploymentId;
 |};

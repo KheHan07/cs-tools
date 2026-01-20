@@ -38,28 +38,28 @@ public type Pagination record {|
 
 # User data.
 public type UserResponse record {|
-    # System ID of the user
-    string sysId;
-    # Email address of the user
+    # ID
+    string id;
+    # Email address
     string email;
-    # First name of the user
+    # First name
     string firstName;
-    # Last name of the user
+    # Last name
     string lastName;
 |};
 
 # Project data from ServiceNow.
 public type Project record {|
-    # System ID of the project
-    string sysId;
-    # Name of the project
+    # ID
+    string id;
+    # Name
     string name;
-    # Description of the project
-    string? description;
     # Project key
-    string projectKey;
+    string key;
     # Created date and time
     string createdOn;
+    # Description
+    string? description;
 |};
 
 # Request body for searching projects.
@@ -79,32 +79,34 @@ public type ProjectsResponse record {|
 
 # Account owner information.
 public type AccountOwner record {|
-    # System ID of the user
-    string sysId;
-    # Name of the user
+    # ID
+    string id;
+    # Name
     string name;
-    # Email of the user
+    # Email
     string email;
 |};
 
 # Project information.
-public type ProjectDetailsResponse record {|
+public type ProjectDetails record {|
     *Project;
     # Project type
-    string projectType;
-    # Subscription start date
-    string? subscriptionStart;
-    # Subscription end date
-    string? subscriptionEnd;
-    # Support tier
-    string? supportTier;
+    string 'type;
     # SLA status
     string slaStatus;
-    # Account owner information
-    AccountOwner accountOwner;
-    # Technical owner information
-    AccountOwner? technicalOwner;
+    # Subscription information
+    ProjectSubscription? subscription;
     json...;
+|};
+
+# Project subscription information.
+public type ProjectSubscription record {|
+    # Subscription start date
+    string? startDate;
+    # Subscription end date
+    string? endDate;
+    # Support tier
+    string? supportTier;
 |};
 
 # Base case.
@@ -126,19 +128,19 @@ public type Case record {|
     # Case description
     string? description;
     # Severity of the case
-    KeyValue? severity;
+    IdLabel? severity;
     # State of the case
-    KeyValue? state;
+    IdLabel? state;
     # Deployment ID
     string? deploymentId;
 |};
 
-# Key-Value pair type.
-public type KeyValue record {|
-    # Key
-    string? key;
-    # Value
-    string? value;
+# ID and label pair.
+public type IdLabel record {|
+    # ID
+    int id;
+    # Label
+    string? label;
 |};
 
 # Case search filters.

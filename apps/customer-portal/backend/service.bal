@@ -164,6 +164,35 @@ service http:InterceptableService / on new http:Listener(9090) {
         return projectsList;
     }
 
+    # Get project details by ID.
+    #
+    # + id - ID of the project
+    # + return - Project details or error
+    resource function get projects/[string id](http:RequestContext ctx)
+        returns http:InternalServerError|entity:ProjectDetails {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProjectDetails|error projectResponse = entity:getProject(userInfo.idToken, id);
+        if projectResponse is error {
+            string customError = "Error retrieving project details";
+            log:printError(customError, projectResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return projectResponse;
+    }
+
     # Search cases for a specific project with filters and pagination.
     #
     # + id - ID of the project
@@ -213,19 +242,10 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        Case[] cases = from entity:Case case in casesResponse.cases
+        Case[] cases = from entity:Case {state, ...rest} in casesResponse.cases
             select {
-                id: case.id,
-                projectId: case.projectId,
-                'type: case.'type,
-                number: case.number,
-                createdOn: case.createdOn,
-                assignedEngineer: case.assignedEngineer,
-                title: case.title,
-                description: case.description,
-                severity: case.severity,
-                status: case.state,
-                deploymentId: case.deploymentId
+                ...rest,
+                status: state
             };
 
         return {
