@@ -251,16 +251,17 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        CaseFilterOptions|error caseFilters = getCaseFilters(userInfo.idToken, id);
-        if caseFilters is error {
+        entity:CaseMetadataResponse|error caseMetadata = entity:getCaseMetadata(id);
+        if caseMetadata is error {
             string customError = "Error retrieving case filters";
-            log:printError(customError, caseFilters);
+            log:printError(customError, caseMetadata);
             return <http:InternalServerError>{
                 body: {
                     message: customError
                 }
             };
         }
-        return caseFilters;
+
+        return getCaseFilters(caseMetadata);
     }
 }

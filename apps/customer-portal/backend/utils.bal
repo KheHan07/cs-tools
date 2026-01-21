@@ -61,11 +61,9 @@ public isolated function searchCases(string idToken, string projectId, CaseSearc
 
 # Get case filters for a given project.
 #
-# + idToken - ID token for authorization
-# + projectId - Project ID to get filters
+# + caseMetadata - Case metadata response
 # + return - Case filters or error
-public isolated function getCaseFilters(string idToken, string projectId) returns CaseFilterOptions|error {
-    entity:CaseMetadataResponse caseMetadata = check entity:getCaseMetadata(idToken);
+public isolated function getCaseFilters(entity:CaseMetadataResponse caseMetadata) returns CaseFilterOptions {
     ReferenceItem[] statuses = from entity:ChoiceListItem item in caseMetadata.states
         select {id: item.id.toString(), label: item.label};
     ReferenceItem[] severities = from entity:ChoiceListItem item in caseMetadata.severities
