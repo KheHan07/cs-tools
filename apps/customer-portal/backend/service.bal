@@ -190,7 +190,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + caseId - ID of the case
     # + return - Case details or error
     resource function get projects/[string projectId]/cases/[string caseId](http:RequestContext ctx) 
-    returns entity:CaseResponse|http:BadRequest|http:InternalServerError {
+        returns entity:CaseResponse|http:BadRequest|http:InternalServerError {
 
         authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
