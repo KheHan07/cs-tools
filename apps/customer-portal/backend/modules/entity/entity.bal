@@ -41,6 +41,15 @@ public isolated function searchProjects(string idToken, ProjectRequest payload) 
     return csEntityClient->/projects/search.post(payload, generateHeaders(idToken));
 }
 
+# Get case by ID.
+# 
+# + idToken - ID token for authorization
+# + caseId - Unique ID of the case
+# + return - Case details or error
+public isolated function getCase(string idToken, string caseId) returns CaseResponse|error {
+    return csEntityClient->/cases/[caseId].get(generateHeaders(idToken));
+}
+
 # Search cases of a project.
 #
 # + idToken - ID token for authorization

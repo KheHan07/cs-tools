@@ -188,6 +188,33 @@ public type CaseSearchPayload record {|
     Pagination pagination?;
 |};
 
+# Case information.
+public type CaseResponse record {|
+    *Case;
+    # Last updated date and time
+    string updatedOn;
+    # SLA response time
+    string slaResponseTime;
+    # Product information
+    record {
+        *ReferenceTableItem;
+        # Product version
+        string? version;
+    } product;
+    # Account information
+    record {
+        *ReferenceTableItem;
+        # Account type
+        string? 'type;
+    } account;
+    # CS Manager information
+    record {
+        *ReferenceTableItem;
+        # Email address
+        string? email;
+    } csManager;
+|};
+
 # Sort configuration.
 public type SortBy record {|
     # Field to sort by
