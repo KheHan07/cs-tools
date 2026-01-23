@@ -79,11 +79,11 @@ public isolated function getCaseFilters(entity:CaseMetadataResponse caseMetadata
     };
 }
 
-# Validates the given project ID.
+# Validates the given ID.
 #
-# + id - Project ID to validate
+# + id - ID to validate
 # + return - True if valid, else false
-public isolated function isValidProjectId(string id) returns boolean => id.trim().length() != 0;
+public isolated function isValidId(string id) returns boolean => id.trim().length() != 0;
 
 # Get mobile phone number from SCIM users.
 #
