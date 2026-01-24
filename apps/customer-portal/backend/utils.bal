@@ -166,3 +166,10 @@ public isolated function extractErrorMessage(error err) returns string {
     anydata|readonly errorMessage = errorDetails[ERR_BODY] ?: ();
     return errorMessage is string ? errorMessage : UNEXPECTED_ERROR_MSG;
 }
+
+# Log forbidden project access attempt.
+#
+# + id - Project ID
+# + uuid - User UUID
+public isolated function logForbiddenProjectAccess(string id, string uuid) =>
+    log:printWarn(string `Access to project ID: ${id} is forbidden for user: ${uuid}`);

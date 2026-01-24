@@ -320,7 +320,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.email);
+                logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
                         message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
@@ -393,7 +393,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.email);
+                logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
                         message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
@@ -431,6 +431,8 @@ service http:InterceptableService / on new http:Listener(9090) {
         ProjectCaseStats? cachedCaseStats = getCaseStatsFromCache(id);
         // If case stats are cached, return support stats using cached data
         if cachedCaseStats is ProjectCaseStats {
+            // Cache support stats
+            _ = updateSupportStatsCache(id, chatStats, cachedCaseStats.totalCases);
             return {
                 totalCases: cachedCaseStats.totalCases,
                 activeChats: chatStats.activeCount,
@@ -492,7 +494,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.email);
+                logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
                         message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
@@ -514,6 +516,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             return cachedProjectHealthStats;
         }
 
+        // Fetch deployment stats
         entity:ProjectDeploymentStatsResponse|error deploymentStats =
             entity:getDeploymentStatsForProject(userInfo.idToken, id);
         if deploymentStats is error {
@@ -533,6 +536,9 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         if cachedCaseStats is ProjectCaseStats {
             if cachedSupportStats is ProjectSupportStats {
+                // Cache project health stats
+                _ = updateProjectHealthStatsCache(id, cachedCaseStats.openCases, cachedSupportStats.activeChats,
+                        deploymentStats);
                 return {
                     openCases: cachedCaseStats.openCases,
                     activeChats: cachedSupportStats.activeChats,
@@ -553,6 +559,8 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
             // Cache support stats
             _ = updateSupportStatsCache(id, chatStats, cachedCaseStats.totalCases);
+            // Cache project health stats
+            _ = updateProjectHealthStatsCache(id, cachedCaseStats.openCases, chatStats.activeCount, deploymentStats);
             return {
                 openCases: cachedCaseStats.openCases,
                 activeChats: chatStats.activeCount,
