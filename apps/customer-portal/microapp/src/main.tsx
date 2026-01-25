@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import App from "@src/App";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@src/index.css";
-import App from "@src/App";
 import { AuthProvider } from "@asgardeo/auth-react";
-import { ASGARDEO_BASE_URL, CLIENT_ID, SIGN_IN_REDIRECT_URL, SIGN_OUT_REDIRECT_URL } from "@config/config";
-import { CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import theme from "@src/theme";
+import { OxygenUIThemeProvider } from "@wso2/oxygen-ui";
+import "@src/index.css";
+
+import { ASGARDEO_BASE_URL, CLIENT_ID, SIGN_IN_REDIRECT_URL, SIGN_OUT_REDIRECT_URL } from "@config/config";
+import theme from "./theme";
 
 const authConfig = {
   clientID: CLIENT_ID || "",
@@ -37,12 +38,11 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider config={authConfig}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <OxygenUIThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <App />
         </QueryClientProvider>
-      </ThemeProvider>
+      </OxygenUIThemeProvider>
     </AuthProvider>
   </StrictMode>,
 );

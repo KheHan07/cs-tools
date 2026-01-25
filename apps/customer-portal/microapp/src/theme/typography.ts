@@ -14,52 +14,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
-export const pxToRem = (px: number) => `${px / 16}rem`;
+import { pxToRem } from "@wso2/oxygen-ui";
 
 export const typography = {
-  fontFamily: '"Plus Jakarta Sans", "Roboto", "Arial", sans-serif',
-  fontSize: 14,
-  fontWeightLight: 300,
-  fontWeightRegular: 400,
-  fontWeightMedium: 550,
-  fontWeightBold: 600,
   h1: {
-    fontSize: pxToRem(40),
+    fontSize: pxToRem(36),
   },
   h2: {
-    fontSize: pxToRem(32),
-  },
-  h3: {
     fontSize: pxToRem(28),
   },
-  h4: {
-    fontSize: pxToRem(23),
+  h3: {
+    fontSize: pxToRem(24),
   },
-  h5: {
+  h4: {
     fontSize: pxToRem(20),
   },
+  h5: {
+    fontSize: pxToRem(18),
+  },
   h6: {
-    fontSize: pxToRem(17),
+    fontSize: pxToRem(16),
   },
   subtitle1: {
-    fontSize: pxToRem(15),
-  },
-  subtitle2: {
     fontSize: pxToRem(14),
   },
-  body1: {
-    fontSize: pxToRem(16),
-  },
-  body2: {
-    fontSize: pxToRem(15.5),
-  },
-  button: {
-    fontSize: pxToRem(16),
-  },
-  caption: {
+  subtitle2: {
     fontSize: pxToRem(12),
   },
+  body1: {
+    fontSize: pxToRem(14),
+  },
+  body2: {
+    fontSize: pxToRem(13),
+  },
+  button: {
+    fontSize: pxToRem(14),
+  },
+  caption: {
+    fontSize: pxToRem(10),
+  },
   overline: {
-    fontSize: pxToRem(11),
+    fontSize: pxToRem(8),
   },
 };

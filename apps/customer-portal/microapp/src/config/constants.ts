@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { colors } from "@wso2/oxygen-ui";
 import {
-  AutorenewOutlined,
-  Bedtime,
-  CalendarMonthOutlined,
-  ChatBubbleOutline,
+  Calendar,
+  CircleAlert,
   Cloud,
-  ErrorOutline,
-  PeopleAltOutlined,
-  Report,
-  SettingsOutlined,
-  ThumbUpAlt,
-  type SvgIconComponent,
-} from "@mui/icons-material";
+  MessageSquare,
+  Moon,
+  RefreshCcw,
+  Settings,
+  Users,
+  type LucideIcon,
+} from "@wso2/oxygen-ui-icons-react";
 import type {
   ProjectMetricKey,
   ProjectMetricMeta,
@@ -37,20 +36,20 @@ import type {
 export const INPUT_INVALID_MSG_GATEWAY = "INPUT_INVALID_MSG_GATEWAY";
 
 export const PROJECT_METRIC_META: Record<ProjectMetricKey, ProjectMetricMeta> = {
-  cases: { label: "Cases:", color: "components.portal.accent.orange", icon: ErrorOutline },
-  chats: { label: "Chats:", color: "components.portal.accent.blue", icon: ChatBubbleOutline },
-  service: { label: "Service:", color: "components.portal.accent.purple", icon: SettingsOutlined },
-  change: { label: "Change:", color: "components.portal.accent.cyan", icon: AutorenewOutlined },
-  users: { label: "Users:", color: "text.primary", icon: PeopleAltOutlined },
-  date: { label: "Date:", icon: CalendarMonthOutlined },
+  cases: { label: "Cases:", color: colors.red[300], icon: CircleAlert },
+  chats: { label: "Chats:", color: colors.indigo[300], icon: MessageSquare },
+  service: { label: "Service:", color: colors.purple[300], icon: Settings },
+  change: { label: "Change:", color: colors.cyan[300], icon: RefreshCcw },
+  users: { label: "Users:", color: "text.primary", icon: Users },
+  date: { label: "Date:", icon: Calendar },
 };
 
-export const PROJECT_TYPE_META: Record<ProjectType, { icon: SvgIconComponent }> = {
-  Regular: { icon: Bedtime },
+export const PROJECT_TYPE_META: Record<ProjectType, { icon: LucideIcon }> = {
+  Regular: { icon: Moon },
   "Managed Cloud": { icon: Cloud },
 };
 
-export const PROJECT_STATUS_META: Record<ProjectStatus, { color: "success" | "warning"; icon: SvgIconComponent }> = {
-  "All Good": { color: "success", icon: ThumbUpAlt },
-  "Needs Attention": { color: "warning", icon: Report },
+export const PROJECT_STATUS_META: Record<ProjectStatus, { color: "success" | "warning" }> = {
+  "All Good": { color: "success" },
+  "Needs Attention": { color: "warning" },
 };

@@ -28,8 +28,8 @@ import {
 import { useLayout } from "@context/layout";
 import { ButtonBase as Button, Card, Divider, Stack, Switch, Typography } from "@mui/material";
 import { useLayoutEffect, type ReactNode } from "react";
-import { Avatar } from "@components/features/users";
 import { SettingListItem } from "@components/features/settings";
+import { Avatar } from "@components/features/users";
 
 export default function ProfilePage() {
   const layout = useLayout();
@@ -112,7 +112,7 @@ export default function ProfilePage() {
         />
       </SectionCard>
 
-      <Button variant="outlined" sx={{ bgcolor: "background.paper", color: "error.main", fontWeight: "medium" }}>
+      <Button sx={{ bgcolor: "background.paper", color: "error.main", fontWeight: "medium" }}>
         <Logout color="error" />
         Log Out
       </Button>

@@ -15,8 +15,8 @@
 // under the License.
 
 import { Suspense } from "react";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
-import { FolderOpen } from "@mui/icons-material";
+import { Box, CircularProgress, Stack, Typography, useTheme } from "@wso2/oxygen-ui";
+import { Folder } from "@wso2/oxygen-ui-icons-react";
 import { ProjectCard } from "@components/features/projects";
 import { useNavigate } from "react-router-dom";
 import { useProject } from "@context/project";
@@ -45,6 +45,7 @@ export default function SelectProjectPage() {
 }
 
 function SelectProjectContent() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { setProjectId } = useProject();
 
@@ -54,9 +55,9 @@ function SelectProjectContent() {
   // });
 
   return (
-    <Box bgcolor="components.portal.background.main" minHeight="100vh" px={2.5} py={5}>
+    <Box minHeight="100vh" px={2.5} py={5}>
       <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
-        <FolderOpen color="primary" fontSize="large" />
+        <Folder size={24} color={theme.palette.primary.main} />
         <Typography variant="h4" fontWeight="bold">
           Select Your Project
         </Typography>

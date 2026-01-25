@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { ArrowForward, type SvgIconComponent } from "@mui/icons-material";
-import { Box, ButtonBase as Button, Card, Chip, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, Chip, Grid, Stack, Typography, pxToRem, useTheme } from "@wso2/oxygen-ui";
+import { ArrowRight, type LucideIcon } from "@wso2/oxygen-ui-icons-react";
 
 import { PROJECT_METRIC_META, PROJECT_STATUS_META, PROJECT_TYPE_META } from "@root/src/config/constants";
 
@@ -27,7 +27,7 @@ export type ProjectMetrics = Partial<Record<ProjectMetricKey, ProjectMetricValue
 
 export interface ProjectMetricMeta {
   label: string;
-  icon: SvgIconComponent;
+  icon: LucideIcon;
   color?: string;
 }
 
@@ -45,31 +45,27 @@ export interface ProjectCardProps {
 
 export function ProjectCard({ id, name, description, type, status, metrics, onClick }: ProjectCardProps) {
   const TypeChipIcon = PROJECT_TYPE_META[type].icon;
-  const StatusChipIcon = PROJECT_STATUS_META[status].icon;
   const statusChipColorVariant = PROJECT_STATUS_META[status].color;
 
   return (
-    <Card elevation={0} sx={(theme) => ({ borderRadius: 3, border: `1px solid ${theme.palette.divider}` })}>
+    <Card>
       <Stack p={2} gap={1}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1.5}>
-          <Typography variant="subtitle2" fontWeight="regular">
-            {id}
-          </Typography>
-          <Chip
-            label={status}
-            size="small"
-            color={statusChipColorVariant}
-            icon={<StatusChipIcon />}
-            iconPosition="end"
-          />
+          <Typography variant="subtitle2">{id}</Typography>
+          <Chip label={status} size="small" color={statusChipColorVariant} />
         </Stack>
         <Typography variant="h6" mt={-0.8}>
           {name}
         </Typography>
-        <Chip label={type} size="small" icon={<TypeChipIcon />} sx={{ alignSelf: "start", borderRadius: 1 }} />
+        <Chip
+          label={type}
+          size="small"
+          icon={<TypeChipIcon size={pxToRem(18)} />}
+          sx={{ alignSelf: "start", borderRadius: 1 }}
+        />
         <Typography variant="body2">{description}</Typography>
       </Stack>
-      <Grid bgcolor="components.portal.background.secondary" p={2} spacing={1.5} container>
+      <Grid p={2} spacing={1.5} container>
         {Object.keys(metrics).map((key) => {
           const meta = PROJECT_METRIC_META[key as ProjectMetricKey];
           const value = metrics[key as ProjectMetricKey];
@@ -83,10 +79,14 @@ export function ProjectCard({ id, name, description, type, status, metrics, onCl
           );
         })}
       </Grid>
-      <Box p={3}>
-        <Button variant="contained" sx={{ width: "100%", fontWeight: "bold" }} onClick={onClick}>
+      <Box component={Stack} p={2} pt={3}>
+        <Button
+          variant="contained"
+          sx={{ display: "flex", textTransform: "initial", width: "100%", gap: 1 }}
+          onClick={onClick}
+        >
           View Dashboard
-          <ArrowForward sx={(theme) => ({ fontSize: theme.typography.pxToRem(20) })} />
+          <ArrowRight size={pxToRem(18)} />
         </Button>
       </Box>
     </Card>
@@ -94,13 +94,15 @@ export function ProjectCard({ id, name, description, type, status, metrics, onCl
 }
 
 function MetricItem({ meta, value }: { meta: ProjectMetricMeta; value: ProjectMetricValue }) {
+  const theme = useTheme();
+
   return (
     <Stack direction="row" alignItems="center" spacing={1}>
-      <meta.icon sx={(theme) => ({ color: "text.secondary", fontSize: theme.typography.pxToRem(20) })} />
-      <Typography variant="subtitle1" fontWeight="regular">
+      <meta.icon size={pxToRem(18)} color={theme.palette.text.secondary} />
+      <Typography variant="body2" fontWeight="regular">
         {meta.label}
       </Typography>
-      <Typography variant="subtitle1" fontWeight="regular" color={meta.color}>
+      <Typography variant="body2" fontWeight="regular" color={meta.color}>
         {value}
       </Typography>
     </Stack>

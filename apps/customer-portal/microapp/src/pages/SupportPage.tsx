@@ -15,7 +15,7 @@
 // under the License.
 
 import { Try } from "@mui/icons-material";
-import { ButtonBase as Button, Card, Grid, Stack, styled, Tab, Tabs as MuiTabs, Typography } from "@mui/material";
+import { Button, Card, Grid, Stack, styled, Tab, Tabs as MuiTabs, Typography } from "@wso2/oxygen-ui";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MetricWidget } from "@components/features/dashboard";

@@ -1,6 +1,7 @@
-import type { ProjectCardProps } from "@root/src/components/features/projects";
-import { Chip, Stack, Typography } from "@mui/material";
-import { Check, Circle } from "@mui/icons-material";
+import { Chip, Stack, Typography, useTheme } from "@wso2/oxygen-ui";
+import type { ProjectCardProps } from "@components/features/projects";
+import { Check } from "@wso2/oxygen-ui-icons-react";
+import { Circle } from "@mui/icons-material";
 
 import { PROJECT_STATUS_META } from "@config/constants";
 
@@ -15,13 +16,13 @@ export function ProjectPopoverItem({
   active?: boolean;
   onClick: () => void;
 }) {
-  const StatusChipIcon = PROJECT_STATUS_META[status].icon;
+  const theme = useTheme();
   const statusChipColorVariant = PROJECT_STATUS_META[status].color;
 
   return (
     <Stack
       component="button"
-      bgcolor={active ? "components.popover.state.active.background" : "inherit"}
+      bgcolor={active ? "background.secondary" : "inherit"}
       sx={{ cursor: "pointer", border: "none" }}
       gap={0.6}
       px={2}
@@ -32,10 +33,10 @@ export function ProjectPopoverItem({
         <Typography variant="subtitle1" fontWeight="medium" color="text.primary">
           {name}
         </Typography>
-        {active && <Check color="primary" />}
+        {active && <Check color={theme.palette.primary.main} />}
       </Stack>
       <Stack direction="row" alignItems="center" gap={1.5}>
-        <Chip label={status} size="small" color={statusChipColorVariant} iconPosition="end" icon={<StatusChipIcon />} />
+        <Chip label={status} size="small" color={statusChipColorVariant} />
         <Typography color="text.secondary" sx={(theme) => ({ fontSize: theme.typography.pxToRem(13) })}>
           {type}
         </Typography>

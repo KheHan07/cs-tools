@@ -1,7 +1,7 @@
-import { Box, Popover, Stack, Typography, type PopoverProps } from "@mui/material";
+import { Box, Popover, pxToRem, Stack, Typography, type PopoverProps } from "@wso2/oxygen-ui";
 import { ProjectPopoverItem } from "@components/features/projects";
 import { useProject } from "@context/project";
-import { MOCK_PROJECTS } from "@root/src/mocks/data/projects";
+import { MOCK_PROJECTS } from "@src/mocks/data/projects";
 
 export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
   const { projectId, setProjectId } = useProject();
@@ -32,12 +32,7 @@ export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
         },
       }}
     >
-      <Typography
-        color="text.secondary"
-        fontWeight="medium"
-        sx={(theme) => ({ fontSize: theme.typography.pxToRem(13) })}
-        px={2}
-      >
+      <Typography color="text.secondary" fontWeight="medium" sx={{ fontSize: pxToRem(13) }} px={2}>
         Select Project
       </Typography>
       <Stack gap={1} pt={1}>

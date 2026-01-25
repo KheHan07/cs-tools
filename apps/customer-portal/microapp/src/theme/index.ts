@@ -14,16 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { createTheme } from "@mui/material";
-import { palette } from "@theme/palette";
+import { ClassicTheme, extendTheme } from "@wso2/oxygen-ui";
 import { typography } from "@theme/typography";
-import ComponentOverrides from "@theme/overrides";
 
-const theme = createTheme({
-  palette,
+import type { OxygenTheme } from "@wso2/oxygen-ui/styles/Themes/OxygenThemeBase";
+
+const theme = extendTheme(ClassicTheme, {
   typography,
-});
-
-theme.components = ComponentOverrides(theme);
+}) as OxygenTheme;
 
 export default theme;

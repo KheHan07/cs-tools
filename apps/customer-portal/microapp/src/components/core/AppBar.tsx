@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AppBar as MuiAppBar, ButtonBase as Button, Chip, IconButton, Stack, Typography } from "@mui/material";
-import { ArrowBack, ExpandMore, Folder, NotificationsOutlined } from "@mui/icons-material";
+import { AppBar as MuiAppBar, Button, Chip, IconButton, Stack, Typography, pxToRem, useTheme } from "@wso2/oxygen-ui";
 
 import { NotificationBadge } from "@components/ui";
 import { ProjectSelector } from "@components/features/projects";
@@ -11,8 +10,10 @@ import { useProject } from "@context/project";
 import { APP_BAR_CONFIG } from "@components/layout/config";
 import { MOCK_PROJECTS } from "@src/mocks/data/projects";
 import { PROJECT_STATUS_META, PROJECT_TYPE_META } from "@config/constants";
+import { ArrowLeft, Bell, ChevronDown, Folder } from "@wso2/oxygen-ui-icons-react";
 
 export function AppBar() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { title, appBarVariant, overlineSlot, subtitleSlot, startSlot, endSlot, appBarSlots, hasBackAction } =
     useLayout();
@@ -37,7 +38,6 @@ export function AppBar() {
   if (!project) return null;
 
   const TypeChipIcon = PROJECT_TYPE_META[project.type].icon;
-  const StatusChipIcon = PROJECT_STATUS_META[project.status].icon;
   const statusChipColorVariant = PROJECT_STATUS_META[project.status].color;
 
   return (
@@ -73,27 +73,21 @@ export function AppBar() {
         {config.showProjectSelector && (
           <Button sx={{ justifyContent: "space-between", p: 0 }} onClick={openProjectSelector} disableRipple>
             <Stack direction="row" gap={1}>
-              <Folder sx={{ color: "text.secondary" }} />
-              <Typography variant="body2" color="text.secondary">
+              <Folder color={theme.palette.text.secondary} size={pxToRem(18)} />
+              <Typography variant="body2" color="text.secondary" sx={{ textTransform: "initial" }}>
                 {project.name}
               </Typography>
             </Stack>
-            <ExpandMore sx={{ color: "text.tertiary" }} />
+            <ChevronDown color={theme.palette.text.secondary} size={pxToRem(18)} />
           </Button>
         )}
         {config.showChips && (
           <Stack direction="row" gap={2} mt={1.5}>
-            <Chip
-              label={project.status}
-              size="small"
-              color={statusChipColorVariant}
-              icon={<StatusChipIcon />}
-              iconPosition="end"
-            />
+            <Chip label={project.status} size="small" color={statusChipColorVariant} />
             <Chip
               label={project.type}
-              size="small"
               icon={<TypeChipIcon />}
+              size="small"
               sx={{ alignSelf: "start", borderRadius: 1 }}
             />
           </Stack>
@@ -110,23 +104,20 @@ export function AppBar() {
 }
 
 function NotificationButton({ to }: { to: string }) {
+  const theme = useTheme();
+
   return (
     <IconButton
       component={Link}
       to={to}
       sx={{
         position: "absolute",
-        right: 4,
+        right: 10,
         top: 10,
         p: 0,
       }}
     >
-      <NotificationsOutlined
-        sx={(theme) => ({
-          fontSize: theme.typography.pxToRem(26),
-          color: "text.secondary",
-        })}
-      />
+      <Bell size={pxToRem(20)} color={theme.palette.text.secondary} />
       <NotificationBadge badgeContent={1} color="primary" overlap="circular" />
     </IconButton>
   );
@@ -135,11 +126,7 @@ function NotificationButton({ to }: { to: string }) {
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <IconButton onClick={onClick} sx={{ p: 0 }} disableRipple>
-      <ArrowBack
-        sx={(theme) => ({
-          fontSize: theme.typography.pxToRem(26),
-        })}
-      />
+      <ArrowLeft size={pxToRem(20)} />
     </IconButton>
   );
 }

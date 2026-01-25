@@ -24,7 +24,7 @@ export function RoleSelector({ value, onChange }: RoleSelectorProps) {
   );
 }
 
-function RoleOption({ role }: { role: RoleName }) {
+export function RoleOption({ role }: { role: RoleName }) {
   const admin = role === "Admin";
 
   return (

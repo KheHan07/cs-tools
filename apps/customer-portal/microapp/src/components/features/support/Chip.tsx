@@ -11,8 +11,8 @@ interface PriorityChipProps extends Omit<ChipProps, "label"> {
 const StyledPriorityChip = styled(MuiChip, {
   shouldForwardProp: (prop) => prop !== "prefix" && prop !== "priority",
 })<PriorityChipProps>(({ theme, priority }) => ({
-  color: theme.palette.components.priority[priority].text,
-  backgroundColor: theme.palette.components.priority[priority].background,
+  // color: theme.palette.components.priority[priority].text,
+  // backgroundColor: theme.palette.components.priority[priority].background,
 }));
 
 export function PriorityChip({ prefix, priority, ...props }: PriorityChipProps) {
@@ -31,8 +31,8 @@ interface StatusChipProps extends Omit<ChipProps, "label"> {
 const StyledStatusChip = styled(MuiChip, {
   shouldForwardProp: (prop) => prop !== "status",
 })<StatusChipProps>(({ theme, status }) => ({
-  color: theme.palette.components.status[status].text,
-  backgroundColor: theme.palette.components.status[status].background,
+  // color: theme.palette.components.status[status].text,
+  // backgroundColor: theme.palette.components.status[status].background,
   borderRadius: 3,
 }));
 
