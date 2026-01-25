@@ -32,7 +32,7 @@ final cache:Cache userCache = new ({
 // Cache for statistics data short-term period
 final cache:Cache statsCache = new ({
     capacity: 1000,
-    defaultMaxAge: 900,
+    defaultMaxAge: 300,
     evictionFactor: 0.2
 });
 
