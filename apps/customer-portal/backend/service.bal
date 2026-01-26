@@ -292,6 +292,173 @@ service http:InterceptableService / on new http:Listener(9090) {
         return projectResponse;
     }
 
+    # Get overall project statistics by ID.
+    #
+    # + id - ID of the project
+    # + return - Project statistics response or error
+    resource function get projects/[string id]/stats(http:RequestContext ctx)
+        returns ProjectStatsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if !isValidId(id) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_MSG_PROJECT_ID_EMPTY
+                }
+            };
+        }
+
+        // Verify project access
+        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
+        if projectResponse is error {
+            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
+                logForbiddenProjectAccess(id, userInfo.userId);
+                return <http:Forbidden>{
+                    body: {
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                    }
+                };
+            }
+
+            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
+                }
+            };
+        }
+
+        // Check project cache first
+        ProjectStatsResponse? cachedProjectStats = getProjectResponseStatsFromCache(id);
+        if cachedProjectStats is ProjectStatsResponse {
+            return cachedProjectStats;
+        }
+
+        // Fetch deployment stats
+        entity:ProjectDeploymentStatsResponse|error deploymentStats =
+            entity:getDeploymentStatsForProject(userInfo.idToken, id);
+        if deploymentStats is error {
+            string customError = "Error retrieving project deployment statistics";
+            log:printError(customError, deploymentStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        // Fetch project stats
+        entity:ProjectStatsResponse|error projectStats = entity:getProjectStats(userInfo.idToken, id);
+        if projectStats is error {
+            string customError = "Error retrieving project statistics";
+            log:printError(customError, projectStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        RecentActivity recentActivityResponse = {
+            totalTimeLogged: projectStats.totalTimeLogged,
+            billableHours: projectStats.billableHours,
+            lastDeploymentOn: deploymentStats.lastDeploymentOn,
+            systemHealth: projectStats.systemHealth
+        };
+
+        // Check case stats cache
+        ProjectCaseStats? cachedCaseStats = getCaseStatsFromCache(id);
+        // Check support stats cache
+        ProjectSupportStats? cachedSupportStats = getSupportStatsFromCache(id);
+
+        if cachedCaseStats is ProjectCaseStats {
+            if cachedSupportStats is ProjectSupportStats {
+                ProjectStats projectStatsResponse = {
+                    openCases: cachedCaseStats.openCases,
+                    activeChats: cachedSupportStats.activeChats,
+                    deployments: deploymentStats.totalCount
+                };
+
+                // Cache project response stats
+                _ = updateProjectResponseStatsCache(id, projectStatsResponse, recentActivityResponse);
+    
+                return {projectStats: projectStatsResponse, recentActivity: recentActivityResponse};
+            }
+
+            // Fetch chat stats if not cached
+            entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
+            if chatStats is error {
+                string customError = "Error retrieving project chat statistics";
+                log:printError(customError, chatStats);
+                return <http:InternalServerError>{
+                    body: {
+                        message: customError
+                    }
+                };
+            }
+
+            ProjectStats projectStatsResponse = {
+                openCases: cachedCaseStats.openCases,
+                activeChats: chatStats.activeCount,
+                deployments: deploymentStats.totalCount
+            };
+
+            // Cache support stats
+            _ = updateSupportStatsCache(id, chatStats, cachedCaseStats.totalCases);
+            // Cache project stats
+            _ = updateProjectResponseStatsCache(id, projectStatsResponse, recentActivityResponse);
+
+            return {projectStats: projectStatsResponse, recentActivity: recentActivityResponse};
+        }
+
+        // Fetch case stats if not cached
+        entity:ProjectCaseStatsResponse|error caseStats = entity:getCaseStatsForProject(userInfo.idToken, id);
+        if caseStats is error {
+            string customError = "Error retrieving project case statistics";
+            log:printError(customError, caseStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        // Cache case stats
+        _ = updateCaseStatsCache(id, caseStats);
+
+        // Fetch chat stats if not cached
+        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
+        if chatStats is error {
+            string customError = "Error retrieving project chat statistics";
+            log:printError(customError, chatStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        ProjectStats projectStatsResponse = {
+            openCases: caseStats.openCount,
+            activeChats: chatStats.activeCount,
+            deployments: deploymentStats.totalCount
+        };
+
+        // Cache support stats
+        _ = updateSupportStatsCache(id, chatStats, caseStats.totalCount);
+        // Cache project response stats
+        _ = updateProjectResponseStatsCache(id, projectStatsResponse, recentActivityResponse);
+
+        return {projectStats: projectStatsResponse, recentActivity: recentActivityResponse};
+    }
+
     # Get cases statistics for a project by ID.
     #
     # + id - ID of the project
@@ -311,7 +478,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if !isValidId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Project ID cannot be empty or whitespace"
+                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -384,7 +551,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if !isValidId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Project ID cannot be empty or whitespace"
+                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -463,146 +630,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             activeChats: chatStats.activeCount,
             sessionChats: chatStats.sessionCount,
             resolvedChats: chatStats.resolvedCount
-        };
-    }
-
-    # Get overall project health statistics by ID.
-    #
-    # + id - ID of the project
-    # + return - Project health statistics or error response
-    resource function get projects/[string id]/stats/health(http:RequestContext ctx)
-        returns ProjectHealthStats|http:BadRequest|http:Forbidden|http:InternalServerError {
-
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if !isValidId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: "Project ID cannot be empty or whitespace"
-                }
-            };
-        }
-
-        // Verify project access
-        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
-                }
-            };
-        }
-
-        // Check project health cache first
-        ProjectHealthStats? cachedProjectHealthStats = getHealthStatsFromCache(id);
-        if cachedProjectHealthStats is ProjectHealthStats {
-            return cachedProjectHealthStats;
-        }
-
-        // Fetch deployment stats
-        entity:ProjectDeploymentStatsResponse|error deploymentStats =
-            entity:getDeploymentStatsForProject(userInfo.idToken, id);
-        if deploymentStats is error {
-            string customError = "Error retrieving project deployment statistics";
-            log:printError(customError, deploymentStats);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        // Check case stats cache
-        ProjectCaseStats? cachedCaseStats = getCaseStatsFromCache(id);
-        // Check support stats cache
-        ProjectSupportStats? cachedSupportStats = getSupportStatsFromCache(id);
-
-        if cachedCaseStats is ProjectCaseStats {
-            if cachedSupportStats is ProjectSupportStats {
-                // Cache project health stats
-                _ = updateProjectHealthStatsCache(id, cachedCaseStats.openCases, cachedSupportStats.activeChats,
-                        deploymentStats);
-                return {
-                    openCases: cachedCaseStats.openCases,
-                    activeChats: cachedSupportStats.activeChats,
-                    deployments: deploymentStats.totalCount
-                };
-            }
-
-            // Fetch chat stats if not cached
-            entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-            if chatStats is error {
-                string customError = "Error retrieving project chat statistics";
-                log:printError(customError, chatStats);
-                return <http:InternalServerError>{
-                    body: {
-                        message: customError
-                    }
-                };
-            }
-            // Cache support stats
-            _ = updateSupportStatsCache(id, chatStats, cachedCaseStats.totalCases);
-            // Cache project health stats
-            _ = updateProjectHealthStatsCache(id, cachedCaseStats.openCases, chatStats.activeCount, deploymentStats);
-            return {
-                openCases: cachedCaseStats.openCases,
-                activeChats: chatStats.activeCount,
-                deployments: deploymentStats.totalCount
-            };
-        }
-
-        // Fetch case stats if not cached
-        entity:ProjectCaseStatsResponse|error caseStats = entity:getCaseStatsForProject(userInfo.idToken, id);
-        if caseStats is error {
-            string customError = "Error retrieving project case statistics";
-            log:printError(customError, caseStats);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        // Cache case stats
-        _ = updateCaseStatsCache(id, caseStats);
-
-        // Fetch chat stats if not cached
-        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-        if chatStats is error {
-            string customError = "Error retrieving project chat statistics";
-            log:printError(customError, chatStats);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        // Cache support stats
-        _ = updateSupportStatsCache(id, chatStats, caseStats.totalCount);
-
-        // Cache project health stats
-        _ = updateProjectHealthStatsCache(id, caseStats.openCount, chatStats.activeCount, deploymentStats);
-
-        return {
-            openCases: caseStats.openCount,
-            activeChats: chatStats.activeCount,
-            deployments: deploymentStats.totalCount
         };
     }
 

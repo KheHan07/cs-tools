@@ -317,4 +317,6 @@ public type ProjectChatStatsResponse record {|
 public type ProjectDeploymentStatsResponse record {|
     # Total deployment count
     int totalCount;
+    # Last deployment date
+    string? lastDeploymentOn;
 |};

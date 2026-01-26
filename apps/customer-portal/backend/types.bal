@@ -164,12 +164,32 @@ public type ProjectSupportStats record {|
     int resolvedChats;
 |};
 
-# Project health statistics.
-public type ProjectHealthStats record {|
+# Project statistics.
+public type ProjectStats record {|
     # Open cases count
     int openCases;
     # Active chats count
     int activeChats;
     # Deployments count
     int deployments;
+|};
+
+# Recent activity details.
+public type RecentActivity record {|
+    # Total time logged
+    decimal totalTimeLogged;
+    # Billable hours
+    decimal billableHours;
+    # Last deployment date
+    string? lastDeploymentOn;
+    # System health status
+    string systemHealth; 
+|};
+
+# Project statistics response.
+public type ProjectStatsResponse record {|
+    # Project statistics
+    ProjectStats projectStats;
+    # Recent activity details
+    RecentActivity recentActivity;
 |};
