@@ -1,7 +1,7 @@
-import { Box, Stack, styled, Typography } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@wso2/oxygen-ui";
 import { PieChart, useDrawingArea } from "@mui/x-charts";
-import { WidgetBox } from "@components/ui";
 import { Circle } from "@mui/icons-material";
+import { WidgetBox } from "@components/ui";
 
 export interface PieDataItem {
   label: string;
@@ -43,19 +43,21 @@ export function PieChartWidget({ title, data }: PieChartWidgetProps) {
   );
 }
 
-const StyledText = styled("text")(({ theme }) => ({
-  fill: theme.palette.text.secondary,
-  textAnchor: "middle",
-  dominantBaseline: "central",
-  fontSize: 20,
-  fontWeight: 500,
-}));
-
 function PieCenterLabel({ children }: { children: React.ReactNode }) {
+  const theme = useTheme();
   const { width, height, left, top } = useDrawingArea();
+
   return (
-    <StyledText x={left + width / 2} y={top + height / 2}>
+    <text
+      x={left + width / 2}
+      y={top + height / 2}
+      fill={theme.palette.text.secondary}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={20}
+      fontWeight={500}
+    >
       {children}
-    </StyledText>
+    </text>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Card, Stack, Typography, type CardProps } from "@mui/material";
+import { Card, Stack, Typography, type CardProps } from "@wso2/oxygen-ui";
 
 interface WidgetBoxProps extends Omit<CardProps, "variant"> {
   title?: string;
@@ -8,7 +8,7 @@ interface WidgetBoxProps extends Omit<CardProps, "variant"> {
 
 export function WidgetBox({ title, children, ...props }: WidgetBoxProps) {
   return (
-    <Card component={Stack} p={1.2} gap={0.5} elevation={0} sx={{ height: "100%" }} {...props}>
+    <Card component={Stack} p={1.2} gap={0.5} sx={{ height: "100%" }} {...props}>
       {title && (
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" fontWeight="medium" color="text.secondary">

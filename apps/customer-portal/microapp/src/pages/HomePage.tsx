@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { Grid, colors, pxToRem } from "@wso2/oxygen-ui";
+import { CircleCheck, Clock4, OctagonAlert } from "@wso2/oxygen-ui-icons-react";
 import { MetricWidget, PieChartWidget, BarChartWidget } from "@components/features/dashboard";
-import { Grid } from "@mui/material";
-import { CheckCircle, Report, WatchLater } from "@mui/icons-material";
 
 import {
   MOCK_BAR_CHART_DATA_CASES_TREND,
@@ -34,7 +34,7 @@ export default function HomePage() {
             label="Active Cases"
             value={10}
             trend={{ direction: "up", value: "+10%" }}
-            icon={<Report sx={{ color: "components.portal.accent.orange" }} />}
+            icon={<OctagonAlert size={pxToRem(18)} color={colors.orange[500]} />}
           />
         </Grid>
         <Grid size={6}>
@@ -42,7 +42,7 @@ export default function HomePage() {
             label="All Cases"
             value={25}
             trend={{ direction: "up", value: "+3%" }}
-            icon={<Report sx={{ color: "components.portal.accent.yellow" }} />}
+            icon={<OctagonAlert size={pxToRem(18)} color={colors.yellow[700]} />}
           />
         </Grid>
         <Grid size={6}>
@@ -50,7 +50,7 @@ export default function HomePage() {
             label="Resolved This Month"
             value={47}
             trend={{ direction: "up", value: "+18%" }}
-            icon={<CheckCircle sx={{ color: "components.portal.accent.green" }} />}
+            icon={<CircleCheck size={pxToRem(18)} color={colors.green[500]} />}
           />
         </Grid>
         <Grid size={6}>
@@ -58,7 +58,7 @@ export default function HomePage() {
             label="Average Response Time"
             value="2.4H"
             trend={{ direction: "down", value: "-15%" }}
-            icon={<WatchLater sx={{ color: "components.portal.accent.purple" }} />}
+            icon={<Clock4 size={pxToRem(18)} color={colors.purple[500]} />}
           />
         </Grid>
         <Grid size={6}>

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { TrendingDown, TrendingUp } from "@mui/icons-material";
-import { Stack, Typography } from "@mui/material";
+import { colors, pxToRem, Stack, Typography } from "@wso2/oxygen-ui";
+import { TrendingDown, TrendingUp } from "@wso2/oxygen-ui-icons-react";
 import { WidgetBox } from "@components/ui";
 
 export interface MetricWidgetProps {
@@ -26,7 +26,7 @@ export function MetricWidget({ label, value, icon, size, base, trend }: MetricWi
 
         {trend && !base && (
           <Stack direction="row" gap={0.5} alignItems="center">
-            <TrendIcon sx={{ color: "components.portal.accent.green" }} />
+            <TrendIcon size={pxToRem(20)} color={colors.green[500]} />
             <Typography variant="body2" fontWeight="medium" sx={{ color: "components.portal.accent.green" }}>
               {trend.value}
             </Typography>

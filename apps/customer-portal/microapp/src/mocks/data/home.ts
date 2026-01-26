@@ -1,22 +1,23 @@
+import { colors } from "@wso2/oxygen-ui";
 import type { BarSeriesConfig, PieDataItem } from "@components/features/dashboard";
 
 export const MOCK_PIE_DATA_OUTSTANDING_INCIDENTS: PieDataItem[] = [
-  { label: "Critical (P1)", value: 1, color: "#FF4522" },
-  { label: "High (P2)", value: 4, color: "#FF8C00" },
-  { label: "Medium (P3)", value: 7, color: "#4D53E8" },
+  { label: "Critical (P1)", value: 1, color: colors.red[500] },
+  { label: "High (P2)", value: 4, color: colors.orange[500] },
+  { label: "Medium (P3)", value: 7, color: colors.blue[500] },
 ];
 
 export const MOCK_PIE_DATA_ACTIVE_CASES: PieDataItem[] = [
-  { label: "Awaiting", value: 9, color: "#4D53E8" },
-  { label: "Work in Progress", value: 3, color: "#22B1C4" },
-  { label: "Waiting on WSO2", value: 1, color: "#FF8C00" },
+  { label: "Awaiting", value: 9, color: colors.blue[500] },
+  { label: "Work in Progress", value: 3, color: colors.cyan[500] },
+  { label: "Waiting on WSO2", value: 1, color: colors.orange[500] },
 ];
 
 export const MOCK_BAR_CHART_SERIES_CASES_TREND: BarSeriesConfig[] = [
-  { dataKey: "acme", label: "Acme", stack: "total", color: "#4D53E8" },
-  { dataKey: "bites", label: "Bites", stack: "total", color: "#14A9C1" },
-  { dataKey: "cupertino", label: "CupertinoHQ", stack: "total", color: "#E50051" },
-  { dataKey: "dunlop", label: "Dunlop", stack: "total", color: "#FF8C00" },
+  { dataKey: "acme", label: "Acme", stack: "total", color: colors.blue[500] },
+  { dataKey: "bites", label: "Bites", stack: "total", color: colors.cyan[500] },
+  { dataKey: "cupertino", label: "CupertinoHQ", stack: "total", color: colors.red[500] },
+  { dataKey: "dunlop", label: "Dunlop", stack: "total", color: colors.orange[500] },
 ];
 
 export const MOCK_BAR_CHART_DATA_CASES_TREND = [
