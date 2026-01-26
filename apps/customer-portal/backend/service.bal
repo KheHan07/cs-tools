@@ -654,4 +654,33 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         return getCaseFilters(caseMetadata);
     }
+
+    # Get comments for a specific project.
+    # 
+    # + payload - Comment request payload
+    # + return - Case filter options or error
+    resource function get comments/search(http:RequestContext ctx, entity:CommentRequestPayload payload) 
+        returns entity:CommentsResponse|http:InternalServerError{
+
+        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:CommentsResponse|error commentsResponse = entity:searchComments(userInfo.idToken, payload);
+        if commentsResponse is error {
+            string customError = "Error retrieving comments";
+            log:printError(customError, commentsResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return commentsResponse;
+    }
 }
