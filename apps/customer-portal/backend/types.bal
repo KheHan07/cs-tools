@@ -120,7 +120,9 @@ public type UserUpdatePayload record {|
 # Updated user information.
 public type UpdatedUser record {|
     # Phone number of the user
-    string? phoneNumber;
+    string phoneNumber?;
+    # Timezone of the user
+    string timeZone?;
 |};
 
 # Case filter options.

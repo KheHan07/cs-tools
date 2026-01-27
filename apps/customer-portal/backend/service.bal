@@ -144,7 +144,17 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if payload.phoneNumber != () {
+        if payload.keys().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "At least one field must be provided for update"
+                }
+            };
+        }
+
+        UpdatedUser updatedUserResponse = {};
+
+        if payload.phoneNumber is string {
             scim:Phone phoneNumber = {mobile: payload.phoneNumber};
             scim:User|error updatedUser = scim:updateUser({phoneNumber}, userInfo.email, userInfo.userId);
             if updatedUser is error {
@@ -169,18 +179,14 @@ service http:InterceptableService / on new http:Listener(9090) {
             if cacheInvalidate is error {
                 log:printWarn("Error invalidating user information from cache", cacheInvalidate);
             }
-            return {phoneNumber: processPhoneNumber(updatedUser)};
+            updatedUserResponse.phoneNumber = processPhoneNumber(updatedUser);
         }
 
-        if payload.timezone != () {
+        if payload.timezone is string {
             // TODO: Update timezone
         }
 
-        return <http:BadRequest>{
-            body: {
-                message: "No valid fields provided for update"
-            }
-        };
+        return updatedUserResponse;
     }
 
     # Search projects of the logged-in user.
