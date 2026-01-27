@@ -109,8 +109,18 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-
-        string? phoneNumber = getPhoneNumber(userInfo.email, userDetails.id);
+        string? phoneNumber = ();
+        scim:User[]|error userResults = scim:searchUsers(userInfo.email);
+        if userResults is error {
+            // Log the error and return nil
+            log:printError("Error retrieving user phone number from scim service", userResults);
+        } else {
+            if userResults.length() == 0 {
+                log:printError(string `No user found while searching phone number for user: ${userInfo.userId}`);
+            } else {
+                phoneNumber = scim:processPhoneNumber(userResults[0]);
+            }
+        }
 
         User user = {
             id: userDetails.id,
@@ -161,7 +171,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                 if getStatusCode(updatedUser) == http:STATUS_BAD_REQUEST {
                     return <http:BadRequest>{
                         body: {
-                            message: getErrorMessage(updatedUser)
+                            message: extractErrorMessage(updatedUser)
                         }
                     };
                 }
@@ -179,7 +189,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             if cacheInvalidate is error {
                 log:printWarn("Error invalidating user information from cache", cacheInvalidate);
             }
-            updatedUserResponse.phoneNumber = processPhoneNumber(updatedUser);
+            updatedUserResponse.phoneNumber = scim:processPhoneNumber(updatedUser);
         }
 
         if payload.timeZone is string {
@@ -276,10 +286,10 @@ service http:InterceptableService / on new http:Listener(9090) {
     }
 
     # Get case details by ID.
-    # 
+    #
     # + id - ID of the case
     # + return - Case details or error
-    resource function get cases/[string id](http:RequestContext ctx) 
+    resource function get cases/[string id](http:RequestContext ctx)
         returns entity:CaseResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);

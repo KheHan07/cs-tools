@@ -18,10 +18,10 @@
 type CustomJwtPayload record {|
     # User email
     string email;
-    # User groups
-    string[] groups?;
     # User ID
     string userid;
+    # User groups
+    string[] groups?;
     json...;
 |};
 
@@ -29,17 +29,17 @@ type CustomJwtPayload record {|
 public type UserInfoPayload record {|
     # User email
     string email;
-    # User groups
-    string[] groups?;
     # User ID
     string userId;
     # ID token
     string idToken;
+    # User groups
+    string[] groups?;
     json...;
 |};
 
 # Application specific role mapping.
 public type AppRoles record {|
-    # Role for the user.
+    # Role for the user
     string userRole;
 |};

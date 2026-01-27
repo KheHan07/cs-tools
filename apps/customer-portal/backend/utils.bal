@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 import customer_portal.entity;
-import customer_portal.scim;
 
 import ballerina/http;
-import ballerina/log;
 
 # Search cases for a given project.
 #
@@ -86,27 +84,6 @@ public isolated function getCaseFilters(entity:CaseMetadataResponse caseMetadata
 # + return - True if valid, else false
 public isolated function isValidId(string id) returns boolean => id.trim().length() != 0;
 
-# Get mobile phone number from SCIM users.
-#
-# + email - Email address of the user
-# + id - ID of the user (for logging purposes)
-# + return - Mobile phone number if found, else nil
-public isolated function getPhoneNumber(string email, string id) returns string? {
-    string? mobilePhoneNumber = ();
-    scim:User[]|error userResults = scim:searchUsers(email);
-    if userResults is error {
-        // Log the error and return nil
-        log:printError("Error retrieving user phone number from scim service", userResults);
-    } else {
-        if userResults.length() == 0 {
-            log:printError(string `No user found while searching phone number for user: ${id}`);
-        } else {
-            mobilePhoneNumber = processPhoneNumber(userResults[0]);
-        }
-    }
-    return mobilePhoneNumber;
-}
-
 # Get HTTP status code from the given error.
 #
 # + err - Error to handle
@@ -117,27 +94,11 @@ public isolated function getStatusCode(error err) returns int {
     return statusCodeValue is int ? statusCodeValue : http:STATUS_INTERNAL_SERVER_ERROR;
 }
 
-# Process SCIM user to extract mobile phone number.
-#
-# + user - SCIM user object
-# + return - Mobile phone number if found, else nil
-public isolated function processPhoneNumber(scim:User user) returns string? {
-    string? mobilePhoneNumber = ();
-    scim:PhoneNumber[]? phoneNumbers = user.phoneNumbers;
-    if phoneNumbers != () {
-        // Filter for mobile type phone numbers
-        scim:PhoneNumber[] mobilePhoneNumbers =
-            phoneNumbers.filter(phoneNumber => phoneNumber.'type == MOBILE_PHONE_NUMBER_TYPE);
-        mobilePhoneNumber = mobilePhoneNumbers.length() > 0 ? mobilePhoneNumbers[0].value : ();
-    }
-    return mobilePhoneNumber;
-}
-
-# Get error message from the given error.
+# Extract error message from the given error.
 #
 # + err - Error to handle
 # + return - Error message
-public isolated function getErrorMessage(error err) returns string {
+public isolated function extractErrorMessage(error err) returns string {
     map<anydata|readonly> & readonly errorDetails = err.detail();
     anydata|readonly errorMessage = errorDetails[ERR_BODY] ?: ();
     return errorMessage is string ? errorMessage : UNEXPECTED_ERROR_MSG;

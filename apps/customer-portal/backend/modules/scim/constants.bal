@@ -22,3 +22,4 @@ const ORGANIZATION_EXTERNAL = "external";
 const DOMAIN_DEFAULT = "DEFAULT";
 const ATTRIBUTE_PHONE_NUMBERS = "phoneNumbers";
 const ATTRIBUTE_USERNAME = "userName";
+public const MOBILE_PHONE_NUMBER_TYPE = "mobile";
