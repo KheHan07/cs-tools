@@ -14,22 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  Card,
-  Grid,
-  TextField,
-  Stack,
-  Typography,
-  InputAdornment,
-  Button,
-  Divider,
-  pxToRem,
-  useTheme,
-} from "@wso2/oxygen-ui";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Card, Grid, Stack, Typography, Button, Divider, useTheme, SearchBar } from "@wso2/oxygen-ui";
+import { Plus } from "@wso2/oxygen-ui-icons-react";
 import { MetricWidget } from "@components/features/dashboard";
 import { UserListItem } from "@components/features/users";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Search, Plus } from "@wso2/oxygen-ui-icons-react";
 
 import { MOCK_METRICS, MOCK_ROLES, MOCK_USERS } from "@src/mocks/data/users";
 
@@ -65,26 +54,13 @@ export default function UsersPage() {
           </Grid>
         ))}
         <Grid size={12}>
-          <TextField
-            fullWidth
+          <SearchBar
             size="small"
-            type="search"
             placeholder="Search Users"
             value={searchValue}
             onChange={(e) => updateParams({ ["search"]: e.target.value || null })}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search size={pxToRem(18)} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{
-              mt: 1,
-              bgcolor: "background.paper",
-            }}
+            sx={{ mt: 1, bgcolor: "background.paper" }}
+            fullWidth
           />
         </Grid>
       </Grid>

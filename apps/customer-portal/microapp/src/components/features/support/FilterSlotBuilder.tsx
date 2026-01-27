@@ -1,7 +1,5 @@
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { InputAdornment, Stack, Tab, Tabs, TextField } from "@wso2/oxygen-ui";
-import { Search } from "@wso2/oxygen-ui-icons-react";
-import { pxToRem } from "@wso2/oxygen-ui";
+import { SearchBar, Stack, Tab, Tabs } from "@wso2/oxygen-ui";
 import type { NotificationFilter } from "@pages/NotificationsPage";
 import type { Status } from "./ItemCard";
 
@@ -43,26 +41,16 @@ export function FilterSlotBuilder({ tabs, searchPlaceholder }: FilterSlotBuilder
 
   return (
     <Stack gap={2} pb={1}>
-      <TextField
-        fullWidth
-        type="search"
+      <SearchBar
         size="small"
         placeholder={searchPlaceholder}
         value={searchValue}
         onChange={(e) => updateParams({ [searchParamName]: e.target.value || null })}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search size={pxToRem(18)} />
-              </InputAdornment>
-            ),
-          },
-        }}
         sx={{
           mt: 1,
           bgcolor: "background.paper",
         }}
+        fullWidth
       />
       <Tabs
         value={activeFilter}
