@@ -161,7 +161,7 @@ public type ChoiceListItem record {|
 
 # Basic table information.
 public type ReferenceTableItem record {|
-    # System ID
+    # ID
     string id;
     # Display name
     string name;
@@ -323,7 +323,7 @@ public type ProjectDeploymentStatsResponse record {|
 
 # Comment information.
 public type Comment record {|
-    # System ID of the comment
+    # ID
     string id;
     # Reference ID associated with the comment
     string referenceId;
