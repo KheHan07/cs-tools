@@ -22,3 +22,19 @@ import ballerina/lang.regexp;
 # + return - true or false
 public isolated function isWso2Email(string email) returns boolean =>
     regexp:isFullMatch(REGEX_EMAIL_DOMAIN, email.toLowerAscii());
+
+# Process SCIM user to extract mobile phone number.
+#
+# + user - SCIM user object
+# + return - Mobile phone number if found, else nil
+public isolated function processPhoneNumber(User user) returns string? {
+    string? mobilePhoneNumber = ();
+    PhoneNumber[]? phoneNumbers = user.phoneNumbers;
+    if phoneNumbers != () {
+        // Filter for mobile type phone numbers
+        PhoneNumber[] mobilePhoneNumbers =
+            phoneNumbers.filter(phoneNumber => phoneNumber.'type == MOBILE_PHONE_NUMBER_TYPE);
+        mobilePhoneNumber = mobilePhoneNumbers.length() > 0 ? mobilePhoneNumbers[0].value : ();
+    }
+    return mobilePhoneNumber;
+}

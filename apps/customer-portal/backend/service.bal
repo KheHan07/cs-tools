@@ -16,6 +16,7 @@
 
 import customer_portal.authorization;
 import customer_portal.entity;
+import customer_portal.scim;
 
 import ballerina/cache;
 import ballerina/http;
@@ -70,7 +71,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     #
     # + return - User info object or error response
     resource function get users/me(http:RequestContext ctx) returns User|http:Forbidden|http:InternalServerError {
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -108,14 +109,25 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-
-        string? phoneNumber = getPhoneNumber(userInfo.email, userDetails.id);
+        string? phoneNumber = ();
+        scim:User[]|error userResults = scim:searchUsers(userInfo.email);
+        if userResults is error {
+            // Log the error and return nil
+            log:printError("Error retrieving user phone number from scim service", userResults);
+        } else {
+            if userResults.length() == 0 {
+                log:printError(string `No user found while searching phone number for user: ${userInfo.userId}`);
+            } else {
+                phoneNumber = scim:processPhoneNumber(userResults[0]);
+            }
+        }
 
         User user = {
             id: userDetails.id,
             email: userDetails.email,
             firstName: userDetails.firstName,
             lastName: userDetails.lastName,
+            timeZone: userDetails.timeZone,
             phoneNumber
         };
 
@@ -126,6 +138,67 @@ service http:InterceptableService / on new http:Listener(9090) {
         return user;
     }
 
+    # Update user information of the logged in user.
+    #
+    # + payload - User update payload
+    # + return - Updated user object or error response
+    resource function patch users/me(http:RequestContext ctx, UserUpdatePayload payload)
+        returns UpdatedUser|http:BadRequest|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if payload.keys().length() == 0 {
+            return <http:BadRequest>{
+                body: {
+                    message: "At least one field must be provided for update"
+                }
+            };
+        }
+
+        UpdatedUser updatedUserResponse = {};
+
+        if payload.phoneNumber is string {
+            scim:Phone phoneNumber = {mobile: payload.phoneNumber};
+            scim:User|error updatedUser = scim:updateUser({phoneNumber}, userInfo.email, userInfo.userId);
+            if updatedUser is error {
+                if getStatusCode(updatedUser) == http:STATUS_BAD_REQUEST {
+                    return <http:BadRequest>{
+                        body: {
+                            message: extractErrorMessage(updatedUser)
+                        }
+                    };
+                }
+
+                string customError = "Error updating user phone number";
+                log:printError(customError, updatedUser);
+                return <http:InternalServerError>{
+                    body: {
+                        message: customError
+                    }
+                };
+            }
+
+            error? cacheInvalidate = userCache.invalidate(string `${userInfo.email}:userinfo`);
+            if cacheInvalidate is error {
+                log:printWarn("Error invalidating user information from cache", cacheInvalidate);
+            }
+            updatedUserResponse.phoneNumber = scim:processPhoneNumber(updatedUser);
+        }
+
+        if payload.timeZone is string {
+            // TODO: Update timezone
+        }
+
+        return updatedUserResponse;
+    }
+
     # Search projects of the logged-in user.
     #
     # + payload - Project search request body
@@ -133,7 +206,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function post projects/search(http:RequestContext ctx, entity:ProjectRequest payload)
         returns entity:ProjectsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -172,7 +245,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id](http:RequestContext ctx)
         returns entity:ProjectDetailsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -213,13 +286,13 @@ service http:InterceptableService / on new http:Listener(9090) {
     }
 
     # Get case details by ID.
-    # 
+    #
     # + id - ID of the case
     # + return - Case details or error
-    resource function get cases/[string id](http:RequestContext ctx) 
+    resource function get cases/[string id](http:RequestContext ctx)
         returns entity:CaseResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -267,7 +340,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function post projects/[string id]/cases/search(http:RequestContext ctx, CaseSearchPayload payload)
         returns CaseSearchResponse|http:BadRequest|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -305,7 +378,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id]/cases/filters(http:RequestContext ctx)
         returns CaseFilterOptions|http:BadRequest|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {

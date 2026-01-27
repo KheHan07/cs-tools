@@ -36,3 +36,14 @@ public isolated function searchUsers(string email) returns User[]|error {
     }
     return users;
 }
+
+# Updates a user's information in the SCIM operations service.
+#
+# + payload - The payload containing the user's updated information
+# + email - Email of the user to be updated
+# + uuid - Unique identifier of the user to be updated
+# + return - The updated User record, or an error if the operation fails
+public isolated function updateUser(UserUpdatePayload payload, string email, string uuid) returns User|error {
+    string organization = isWso2Email(email) ? ORGANIZATION_INTERNAL : ORGANIZATION_EXTERNAL;
+    return scimOperationsClient->/organizations/[organization]/users/[uuid].patch(payload);
+}

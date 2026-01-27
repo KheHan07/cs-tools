@@ -16,10 +16,12 @@
 
 // Error messages.
 const ERR_MSG_USER_INFO_HEADER_NOT_FOUND = "User information header not found!";
+const UNEXPECTED_ERROR_MSG = "An unexpected error occurred.";
 
 // Default Pagination Values
 public const int DEFAULT_OFFSET = 0;
 public const int DEFAULT_LIMIT = 10;
 
-public const MOBILE_PHONE_NUMBER_TYPE = "mobile";
 public const ERR_STATUS_CODE = "statusCode";
+public const PHONE_PATTERN_STRING = "^\\+\\d{10,14}$";
+public const ERR_BODY = "body";

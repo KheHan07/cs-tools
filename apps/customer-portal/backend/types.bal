@@ -15,6 +15,8 @@
 // under the License.
 import customer_portal.entity;
 
+import ballerina/constraint;
+
 # Cache configuration record.
 public type CacheConfig record {|
     # Maximum number of entries in cache
@@ -96,16 +98,31 @@ public type CaseSearchResponse record {|
 
 # User.
 public type User record {|
-    # ID of the user
-    string id;
-    # Email address of the user
-    string email;
-    # First name of the user
-    string firstName;
-    # Last name of the user
-    string lastName;
+    *entity:UserResponse;
     # Phone number of the user
     string phoneNumber?;
+|};
+
+# Payload for updating user information.
+public type UserUpdatePayload record {|
+    # Phone number of the user
+    @constraint:String {
+        pattern: {
+            value: re `${PHONE_PATTERN_STRING}`,
+            message: "Invalid phone number format. It should be in E.164 format."
+        }
+    }
+    string phoneNumber?;
+    # Timezone of the user
+    string timeZone?;
+|};
+
+# Updated user information.
+public type UpdatedUser record {|
+    # Phone number of the user
+    string phoneNumber?;
+    # Timezone of the user
+    string timeZone?;
 |};
 
 # Case filter options.

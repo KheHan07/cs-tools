@@ -56,3 +56,17 @@ public type PhoneNumber record {|
     string value;
     json...;
 |};
+
+# User update payload.
+public type UserUpdatePayload record {|
+    # Password
+    string password?;
+    # Phone numbers
+    Phone phoneNumber?;
+|};
+
+# Phone number.
+public type Phone record {|
+    # Mobile number
+    string mobile?;
+|};

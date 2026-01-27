@@ -54,9 +54,10 @@ public isolated service class JwtInterceptor {
             return <http:InternalServerError>{body: {message: errorMsg}};
         }
 
-        UserDataPayload userInfo = {
+        UserInfoPayload userInfo = {
             email: payloadData.email,
             groups: payloadData.groups,
+            userId: payloadData.userid,
             idToken
         };
 
