@@ -41,12 +41,12 @@ public isolated function searchProjects(string idToken, ProjectRequest payload) 
     return csEntityClient->/projects/search.post(payload, generateHeaders(idToken));
 }
 
-# Get project statistics by ID.
+# Get project activity statistics by ID.
 # 
 # + idToken - ID token for authorization
 # + id - Unique ID of the project
 # + return - Project statistics or error
-public isolated function getProjectStats(string idToken, string id) returns ProjectStatsResponse|error {
+public isolated function getProjectActivityStats(string idToken, string id) returns ProjectStatsResponse|error {
     return csEntityClient->/projects/[id]/stats.get(generateHeaders(idToken));
 }
 
