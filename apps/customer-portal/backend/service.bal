@@ -92,8 +92,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:UserResponse|error userDetails = entity:getUserBasicInfo(userInfo.email, userInfo.idToken);
         if userDetails is error {
             if getStatusCode(userDetails) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `User: does not have access to the customer portal!`);
+                log:printWarn(string `User: ${userInfo.userId} does not have access to the customer portal!`);
                 return <http:Forbidden>{
                     body: {
                         message: "User is not authorized to access the customer portal!"
@@ -218,8 +217,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectsResponse|error projectsList = entity:searchProjects(userInfo.idToken, payload);
         if projectsList is error {
             if getStatusCode(projectsList) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to requested projects are forbidden for user:`);
+                log:printWarn(string `Access to requested projects are forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
                         message: "Access to the requested project is forbidden!"
@@ -292,7 +290,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id]/stats(http:RequestContext ctx)
         returns ProjectStatsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -400,7 +398,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id]/stats/cases(http:RequestContext ctx)
         returns ProjectCaseStats|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -465,7 +463,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id]/stats/support(http:RequestContext ctx)
         returns ProjectSupportStats|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -561,8 +559,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:CaseResponse|error caseResponse = entity:getCase(userInfo.idToken, id);
         if caseResponse is error {
             if getStatusCode(caseResponse) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to case ID: ${id} is forbidden for user:`);
+                log:printWarn(string `Access to case ID: ${id} is forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
                         message: "Access to the requested case is forbidden!"

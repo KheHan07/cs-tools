@@ -22,8 +22,6 @@ type CustomJwtPayload record {|
     string userid;
     # User groups
     string[] groups?;
-    # User ID
-    string userid;
     json...;
 |};
 
