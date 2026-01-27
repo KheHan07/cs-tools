@@ -133,9 +133,8 @@ public isolated function processPhoneNumber(scim:User user) returns string? {
     return mobilePhoneNumber;
 }
 
-
 # Get error message from the given error.
-# 
+#
 # + err - Error to handle
 # + return - Error message
 public isolated function getErrorMessage(error err) returns string {
