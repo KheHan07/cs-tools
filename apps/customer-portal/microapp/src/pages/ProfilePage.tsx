@@ -14,20 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  AccessTime,
-  Assistant,
-  Email,
-  Lock,
-  Logout,
-  Notifications,
-  Person,
-  Phone,
-  SmartToy,
-} from "@mui/icons-material";
-import { useLayout } from "@context/layout";
-import { ButtonBase as Button, Card, Divider, Stack, Switch, Typography } from "@mui/material";
 import { useLayoutEffect, type ReactNode } from "react";
+import { Box, Button, Card, Divider, Stack, Switch, Typography, colors, pxToRem } from "@wso2/oxygen-ui";
+import { Bell, BookOpen, Bot, Clock4, Lock, LogOut, Mail, Phone, User } from "@wso2/oxygen-ui-icons-react";
+import { useLayout } from "@context/layout";
 import { SettingListItem } from "@components/features/settings";
 import { Avatar } from "@components/features/users";
 
@@ -62,58 +52,66 @@ export default function ProfilePage() {
         <SettingListItem
           name="Email"
           value="user@example.com"
-          iconColor="components.status.waiting.text"
-          iconBackgroundColor="components.status.waiting.background"
-          icon={Email}
+          iconColor={colors.yellow[800]}
+          iconBackgroundColor={colors.yellow[100]}
+          icon={Mail}
         />
         <SettingListItem
           name="Phone"
           value="+1 (555) 123-4567"
-          iconColor="components.status.active.text"
-          iconBackgroundColor="components.status.active.background"
+          iconColor={colors.blue[800]}
+          iconBackgroundColor={colors.blue[100]}
           icon={Phone}
         />
         <SettingListItem
           name="Timezone"
           value="Eastern Time (ET) - UTC-5"
-          iconColor="components.status.scheduled.text"
-          iconBackgroundColor="components.status.scheduled.background"
-          icon={AccessTime}
+          iconColor={colors.purple[800]}
+          iconBackgroundColor={colors.purple[100]}
+          icon={Clock4}
         />
       </SectionCard>
 
       <SectionCard title="Settings">
         <SettingListItem name="Change Password" suffix="chevron" icon={Lock} />
-        <SettingListItem name="Update Profile" suffix="chevron" icon={Person} />
+        <SettingListItem name="Update Profile" suffix="chevron" icon={User} />
       </SectionCard>
 
       <SectionCard title="Notifications">
-        <SettingListItem
-          name="Push Notifications"
-          icon={Notifications}
-          suffix={<Switch defaultChecked color="default" />}
-        />
+        <SettingListItem name="Push Notifications" icon={Bell} suffix={<Switch defaultChecked />} />
       </SectionCard>
 
       <SectionCard title="AI Features">
         <SettingListItem
           name="AI Chat Assistant"
           description="Enable AI-powered chat support"
-          iconColor="components.portal.accent.purple"
-          icon={SmartToy}
-          suffix={<Switch defaultChecked color="default" />}
+          iconColor={colors.purple[500]}
+          icon={Bot}
+          suffix={<Switch defaultChecked />}
         />
         <SettingListItem
           name="Smart Knowledge Base"
           description="Get intelligent article suggestions"
-          iconColor="components.status.active.text"
-          icon={Assistant}
-          suffix={<Switch defaultChecked color="default" />}
+          iconColor={colors.blue[500]}
+          icon={BookOpen}
+          suffix={<Switch defaultChecked />}
         />
       </SectionCard>
 
-      <Button sx={{ bgcolor: "background.paper", color: "error.main", fontWeight: "medium" }}>
-        <Logout color="error" />
+      <Button
+        sx={{
+          direction: "row",
+          alignItems: "center",
+          bgcolor: "background.paper",
+          color: "error.main",
+          textTransform: "initial",
+          fontWeight: "medium",
+          gap: 1.5,
+        }}
+      >
+        <Box color="error.main">
+          <LogOut size={pxToRem(18)} />
+        </Box>
         Log Out
       </Button>
     </Stack>

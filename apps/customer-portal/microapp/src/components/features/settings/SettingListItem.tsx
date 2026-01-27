@@ -1,6 +1,6 @@
-import type { ComponentType, ReactNode } from "react";
-import { ChevronRight } from "@mui/icons-material";
-import { Stack, SvgIcon, Typography, type SvgIconProps } from "@mui/material";
+import type { ReactNode } from "react";
+import { pxToRem, Stack, Typography, useTheme } from "@wso2/oxygen-ui";
+import { ChevronRight, type LucideIcon } from "@wso2/oxygen-ui-icons-react";
 
 export function SettingListItem({
   name,
@@ -12,13 +12,16 @@ export function SettingListItem({
   suffix,
 }: {
   name: string;
-  icon: ComponentType<SvgIconProps>;
+  icon: LucideIcon;
   iconColor?: string;
   iconBackgroundColor?: string;
   value?: string;
   description?: string;
   suffix?: "chevron" | ReactNode;
 }) {
+  const theme = useTheme();
+  const Icon = icon;
+
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ cursor: "pointer" }} p={1.5}>
       <Stack direction="row" alignItems="center" gap={1.5}>
@@ -30,7 +33,7 @@ export function SettingListItem({
           borderRadius={1}
           bgcolor={iconBackgroundColor}
         >
-          <SvgIcon sx={(theme) => ({ fontSize: theme.typography.pxToRem(22), color: iconColor })} component={icon} />
+          <Icon size={pxToRem(18)} color={iconColor} />
         </Stack>
         <Stack>
           {value && (
@@ -48,7 +51,11 @@ export function SettingListItem({
           )}
         </Stack>
       </Stack>
-      {suffix && suffix === "chevron" ? <ChevronRight sx={{ color: "text.tertiary" }} /> : suffix}
+      {suffix && suffix === "chevron" ? (
+        <ChevronRight size={pxToRem(16)} color={theme.palette.text.secondary} />
+      ) : (
+        suffix
+      )}
     </Stack>
   );
 }
