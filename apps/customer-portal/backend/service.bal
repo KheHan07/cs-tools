@@ -164,6 +164,11 @@ service http:InterceptableService / on new http:Listener(9090) {
                     }
                 };
             }
+
+            error? cacheInvalidate = userCache.invalidate(string `${userInfo.email}:userinfo`);
+            if cacheInvalidate is error {
+                log:printWarn("Error invalidating user information from cache", cacheInvalidate);
+            }
             return {phoneNumber: processPhoneNumber(updatedUser)};
         }
 
@@ -171,7 +176,11 @@ service http:InterceptableService / on new http:Listener(9090) {
             // TODO: Update timezone
         }
 
-        return http:BAD_REQUEST;
+        return <http:BadRequest>{
+            body: {
+                message: "No valid fields provided for update"
+            }
+        };
     }
 
     # Search projects of the logged-in user.
