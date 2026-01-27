@@ -1,5 +1,6 @@
-import { Card, Stack, Typography, SvgIcon } from "@mui/material";
-import { CalendarMonth, ChevronRight, Circle, Schedule } from "@mui/icons-material";
+import { Card, Stack, Typography, pxToRem, useTheme } from "@wso2/oxygen-ui";
+import { Calendar, ChevronRight, Clock4 } from "@wso2/oxygen-ui-icons-react";
+import { Circle } from "@mui/icons-material";
 import { PriorityChip, StatusChip } from "@components/features/support";
 import { Link } from "react-router-dom";
 
@@ -63,22 +64,23 @@ interface ChangeItemCardProps extends BaseItemCardProps {
 export type ItemCardProps = CaseItemCardProps | ChatItemCardProps | ServiceItemCardProps | ChangeItemCardProps;
 
 export function ItemCard(props: ItemCardProps) {
+  const theme = useTheme();
   const { id, title, type, status, timestamp, to } = props;
-  const { icon, color } = TYPE_CONFIG[type];
+  const { icon: Icon, color } = TYPE_CONFIG[type];
 
   return (
-    <Card component={Link} to={to} elevation={0} sx={{ textDecoration: "none" }}>
+    <Card component={Link} to={to} sx={{ textDecoration: "none" }}>
       <Stack gap={0.8}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Stack direction="row" alignItems="center" gap={1}>
-            <SvgIcon component={icon} sx={(theme) => ({ color: color, fontSize: theme.typography.pxToRem(21) })} />
+            <Icon size={pxToRem(18)} color={color} />
             <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
               {id}
             </Typography>
             {(type === "case" || type === "service") && <PriorityChip size="small" priority={props.priority} />}
             {type === "change" && <PriorityChip size="small" prefix="Impact" priority={props.impact} />}
           </Stack>
-          <ChevronRight sx={{ color: "text.tertiary" }} />
+          <ChevronRight color={theme.palette.text.secondary} />
         </Stack>
 
         <Typography variant="body1" color="text.primary">
@@ -105,7 +107,7 @@ export function ItemCard(props: ItemCardProps) {
 
         {type === "change" && (
           <Stack direction="row" alignItems="center" gap={1}>
-            <CalendarMonth sx={(theme) => ({ fontSize: theme.typography.pxToRem(18), color: "text.secondary" })} />
+            <Calendar size={pxToRem(16)} color={theme.palette.text.secondary} />
             <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
               Scheduled: {props.scheduled}
             </Typography>
@@ -114,7 +116,7 @@ export function ItemCard(props: ItemCardProps) {
 
         <Stack gap={0.5} mt={1}>
           <Stack direction="row" alignItems="center" gap={1}>
-            <Schedule sx={(theme) => ({ color: "text.tertiary", fontSize: theme.typography.pxToRem(18) })} />
+            <Clock4 size={pxToRem(16)} color={theme.palette.text.secondary} />
             <Typography
               fontWeight="regular"
               color="text.tertiary"

@@ -14,16 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Try } from "@mui/icons-material";
-import { Button, Card, Grid, Stack, styled, Tab, Tabs as MuiTabs, Typography } from "@wso2/oxygen-ui";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Button, Card, Grid, pxToRem, Stack, Tab, Tabs, Typography, useTheme } from "@wso2/oxygen-ui";
+import { MessageSquareQuote } from "@wso2/oxygen-ui-icons-react";
 import { MetricWidget } from "@components/features/dashboard";
 import { ItemListView, ItemCard, type ItemCardProps } from "@components/features/support";
 
 import { MOCK_METRICS, MOCK_ITEMS } from "@src/mocks/data/support";
 
 export default function SupportPage() {
+  const theme = useTheme();
   const [tab, setTab] = useState<ItemCardProps["type"]>("case");
 
   return (
@@ -46,7 +47,7 @@ export default function SupportPage() {
             elevation={0}
           >
             <Stack direction="row" alignItems="center" gap={2}>
-              <Try fontSize="large" color="primary" />
+              <MessageSquareQuote size={pxToRem(40)} color={theme.palette.primary.main} />
               <Stack>
                 <Typography variant="body1" fontWeight="medium" color="primary">
                   Create Support Ticket
@@ -60,7 +61,7 @@ export default function SupportPage() {
               component={Link}
               to="/chat"
               variant="contained"
-              sx={{ fontWeight: "bold", flexShrink: 0, height: 40 }}
+              sx={{ textTransform: "initial", flexShrink: 0, height: 40 }}
             >
               Get Help
             </Button>
@@ -83,23 +84,3 @@ export default function SupportPage() {
     </>
   );
 }
-
-const Tabs = styled(MuiTabs)(({ theme }) => ({
-  "& .MuiButtonBase-root": {
-    fontSize: theme.typography.body2,
-    color: theme.palette.text.secondary,
-    fontWeight: "medium",
-    textTransform: "revert",
-  },
-
-  "& .Mui-selected": {
-    backgroundColor: theme.palette.primary.contrastText,
-    color: theme.palette.primary.main,
-    fontWeight: "bold",
-    borderRadius: 999,
-  },
-
-  "& .MuiTabs-indicator": {
-    display: "none",
-  },
-}));
