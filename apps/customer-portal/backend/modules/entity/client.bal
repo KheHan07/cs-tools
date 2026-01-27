@@ -29,8 +29,6 @@ final http:Client csEntityClient = check new (csEntityBaseUrl, {
         count: 3,
         interval: 2.0,
         statusCodes: [
-            http:STATUS_INTERNAL_SERVER_ERROR,
-            http:STATUS_REQUEST_TIMEOUT,
             http:STATUS_BAD_GATEWAY,
             http:STATUS_SERVICE_UNAVAILABLE,
             http:STATUS_GATEWAY_TIMEOUT
