@@ -357,7 +357,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectDeploymentStatsResponse|error deploymentStats =
             entity:getDeploymentStatsForProject(userInfo.idToken, id);
         if deploymentStats is error {
-            string customError = "Error retrieving project deployment statistics";
+            string customError = "Failed to retrieve project deployment statistics.";
             log:printError(customError, deploymentStats);
             return <http:InternalServerError>{
                 body: {
