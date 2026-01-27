@@ -71,7 +71,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     #
     # + return - User info object or error response
     resource function get users/me(http:RequestContext ctx) returns User|http:Forbidden|http:InternalServerError {
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -135,7 +135,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function patch users/me(http:RequestContext ctx, UserUpdatePayload payload)
         returns UpdatedUser|http:BadRequest|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -196,7 +196,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function post projects/search(http:RequestContext ctx, entity:ProjectRequest payload)
         returns entity:ProjectsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -235,7 +235,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id](http:RequestContext ctx)
         returns entity:ProjectDetailsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -282,7 +282,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get cases/[string id](http:RequestContext ctx) 
         returns entity:CaseResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -330,7 +330,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function post projects/[string id]/cases/search(http:RequestContext ctx, CaseSearchPayload payload)
         returns CaseSearchResponse|http:BadRequest|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
@@ -368,7 +368,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     resource function get projects/[string id]/cases/filters(http:RequestContext ctx)
         returns CaseFilterOptions|http:BadRequest|http:InternalServerError {
 
-        authorization:UserDataPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
                 body: {
