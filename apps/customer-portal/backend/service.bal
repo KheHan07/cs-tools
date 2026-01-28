@@ -673,7 +673,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isEmptyId(id) {
+        if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
                     message: "Case ID cannot be empty or whitespace"
