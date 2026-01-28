@@ -92,8 +92,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:UserResponse|error userDetails = entity:getUserBasicInfo(userInfo.email, userInfo.idToken);
         if userDetails is error {
             if getStatusCode(userDetails) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `User: does not have access to the customer portal!`);
+                log:printWarn(string `User: ${userInfo.userId} does not have access to the customer portal!`);
                 return <http:Forbidden>{
                     body: {
                         message: "User is not authorized to access the customer portal!"
@@ -218,8 +217,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectsResponse|error projectsList = entity:searchProjects(userInfo.idToken, payload);
         if projectsList is error {
             if getStatusCode(projectsList) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to requested projects are forbidden for user:`);
+                log:printWarn(string `Access to requested projects are forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
                         message: "Access to the requested project is forbidden!"
@@ -254,7 +252,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidId(id) {
+        if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
                     message: "Project ID cannot be empty or whitespace"
@@ -285,6 +283,255 @@ service http:InterceptableService / on new http:Listener(9090) {
         return projectResponse;
     }
 
+    # Get overall project statistics by ID.
+    #
+    # + id - ID of the project
+    # + return - Project statistics response or error
+    resource function get projects/[string id]/stats(http:RequestContext ctx)
+        returns ProjectStatsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isEmptyId(id) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_MSG_PROJECT_ID_EMPTY
+                }
+            };
+        }
+
+        // Verify project access
+        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
+        if projectResponse is error {
+            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
+                logForbiddenProjectAccess(id, userInfo.userId);
+                return <http:Forbidden>{
+                    body: {
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                    }
+                };
+            }
+
+            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
+                }
+            };
+        }
+
+        // Fetch case stats
+        entity:ProjectCaseStatsResponse|error caseStats = entity:getCaseStatsForProject(userInfo.idToken, id);
+        if caseStats is error {
+            string customError = "Failed to retrieve project case statistics.";
+            log:printError(customError, caseStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        // Fetch chat stats
+        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
+        if chatStats is error {
+            string customError = "Failed to retrieve project chat statistics.";
+            log:printError(customError, chatStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        // Fetch deployment stats
+        entity:ProjectDeploymentStatsResponse|error deploymentStats =
+            entity:getDeploymentStatsForProject(userInfo.idToken, id);
+        if deploymentStats is error {
+            string customError = "Failed to retrieve project deployment statistics.";
+            log:printError(customError, deploymentStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        // Fetch project activity stats
+        entity:ProjectStatsResponse|error projectActivityStats = entity:getProjectActivityStats(userInfo.idToken, id);
+        if projectActivityStats is error {
+            string customError = "Failed to retrieve project activity statistics.";
+            log:printError(customError, projectActivityStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return {
+            projectStats: {
+                openCases: caseStats.openCount,
+                activeChats: chatStats.activeCount,
+                deployments: deploymentStats.totalCount
+            },
+            recentActivity: {
+                totalTimeLogged: projectActivityStats.totalTimeLogged,
+                billableHours: projectActivityStats.billableHours,
+                lastDeploymentOn: deploymentStats.lastDeploymentOn,
+                systemHealth: projectActivityStats.systemHealth
+            }
+        };
+    }
+
+    # Get cases statistics for a project by ID.
+    #
+    # + id - ID of the project
+    # + return - Project statistics overview or error response
+    resource function get projects/[string id]/stats/cases(http:RequestContext ctx)
+        returns ProjectCaseStats|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isEmptyId(id) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_MSG_PROJECT_ID_EMPTY
+                }
+            };
+        }
+
+        // Verify project access
+        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
+        if projectResponse is error {
+            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
+                logForbiddenProjectAccess(id, userInfo.userId);
+                return <http:Forbidden>{
+                    body: {
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                    }
+                };
+            }
+
+            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
+                }
+            };
+        }
+
+        entity:ProjectCaseStatsResponse|error caseStats = entity:getCaseStatsForProject(userInfo.idToken, id);
+        if caseStats is error {
+            string customError = "Failed to retrieve project case statistics.";
+            log:printError(customError, caseStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return {
+            totalCases: caseStats.totalCount,
+            openCases: caseStats.openCount,
+            averageResponseTime: caseStats.averageResponseTime,
+            activeCases: caseStats.activeCount,
+            resolvedCases: caseStats.resolvedCount,
+            outstandingIncidents: caseStats.outstandingIncidentsCount
+        };
+    }
+
+    # Get project support statistics by ID.
+    #
+    # + id - ID of the project
+    # + return - Project support statistics or error response
+    resource function get projects/[string id]/stats/support(http:RequestContext ctx)
+        returns ProjectSupportStats|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isEmptyId(id) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_MSG_PROJECT_ID_EMPTY
+                }
+            };
+        }
+
+        // Verify project access
+        entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
+        if projectResponse is error {
+            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
+                logForbiddenProjectAccess(id, userInfo.userId);
+                return <http:Forbidden>{
+                    body: {
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                    }
+                };
+            }
+
+            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
+                }
+            };
+        }
+
+        // Fetch case stats 
+        entity:ProjectCaseStatsResponse|error caseStats = entity:getCaseStatsForProject(userInfo.idToken, id);
+        if caseStats is error {
+            string customError = "Failed to retrieve project case statistics.";
+            log:printError(customError, caseStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        // Fetch chat stats
+        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
+        if chatStats is error {
+            string customError = "Failed to retrieve project chat statistics.";
+            log:printError(customError, chatStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return {
+            totalCases: caseStats.totalCount,
+            activeChats: chatStats.activeCount,
+            sessionChats: chatStats.sessionCount,
+            resolvedChats: chatStats.resolvedCount
+        };
+    }
+
     # Get case details by ID.
     #
     # + id - ID of the case
@@ -301,7 +548,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidId(id) {
+        if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
                     message: "Case ID cannot be empty or whitespace"
@@ -312,8 +559,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:CaseResponse|error caseResponse = entity:getCase(userInfo.idToken, id);
         if caseResponse is error {
             if getStatusCode(caseResponse) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to case ID: ${id} is forbidden for user:`);
+                log:printWarn(string `Access to case ID: ${id} is forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
                         message: "Access to the requested case is forbidden!"
@@ -349,7 +595,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidId(id) {
+        if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
                     message: "Project ID cannot be empty or whitespace"
@@ -387,7 +633,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !isValidId(id) {
+        if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
                     message: "Project ID cannot be empty or whitespace"

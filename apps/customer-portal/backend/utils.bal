@@ -16,6 +16,7 @@
 import customer_portal.entity;
 
 import ballerina/http;
+import ballerina/log;
 
 # Search cases for a given project.
 #
@@ -78,11 +79,11 @@ public isolated function getCaseFilters(entity:CaseMetadataResponse caseMetadata
     };
 }
 
-# Validates the given ID.
+# Check if the given ID is empty or whitespace.
 #
-# + id - ID to validate
-# + return - True if valid, else false
-public isolated function isValidId(string id) returns boolean => id.trim().length() != 0;
+ # + id - ID to validate
+# + return - True if empty/whitespace, else false
+public isolated function isEmptyId(string id) returns boolean => id.trim().length() == 0;
 
 # Get HTTP status code from the given error.
 #
@@ -94,7 +95,7 @@ public isolated function getStatusCode(error err) returns int {
     return statusCodeValue is int ? statusCodeValue : http:STATUS_INTERNAL_SERVER_ERROR;
 }
 
-# Extract error message from the given error.
+# Get HTTP status code from the given error.
 #
 # + err - Error to handle
 # + return - Error message
@@ -103,3 +104,10 @@ public isolated function extractErrorMessage(error err) returns string {
     anydata|readonly errorMessage = errorDetails[ERR_BODY] ?: ();
     return errorMessage is string ? errorMessage : UNEXPECTED_ERROR_MSG;
 }
+
+# Log forbidden project access attempt.
+#
+# + id - Project ID
+# + uuid - User UUID
+public isolated function logForbiddenProjectAccess(string id, string uuid) =>
+    log:printWarn(string `Access to project ID: ${id} is forbidden for user: ${uuid}`);
