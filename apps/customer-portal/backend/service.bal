@@ -662,7 +662,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + offset - Offset for pagination
     # + return - Comments response or error
     resource function get cases/[string id]/comments(http:RequestContext ctx, int? 'limit, int? offset)
-        returns entity:CommentsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
+        returns CommentsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -721,6 +721,6 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-        return commentsResponse;
+        return mapCommentsResponse(commentsResponse);
     }
 }
