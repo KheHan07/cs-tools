@@ -7,7 +7,7 @@ The Customer Portal Webapp is a modern React application built with TypeScript a
 - **Core**: [React 19](https://react.dev/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **UI Library**: [Oxygen UI](https://github.com/wso2/oxygen-ui) (based on MUI)
+- **UI Library**: [Oxygen UI](https://github.com/wso2/oxygen-ui)
 - **Data Fetching**: [TanStack Query](https://tanstack.com/query/latest) (React Query)
 - **Authentication**: [@asgardeo/auth-react](https://github.com/asgardeo/asgardeo-auth-react-sdk)
 - **Testing**: [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
