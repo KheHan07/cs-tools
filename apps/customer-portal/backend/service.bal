@@ -100,7 +100,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                 };
             }
 
-            string customError = "Error retrieving user data from entity service";
+            string customError = "Failed to retrieve user data.";
             log:printError(customError, userDetails);
             return <http:InternalServerError>{
                 body: {
@@ -156,7 +156,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if payload.keys().length() == 0 {
             return <http:BadRequest>{
                 body: {
-                    message: "At least one field must be provided for update"
+                    message: "At least one field must be provided for update!"
                 }
             };
         }
@@ -175,7 +175,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                     };
                 }
 
-                string customError = "Error updating user phone number";
+                string customError = "Failed to update phone number.";
                 log:printError(customError, updatedUser);
                 return <http:InternalServerError>{
                     body: {
@@ -200,9 +200,9 @@ service http:InterceptableService / on new http:Listener(9090) {
 
     # Search projects of the logged-in user.
     #
-    # + payload - Project search request body
+    # + payload - Project search payload
     # + return - Projects list or error response
-    resource function post projects/search(http:RequestContext ctx, entity:ProjectRequest payload)
+    resource function post projects/search(http:RequestContext ctx, entity:ProjectPayload payload)
         returns entity:ProjectsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -225,7 +225,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                 };
             }
 
-            string customError = "Error retrieving projects list";
+            string customError = "Failed to retrieve project list.";
             log:printError(customError, projectsList);
             return <http:InternalServerError>{
                 body: {
@@ -255,7 +255,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Project ID cannot be empty or whitespace"
+                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -263,8 +263,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectDetailsResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to project ID: ${id} is forbidden for user:`);
+                logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
                         message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
@@ -272,7 +271,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                 };
             }
 
-            string customError = "Error retrieving project details";
+            string customError = "Failed to retrieve project details.";
             log:printError(customError, projectResponse);
             return <http:InternalServerError>{
                 body: {
@@ -551,7 +550,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Case ID cannot be empty or whitespace"
+                    message: ERR_MSG_CASE_ID_EMPTY
                 }
             };
         }
@@ -559,15 +558,15 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:CaseResponse|error caseResponse = entity:getCase(userInfo.idToken, id);
         if caseResponse is error {
             if getStatusCode(caseResponse) == http:STATUS_FORBIDDEN {
-                log:printWarn(string `Access to case ID: ${id} is forbidden for user: ${userInfo.userId}`);
+                logForbiddenCaseAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to the requested case is forbidden!"
+                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
                     }
                 };
             }
 
-            string customError = "Error retrieving case details";
+            string customError = "Failed to retrieve case details.";
             log:printError(customError, caseResponse);
             return <http:InternalServerError>{
                 body: {
@@ -598,14 +597,14 @@ service http:InterceptableService / on new http:Listener(9090) {
         if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Project ID cannot be empty or whitespace"
+                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
 
         CaseSearchResponse|error casesResponse = searchCases(userInfo.idToken, id, payload);
         if casesResponse is error {
-            string customError = "Error retrieving cases";
+            string customError = "Failed to retrieve cases.";
             log:printError(customError, casesResponse);
             return <http:InternalServerError>{
                 body: {
@@ -636,14 +635,14 @@ service http:InterceptableService / on new http:Listener(9090) {
         if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Project ID cannot be empty or whitespace"
+                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
 
         entity:CaseMetadataResponse|error caseMetadata = entity:getCaseMetadata(userInfo.idToken);
         if caseMetadata is error {
-            string customError = "Error retrieving case filters";
+            string customError = "Failed to retrieve case filters.";
             log:printError(customError, caseMetadata);
             return <http:InternalServerError>{
                 body: {
@@ -676,7 +675,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if isEmptyId(id) {
             return <http:BadRequest>{
                 body: {
-                    message: "Case ID cannot be empty or whitespace"
+                    message: ERR_MSG_CASE_ID_EMPTY
                 }
             };
         }
@@ -684,7 +683,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         if ('limit != () && ('limit < 1 || 'limit > 50)) || (offset != () && offset < 0) {
             return <http:BadRequest>{
                 body: {
-                    message: "Limit must be between 1 and 50. Offset must be a non-negative integer."
+                    message: "Limit must be between 1 and 50. Offset must be a non-negative integer!"
                 }
             };
         }
@@ -694,15 +693,15 @@ service http:InterceptableService / on new http:Listener(9090) {
         if caseDetails is error {
             if getStatusCode(caseDetails) == http:STATUS_FORBIDDEN {
                 // TODO: Will log the UUID once the PR #42 is merged
-                log:printWarn(string `Access to case ID: ${id} is forbidden for user:`);
+                logForbiddenCaseAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to the requested case is forbidden!"
+                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
                     }
                 };
             }
 
-            string customError = "Error retrieving case details while validating comments access";
+            string customError = "Failed to retrieve case details.";
             log:printError(customError, caseDetails);
             return <http:InternalServerError>{
                 body: {
@@ -713,7 +712,7 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
         if commentsResponse is error {
-            string customError = "Error retrieving comments";
+            string customError = "Failed to retrieve comments.";
             log:printError(customError, commentsResponse);
             return <http:InternalServerError>{
                 body: {

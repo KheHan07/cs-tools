@@ -46,6 +46,7 @@ public type Pagination record {|
         maxValue: 50
     }
     int 'limit = DEFAULT_LIMIT;
+    json...;
 |};
 
 # User data.
@@ -60,6 +61,7 @@ public type UserResponse record {|
     string lastName;
     # Time zone
     string? timeZone;
+    json...;
 |};
 
 # Project data.
@@ -74,10 +76,11 @@ public type Project record {|
     string createdOn;
     # Description
     string? description;
+    json...;
 |};
 
 # Request body for searching projects.
-public type ProjectRequest record {|
+public type ProjectPayload record {|
     # Pagination details
     Pagination pagination = {};
 |};
@@ -89,6 +92,7 @@ public type ProjectsResponse record {|
     # Total records count
     int totalRecords;
     *Pagination;
+    json...;
 |};
 
 # Account owner information.
@@ -99,6 +103,7 @@ public type AccountOwner record {|
     string name;
     # Email
     string email;
+    json...;
 |};
 
 # Project details information.
@@ -110,7 +115,7 @@ public type ProjectDetailsResponse record {|
     string slaStatus;
     # Subscription information
     ProjectSubscription? subscription;
-    json...; // TODO: Remove after adding all fields
+    json...;
 |};
 
 # Project subscription information.
@@ -121,6 +126,7 @@ public type ProjectSubscription record {|
     string? endDate;
     # Support tier
     string? supportTier;
+    json...;
 |};
 
 # Base case.
@@ -149,6 +155,7 @@ public type Case record {|
     ChoiceListItem? state;
     # Severity information
     ChoiceListItem? severity;
+    json...;
 |};
 
 # Choice list item information.
@@ -157,6 +164,7 @@ public type ChoiceListItem record {|
     int id;
     # Label
     string label;
+    json...;
 |};
 
 # Basic table information.
@@ -165,6 +173,7 @@ public type ReferenceTableItem record {|
     string id;
     # Display name
     string name;
+    json...;
 |};
 
 # Case search filters.
@@ -188,6 +197,7 @@ public type CaseSearchResponse record {|
     # Total records count
     int totalRecords;
     *Pagination;
+    json...;
 |};
 
 # Payload for case search.
@@ -225,6 +235,7 @@ public type CaseResponse record {|
         # Email address
         string? email;
     }? csManager;
+    json...;
 |};
 
 # Sort configuration.
@@ -243,6 +254,7 @@ public type CaseMetadataResponse record {|
     ChoiceListItem[] severities;
     # List of available case types
     ReferenceTableItem[] caseTypes;
+    json...;
 |};
 
 # Project statistics response from ServiceNow.
@@ -253,6 +265,7 @@ public type ProjectStatsResponse record {|
     decimal billableHours;
     # System health status
     string systemHealth;
+    json...;
 |};
 
 # Active case count breakdown.
@@ -265,6 +278,7 @@ public type ActiveCaseCount record {|
     int waitingOnWso2;
     # Total active count
     int total;
+    json...;
 |};
 
 # Outstanding incidents count breakdown.
@@ -277,6 +291,7 @@ public type OutstandingIncidentsCount record {|
     int critical;
     # Total count
     int total;
+    json...;
 |};
 
 # Resolved case count breakdown.
@@ -285,6 +300,7 @@ public type ResolvedCaseCount record {|
     int total;
     # Current month resolved count
     int currentMonth;
+    json...;
 |};
 
 # Project cases statistics response.
@@ -301,6 +317,7 @@ public type ProjectCaseStatsResponse record {|
     OutstandingIncidentsCount outstandingIncidentsCount;
     # Resolved case count breakdown
     ResolvedCaseCount resolvedCount;
+    json...;
 |};
 
 # Project chats statistics response.
@@ -319,6 +336,7 @@ public type ProjectDeploymentStatsResponse record {|
     int totalCount;
     # Last deployment date
     string? lastDeploymentOn;
+    json...;
 |};
 
 # Comment information.
@@ -337,6 +355,7 @@ public type Comment record {|
     string createdBy;
     # Indicates if the comment is escalated
     boolean isEscalated;
+    json...;
 |};
 
 # Comments response with pagination.
@@ -346,6 +365,7 @@ public type CommentsResponse record {|
     # Total records count
     int totalRecords;
     *Pagination;
+    json...;
 |};
 
 # Request payload for searching comments.
