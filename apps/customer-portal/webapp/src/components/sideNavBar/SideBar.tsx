@@ -84,7 +84,7 @@ export default function SideBar({
             >
               <Sidebar.Item id={item.id}>
                 <Sidebar.ItemIcon>
-                  <item.icon size={20} />
+                  <item.icon />
                 </Sidebar.ItemIcon>
                 <Sidebar.ItemLabel>{item.label}</Sidebar.ItemLabel>
               </Sidebar.Item>
