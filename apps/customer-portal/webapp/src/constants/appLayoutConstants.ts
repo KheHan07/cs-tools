@@ -25,6 +25,7 @@ import {
   Shield,
   Users,
 } from "@wso2/oxygen-ui-icons-react";
+import type { ComponentType } from "react";
 
 /**
  * Interface for app shell navigation items.
@@ -45,7 +46,7 @@ interface AppShellNavItem {
   /**
    * The icon of the navigation item.
    */
-  icon: React.ComponentType;
+  icon: ComponentType;
 }
 
 /**

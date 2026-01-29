@@ -25,7 +25,7 @@ import {
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Footer: ({
+  FooterUI: ({
     companyName,
     termsUrl,
     privacyUrl,

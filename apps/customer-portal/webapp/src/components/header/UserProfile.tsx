@@ -18,6 +18,7 @@ import { UserMenu } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 import { useNavigate } from "react-router";
 import { mockUser } from "@/models/mockData";
+import { useLogger } from "@/hooks/useLogger";
 
 /**
  * User profile component.
@@ -29,13 +30,19 @@ export default function UserProfile(): JSX.Element {
    * Navigation hook.
    */
   const navigate = useNavigate();
+
+  /**
+   * Logger hook.
+   */
+  const logger = useLogger();
+
   return (
     <>
       {/* user profile menu */}
       <UserMenu
         user={mockUser}
-        onProfileClick={() => console.log("Profile clicked")}
-        onSettingsClick={() => console.log("Settings clicked")}
+        onProfileClick={() => logger.debug("Profile clicked")}
+        onSettingsClick={() => logger.debug("Settings clicked")}
         onLogout={() => navigate("/")}
       />
     </>

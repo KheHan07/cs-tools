@@ -55,7 +55,6 @@ export default function ProjectHub(): JSX.Element {
    * Render content based on the state.
    */
   const renderContent = () => {
-    logger.error("Failed to load projects in ProjectHub");
     if (isLoading) {
       return (
         <Typography variant="h6" color="text.secondary">
@@ -68,6 +67,7 @@ export default function ProjectHub(): JSX.Element {
      * Log error if projects are not loaded.
      */
     if (isError) {
+      logger.error("Failed to load projects in ProjectHub");
       return (
         <Typography variant="h6" color="error">
           Error loading projects. Please try again later.

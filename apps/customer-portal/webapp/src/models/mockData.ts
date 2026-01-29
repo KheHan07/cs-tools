@@ -55,7 +55,7 @@ export const mockProjects: ProjectListItem[] = [
  */
 export const mockUser: UserProfile = {
   name: "Dileepa Peiris",
-  email: "dileepapeiris@wso2.com",
+  email: "dileepa12345@example.com",
   avatar: "DP",
   role: "Admin",
 };

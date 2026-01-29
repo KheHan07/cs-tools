@@ -90,6 +90,8 @@ describe("AppLayout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLocation.pathname = "/dashboard";
+    mockShellState.sidebarCollapsed = false;
+    mockShellState.expandedMenus = [];
   });
 
   it("should render Header, Sidebar, Main, and Footer on a project page", () => {
