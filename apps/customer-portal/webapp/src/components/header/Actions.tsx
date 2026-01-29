@@ -22,7 +22,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { Users } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import { JOIN_COMMUNITY_URL } from "@/constants/AppShellConstants";
+import { JOIN_COMMUNITY_URL } from "@/constants/appLayoutConstants";
 import UserProfile from "./UserProfile";
 
 /**
