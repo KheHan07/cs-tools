@@ -34,6 +34,16 @@ vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
 }));
 
+// Mock useLogger
+vi.mock("@/hooks/useLogger", () => ({
+  useLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
+}));
+
 describe("UserProfile", () => {
   it("should render the user name and email via UserMenu", () => {
     render(<UserProfile />);
