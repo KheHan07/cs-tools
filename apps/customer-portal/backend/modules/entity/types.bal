@@ -332,7 +332,7 @@ public type ProjectDeploymentStatsResponse record {|
 public type Comment record {|
     # ID
     string id;
-    # Reference ID associated with the comment
+    # Reference ID associated with the comment(caseId, serviceRequestId, etc.)
     string referenceId;
     # Content of the comment
     string content;
@@ -359,7 +359,7 @@ public type CommentsResponse record {|
 
 # Reference search payload to search comments, attachments, etc.
 public type ReferenceSearchPayload record {|
-    # Reference ID to filter related resources
+    # Reference ID to filter related resources(caseId, serviceRequestId, etc.)
     string referenceId;
     # Pagination details
     Pagination pagination?;
@@ -369,7 +369,7 @@ public type ReferenceSearchPayload record {|
 public type Attachment record {|
     # ID of the attachment
     string id;
-    # Case ID associated with the attachment
+    # Reference ID associated with the attachment(caseId, serviceRequestId, etc.)
     string referenceId;
     # File name
     string name;
