@@ -65,7 +65,7 @@ export default function useSearchProjects(
 
       const offset = typeof pageParam === "number" ? pageParam : 0;
 
-      const results = {
+      const results: SearchProjectsResponse = {
         limit,
         offset,
         projects: mockProjects.slice(offset, offset + limit).map((project) => ({
@@ -76,7 +76,7 @@ export default function useSearchProjects(
           name: project.name,
         })),
         totalRecords: mockProjects.length,
-      } as SearchProjectsResponse;
+      };
 
       logger.debug("Projects fetched successfully", results);
 
