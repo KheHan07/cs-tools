@@ -78,7 +78,7 @@ vi.mock("@/components/header/Header", () => ({
 }));
 
 vi.mock("@/components/sideNavBar/SideBar", () => ({
-  default: ({ collapsed, expandedMenus, onSelect, onToggleExpand }: any) => (
+  default: ({ collapsed, onSelect, onToggleExpand }: any) => (
     <div data-testid="sidebar">
       <span>Collapsed: {collapsed.toString()}</span>
       <button onClick={() => onSelect("item-1")}>Select</button>
