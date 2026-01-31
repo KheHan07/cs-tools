@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, type JSX, useMemo } from "react";
 import { Header as HeaderUI } from "@wso2/oxygen-ui";
 import { useNavigate, useLocation, useParams } from "react-router";
 import useGetProjects from "@/api/useGetProjects";
@@ -89,8 +89,10 @@ export default function Header({ onToggleSidebar }: HeaderProps): JSX.Element {
   /**
    * Flatten the projects response.
    */
-  const projects =
-    projectsResponse?.pages.flatMap((page) => page.projects) || [];
+  const projects = useMemo(
+    () => projectsResponse?.pages.flatMap((page) => page.projects) || [],
+    [projectsResponse?.pages],
+  );
 
   /**
    * Find the project from the URL parameters.
