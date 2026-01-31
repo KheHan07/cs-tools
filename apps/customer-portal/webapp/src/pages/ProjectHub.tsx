@@ -15,7 +15,7 @@
 // under the License.
 
 import { Box, Typography } from "@wso2/oxygen-ui";
-import { type JSX } from "react";
+import { useEffect, type JSX } from "react";
 import useSearchProjects from "@/api/useSearchProjects";
 import { useLogger } from "@/hooks/useLogger";
 import ProjectCard from "@/components/projectCard/ProjectCard";
@@ -47,6 +47,24 @@ export default function ProjectHub(): JSX.Element {
    */
   const projects =
     projectsResponse?.pages.flatMap((page) => page.projects) || [];
+
+  /**
+   * Use effect to log errors when they occur.
+   */
+  useEffect(() => {
+    if (isError) {
+      logger.error("Failed to load projects in ProjectHub");
+    }
+  }, [isError, logger]);
+
+  /**
+   * Use effect to log projects loaded.
+   */
+  useEffect(() => {
+    if (projects.length > 0) {
+      logger.debug(`${projects.length} projects loaded in ProjectHub`);
+    }
+  }, [projects.length, logger]);
 
   /**
    * Render content based on the state.
@@ -94,7 +112,6 @@ export default function ProjectHub(): JSX.Element {
      * Log error if projects are not loaded.
      */
     if (isError) {
-      logger.error("Failed to load projects in ProjectHub");
       return (
         <Typography variant="h6" color="error">
           Error loading projects. Please try again later.
@@ -111,13 +128,6 @@ export default function ProjectHub(): JSX.Element {
           No projects available.
         </Typography>
       );
-    }
-
-    /**
-     * Log projects if projects are loaded.
-     */
-    if (projects.length > 0) {
-      logger.debug(`${projects.length} projects loaded in ProjectHub`);
     }
 
     return (
@@ -167,7 +177,6 @@ export default function ProjectHub(): JSX.Element {
   return (
     <Box
       sx={{
-        //bgcolor: "blue",
         width: "100%",
         minHeight: "100%",
         display: "flex",
