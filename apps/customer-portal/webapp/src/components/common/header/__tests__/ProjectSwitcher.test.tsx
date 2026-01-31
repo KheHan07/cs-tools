@@ -44,7 +44,11 @@ vi.mock("@wso2/oxygen-ui", () => ({
       MenuItem: Object.assign(
         ({ value, children }: any) => <option value={value}>{children}</option>,
         {
-          Text: ({ primary }: any) => primary,
+          Text: ({ primary, secondary }: any) => (
+            <>
+              {primary} {secondary}
+            </>
+          ),
         },
       ),
     },
@@ -77,7 +81,12 @@ describe("ProjectSwitcher", () => {
 
     expect(screen.getByTestId("project-select")).toBeInTheDocument();
     mockProjects.forEach((project) => {
-      expect(screen.getByText(project.name)).toBeInTheDocument();
+      expect(
+        screen.getByText(project.name, { exact: false }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(project.key, { exact: false }),
+      ).toBeInTheDocument();
     });
   });
 

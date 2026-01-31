@@ -110,7 +110,7 @@ export default function ProjectSwitcher({
           <ComplexSelect.MenuItem key={project.id} value={project.id}>
             <ComplexSelect.MenuItem.Text
               primary={project.name}
-              secondary={project.description}
+              secondary={project.key}
             />
           </ComplexSelect.MenuItem>
         ))}
