@@ -41,7 +41,7 @@ export default function ProjectPage({ title }: ProjectPageProps): JSX.Element {
   const { projectId } = useParams<{ projectId: string }>();
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box>
       {/* project page title */}
       <Typography variant="h4" gutterBottom>
         {title}
