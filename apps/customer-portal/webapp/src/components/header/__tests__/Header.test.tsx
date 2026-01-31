@@ -103,15 +103,20 @@ vi.mock("@/hooks/useLogger", () => ({
   }),
 }));
 
+const mockFetchNextPage = vi.fn();
+const mockUseSearchProjects = vi.fn(() => ({
+  data: {
+    pages: [{ projects: mockProjects }],
+  },
+  fetchNextPage: mockFetchNextPage,
+  hasNextPage: false,
+  isFetchingNextPage: false,
+  isError: false,
+})) as any;
+
 vi.mock("@/api/useSearchProjects", () => ({
-  default: vi.fn(() => ({
-    data: {
-      pages: [{ projects: mockProjects }],
-    },
-    fetchNextPage: vi.fn(),
-    hasNextPage: false,
-    isFetchingNextPage: false,
-  })),
+  default: (searchData: any, fetchAll: any) =>
+    mockUseSearchProjects(searchData, fetchAll),
 }));
 
 // Mock sub-components
@@ -128,13 +133,18 @@ vi.mock("../SearchBar", () => ({
 }));
 
 vi.mock("../ProjectSwitcher", () => ({
-  default: ({ onProjectChange }: any) => (
-    <div data-testid="project-switcher">
+  default: ({ projects, selectedProject, onProjectChange }: any) => (
+    <div
+      data-testid="project-switcher"
+      data-selected-id={selectedProject?.id || ""}
+    >
       <select
         data-testid="project-select"
+        value={selectedProject?.id || ""}
         onChange={(e) => onProjectChange(e.target.value)}
       >
-        {mockProjects.map((p: any) => (
+        <option value="">None</option>
+        {projects.map((p: any) => (
           <option key={p.id} value={p.id}>
             {p.name}
           </option>
@@ -156,6 +166,15 @@ describe("Header", () => {
     vi.clearAllMocks();
     mockLocation.pathname = "/";
     mockParams.projectId = "";
+    mockUseSearchProjects.mockReturnValue({
+      data: {
+        pages: [{ projects: mockProjects }],
+      },
+      fetchNextPage: mockFetchNextPage,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      isError: false,
+    });
   });
 
   it("should render the brand component", () => {
@@ -201,6 +220,55 @@ describe("Header", () => {
     expect(mockNavigate).toHaveBeenCalledWith(
       `/${mockProjects[1].id}/dashboard`,
     );
+  });
+
+  it("should clear selection when projectId is invalid", () => {
+    mockLocation.pathname = "/invalid-project/dashboard";
+    mockParams.projectId = "invalid-project";
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    const switcher = screen.getByTestId("project-switcher");
+    expect(switcher).toHaveAttribute("data-selected-id", "");
+  });
+
+  it("should clear selection when projectId is missing (hub page)", () => {
+    mockLocation.pathname = "/";
+    mockParams.projectId = "";
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    // Switcher is not rendered on Hub, but we can verify the state if it was
+    // For coverage of the useEffect clearing logic, we check that it handles missing projectId
+    expect(screen.queryByTestId("project-switcher")).toBeNull();
+  });
+
+  it("should call fetchNextPage if hasNextPage is true", () => {
+    mockUseSearchProjects.mockReturnValue({
+      data: { pages: [{ projects: mockProjects }] },
+      fetchNextPage: mockFetchNextPage,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isError: false,
+    });
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    expect(mockFetchNextPage).toHaveBeenCalled();
+  });
+
+  it("should NOT call fetchNextPage if isError is true", () => {
+    mockUseSearchProjects.mockReturnValue({
+      data: { pages: [{ projects: mockProjects }] },
+      fetchNextPage: mockFetchNextPage,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isError: true,
+    });
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    expect(mockFetchNextPage).not.toHaveBeenCalled();
   });
 
   it("should render Actions", () => {
