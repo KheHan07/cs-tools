@@ -15,7 +15,7 @@
 // under the License.
 
 import { NotificationBanner } from "@wso2/oxygen-ui";
-import { useState, type JSX } from "react";
+import { useState, useEffect, type JSX } from "react";
 import { notificationBannerConfig } from "@/config/notificationBannerConfig";
 
 /**
@@ -25,15 +25,23 @@ import { notificationBannerConfig } from "@/config/notificationBannerConfig";
  */
 export default function GlobalNotificationBanner(): JSX.Element {
   /**
-   * State for the notification banner visibility.
+   * State for the notification banner dismissal.
    */
-  const [showBanner, setShowBanner] = useState<boolean>(
-    notificationBannerConfig.visible,
-  );
+  const [dismissed, setDismissed] = useState<boolean>(false);
+
+  /**
+   * Reset the dismissed state when the visibility configuration changes to true.
+   * This ensures that if the banner is reactivated with new info, it shows up again.
+   */
+  useEffect(() => {
+    if (notificationBannerConfig.visible) {
+      setDismissed(false);
+    }
+  }, [notificationBannerConfig.visible]);
 
   return (
     <NotificationBanner
-      visible={showBanner}
+      visible={notificationBannerConfig.visible && !dismissed}
       severity={notificationBannerConfig.severity}
       title={notificationBannerConfig.title}
       message={notificationBannerConfig.message}
@@ -47,7 +55,7 @@ export default function GlobalNotificationBanner(): JSX.Element {
           );
         }
       }}
-      onDismiss={() => setShowBanner(false)}
+      onDismiss={() => setDismissed(true)}
     />
   );
 }

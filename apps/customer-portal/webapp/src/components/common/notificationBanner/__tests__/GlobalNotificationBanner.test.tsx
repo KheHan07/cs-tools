@@ -14,10 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import GlobalNotificationBanner from "../GlobalNotificationBanner";
-import { notificationBannerConfig } from "@/config/notificationBannerConfig";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -64,5 +63,21 @@ describe("GlobalNotificationBanner", () => {
     render(<GlobalNotificationBanner />);
 
     expect(screen.queryByTestId("notification-banner")).toBeNull();
+  });
+
+  it("should synchronize visibility when configuration changes after mount", async () => {
+    const { rerender } = render(<GlobalNotificationBanner />);
+    expect(screen.getByTestId("notification-banner")).toBeInTheDocument();
+
+    // Change the visibility in the mock configuration and rerender inside act
+    await act(async () => {
+      mockConfig.visible = false;
+      rerender(<GlobalNotificationBanner />);
+    });
+
+    // Wait for the element to disappear
+    await waitFor(() => {
+      expect(screen.queryByTestId("notification-banner")).toBeNull();
+    });
   });
 });
