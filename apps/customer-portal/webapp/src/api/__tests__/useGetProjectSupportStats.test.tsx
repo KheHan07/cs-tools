@@ -15,7 +15,7 @@
 // under the License.
 
 import { renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
@@ -30,12 +30,18 @@ vi.mock("@/hooks/useLogger", () => ({
 }));
 
 describe("useGetProjectSupportStats", () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
       },
-    },
+    });
+    mockLogger.debug.mockClear();
+    mockLogger.error.mockClear();
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
