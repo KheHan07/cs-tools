@@ -70,7 +70,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # Fetch user information of the logged in user.
     #
     # + return - User info object or error response
-    resource function get users/me(http:RequestContext ctx) returns User|http:Forbidden|http:InternalServerError {
+    resource function get users/me(http:RequestContext ctx) returns User|http:Unauthorized|http:InternalServerError {
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
@@ -91,11 +91,11 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         entity:UserResponse|error userDetails = entity:getUserBasicInfo(userInfo.email, userInfo.idToken);
         if userDetails is error {
-            if getStatusCode(userDetails) == http:STATUS_FORBIDDEN {
-                log:printWarn(string `User: ${userInfo.userId} does not have access to the customer portal!`);
-                return <http:Forbidden>{
+            if getStatusCode(userDetails) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `Access denied for user: ${userInfo.userId} to Customer Portal`);
+                return <http:Unauthorized>{
                     body: {
-                        message: "User is not authorized to access the customer portal!"
+                        message: "Unauthorized access to the customer portal."
                     }
                 };
             }
