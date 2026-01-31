@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import ProjectHub from "@/pages/ProjectHub";
 import { mockProjects } from "@/models/mockData";
@@ -93,7 +93,7 @@ describe("ProjectHub", () => {
     expect(screen.getByText(mockProjects[0].name)).toBeInTheDocument();
   });
 
-  it("should render error message when isError is true", () => {
+  it("should render error message when isError is true", async () => {
     mockUseSearchProjects.mockReturnValue({
       isLoading: false,
       data: null,
@@ -103,9 +103,11 @@ describe("ProjectHub", () => {
     render(<ProjectHub />);
 
     expect(screen.getByText(/Error loading projects/i)).toBeInTheDocument();
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      expect.stringContaining("Failed to load projects"),
-    );
+    await waitFor(() => {
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to load projects"),
+      );
+    });
   });
 
   it("should render empty state when no projects are returned", () => {
@@ -122,7 +124,7 @@ describe("ProjectHub", () => {
     expect(screen.getByText(/No projects available/i)).toBeInTheDocument();
   });
 
-  it("should log debug message when projects are loaded", () => {
+  it("should log debug message when projects are loaded", async () => {
     mockUseSearchProjects.mockReturnValue({
       isLoading: false,
       data: {
@@ -132,9 +134,10 @@ describe("ProjectHub", () => {
     });
 
     render(<ProjectHub />);
-
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining("projects loaded"),
-    );
+    await waitFor(() => {
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining("projects loaded"),
+      );
+    });
   });
 });
