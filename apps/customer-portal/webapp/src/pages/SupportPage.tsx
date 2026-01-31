@@ -15,9 +15,11 @@
 // under the License.
 
 import { useParams } from "react-router";
-import { type JSX } from "react";
+import { useEffect, type JSX } from "react";
+import { Typography, Box } from "@wso2/oxygen-ui";
 import CasesOverviewStats from "@/components/support/CasesOverviewStats";
 import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
+import { useLogger } from "@/hooks/useLogger";
 
 /**
  * SupportPage component to display case details for a project.
@@ -26,6 +28,11 @@ import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
  */
 export default function SupportPage(): JSX.Element {
   /**
+   * Logger hook.
+   */
+  const logger = useLogger();
+
+  /**
    * Get the project ID from the URL.
    */
   const { projectId } = useParams<{ projectId: string }>();
@@ -33,7 +40,39 @@ export default function SupportPage(): JSX.Element {
   /**
    * Fetch support statistics for the project.
    */
-  const { data: stats, isLoading } = useGetProjectSupportStats(projectId || "");
+  const {
+    data: stats,
+    isLoading,
+    isError,
+  } = useGetProjectSupportStats(projectId || "");
+
+  /**
+   * Use effect to log errors when they occur.
+   */
+  useEffect(() => {
+    if (isError) {
+      logger.error(`Failed to load support stats for project: ${projectId}`);
+    }
+  }, [isError, projectId, logger]);
+
+  /**
+   * Use effect to log when stats are loaded.
+   */
+  useEffect(() => {
+    if (stats) {
+      logger.debug(`Support stats loaded for project: ${projectId}`);
+    }
+  }, [stats, projectId, logger]);
+
+  if (isError) {
+    return (
+      <Box sx={{ mt: 3, textAlign: "center" }}>
+        <Typography variant="h6" color="error">
+          Error loading support statistics. Please try again later.
+        </Typography>
+      </Box>
+    );
+  }
 
   return <CasesOverviewStats isLoading={isLoading} stats={stats} />;
 }
