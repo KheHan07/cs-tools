@@ -20,8 +20,20 @@ import Actions from "@/components/header/Actions";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Button: ({ children, href }: { children: any; href: string }) => (
-    <a href={href}>{children}</a>
+  Button: ({
+    children,
+    href,
+    target,
+    rel,
+  }: {
+    children: any;
+    href: string;
+    target?: string;
+    rel?: string;
+  }) => (
+    <a href={href} target={target} rel={rel}>
+      {children}
+    </a>
   ),
   ColorSchemeToggle: () => (
     <button data-testid="theme-toggle">Toggle Theme</button>
@@ -59,6 +71,9 @@ describe("Actions", () => {
     render(<Actions />);
 
     expect(screen.getByText("Join our community")).toBeInTheDocument();
+    const joinLink = screen.getByRole("link", { name: /join our community/i });
+    expect(joinLink).toHaveAttribute("target", "_blank");
+    expect(joinLink).toHaveAttribute("rel", "noopener noreferrer");
     expect(screen.getByTestId("theme-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("user-profile")).toBeInTheDocument();
   });
