@@ -74,7 +74,9 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => {
 
 // Mock react-router
 const mockLocation = { pathname: "/project-1/dashboard" };
-const mockParams = { projectId: "project-1" };
+const mockParams: { projectId: string | undefined } = {
+  projectId: "project-1",
+};
 
 vi.mock("react-router", () => ({
   useLocation: () => mockLocation,

@@ -30,22 +30,25 @@ vi.mock("@wso2/oxygen-ui", () => ({
     ) : null,
 }));
 
-// Mock notificationBannerConfig
-vi.mock("@/config/notificationBannerConfig", () => ({
-  notificationBannerConfig: {
-    visible: true,
-    severity: "info",
-    title: "Test Title",
-    message: "Test Message",
+const { mockConfig } = vi.hoisted(() => ({
+  mockConfig: {
     actionLabel: "Test Action",
     actionUrl: "https://wso2.com",
+    message: "Test Message",
+    severity: "info" as const,
+    title: "Test Title",
+    visible: true,
   },
+}));
+
+vi.mock("@/config/notificationBannerConfig", () => ({
+  notificationBannerConfig: mockConfig,
 }));
 
 describe("GlobalNotificationBanner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    notificationBannerConfig.visible = true;
+    mockConfig.visible = true;
   });
 
   it("should render the banner when visible is true", () => {
@@ -57,7 +60,7 @@ describe("GlobalNotificationBanner", () => {
   });
 
   it("should NOT render the banner when visible is false", () => {
-    notificationBannerConfig.visible = false;
+    mockConfig.visible = false;
     render(<GlobalNotificationBanner />);
 
     expect(screen.queryByTestId("notification-banner")).toBeNull();
