@@ -34,7 +34,7 @@ interface ProjectSwitcherProps {
   /**
    * Callback function to handle project change.
    */
-  onProjectChange: (projectKey: string) => void;
+  onProjectChange: (projectId: string) => void;
 }
 
 /**
@@ -52,7 +52,7 @@ export default function ProjectSwitcher({
     <HeaderUI.Switchers showDivider={false}>
       {/* project switcher select */}
       <ComplexSelect
-        value={selectedProject?.key || ""}
+        value={selectedProject?.id || ""}
         onChange={(event: any) => onProjectChange(event.target.value)}
         size="small"
         sx={{ minWidth: 200 }}
@@ -60,7 +60,7 @@ export default function ProjectSwitcher({
           /**
            * Find the project from the URL parameters.
            */
-          const project = projects.find((project) => project.key === selected);
+          const project = projects.find((project) => project.id === selected);
           /**
            * Return the project name and icon.
            */
@@ -77,7 +77,7 @@ export default function ProjectSwitcher({
         <ComplexSelect.ListHeader>Switch Project</ComplexSelect.ListHeader>
         {/* project switcher list items */}
         {projects.map((project) => (
-          <ComplexSelect.MenuItem key={project.key} value={project.key}>
+          <ComplexSelect.MenuItem key={project.id} value={project.id}>
             <ComplexSelect.MenuItem.Text
               primary={project.name}
               secondary={project.description}
