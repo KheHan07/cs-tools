@@ -135,7 +135,7 @@ vi.mock("../ProjectSwitcher", () => ({
         onChange={(e) => onProjectChange(e.target.value)}
       >
         {mockProjects.map((p: any) => (
-          <option key={p.key} value={p.key}>
+          <option key={p.id} value={p.id}>
             {p.name}
           </option>
         ))}
@@ -196,10 +196,10 @@ describe("Header", () => {
     render(<Header onToggleSidebar={mockOnToggleSidebar} />);
 
     const select = screen.getByTestId("project-select");
-    fireEvent.change(select, { target: { value: mockProjects[1].key } });
+    fireEvent.change(select, { target: { value: mockProjects[1].id } });
 
     expect(mockNavigate).toHaveBeenCalledWith(
-      `/${mockProjects[1].key}/dashboard`,
+      `/${mockProjects[1].id}/dashboard`,
     );
   });
 
