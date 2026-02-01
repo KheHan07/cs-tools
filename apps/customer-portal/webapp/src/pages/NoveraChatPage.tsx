@@ -38,8 +38,26 @@ interface Message {
  * @returns {JSX.Element} The rendered NoveraChatPage.
  */
 export default function NoveraChatPage(): JSX.Element {
+  /**
+   * Navigation Hook.
+   */
   const navigate = useNavigate();
+
+  /**
+   * Project ID Hook.
+   */
   const { projectId } = useParams<{ projectId: string }>();
+
+  /**
+   * Handle back navigation.
+   */
+  const handleBack = () => {
+    if (projectId) {
+      navigate(`/${projectId}/support`);
+    } else {
+      navigate(-1);
+    }
+  };
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -119,7 +137,7 @@ export default function NoveraChatPage(): JSX.Element {
           overflow: "hidden",
         }}
       >
-        <ChatHeader onBack={() => navigate(`/${projectId}/support`)} />
+        <ChatHeader onBack={handleBack} />
 
         {/* Chat window */}
         <Paper
