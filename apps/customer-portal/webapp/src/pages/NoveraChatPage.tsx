@@ -50,6 +50,7 @@ export default function NoveraChatPage(): JSX.Element {
   ]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingTimeoutsRef = useRef<number[]>([]);
 
   /**
    * Scroll to the bottom of the message list whenever messages change.
@@ -57,6 +58,16 @@ export default function NoveraChatPage(): JSX.Element {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  /**
+   * Cleanup pending timeouts on unmount.
+   */
+  useEffect(() => {
+    return () => {
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current = [];
+    };
+  }, []);
 
   /**
    * Handle sending a new message.
@@ -74,7 +85,7 @@ export default function NoveraChatPage(): JSX.Element {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    setTimeout(() => {
+    const timeoutId = window.setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: getNoveraResponse(),
@@ -82,7 +93,12 @@ export default function NoveraChatPage(): JSX.Element {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
+      pendingTimeoutsRef.current = pendingTimeoutsRef.current.filter(
+        (id) => id !== timeoutId,
+      );
     }, 1000);
+
+    pendingTimeoutsRef.current.push(timeoutId);
   };
 
   return (
