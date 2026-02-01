@@ -381,7 +381,8 @@ service http:InterceptableService / on new http:Listener(9090) {
             projectStats: {
                 openCases: caseStats.openCount,
                 activeChats: chatStats.activeCount,
-                deployments: deploymentStats.totalCount
+                deployments: deploymentStats.totalCount,
+                slaStatus: projectActivityStats.slaStatus
             },
             recentActivity: {
                 totalTimeLogged: projectActivityStats.totalTimeLogged,

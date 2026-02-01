@@ -172,6 +172,8 @@ public type ProjectStats record {|
     int activeChats;
     # Deployments count
     int deployments;
+    # SLA status
+    string slaStatus;
 |};
 
 # Recent activity details.
