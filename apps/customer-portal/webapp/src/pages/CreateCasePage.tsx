@@ -31,7 +31,7 @@ import { AIInfoCard } from "@/components/support/caseCreationLayout/AIInfoCard";
 import { BasicInformationSection } from "@/components/support/caseCreationLayout/BasicInformationSection";
 import { CaseCreationHeader } from "@/components/support/caseCreationLayout/CaseCreationHeader";
 import { CaseDetailsSection } from "@/components/support/caseCreationLayout/CaseDetailsSection";
-import { ConversationSummarySidebar } from "@/components/support/caseCreationLayout/ConversationSummarySidebar";
+import { ConversationSummary } from "@/components/support/caseCreationLayout/ConversationSummary";
 import {
   getGeneratedIssueTitle,
   getGeneratedIssueDescription,
@@ -193,10 +193,7 @@ export default function CreateCasePage(): JSX.Element {
 
         {/* right column - sidebar */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <ConversationSummarySidebar
-            metadata={metadata}
-            isLoading={isLoading}
-          />
+          <ConversationSummary metadata={metadata} isLoading={isLoading} />
         </Grid>
       </Grid>
     );
