@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
   Select,
   MenuItem,
   Button,
@@ -28,6 +27,7 @@ import {
   IconButton,
   FormControl,
   TextField,
+  InputLabel,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
@@ -121,73 +121,71 @@ const FilterPopover = <T extends Record<string, any>>({
       <DialogContent sx={{ minHeight: 300 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
           {/* filter popover fields */}
-          {fields.map((field) => (
-            <Grid container alignItems="center" spacing={2} key={field.id}>
-              {/* filter popover field label */}
-              <Grid size={4}>
-                <Typography variant="body2">{field.label}</Typography>
-              </Grid>
-              {/* filter popover field input */}
-              <Grid size={8}>
-                <FormControl fullWidth size="small">
-                  {field.type === "select" ? (
-                    <Select<string>
-                      value={tempFilters[field.id] || ""}
-                      displayEmpty
-                      onChange={handleSelectChange(field.id)}
-                      renderValue={(selected) => {
-                        if (selected.length === 0) {
-                          return (
-                            <Typography variant="caption" color="text.disabled">
-                              {field.placeholder || `Select ${field.label}`}
-                            </Typography>
-                          );
-                        }
-                        const selectedOption = field.options?.find((opt) =>
-                          typeof opt === "string"
-                            ? opt === selected
-                            : opt.value === selected,
-                        );
-                        if (selectedOption) {
-                          return typeof selectedOption === "string"
-                            ? selectedOption
-                            : selectedOption.label;
-                        }
-                        return selected;
-                      }}
-                    >
-                      {/* filter popover select menu item */}
-                      <MenuItem value="">
+          {/* filter popover fields */}
+          {fields.map((field) =>
+            field.type === "select" ? (
+              <FormControl fullWidth size="small" key={field.id}>
+                <InputLabel id={`${field.id}-label`}>{field.label}</InputLabel>
+                <Select<string>
+                  labelId={`${field.id}-label`}
+                  id={field.id}
+                  value={tempFilters[field.id] || ""}
+                  label={field.label}
+                  displayEmpty
+                  onChange={handleSelectChange(field.id)}
+                  renderValue={(selected) => {
+                    if (selected.length === 0) {
+                      return (
                         <Typography variant="caption" color="text.disabled">
                           {field.placeholder || `Select ${field.label}`}
                         </Typography>
+                      );
+                    }
+                    const selectedOption = field.options?.find((opt) =>
+                      typeof opt === "string"
+                        ? opt === selected
+                        : opt.value === selected,
+                    );
+                    if (selectedOption) {
+                      return typeof selectedOption === "string"
+                        ? selectedOption
+                        : selectedOption.label;
+                    }
+                    return selected;
+                  }}
+                >
+                  {/* filter popover select menu item */}
+                  <MenuItem value="">
+                    <Typography variant="caption" color="text.disabled">
+                      {field.placeholder || `Select ${field.label}`}
+                    </Typography>
+                  </MenuItem>
+                  {/* filter popover select menu items */}
+                  {field.options?.map((option) => {
+                    const value =
+                      typeof option === "string" ? option : option.value;
+                    const label =
+                      typeof option === "string" ? option : option.label;
+                    return (
+                      <MenuItem key={value} value={value}>
+                        <Typography variant="body2">{label}</Typography>
                       </MenuItem>
-                      {/* filter popover select menu items */}
-                      {field.options?.map((option) => {
-                        const value =
-                          typeof option === "string" ? option : option.value;
-                        const label =
-                          typeof option === "string" ? option : option.label;
-                        return (
-                          <MenuItem key={value} value={value}>
-                            <Typography variant="body2">{label}</Typography>
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  ) : (
-                    <TextField
-                      value={tempFilters[field.id] || ""}
-                      onChange={handleTextChange(field.id)}
-                      placeholder={field.placeholder || `Enter ${field.label}`}
-                      size="small"
-                      fullWidth
-                    />
-                  )}
-                </FormControl>
-              </Grid>
-            </Grid>
-          ))}
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            ) : (
+              <TextField
+                key={field.id}
+                value={tempFilters[field.id] || ""}
+                onChange={handleTextChange(field.id)}
+                placeholder={field.placeholder || `Enter ${field.label}`}
+                size="small"
+                fullWidth
+                label={field.label}
+              />
+            ),
+          )}
         </Box>
       </DialogContent>
       <DialogActions
