@@ -1,11 +1,10 @@
-import { Stack, Chip, Radio, RadioGroup, FormControlLabel } from "@mui/material";
-import { AdminPanelSettings } from "@mui/icons-material";
-
+import { Stack, Chip, Radio, RadioGroup, FormControlLabel, Box, pxToRem } from "@wso2/oxygen-ui";
+import { ShieldUser } from "@wso2/oxygen-ui-icons-react";
 import { MOCK_ROLES } from "@src/mocks/data/users";
 
 export type RoleName = (typeof MOCK_ROLES)[number]["name"];
 
-export const ROLE_NAMES = MOCK_ROLES.map((role) => role.name);
+const ROLE_NAMES = MOCK_ROLES.map((role) => role.name);
 
 interface RoleSelectorProps {
   value: RoleName;
@@ -38,8 +37,12 @@ export function RoleOption({ role }: { role: RoleName }) {
       }}
       label={
         <Stack direction="row" alignItems="center" gap={1}>
-          <Chip size="small" label={role} color={admin ? "error" : "default"} />
-          {admin && <AdminPanelSettings fontSize="small" color="primary" />}
+          <Chip size="small" label={role} color={admin ? "primary" : "default"} />
+          {admin && (
+            <Box color="primary.main">
+              <ShieldUser size={pxToRem(18)} />
+            </Box>
+          )}
         </Stack>
       }
     ></FormControlLabel>

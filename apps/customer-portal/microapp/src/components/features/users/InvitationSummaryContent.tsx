@@ -1,4 +1,4 @@
-import { Chip, Stack, Typography } from "@mui/material";
+import { Chip, Stack, Typography } from "@wso2/oxygen-ui";
 import type { RoleName } from "./RoleSelector";
 
 interface InvitationSummaryProps {
@@ -13,7 +13,7 @@ export function InvitationSummaryContent({ projectName, email, name, role }: Inv
     { label: "Project", value: projectName || "-" },
     { label: "User Email", value: email || "-" },
     { label: "User Name", value: name || "-" },
-    { label: "Role", value: <Chip size="small" label={role} color={role === "Admin" ? "error" : "default"} /> },
+    { label: "Role", value: <Chip size="small" label={role} color={role === "Admin" ? "primary" : "default"} /> },
     { label: "Delivery Method", value: "Email" },
   ];
 

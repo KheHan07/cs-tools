@@ -94,11 +94,11 @@ export function ProjectCard({ id, name, description, type, status, metrics, onCl
 }
 
 function MetricItem({ meta, value }: { meta: ProjectMetricMeta; value: ProjectMetricValue }) {
-  const theme = useTheme();
-
   return (
     <Stack direction="row" alignItems="center" spacing={1}>
-      <meta.icon size={pxToRem(18)} color={theme.palette.text.secondary} />
+      <Box color="text.secondary">
+        <meta.icon size={pxToRem(18)} />
+      </Box>
       <Typography variant="body2" fontWeight="regular">
         {meta.label}
       </Typography>

@@ -1,19 +1,18 @@
 import { useState, type ReactNode } from "react";
-import { Avatar, ButtonBase as Button, Card, InputAdornment, RadioGroup, Stack, Typography } from "@mui/material";
-import { TextField } from "@components/features/create";
-import { AccessTime, Email, Person } from "@mui/icons-material";
+import { Avatar, Button, Card, pxToRem, Stack, TextField, Typography, useTheme } from "@wso2/oxygen-ui";
 import { Link, useLocation } from "react-router-dom";
-import { InvitationSummaryContent, RoleOption } from "@components/features/users";
+import { InvitationSummaryContent, RoleSelector } from "@components/features/users";
 import { useProject } from "@context/project";
 
 import { MOCK_PROJECTS } from "@src/mocks/data/projects";
 import { MOCK_ROLES } from "@src/mocks/data/users";
-
-const ROLE_NAMES = MOCK_ROLES.map((role) => role.name);
+import { Clock4, Mail } from "@wso2/oxygen-ui-icons-react";
+import { stringAvatar } from "../utils/others";
 
 export type RoleName = (typeof MOCK_ROLES)[number]["name"];
 
 export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "edit" }) {
+  const theme = useTheme();
   const location = useLocation();
   const state = location.state as { email?: string; role?: string; name?: string };
 
@@ -27,7 +26,7 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
   return (
     <Stack gap={2}>
       {mode === "edit" && (
-        <Card component={Stack} textAlign="center" alignItems="center" gap={2} p={3} elevation={0}>
+        <Card component={Stack} textAlign="center" alignItems="center" gap={2} p={3}>
           <Avatar
             sx={(theme) => ({
               width: 65,
@@ -38,14 +37,14 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
               fontWeight: "medium",
             })}
           >
-            LD
+            {stringAvatar(name)}
           </Avatar>
           <Stack textAlign="center" gap={0.5}>
             <Typography variant="h5" fontWeight="medium">
-              Sarah Chen
+              {name}
             </Typography>
             <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
-              <Email sx={(theme) => ({ fontSize: theme.typography.pxToRem(18), color: "text.secondary" })} />
+              <Mail size={pxToRem(18)} color={theme.palette.text.secondary} />
               <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
                 {email}
               </Typography>
@@ -59,40 +58,17 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
       <SectionCard title="User Details">
         <Stack gap={2}>
           <TextField
+            size="small"
             label="Email Address"
-            placeholder="user@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            startAdornment={
-              <InputAdornment position="start">
-                <Email />
-              </InputAdornment>
-            }
           />
-          <TextField
-            label="Full Name"
-            placeholder="John Doe"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            startAdornment={
-              <InputAdornment position="start">
-                <Person />
-              </InputAdornment>
-            }
-          />
+          <TextField size="small" label="Full Name" value={name} onChange={(event) => setName(event.target.value)} />
         </Stack>
       </SectionCard>
 
-      {/* <SectionCard title="User Role">
-        <RoleSelector value={role} onChange={setRole} />
-      </SectionCard> */}
-
       <SectionCard title="User Status">
-        <RadioGroup value={role} onChange={(event) => setRole(event.target.value as RoleName)}>
-          {ROLE_NAMES.map((role, index) => (
-            <RoleOption key={index} role={role} />
-          ))}
-        </RadioGroup>
+        <RoleSelector value={role} onChange={setRole} />
       </SectionCard>
 
       <SectionCard title="Invitation Summary">
@@ -109,7 +85,7 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
 
 function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Card component={Stack} gap={2} p={2} elevation={0}>
+    <Card component={Stack} gap={2} p={2}>
       <Typography variant="body2" color="text.secondary" fontWeight="medium">
         {title}
       </Typography>
@@ -120,7 +96,7 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
 
 function SendButton() {
   return (
-    <Button component={Link} sx={{ fontWeight: "medium" }} to="/users">
+    <Button variant="contained" component={Link} to="/users" sx={{ textTransform: "initial" }}>
       Send Invitation
     </Button>
   );
@@ -128,13 +104,15 @@ function SendButton() {
 
 function CancelButton() {
   return (
-    <Button component={Link} sx={{ fontWeight: "medium", bgcolor: "background.paper" }} to="/users">
+    <Button component={Link} sx={{ textTransform: "initial", bgcolor: "background.paper" }} to="/users">
       Cancel
     </Button>
   );
 }
 
 function ExpirationNotice() {
+  const theme = useTheme();
+
   return (
     <Card
       component={Stack}
@@ -143,10 +121,9 @@ function ExpirationNotice() {
       px={2}
       py={1.5}
       gap={2}
-      elevation={0}
       sx={{ bgcolor: "components.popover.state.active.background" }}
     >
-      <AccessTime color="primary" sx={(theme) => ({ fontSize: theme.typography.pxToRem(20) })} />
+      <Clock4 size={pxToRem(50)} color={theme.palette.primary.main} />
       <Typography variant="subtitle2" fontWeight="medium" color="text.secondary">
         Important: &nbsp;
         <Typography component="span" variant="subtitle2" fontWeight="regular">
