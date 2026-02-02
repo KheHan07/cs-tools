@@ -33,17 +33,23 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const hasFilters = Object.values(filters).some(
+    (val) => val !== undefined && val !== "" && val !== null,
+  );
 
   const requestBody: CaseSearchRequest = {
-    filters: {
-      deploymentId: filters.deploymentId || undefined,
-      severityId: filters.severityId
-        ? parseInt(filters.severityId, 10)
-        : undefined,
-      statusId: filters.statusId ? parseInt(filters.statusId, 10) : undefined,
-      caseTypes: filters.caseTypes ? [filters.caseTypes] : undefined,
-    },
+    ...(hasFilters && {
+      filters: {
+        deploymentId: filters.deploymentId || undefined,
+        severityId: filters.severityId
+          ? parseInt(filters.severityId, 10)
+          : undefined,
+        statusId: filters.statusId ? parseInt(filters.statusId, 10) : undefined,
+        caseTypes: filters.caseTypes ? [filters.caseTypes] : undefined,
+      },
+    }),
     pagination: {
       offset: page * rowsPerPage,
       limit: rowsPerPage,
