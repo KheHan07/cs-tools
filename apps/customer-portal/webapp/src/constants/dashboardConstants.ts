@@ -21,6 +21,7 @@ import {
   Activity,
 } from "@wso2/oxygen-ui-icons-react";
 import { type DashboardMockStats } from "@/models/responses";
+import { colors } from "@wso2/oxygen-ui";
 
 // Valid color types for the stat card icons.
 export type StatCardColor =
@@ -77,17 +78,17 @@ export const ACTIVE_CASES_CHART_DATA = [
   {
     name: "Work in progress",
     key: "workInProgress",
-    color: "#3B82F6",
+    color: colors.blue[500],
   },
   {
     name: "Waiting on client",
     key: "waitingOnClient",
-    color: "#22C55E",
+    color: colors.green[500],
   },
   {
     name: "Waiting on WSO2",
     key: "waitingOnWso2",
-    color: "#EAB308",
+    color: colors.orange[500],
   },
 ] as const;
 
@@ -96,17 +97,17 @@ export const OUTSTANDING_INCIDENTS_CHART_DATA = [
   {
     name: "Medium",
     key: "medium",
-    color: "#3B82F6",
+    color: colors.blue[500],
   },
   {
     name: "High",
     key: "high",
-    color: "#F97316",
+    color: colors.orange[500],
   },
   {
     name: "Critical",
     key: "critical",
-    color: "#EF4444",
+    color: colors.red[500],
   },
 ] as const;
 
@@ -126,23 +127,23 @@ export const CASES_TREND_CHART_DATA: CasesTrendChartDataItem[] = [
   {
     name: "Type A",
     key: "TypeA",
-    color: "#3B82F6",
+    color: colors.blue[500],
     radius: [0, 0, 4, 4],
   },
   {
     name: "Type B",
     key: "TypeB",
-    color: "#22C55E",
+    color: colors.green[500],
   },
   {
     name: "Type C",
     key: "TypeC",
-    color: "#F97316",
+    color: colors.orange[500],
   },
   {
     name: "Type D",
     key: "TypeD",
-    color: "#EAB308",
+    color: colors.yellow[600],
     radius: [4, 4, 0, 0],
     border: true,
   },
