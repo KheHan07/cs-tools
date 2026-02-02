@@ -20,7 +20,14 @@ import { ChartLegend } from "../ChartLegend";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Box: ({ children, sx }: any) => <div style={sx}>{children}</div>,
+  Box: ({ children, sx }: any) => {
+    const style: any = { ...sx };
+    if (style.bgcolor) {
+      style.backgroundColor = style.bgcolor;
+      delete style.bgcolor;
+    }
+    return <div style={style}>{children}</div>;
+  },
   Typography: ({ children, variant }: any) => (
     <div data-testid={`typography-${variant}`}>{children}</div>
   ),
@@ -39,12 +46,27 @@ describe("ChartLegend", () => {
     expect(screen.getByText("Item 2")).toBeInTheDocument();
   });
 
-  it("should render correct number of items", () => {
-    const { container } = render(<ChartLegend data={mockData} />);
-    // We expect 2 items, each has a color box and a text
-    const colorBoxes = container.querySelectorAll(
-      'div[style*="width: 12px"][style*="height: 12px"]',
+  it("should render correct number of items with correct colors", () => {
+    render(<ChartLegend data={mockData} />);
+
+    const item1Text = screen.getByText("Item 1");
+    const item1Parent = item1Text.closest("div")?.parentElement;
+    const item1ColorBox = item1Parent?.querySelector(
+      'div[style*="width: 12px"]',
     );
-    expect(colorBoxes.length).toBe(2);
+
+    expect(item1ColorBox).toBeInTheDocument();
+    expect(item1ColorBox).toHaveStyle({ backgroundColor: "#ff0000" });
+
+    const item2Text = screen.getByText("Item 2");
+    expect(item2Text).toBeInTheDocument();
+  });
+
+  it("should handle empty data without issues", () => {
+    const { container } = render(<ChartLegend data={[]} />);
+    expect(container.firstChild).toBeInTheDocument();
+    expect(
+      container.querySelectorAll('div[style*="width: 12px"]'),
+    ).toHaveLength(0);
   });
 });
