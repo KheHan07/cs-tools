@@ -25,7 +25,6 @@ vi.mock("@/models/mockFunctions", () => ({
 }));
 
 // Mock @wso2/oxygen-ui
-// Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,
   Button: ({ children, onClick, startIcon }: any) => (

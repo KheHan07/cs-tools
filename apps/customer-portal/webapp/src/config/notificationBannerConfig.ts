@@ -23,6 +23,7 @@ export interface NotificationBannerConfig {
   actionLabel?: string;
   actionUrl?: string;
 }
+
 export const notificationBannerConfig: NotificationBannerConfig = {
   actionLabel: import.meta.env.CUSTOMER_PORTAL_MAINTENANCE_BANNER_ACTION_LABEL,
   actionUrl: import.meta.env.CUSTOMER_PORTAL_MAINTENANCE_BANNER_ACTION_URL,

@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { CircleCheck } from "@wso2/oxygen-ui-icons-react";
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useGetCaseCreationDetails } from "@/api/useGetCaseCreationDetails";
 import { useLogger } from "@/hooks/useLogger";
@@ -56,15 +56,18 @@ export default function CreateCasePage(): JSX.Element {
   const [deployment, setDeployment] = useState("");
   const [severity, setSeverity] = useState("");
 
+  const hasInitializedRef = useRef(false);
+
   useEffect(() => {
-    if (metadata) {
+    if (metadata && !hasInitializedRef.current) {
       setProject(metadata.projects?.[0] || "");
       setProduct(metadata.products?.[0] || "");
       setDeployment(metadata.deploymentTypes?.[0] || "");
       setIssueType(metadata.issueTypes?.[0] || "");
-      setSeverity(metadata.severityLevels?.[1]?.id || ""); // S2 - Medium as default
+      setSeverity(metadata.severityLevels?.[1]?.id || "");
       setTitle(getGeneratedIssueTitle());
       setDescription(getGeneratedIssueDescription());
+      hasInitializedRef.current = true;
     }
   }, [metadata]);
 
