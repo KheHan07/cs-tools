@@ -1,5 +1,5 @@
-import { Stars } from "@mui/icons-material";
-import { Card, Divider, Stack, Typography, type SxProps, type Theme } from "@mui/material";
+import { Box, Card, Divider, pxToRem, Stack, Typography, type SxProps, type Theme } from "@wso2/oxygen-ui";
+import { Sparkle } from "@wso2/oxygen-ui-icons-react";
 import { KBCard } from "./KBCard";
 import { ChecklistItem } from "./ChecklistItem";
 
@@ -19,18 +19,13 @@ export function MessageBubble({ author, blocks, timestamp = "Just Now", sx }: Ch
 
   return (
     <Stack direction="row" justifyContent={you ? "end" : "start"}>
-      <Card
-        component={Stack}
-        p={1.5}
-        elevation={0}
-        ml={you ? 10 : undefined}
-        width={you ? "fit-content" : undefined}
-        sx={sx}
-      >
+      <Card component={Stack} p={1.5} ml={you ? 10 : undefined} width={you ? "fit-content" : undefined} sx={sx}>
         {!you && (
           <Stack direction="row" justifyContent="start" gap={1} mb={1}>
-            <Stars color="primary" sx={(theme) => ({ fontSize: theme.typography.pxToRem(22) })} />
-            <Typography variant="subtitle2" fontWeight="regular" color="text.disabled">
+            <Box color="primary.main">
+              <Sparkle size={pxToRem(18)} />
+            </Box>
+            <Typography variant="subtitle2" color="text.disabled">
               {timestamp}
             </Typography>
           </Stack>
@@ -73,7 +68,7 @@ export function MessageBubble({ author, blocks, timestamp = "Just Now", sx }: Ch
 
         {you && (
           <Stack direction="row" justifyContent="end">
-            <Typography variant="subtitle2" fontWeight="regular" color="text.disabled" mt={1}>
+            <Typography variant="subtitle2" color="text.disabled" mt={1}>
               {timestamp}
             </Typography>
           </Stack>

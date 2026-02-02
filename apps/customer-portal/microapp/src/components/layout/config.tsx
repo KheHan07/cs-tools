@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { AppBarVariant } from "@src/context/layout";
 import { FilterAppBarSlot } from "@pages/AllItemsPage";
-import { Assistant } from "@mui/icons-material";
+import { MessageSquareQuote } from "@wso2/oxygen-ui-icons-react";
+import { Box, pxToRem } from "@wso2/oxygen-ui";
 
 type AppBarConfig = {
   showNotifications: boolean;
@@ -63,7 +64,11 @@ export const MAIN_LAYOUT_CONFIG: MainLayoutConfigType[] = [
   },
   {
     path: "/chat",
-    startSlot: <Assistant color="primary" sx={(theme) => ({ fontSize: theme.typography.pxToRem(36) })} />,
+    startSlot: (
+      <Box color="primary.main">
+        <MessageSquareQuote size={pxToRem(36)} />
+      </Box>
+    ),
     title: "Chat with Novera",
     subtitleSlot: "AI-powered support assistant",
     appBarVariant: "minimal",

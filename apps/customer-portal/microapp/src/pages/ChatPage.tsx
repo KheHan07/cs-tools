@@ -15,7 +15,7 @@
 // under the License.
 
 import { useState } from "react";
-import { ButtonBase as Button, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@wso2/oxygen-ui";
 import { Link } from "react-router-dom";
 import { StickyCommentBar } from "@components/features/detail";
 import { MessageBubble, type ChatMessage } from "@components/features/chat";
@@ -87,14 +87,16 @@ export default function ChatPage() {
         onSend={handleSend}
         topSlot={
           messages.length > 2 && (
-            <Stack direction="row">
-              <Typography variant="body2">I can create a support case with all the details we've discussed.</Typography>
+            <Stack direction="row" alignItems="center" gap={2}>
+              <Typography variant="subtitle1">
+                I can create a support case with all the details we've discussed.
+              </Typography>
               <Button
                 component={Link}
                 to="/create"
                 variant="contained"
                 state={{ messages }}
-                sx={{ fontWeight: "bold", flexShrink: 0, height: 40 }}
+                sx={{ textTransform: "initial", flexShrink: 0 }}
               >
                 Create Case
               </Button>

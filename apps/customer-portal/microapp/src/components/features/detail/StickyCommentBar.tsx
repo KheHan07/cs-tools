@@ -1,6 +1,6 @@
-import { Send } from "@mui/icons-material";
-import { Box, IconButton, Stack, InputBase as TextField } from "@mui/material";
 import type { ChangeEvent, ReactNode, KeyboardEvent } from "react";
+import { Box, IconButton, Stack, TextField, pxToRem } from "@wso2/oxygen-ui";
+import { SendHorizonal } from "@wso2/oxygen-ui-icons-react";
 
 interface StickyCommentBarProps {
   value: string;
@@ -41,6 +41,7 @@ export function StickyCommentBar({ value, placeholder, topSlot, onChange, onSend
 
       <Stack direction="row" gap={2}>
         <TextField
+          size="small"
           value={value}
           placeholder={placeholder}
           sx={{ alignSelf: "center" }}
@@ -49,12 +50,9 @@ export function StickyCommentBar({ value, placeholder, topSlot, onChange, onSend
           fullWidth
         />
         <IconButton color="primary" onClick={send}>
-          <Send
-            sx={(theme) => ({
-              color: hasContent ? "primary.main" : "text.tertiary",
-              fontSize: theme.typography.pxToRem(21),
-            })}
-          />
+          <Box color={hasContent ? "primary.main" : "text.disabled"}>
+            <SendHorizonal size={pxToRem(20)} />
+          </Box>
         </IconButton>
       </Stack>
     </Stack>
