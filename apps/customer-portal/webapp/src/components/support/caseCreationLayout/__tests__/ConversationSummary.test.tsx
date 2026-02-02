@@ -80,4 +80,11 @@ describe("ConversationSummary", () => {
       screen.getByText(/All conversation details will be attached/),
     ).toBeInTheDocument();
   });
+
+  it("should render 'N/A' when metadata fields are missing", () => {
+    render(<ConversationSummary metadata={{} as any} isLoading={false} />);
+
+    const naElements = screen.getAllByText("N/A");
+    expect(naElements).toHaveLength(3);
+  });
 });
