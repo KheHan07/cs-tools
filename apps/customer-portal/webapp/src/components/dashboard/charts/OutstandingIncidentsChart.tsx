@@ -47,11 +47,20 @@ export const OutstandingIncidentsChart = ({
   data,
   isLoading,
 }: OutstandingIncidentsChartProps): JSX.Element => {
-  const chartData = OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
-    name: item.name,
-    value: data[item.key],
-    color: item.color,
-  }));
+  const safeData = data ?? {
+    medium: 0,
+    high: 0,
+    critical: 0,
+    total: 0,
+  };
+
+  const chartData = isLoading
+    ? []
+    : OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
+        name: item.name,
+        value: safeData[item.key] || 0,
+        color: item.color,
+      }));
 
   return (
     <Card sx={{ height: "100%", p: 2 }}>
@@ -111,7 +120,7 @@ export const OutstandingIncidentsChart = ({
               pointerEvents: "none",
             }}
           >
-            <Typography variant="h4">{data.total}</Typography>
+            <Typography variant="h4">{data ? data.total : "N/A"}</Typography>
             <Typography variant="caption">Total</Typography>
           </Box>
         </Box>

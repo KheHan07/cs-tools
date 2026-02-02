@@ -124,4 +124,9 @@ describe("StatCard", () => {
     expect(screen.getByTestId("icon-trending-up")).toBeInTheDocument();
     expect(screen.getByText("vs last month")).toBeInTheDocument();
   });
+
+  it("should display 'N/A' when value is undefined", () => {
+    render(<StatCard {...defaultProps} value={undefined as any} />);
+    expect(screen.getByText("N/A")).toBeInTheDocument();
+  });
 });
