@@ -30,4 +30,12 @@ export const ApiQueryKeys = {
    * Key for case creation metadata api call.
    */
   CASE_CREATION_METADATA: "case-creation-metadata",
+  /**
+   * Key for project cases statistics api call.
+   */
+  CASES_STATS: "cases-stats",
+  /**
+   * Key for dashboard mock statistics api call.
+   */
+  DASHBOARD_STATS: "dashboard-stats",
 } as const;
