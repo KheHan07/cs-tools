@@ -120,7 +120,9 @@ export const OutstandingIncidentsChart = ({
               pointerEvents: "none",
             }}
           >
-            <Typography variant="h4">{data ? data.total : "N/A"}</Typography>
+            <Typography variant="h4">
+              {data ? safeData.total : "N/A"}
+            </Typography>
             <Typography variant="caption">Total</Typography>
           </Box>
         </Box>
