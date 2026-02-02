@@ -39,9 +39,9 @@ export const ChartLegend = ({ data }: ChartLegendProps): JSX.Element => (
       justifyContent: "center",
     }}
   >
-    {data.map((entry, index) => (
+    {data.map((entry) => (
       <Box
-        key={index}
+        key={entry.name}
         sx={{
           display: "flex",
           alignItems: "center",

@@ -36,12 +36,9 @@ interface CasesTrendChartProps {
 }
 
 /**
- * Displays charts for outstanding incidents, active cases, and case trends.
+ * Displays the cases trend chart.
  *
- * @param props - ChartLayout props
- * @param props.data - Array of case trend data.
- * @param props.isLoading - Indicates if data is loading.
- * @returns JSX element rendering the chart layout.
+ * `@param` props - Component props
  */
 export const CasesTrendChart = ({
   data,
@@ -62,7 +59,7 @@ export const CasesTrendChart = ({
           <ResponsiveContainer width="100%" height="100%">
             {/* Bar chart */}
             <BarChart
-              data={data}
+              data={data || []}
               grid={{ show: true }}
               xAxis={{ show: true }}
               yAxis={{ show: true }}
