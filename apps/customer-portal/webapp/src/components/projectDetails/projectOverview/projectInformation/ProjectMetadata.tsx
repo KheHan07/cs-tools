@@ -80,7 +80,11 @@ const ProjectMetadata = ({
 
         {/* Support Tier */}
         <Grid size={{ xs: 12, md: 3 }}>
-          <Typography variant="body2" sx={{ display: "block", mb: 0.5 }}>
+          <Typography
+            variant="body2"
+            fontWeight="medium"
+            sx={{ display: "block", mb: 0.5 }}
+          >
             Support Tier
           </Typography>
           {isLoading ? (
@@ -98,7 +102,11 @@ const ProjectMetadata = ({
 
         {/* SLA Status */}
         <Grid size={{ xs: 12, md: 3 }}>
-          <Typography variant="body2" sx={{ display: "block", mb: 0.5 }}>
+          <Typography
+            variant="body2"
+            fontWeight="medium"
+            sx={{ display: "block", mb: 0.5 }}
+          >
             SLA Status
           </Typography>
           {isLoading ? (
