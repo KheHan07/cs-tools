@@ -1,0 +1,99 @@
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import SubscriptionDetails from "../SubscriptionDetails";
+
+// Mock @wso2/oxygen-ui components
+vi.mock("@wso2/oxygen-ui", () => ({
+  Box: ({ children }: any) => <div>{children}</div>,
+  Typography: ({ children }: any) => <span>{children}</span>,
+  Chip: ({ label, color }: any) => (
+    <div data-testid="chip" data-color={color}>
+      {label}
+    </div>
+  ),
+  LinearProgress: ({ value, color }: any) => (
+    <div data-testid="linear-progress" data-value={value} data-color={color} />
+  ),
+  Skeleton: () => <div data-testid="skeleton" />,
+}));
+
+// Mock utils
+vi.mock("@/utils/projectStats", () => ({
+  getSubscriptionStatus: vi.fn((date) =>
+    date === "expired-date" ? "Expired" : "Active",
+  ),
+  getSubscriptionColor: vi.fn((status) =>
+    status === "Expired" ? "error" : "success",
+  ),
+}));
+
+describe("SubscriptionDetails", () => {
+  const defaultProps = {
+    startDate: "Jan 1, 2023",
+    endDate: "Dec 31, 2024",
+    isLoading: false,
+  };
+
+  it("should render subscription details correctly", () => {
+    render(<SubscriptionDetails {...defaultProps} />);
+
+    expect(screen.getByText("Subscription Period")).toBeInTheDocument();
+    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Start")).toBeInTheDocument();
+    expect(screen.getByText("Jan 1, 2023")).toBeInTheDocument();
+    expect(screen.getByText("End")).toBeInTheDocument();
+    expect(screen.getByText("Dec 31, 2024")).toBeInTheDocument();
+    expect(screen.getByText(/Expires on/)).toBeInTheDocument();
+  });
+
+  it("should render linear progress with correct value", () => {
+    render(<SubscriptionDetails {...defaultProps} />);
+    const progress = screen.getByTestId("linear-progress");
+    expect(progress).toBeInTheDocument();
+    // Default mock behavior for "Active" -> 75
+    expect(progress).toHaveAttribute("data-value", "75");
+    expect(progress).toHaveAttribute("data-color", "success");
+  });
+
+  it("should render expired state correctly", () => {
+    render(
+      <SubscriptionDetails
+        startDate="Jan 1, 2022"
+        endDate="expired-date"
+        isLoading={false}
+      />,
+    );
+
+    expect(screen.getByText("Expired")).toBeInTheDocument();
+    expect(screen.getByText(/Expired on/)).toBeInTheDocument();
+
+    const progress = screen.getByTestId("linear-progress");
+    expect(progress).toHaveAttribute("data-value", "100");
+    expect(progress).toHaveAttribute("data-color", "error");
+  });
+
+  it("should render skeletons when loading", () => {
+    render(<SubscriptionDetails {...defaultProps} isLoading={true} />);
+
+    const skeletons = screen.getAllByTestId("skeleton");
+    expect(skeletons.length).toBeGreaterThan(0);
+    expect(screen.queryByText("Active")).toBeNull();
+    expect(screen.queryByText("Jan 1, 2023")).toBeNull();
+  });
+});
