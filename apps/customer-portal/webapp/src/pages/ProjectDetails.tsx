@@ -68,6 +68,15 @@ export default function ProjectDetails(): JSX.Element {
     return () => hideLoader();
   }, [isLoading, showLoader, hideLoader]);
 
+  useEffect(() => {
+    if (projectError) {
+      logger.error("Error loading project details:", projectError);
+    }
+    if (statsError) {
+      logger.error("Error loading project stats:", statsError);
+    }
+  }, [projectError, statsError, logger]);
+
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
@@ -79,13 +88,6 @@ export default function ProjectDetails(): JSX.Element {
               </Typography>
             </Box>
           );
-        }
-
-        if (projectError) {
-          logger.error("Error loading project details:", projectError);
-        }
-        if (statsError) {
-          logger.error("Error loading project stats:", statsError);
         }
 
         return (
