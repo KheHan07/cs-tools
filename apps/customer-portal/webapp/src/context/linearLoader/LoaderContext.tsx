@@ -18,6 +18,7 @@ import {
   createContext,
   useContext,
   useState,
+  useCallback,
   type ReactNode,
   type JSX,
 } from "react";
@@ -37,8 +38,8 @@ export function LoaderProvider({
 }): JSX.Element {
   const [isVisible, setIsVisible] = useState(false);
 
-  const showLoader = () => setIsVisible(true);
-  const hideLoader = () => setIsVisible(false);
+  const showLoader = useCallback(() => setIsVisible(true), []);
+  const hideLoader = useCallback(() => setIsVisible(false), []);
 
   return (
     <LoaderContext.Provider value={{ isVisible, showLoader, hideLoader }}>
