@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import AppLayout from "../AppLayout";
+import AppLayout from "@/layouts/AppLayout";
 
 // Mock @wso2/oxygen-ui
 const mockShellActions = {
@@ -54,6 +54,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
     state: mockShellState,
     actions: mockShellActions,
   })),
+  Box: ({ children }: { children: any }) => <div>{children}</div>,
 }));
 
 // Mock react-router
@@ -77,7 +78,7 @@ vi.mock("@/components/header/Header", () => ({
 }));
 
 vi.mock("@/components/sideNavBar/SideBar", () => ({
-  default: ({ collapsed, expandedMenus, onSelect, onToggleExpand }: any) => (
+  default: ({ collapsed, onSelect, onToggleExpand }: any) => (
     <div data-testid="sidebar">
       <span>Collapsed: {collapsed.toString()}</span>
       <button onClick={() => onSelect("item-1")}>Select</button>

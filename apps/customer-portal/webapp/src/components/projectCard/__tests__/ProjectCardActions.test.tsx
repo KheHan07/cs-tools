@@ -16,27 +16,32 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import Brand from "@/components/header/Brand";
+import ProjectCardActions from "@/components/projectCard/ProjectCardActions";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Header: {
-    Brand: ({ children }: { children: any }) => <div>{children}</div>,
-    BrandLogo: ({ children }: { children: any }) => <div>{children}</div>,
-    BrandTitle: ({ children }: { children: any }) => <h1>{children}</h1>,
+  Button: ({ children, endIcon }: any) => (
+    <button>
+      {children}
+      {endIcon}
+    </button>
+  ),
+  Form: {
+    CardActions: ({ children }: any) => <div>{children}</div>,
   },
+  Stack: ({ children }: any) => <div>{children}</div>,
 }));
 
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
-  WSO2: () => <svg data-testid="wso2-logo" />,
+  ArrowRight: () => <svg data-testid="arrow-right-icon" />,
 }));
 
-describe("Brand", () => {
-  it("should render the wso2 logo and product title", () => {
-    render(<Brand />);
+describe("ProjectCardActions", () => {
+  it("should render 'View Dashboard' button", () => {
+    render(<ProjectCardActions />);
 
-    expect(screen.getByTestId("wso2-logo")).toBeInTheDocument();
-    expect(screen.getByText("Customer Portal")).toBeInTheDocument();
+    expect(screen.getByText("View Dashboard")).toBeInTheDocument();
+    expect(screen.getByTestId("arrow-right-icon")).toBeInTheDocument();
   });
 });

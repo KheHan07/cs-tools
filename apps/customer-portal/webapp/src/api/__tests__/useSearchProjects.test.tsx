@@ -17,7 +17,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import useSearchProjects from "../useSearchProjects";
+import useSearchProjects from "@/api/useSearchProjects";
 import { mockProjects } from "@/models/mockData";
 import type { ReactNode } from "react";
 

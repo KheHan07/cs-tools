@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import SideBar from "../SideBar";
+import SideBar from "@/components/sideNavBar/SideBar";
 import { APP_SHELL_NAV_ITEMS } from "@/constants/appLayoutConstants";
 
 // Mock @wso2/oxygen-ui

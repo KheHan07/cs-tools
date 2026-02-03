@@ -21,34 +21,57 @@ import type { ProjectListItem, UserProfile } from "@/models/responses";
  */
 export const mockProjects: ProjectListItem[] = [
   {
-    id: "1",
-    key: "project-1",
-    name: "Project 1",
-    description: "Description for Project 1",
-    createdOn: "2026-01-29T11:28:40+05:30",
+    id: "1890347890",
+    key: "CON2026",
+    name: "WSO2 Con App",
+    description:
+      "Official conference management app for WSO2 events, providing schedules, sessions, speaker details, and attendee engagement features.",
+    createdOn: "2025-07-17 09:06:14",
   },
   {
-    id: "2",
-    key: "project-2",
-    name: "Project 2",
-    description: "Description for Project 2",
-    createdOn: "2026-01-29T11:28:40+05:30",
+    id: "27494027489",
+    key: "SUPERAPP2026",
+    name: "WSO2 Super App",
+    description:
+      "A unified platform that brings multiple WSO2 services and tools into a single application for seamless user experience.",
+    createdOn: "2025-08-15 10:30:00",
   },
   {
-    id: "3",
-    key: "project-3",
-    name: "Project 3",
-    description: "Description for Project 3",
-    createdOn: "2026-01-29T11:28:40+05:30",
+    id: "3678392038",
+    key: "PITSTOP2026",
+    name: "WSO2 Pitstop",
+    description:
+      "An internal support and operations tool designed to streamline issue tracking, quick fixes, and service monitoring.",
+    createdOn: "2025-09-02 14:15:22",
   },
   {
-    id: "4",
-    key: "project-4",
-    name: "Project 4",
-    description: "Description for Project 4",
-    createdOn: "2026-01-29T11:28:40+05:30",
+    id: "49830478390",
+    key: "PARTNERPORTAL2026",
+    name: "WSO2 Partner Portal",
+    description:
+      "A dedicated portal for WSO2 partners to manage collaborations, access resources, track integrations, and view partner analytics.",
+    createdOn: "2025-10-10 08:45:10",
   },
 ];
+
+/**
+ * Mock status options for projects.
+ */
+export const mockStatusOptions: string[] = [
+  "All Good",
+  "Need Attention",
+  "Critical Issues",
+];
+
+/**
+ * Mock open cases counts for projects.
+ */
+export const mockOpenCasesOptions: number[] = [0, 5, 12, 24, 48, 72];
+
+/**
+ * Mock active chats counts for projects.
+ */
+export const mockActiveChatsOptions: number[] = [0, 2, 5, 10, 15, 20];
 
 /**
  * Sample user for the user menu.

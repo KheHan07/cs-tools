@@ -15,7 +15,7 @@
 // under the License.
 
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import ProjectSwitcher from "@/components/header/ProjectSwitcher";
 import { mockProjects } from "@/models/mockData";
 
@@ -55,6 +55,10 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
 describe("ProjectSwitcher", () => {
   const mockOnProjectChange = vi.fn();
 
+  beforeEach(() => {
+    mockOnProjectChange.mockClear();
+  });
+
   it("should render projects in the dropdown", () => {
     render(
       <ProjectSwitcher
@@ -80,8 +84,8 @@ describe("ProjectSwitcher", () => {
     );
 
     const select = screen.getByTestId("project-select");
-    fireEvent.change(select, { target: { value: mockProjects[1].key } });
+    fireEvent.change(select, { target: { value: mockProjects[1].id } });
 
-    expect(mockOnProjectChange).toHaveBeenCalledWith(mockProjects[1].key);
+    expect(mockOnProjectChange).toHaveBeenCalledWith(mockProjects[1].id);
   });
 });

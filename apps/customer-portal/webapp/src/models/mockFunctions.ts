@@ -1,0 +1,54 @@
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import {
+  mockActiveChatsOptions,
+  mockOpenCasesOptions,
+  mockStatusOptions,
+} from "@/models/mockData";
+
+/**
+ * Returns a random status from the mock status options.
+ *
+ * @returns {string} A random status string.
+ */
+export const getMockStatus = (): string => {
+  return mockStatusOptions[
+    Math.floor(Math.random() * mockStatusOptions.length)
+  ];
+};
+
+/**
+ * Returns a random count of open cases from the mock options.
+ *
+ * @returns {number} A random number of open cases.
+ */
+export const getMockOpenCases = (): number => {
+  return mockOpenCasesOptions[
+    Math.floor(Math.random() * mockOpenCasesOptions.length)
+  ];
+};
+
+/**
+ * Returns a random count of active chats from the mock options.
+ *
+ * @returns {number} A random number of active chats.
+ */
+export const getMockActiveChats = (): number => {
+  return mockActiveChatsOptions[
+    Math.floor(Math.random() * mockActiveChatsOptions.length)
+  ];
+};

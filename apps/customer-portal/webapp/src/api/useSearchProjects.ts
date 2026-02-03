@@ -40,7 +40,9 @@ export default function useSearchProjects(
   const logger = useLogger();
   const limit = fetchAll ? 100 : searchData.pagination?.limit || 10;
 
-  // A stable key for the "all projects" query ensures cache sharing
+  /**
+   * A stable key for the "all projects" query ensures cache sharing
+   */
   const queryKey = fetchAll
     ? [ApiQueryKeys.PROJECTS, "all"]
     : [ApiQueryKeys.PROJECTS, searchData];
@@ -60,7 +62,11 @@ export default function useSearchProjects(
         `Fetching projects... offset: ${pageParam}, limit: ${limit}, fetchAll: ${fetchAll}`,
       );
 
-      // Simulate a network delay
+      /**
+       * Mock behavior: simulate network latency for the in-memory `mockProjects` data.
+       * This is intended only for development/demo use and should be removed or
+       * replaced when wiring this hook to the real backend API.
+       */
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       const offset = typeof pageParam === "number" ? pageParam : 0;

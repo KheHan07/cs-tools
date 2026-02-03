@@ -41,9 +41,7 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/vitest.setup.ts"],
-    css: {
-      include: [],
-    },
+    css: true,
     server: {
       deps: {
         inline: ["@wso2/oxygen-ui", "@wso2/oxygen-ui-icons-react"],
