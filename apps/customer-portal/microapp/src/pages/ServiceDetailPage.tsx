@@ -1,10 +1,10 @@
 import { useLayoutEffect, useState } from "react";
-import { Card, Chip, Grid, Stack, Typography } from "@mui/material";
-import { PeopleAlt, Person } from "@mui/icons-material";
+import { Card, Chip, Grid, Stack, Typography } from "@wso2/oxygen-ui";
+import { User, Users } from "@wso2/oxygen-ui-icons-react";
+import { Timeline } from "@mui/lab";
 import { Comment, InfoField, OverlineSlot, StickyCommentBar, TimelineEntry } from "@components/features/detail";
 import { PriorityChip, StatusChip } from "@components/features/support";
 import { ChecklistItem } from "@components/features/chat";
-import { Timeline } from "@mui/lab";
 import { useLayout } from "@context/layout";
 
 import { MOCK_REQUIREMENTS, MOCK_TIMELINE_DATA, MOCK_UPDATES } from "@src/mocks/data/service";
@@ -42,7 +42,7 @@ export default function ServiceDetailPage() {
   return (
     <>
       <Stack gap={2} mb={10}>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
+        <Card component={Stack} p={1.5} gap={1.5}>
           <Typography variant="h5" fontWeight="medium">
             Request Information
           </Typography>
@@ -54,10 +54,10 @@ export default function ServiceDetailPage() {
               />
             </Grid>
             <Grid size={6}>
-              <InfoField label="Requested By" value="John Smith" icon={Person} />
+              <InfoField label="Requested By" value="John Smith" icon={User} />
             </Grid>
             <Grid size={6}>
-              <InfoField label="Assigned To" value="DevOps Team" icon={PeopleAlt} />
+              <InfoField label="Assigned To" value="DevOps Team" icon={Users} />
             </Grid>
             <Grid size={6}>
               <InfoField label="Created" value="Nov 18, 2025 10:30 AM" />
@@ -76,7 +76,7 @@ export default function ServiceDetailPage() {
             </Grid>
           </Grid>
         </Card>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
+        <Card component={Stack} p={1.5} gap={1.5}>
           <Typography variant="h5" fontWeight="medium">
             Requirements
           </Typography>
@@ -88,7 +88,7 @@ export default function ServiceDetailPage() {
             ))}
           </Stack>
         </Card>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
+        <Card component={Stack} p={1.5} gap={1.5}>
           <Typography variant="h5" fontWeight="medium">
             Progress Timeline
           </Typography>
@@ -115,7 +115,7 @@ export default function ServiceDetailPage() {
             ))}
           </Timeline>
         </Card>
-        <Card component={Stack} p={1.5} gap={1.5} elevation={0}>
+        <Card component={Stack} p={1.5} gap={1.5}>
           <Typography variant="h5" fontWeight="medium">
             Updates
           </Typography>
