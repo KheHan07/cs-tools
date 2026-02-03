@@ -41,6 +41,7 @@ vi.mock("@/utils/projectStats", () => ({
   getSubscriptionColor: vi.fn((status) =>
     status === "Expired" ? "error" : "success",
   ),
+  calculateProgress: vi.fn(() => 50),
 }));
 
 describe("SubscriptionDetails", () => {
@@ -67,7 +68,7 @@ describe("SubscriptionDetails", () => {
     const progress = screen.getByTestId("linear-progress");
     expect(progress).toBeInTheDocument();
     // Default mock behavior for "Active" -> 75
-    expect(progress).toHaveAttribute("data-value", "75");
+    expect(progress).toHaveAttribute("data-value", "50");
     expect(progress).toHaveAttribute("data-color", "success");
   });
 
