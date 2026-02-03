@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { ButtonBase as Button, Stack, Typography, InputAdornment } from "@mui/material";
-import { Folder } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
+import { Folder } from "@wso2/oxygen-ui-icons-react";
+import { Button, Stack, Typography, InputAdornment, pxToRem } from "@wso2/oxygen-ui";
 import { SelectField, TextField, ConversationSummary } from "@components/features/create";
 
 export default function CreateCasePage() {
@@ -54,21 +54,21 @@ export default function CreateCasePage() {
 
   return (
     <Stack pb={5} gap={5}>
-      <Stack gap={2}>
+      <Stack gap={4}>
         <SelectField
           label="Project"
           options={projects}
           startAdornment={
             <InputAdornment position="start">
-              <Folder />
+              <Folder size={pxToRem(20)} />
             </InputAdornment>
           }
         />
         <SelectField label="Product & Version" options={products} />
         <SelectField label="Deployment Type" options={deploymentTypes} />
       </Stack>
-      <Stack gap={2}>
-        <Typography variant="body1" fontWeight="bold">
+      <Stack gap={4}>
+        <Typography variant="body1" fontWeight="medium">
           Case Details
         </Typography>
         <TextField label="Issue Title" value="API Gateway timeout issues in production" />
@@ -85,7 +85,7 @@ export default function CreateCasePage() {
         <SelectField label="Severity Levels" options={severityLevels} />
       </Stack>
       <ConversationSummary messages={messages} />
-      <Button component={Link} to="/support" variant="contained" sx={{ fontWeight: "bold" }}>
+      <Button component={Link} to="/support" variant="contained" sx={{ textTransform: "initial" }}>
         Create Case
       </Button>
     </Stack>

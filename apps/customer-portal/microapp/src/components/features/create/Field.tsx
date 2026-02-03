@@ -1,4 +1,4 @@
-import { FormControl, InputBase, MenuItem, Select, Stack, Typography } from "@mui/material";
+import { FormControl, TextField as MuiTextField, MenuItem, Select, Stack, InputLabel } from "@wso2/oxygen-ui";
 
 export function SelectField({
   label,
@@ -13,10 +13,8 @@ export function SelectField({
 }) {
   return (
     <FormControl component={Stack} gap={1} fullWidth>
-      <Typography component="label" variant="subtitle2" fontWeight="regular">
-        {label}
-      </Typography>
-      <Select value={value} sx={{ bgcolor: "background.paper" }} startAdornment={startAdornment}>
+      <InputLabel>{label}</InputLabel>
+      <Select label={label} value={value} sx={{ bgcolor: "background.paper" }} startAdornment={startAdornment}>
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
             {option.label}
@@ -47,16 +45,18 @@ export function TextField({
 }) {
   return (
     <FormControl component={Stack} gap={1} fullWidth>
-      <Typography component="label" variant="subtitle2" fontWeight="regular">
-        {label}
-      </Typography>
-      <InputBase
+      <MuiTextField
+        label={label}
         value={value}
         placeholder={placeholder}
         multiline={multiline}
         rows={rows}
         sx={{ bgcolor: "background.paper", lineHeight: multiline ? 1.65 : undefined }}
-        startAdornment={startAdornment}
+        slotProps={{
+          input: {
+            startAdornment: startAdornment,
+          },
+        }}
         onChange={onChange}
       />
     </FormControl>

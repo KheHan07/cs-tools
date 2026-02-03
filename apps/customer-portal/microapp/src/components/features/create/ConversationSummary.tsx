@@ -1,12 +1,24 @@
-import { Article, CheckBox, ExpandMore, Forum } from "@mui/icons-material";
-import { Accordion, AccordionDetails, AccordionSummary, Card, Stack, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Card,
+  colors,
+  pxToRem,
+  Stack,
+  Typography,
+} from "@wso2/oxygen-ui";
+import { BookOpen, ChevronDown, CircleCheck, MessagesSquare } from "@wso2/oxygen-ui-icons-react";
 import { MessageBubble, type ChatMessage } from "../chat";
 
 export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
   return (
-    <Card p={1.5} component={Stack} gap={1} elevation={0}>
+    <Card p={1.5} component={Stack} gap={1}>
       <Stack direction="row" alignItems="center" gap={1}>
-        <Forum color="primary" />
+        <Box color="primary.main">
+          <MessagesSquare size={pxToRem(20)} />
+        </Box>
         <Typography variant="h6" fontWeight="medium">
           Conversation Summary
         </Typography>
@@ -25,7 +37,9 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
             Troubleshooting attempts
           </Typography>
           <Stack direction="row" alignItems="center" gap={1}>
-            <CheckBox color="success" />
+            <Box color="success.main">
+              <CircleCheck size={pxToRem(18)} />
+            </Box>
             <Typography variant="body2" fontWeight="medium">
               2 Steps Completed
             </Typography>
@@ -36,7 +50,9 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
             Articles Reviewed
           </Typography>
           <Stack direction="row" alignItems="center" gap={1}>
-            <Article sx={{ color: "components.portal.accent.blue" }} />
+            <Box color={colors.blue[500]}>
+              <BookOpen size={pxToRem(18)} />
+            </Box>
             <Typography variant="body2" fontWeight="medium">
               3 Articles Suggested
             </Typography>
@@ -52,15 +68,15 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
             }}
             disableGutters
           >
-            <AccordionSummary expandIcon={<ExpandMore />} sx={{ p: 0 }}>
-              <Typography variant="subtitle1" fontWeight="bold" color="text.secondary" component="span">
+            <AccordionSummary expandIcon={<ChevronDown size={pxToRem(20)} />} sx={{ p: 0 }}>
+              <Typography variant="subtitle1" color="text.secondary" component="span">
                 View Full Conversation
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>
               <Stack gap={2}>
                 {messages.map((message, index) => (
-                  <MessageBubble key={index} {...message} sx={{ bgcolor: "background.card" }} />
+                  <MessageBubble key={index} {...message} sx={{ bgcolor: "background.default" }} />
                 ))}
               </Stack>
             </AccordionDetails>
