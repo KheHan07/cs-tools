@@ -21,7 +21,7 @@ import type { ProjectStatsResponse } from "@/models/responses";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
-  Card: ({ children, sx }: any) => <div data-testid="card">{children}</div>,
+  Card: ({ children }: any) => <div data-testid="card">{children}</div>,
   CardContent: ({ children }: any) => <div>{children}</div>,
   Typography: ({ children }: any) => <span>{children}</span>,
   Grid: ({ children, size, container }: any) => (
