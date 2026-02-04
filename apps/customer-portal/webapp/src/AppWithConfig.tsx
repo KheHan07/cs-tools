@@ -23,22 +23,18 @@ import { AsgardeoProvider } from "@asgardeo/react";
 import { themeConfig } from "@/config/themeConfig";
 import { loggerConfig } from "@/config/loggerConfig";
 import LoggerProvider from "@/context/logger/LoggerProvider";
-
 import { MockConfigProvider } from "@/providers/MockConfigProvider";
+import { authConfig } from "@/config/AuthConfig";
 
 const queryClient: QueryClient = new QueryClient();
 
 export default function AppWithConfig(): JSX.Element {
   return (
     <AsgardeoProvider
-      baseUrl={import.meta.env.CUSTOMER_PORTAL_AUTH_BASE_URL as string}
-      clientId={import.meta.env.CUSTOMER_PORTAL_AUTH_CLIENT_ID as string}
-      afterSignInUrl={
-        import.meta.env.CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL as string
-      }
-      afterSignOutUrl={
-        import.meta.env.CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL as string
-      }
+      baseUrl={authConfig.baseUrl}
+      clientId={authConfig.clientId}
+      afterSignInUrl={authConfig.signInRedirectURL}
+      afterSignOutUrl={authConfig.signOutRedirectURL}
       scopes={["openid", "email", "groups"]}
     >
       <MockConfigProvider>
