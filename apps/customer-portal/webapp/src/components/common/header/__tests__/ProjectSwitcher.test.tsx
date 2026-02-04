@@ -63,6 +63,13 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   FolderOpen: () => <svg data-testid="icon-FolderOpen" />,
 }));
 
+// Mock ErrorIndicator
+vi.mock("@/components/common/errorIndicator/ErrorIndicator", () => ({
+  default: ({ entityName }: any) => (
+    <div data-testid="error-indicator">Error: {entityName}</div>
+  ),
+}));
+
 describe("ProjectSwitcher", () => {
   const mockOnProjectChange = vi.fn();
 
@@ -116,6 +123,20 @@ describe("ProjectSwitcher", () => {
 
     expect(screen.getByTestId("skeleton")).toBeInTheDocument();
     expect(screen.getByTestId("icon-FolderOpen")).toBeInTheDocument();
+    expect(screen.queryByTestId("project-select")).not.toBeInTheDocument();
+  });
+
+  it("should render error indicator when isError is true", () => {
+    render(
+      <ProjectSwitcher
+        projects={mockProjects}
+        onProjectChange={mockOnProjectChange}
+        isError={true}
+      />,
+    );
+
+    expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
+    expect(screen.getByText("Error: Projects")).toBeInTheDocument();
     expect(screen.queryByTestId("project-select")).not.toBeInTheDocument();
   });
 });
