@@ -25,6 +25,7 @@ vi.mock("@/models/mockFunctions", () => ({
 }));
 
 // Mock @wso2/oxygen-ui
+// Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,
   Button: ({ children, onClick, startIcon }: any) => (
@@ -49,6 +50,11 @@ vi.mock("@wso2/oxygen-ui", () => ({
     </button>
   ),
   Divider: () => <hr />,
+  colors: {
+    orange: {
+      700: "#c2410c",
+    },
+  },
 }));
 
 // Mock icons

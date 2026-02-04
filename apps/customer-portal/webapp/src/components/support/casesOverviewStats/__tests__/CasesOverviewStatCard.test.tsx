@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import CasesOverviewStats from "../CasesOverviewStats";
+import CasesOverviewStatCard from "@/components/support/casesOverviewStats/CasesOverviewStatCard";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -60,9 +60,9 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   TrendingUp: () => <svg data-testid="icon-trending-up" />,
 }));
 
-describe("CasesOverviewStats", () => {
+describe("CasesOverviewStatCard", () => {
   it("should render loading state correctly", () => {
-    render(<CasesOverviewStats isLoading={true} stats={undefined} />);
+    render(<CasesOverviewStatCard isLoading={true} stats={undefined} />);
 
     const skeletons = screen.getAllByTestId("skeleton");
     expect(skeletons).toHaveLength(4);
@@ -80,7 +80,7 @@ describe("CasesOverviewStats", () => {
       totalCases: 10,
     };
 
-    render(<CasesOverviewStats isLoading={false} stats={mockStats} />);
+    render(<CasesOverviewStatCard isLoading={false} stats={mockStats} />);
 
     expect(screen.getByText("10")).toBeInTheDocument();
     expect(screen.getByText("15")).toBeInTheDocument();

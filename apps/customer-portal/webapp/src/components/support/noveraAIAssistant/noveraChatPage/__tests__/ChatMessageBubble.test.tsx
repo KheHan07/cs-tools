@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChatMessageBubble from "@/components/support/Noverachat/NoveraChatPage/ChatMessageBubble";
+import ChatMessageBubble from "@/components/support/noveraAIAssistant/noveraChatPage/ChatMessageBubble";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({

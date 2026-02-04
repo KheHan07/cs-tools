@@ -26,4 +26,8 @@ export const ApiQueryKeys = {
    * Key for project support statistics api call.
    */
   SUPPORT_STATS: "support-stats",
+  /**
+   * Key for case creation metadata api call.
+   */
+  CASE_CREATION_METADATA: "case-creation-metadata",
 } as const;

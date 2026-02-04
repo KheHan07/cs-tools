@@ -51,7 +51,7 @@ describe("GlobalNotificationBanner", () => {
   });
 
   it("should render the banner when visible is true", () => {
-    render(<GlobalNotificationBanner />);
+    render(<GlobalNotificationBanner visible={true} />);
 
     expect(screen.getByTestId("notification-banner")).toBeInTheDocument();
     expect(screen.getByText("Test Title")).toBeInTheDocument();
@@ -59,20 +59,18 @@ describe("GlobalNotificationBanner", () => {
   });
 
   it("should NOT render the banner when visible is false", () => {
-    mockConfig.visible = false;
-    render(<GlobalNotificationBanner />);
+    render(<GlobalNotificationBanner visible={false} />);
 
     expect(screen.queryByTestId("notification-banner")).toBeNull();
   });
 
   it("should synchronize visibility when configuration changes after mount", async () => {
-    const { rerender } = render(<GlobalNotificationBanner />);
+    const { rerender } = render(<GlobalNotificationBanner visible={true} />);
     expect(screen.getByTestId("notification-banner")).toBeInTheDocument();
 
-    // Change the visibility in the mock configuration and rerender inside act
+    // Change the visibility prop and rerender inside act
     await act(async () => {
-      mockConfig.visible = false;
-      rerender(<GlobalNotificationBanner />);
+      rerender(<GlobalNotificationBanner visible={false} />);
     });
 
     // Wait for the element to disappear

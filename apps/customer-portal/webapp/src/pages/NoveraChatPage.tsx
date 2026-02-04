@@ -17,9 +17,9 @@
 import { Box, Paper, Divider } from "@wso2/oxygen-ui";
 import { useState, useRef, useEffect, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
-import ChatHeader from "@/components/support/Noverachat/NoveraChatPage/ChatHeader";
-import ChatInput from "@/components/support/Noverachat/NoveraChatPage/ChatInput";
-import ChatMessageList from "@/components/support/Noverachat/NoveraChatPage/ChatMessageList";
+import ChatHeader from "@/components/support/noveraAIAssistant/noveraChatPage/ChatHeader";
+import ChatInput from "@/components/support/noveraAIAssistant/noveraChatPage/ChatInput";
+import ChatMessageList from "@/components/support/noveraAIAssistant/noveraChatPage/ChatMessageList";
 import { getNoveraResponse } from "@/models/mockFunctions";
 
 /**
@@ -56,6 +56,17 @@ export default function NoveraChatPage(): JSX.Element {
       navigate(`/${projectId}/support`);
     } else {
       navigate(-1);
+    }
+  };
+
+  /**
+   * Handle navigation to create case review page.
+   */
+  const handleCreateCase = () => {
+    if (projectId) {
+      navigate(`/${projectId}/support/chat/create-case`);
+    } else {
+      navigate("/");
     }
   };
   const [messages, setMessages] = useState<Message[]>([
@@ -160,6 +171,7 @@ export default function NoveraChatPage(): JSX.Element {
             inputValue={inputValue}
             setInputValue={setInputValue}
             showEscalationBanner={messages.length > 4}
+            onCreateCase={handleCreateCase}
           />
         </Paper>
       </Box>

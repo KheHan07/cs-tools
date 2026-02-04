@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Button, Paper, Typography } from "@wso2/oxygen-ui";
+import { Box, Button, colors, Paper, Typography } from "@wso2/oxygen-ui";
 import { CircleAlert } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 
@@ -23,6 +23,7 @@ import { type JSX } from "react";
  */
 interface EscalationBannerProps {
   visible: boolean;
+  onCreateCase: () => void;
 }
 
 /**
@@ -30,6 +31,7 @@ interface EscalationBannerProps {
  */
 export default function EscalationBanner({
   visible,
+  onCreateCase,
 }: EscalationBannerProps): JSX.Element | null {
   if (!visible) return null;
 
@@ -37,14 +39,18 @@ export default function EscalationBanner({
     <Paper
       sx={{
         mb: 2,
-        py: 1,
-        px: 1.5,
+        py: 2,
+        px: 2,
         display: "flex",
         alignItems: "center",
         gap: 1,
       }}
     >
-      <CircleAlert size={18} color="#ea580c" style={{ flexShrink: 0 }} />
+      <CircleAlert
+        size={18}
+        color={colors.orange[700]}
+        style={{ flexShrink: 0 }}
+      />
 
       <Box sx={{ flex: 1 }}>
         <Typography variant="body2">
@@ -53,7 +59,12 @@ export default function EscalationBanner({
         </Typography>
       </Box>
 
-      <Button variant="outlined" size="small" color="warning">
+      <Button
+        variant="contained"
+        size="medium"
+        color="warning"
+        onClick={onCreateCase}
+      >
         Create Case
       </Button>
     </Paper>

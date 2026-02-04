@@ -20,9 +20,9 @@ import { SUPPORT_STAT_CONFIGS } from "@/constants/supportConstants";
 import type { ProjectSupportStats } from "@/models/responses";
 
 /**
- * Props for the CasesOverviewStats component.
+ * Props for the CasesOverviewStatCard component.
  */
-export interface CasesOverviewStatsProps {
+export interface CasesOverviewStatCardProps {
   /**
    * Is the data loading?
    */
@@ -34,15 +34,15 @@ export interface CasesOverviewStatsProps {
 }
 
 /**
- * CasesOverviewStats component to display a grid of support statistics.
+ * CasesOverviewStatCard component to display a grid of support statistics.
  *
- * @param {CasesOverviewStatsProps} props - The props for the component.
- * @returns {JSX.Element} The rendered CasesOverviewStats component.
+ * @param {CasesOverviewStatCardProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered CasesOverviewStatCard component.
  */
-export default function CasesOverviewStats({
+export default function CasesOverviewStatCard({
   isLoading,
   stats,
-}: CasesOverviewStatsProps): JSX.Element {
+}: CasesOverviewStatCardProps): JSX.Element {
   return (
     <Box>
       <Grid

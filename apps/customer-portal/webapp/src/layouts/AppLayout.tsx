@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { notificationBannerConfig } from "@/config/notificationBannerConfig";
 import { AppShell, Box, useAppShell } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import { useLocation, Outlet } from "react-router";
@@ -47,7 +48,7 @@ export default function AppLayout(): JSX.Element {
 
   return (
     <>
-      <GlobalNotificationBanner />
+      <GlobalNotificationBanner visible={notificationBannerConfig.visible} />
       <AppShell>
         {/* Header component. */}
         <AppShell.Navbar>

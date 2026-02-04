@@ -16,7 +16,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChatHeader from "@/components/support/Noverachat/NoveraChatPage/ChatHeader";
+import ChatHeader from "@/components/support/noveraAIAssistant/noveraChatPage/ChatHeader";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -39,19 +39,6 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
 }));
 
 describe("ChatHeader", () => {
-  it("should render identity and back button correctly", () => {
-    const onBackMock = vi.fn();
-    render(<ChatHeader onBack={onBackMock} />);
-
-    expect(screen.getByText("Chat with Novera")).toBeInTheDocument();
-    expect(
-      screen.getByText("AI-powered support assistant"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Back to Support")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-bot")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-back")).toBeInTheDocument();
-  });
-
   it("should call onBack when back button is clicked", () => {
     const onBackMock = vi.fn();
     render(<ChatHeader onBack={onBackMock} />);

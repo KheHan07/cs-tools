@@ -16,7 +16,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChatInput from "@/components/support/Noverachat/NoveraChatPage/ChatInput";
+import ChatInput from "@/components/support/noveraAIAssistant/noveraChatPage/ChatInput";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -39,7 +39,14 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
-  Button: ({ children }: any) => <button>{children}</button>,
+  Button: ({ children, onClick }: any) => (
+    <button onClick={onClick}>{children}</button>
+  ),
+  colors: {
+    orange: {
+      700: "#c2410c",
+    },
+  },
 }));
 
 // Mock icons
@@ -58,6 +65,7 @@ describe("ChatInput", () => {
         setInputValue={setInputMock}
         onSend={onSendMock}
         showEscalationBanner={false}
+        onCreateCase={vi.fn()}
       />,
     );
 
@@ -76,6 +84,7 @@ describe("ChatInput", () => {
         setInputValue={setInputMock}
         onSend={onSendMock}
         showEscalationBanner={false}
+        onCreateCase={vi.fn()}
       />,
     );
 
@@ -85,19 +94,25 @@ describe("ChatInput", () => {
     expect(onSendMock).toHaveBeenCalled();
   });
 
-  it("should show escalation banner when visible is true", () => {
+  it("should show escalation banner and call onCreateCase when visible is true", () => {
     const onSendMock = vi.fn();
     const setInputMock = vi.fn();
+    const onCreateCaseMock = vi.fn();
     render(
       <ChatInput
         inputValue=""
         setInputValue={setInputMock}
         onSend={onSendMock}
         showEscalationBanner={true}
+        onCreateCase={onCreateCaseMock}
       />,
     );
 
     expect(screen.getByText(/Need more help?/i)).toBeInTheDocument();
-    expect(screen.getByText("Create Case")).toBeInTheDocument();
+    const createCaseButton = screen.getByText("Create Case");
+    expect(createCaseButton).toBeInTheDocument();
+
+    fireEvent.click(createCaseButton);
+    expect(onCreateCaseMock).toHaveBeenCalledTimes(1);
   });
 });

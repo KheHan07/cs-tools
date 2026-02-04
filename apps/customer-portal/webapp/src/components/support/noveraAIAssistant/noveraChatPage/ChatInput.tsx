@@ -17,13 +17,14 @@
 import { Box, IconButton, TextField } from "@wso2/oxygen-ui";
 import { Send } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import EscalationBanner from "@/components/support/Noverachat/NoveraChatPage/EscalationBanner";
+import EscalationBanner from "@/components/support/noveraAIAssistant/noveraChatPage/EscalationBanner";
 
 interface ChatInputProps {
   inputValue: string;
   setInputValue: (value: string) => void;
   onSend: () => void;
   showEscalationBanner: boolean;
+  onCreateCase: () => void;
 }
 
 /**
@@ -34,10 +35,14 @@ export default function ChatInput({
   setInputValue,
   onSend,
   showEscalationBanner,
+  onCreateCase,
 }: ChatInputProps): JSX.Element {
   return (
     <Box sx={{ p: 2, bgcolor: "background.paper", flexShrink: 0 }}>
-      <EscalationBanner visible={showEscalationBanner} />
+      <EscalationBanner
+        visible={showEscalationBanner}
+        onCreateCase={onCreateCase}
+      />
       <Box sx={{ display: "flex", gap: 1 }}>
         <TextField
           fullWidth

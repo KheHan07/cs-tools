@@ -16,8 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import EscalationBanner from "@/components/support/Noverachat/NoveraChatPage/EscalationBanner";
-
+import EscalationBanner from "@/components/support/noveraAIAssistant/noveraChatPage/EscalationBanner";
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div data-testid="box">{children}</div>,
@@ -30,6 +29,11 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
+  colors: {
+    orange: {
+      700: "#c2410c",
+    },
+  },
 }));
 
 // Mock icons
@@ -39,7 +43,7 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
 
 describe("EscalationBanner", () => {
   it("should render correctly when visible", () => {
-    render(<EscalationBanner visible={true} />);
+    render(<EscalationBanner visible={true} onCreateCase={vi.fn()} />);
 
     expect(screen.getByText(/Need more help?/i)).toBeInTheDocument();
     expect(screen.getByText("Create Case")).toBeInTheDocument();
@@ -47,7 +51,17 @@ describe("EscalationBanner", () => {
   });
 
   it("should not render when not visible", () => {
-    const { container } = render(<EscalationBanner visible={false} />);
+    const { container } = render(
+      <EscalationBanner visible={false} onCreateCase={vi.fn()} />,
+    );
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("should call onCreateCase when button is clicked", () => {
+    const onCreateCase = vi.fn();
+    render(<EscalationBanner visible={true} onCreateCase={onCreateCase} />);
+
+    screen.getByText("Create Case").click();
+    expect(onCreateCase).toHaveBeenCalledTimes(1);
   });
 });

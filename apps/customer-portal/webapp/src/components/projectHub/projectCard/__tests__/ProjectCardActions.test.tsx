@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import ProjectCardActions from "@/components/projectHub/projectCard/ProjectCardActions";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Button: ({ children, endIcon }: any) => (
-    <button>
+  Button: ({ children, endIcon, onClick }: any) => (
+    <button onClick={onClick}>
       {children}
       {endIcon}
     </button>
@@ -43,5 +43,21 @@ describe("ProjectCardActions", () => {
 
     expect(screen.getByText("View Dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("arrow-right-icon")).toBeInTheDocument();
+  });
+  it("should call onViewDashboard and stop propagation when 'View Dashboard' button is clicked", () => {
+    const onViewDashboardMock = vi.fn();
+    const onParentClick = vi.fn();
+
+    render(
+      <div onClick={onParentClick}>
+        <ProjectCardActions onViewDashboard={onViewDashboardMock} />
+      </div>,
+    );
+
+    const button = screen.getByText("View Dashboard");
+    fireEvent.click(button);
+
+    expect(onViewDashboardMock).toHaveBeenCalledTimes(1);
+    expect(onParentClick).not.toHaveBeenCalled();
   });
 });
