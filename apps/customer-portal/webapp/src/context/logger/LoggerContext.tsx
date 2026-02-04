@@ -22,7 +22,7 @@ import { type ILogger } from "@/utils/logger";
 /**
  * Context object for the Logger service.
  *
- * @returns {Context<ILogger | null>} The LoggerContext.
+ * @types {Context<ILogger | null>} The LoggerContext.
  */
 const LoggerContext: Context<ILogger | null> = createContext<ILogger | null>(
   null,

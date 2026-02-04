@@ -67,7 +67,7 @@ export default function ProjectHub(): JSX.Element {
     if (isError) {
       logger.error("Failed to load projects in ProjectHub");
     }
-  }, [isError, logger]);
+  }, [isError]);
 
   /**
    * Use effect to log projects loaded.
@@ -76,7 +76,7 @@ export default function ProjectHub(): JSX.Element {
     if (projects.length > 0) {
       logger.debug(`${projects.length} projects loaded in ProjectHub`);
     }
-  }, [projects.length, logger]);
+  }, [projects.length]);
 
   /**
    * Render content based on the state.

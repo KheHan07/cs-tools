@@ -61,7 +61,14 @@ export default function SideBar({
   /**
    * Get the active item from the location pathname.
    */
-  const activeItem = location.pathname.split("/").pop() || "dashboard";
+  const pathSegments: string[] = location.pathname.split("/").filter(Boolean);
+  const projectIdIndex: number = projectId
+    ? pathSegments.indexOf(projectId)
+    : -1;
+  const activeItem: string =
+    projectIdIndex !== -1 && pathSegments[projectIdIndex + 1]
+      ? pathSegments[projectIdIndex + 1]
+      : "dashboard";
 
   return (
     <Sidebar

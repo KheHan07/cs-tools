@@ -55,6 +55,13 @@ vi.mock("@wso2/oxygen-ui", () => ({
     actions: mockShellActions,
   })),
   Box: ({ children }: { children: any }) => <div>{children}</div>,
+  NotificationBanner: ({ visible, title, message }: any) =>
+    visible ? (
+      <div data-testid="notification-banner">
+        <h3>{title}</h3>
+        <p>{message}</p>
+      </div>
+    ) : null,
 }));
 
 // Mock react-router
@@ -76,6 +83,13 @@ vi.mock("@/components/common/header/Header", () => ({
     </div>
   ),
 }));
+
+vi.mock(
+  "@/components/common/notificationBanner/GlobalNotificationBanner",
+  () => ({
+    default: () => <div data-testid="global-notification-banner" />,
+  }),
+);
 
 vi.mock("@/components/common/sideNavBar/SideBar", () => ({
   default: ({ collapsed, onSelect, onToggleExpand }: any) => (

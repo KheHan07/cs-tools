@@ -20,24 +20,39 @@ import SideBar from "@/components/common/sideNavBar/SideBar";
 import { APP_SHELL_NAV_ITEMS } from "@/constants/appLayoutConstants";
 
 // Mock @wso2/oxygen-ui
-vi.mock("@wso2/oxygen-ui", () => ({
-  Sidebar: Object.assign(
-    ({ children }: { children: any }) => <aside>{children}</aside>,
-    {
-      Nav: ({ children }: { children: any }) => <nav>{children}</nav>,
-      Category: ({ children }: { children: any }) => <ul>{children}</ul>,
-      Item: ({ children, id }: { children: any; id: string }) => (
-        <li data-testid={`sidebar-item-${id}`}>{children}</li>
-      ),
-      ItemIcon: ({ children }: { children: any }) => <div>{children}</div>,
-      ItemLabel: ({ children }: { children: any }) => <span>{children}</span>,
-      Footer: ({ children }: { children: any }) => <footer>{children}</footer>,
-    },
-  ),
-  Link: ({ children, to }: { children: any; to: string }) => (
-    <a href={to}>{children}</a>
-  ),
-}));
+vi.mock("@wso2/oxygen-ui", () => {
+  const Sidebar = ({
+    children,
+    activeItem,
+  }: {
+    children: any;
+    activeItem?: string;
+  }) => (
+    <aside data-testid="sidebar" data-active-item={activeItem}>
+      {children}
+    </aside>
+  );
+
+  Sidebar.Nav = ({ children }: { children: any }) => <nav>{children}</nav>;
+  Sidebar.Category = ({ children }: { children: any }) => <ul>{children}</ul>;
+  Sidebar.Item = ({ children, id }: { children: any; id: string }) => (
+    <li data-testid={`sidebar-item-${id}`}>{children}</li>
+  );
+  Sidebar.ItemIcon = ({ children }: { children: any }) => <div>{children}</div>;
+  Sidebar.ItemLabel = ({ children }: { children: any }) => (
+    <span>{children}</span>
+  );
+  Sidebar.Footer = ({ children }: { children: any }) => (
+    <footer>{children}</footer>
+  );
+
+  return {
+    Sidebar,
+    Link: ({ children, to }: { children: any; to: string }) => (
+      <a href={to}>{children}</a>
+    ),
+  };
+});
 
 // Mock icons - explicitly providing icons used in APP_SHELL_NAV_ITEMS and SideBar
 vi.mock("@wso2/oxygen-ui-icons-react", () => {
@@ -59,7 +74,9 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => {
 
 // Mock react-router
 const mockLocation = { pathname: "/project-1/dashboard" };
-const mockParams = { projectId: "project-1" };
+const mockParams: { projectId: string | undefined } = {
+  projectId: "project-1",
+};
 
 vi.mock("react-router", () => ({
   useLocation: () => mockLocation,
@@ -105,5 +122,29 @@ describe("SideBar", () => {
 
     const dashboardLink = screen.getByRole("link", { name: /dashboard/i });
     expect(dashboardLink).toHaveAttribute("href", "/project-1/dashboard");
+  });
+
+  describe("activeItem computation", () => {
+    it("should set activeItem to 'dashboard' when path is exactly /{projectId}", () => {
+      mockLocation.pathname = "/project-1";
+      render(<SideBar collapsed={false} />);
+      const sidebar = screen.getByTestId("sidebar");
+      expect(sidebar).toHaveAttribute("data-active-item", "dashboard");
+    });
+
+    it("should set activeItem to the segment after nested projectId", () => {
+      mockLocation.pathname = "/project-1/support/tickets";
+      render(<SideBar collapsed={false} />);
+      const sidebar = screen.getByTestId("sidebar");
+      expect(sidebar).toHaveAttribute("data-active-item", "support");
+    });
+
+    it("should set activeItem to 'dashboard' when projectId is missing from path", () => {
+      mockLocation.pathname = "/dashboard";
+      mockParams.projectId = undefined;
+      render(<SideBar collapsed={false} />);
+      const sidebar = screen.getByTestId("sidebar");
+      expect(sidebar).toHaveAttribute("data-active-item", "dashboard");
+    });
   });
 });
