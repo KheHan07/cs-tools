@@ -31,12 +31,14 @@ interface ErrorIndicatorProps {
  */
 export default function ErrorIndicator({
   entityName,
-  size,
+  size = "small",
 }: ErrorIndicatorProps): JSX.Element {
+  const iconSize = size === "small" ? 16 : size === "medium" ? 24 : 32;
+
   return (
     <Tooltip title={`Failed to fetch ${entityName} data`}>
-      <IconButton size={size || "small"} color="error">
-        <TriangleAlert />
+      <IconButton size={size} color="error">
+        <TriangleAlert size={iconSize} />
       </IconButton>
     </Tooltip>
   );
