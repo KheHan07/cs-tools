@@ -20,6 +20,11 @@ import type {
   ProjectDetails,
   UserProfile,
 } from "@/models/responses";
+import {
+  PROJECT_TYPE,
+  SUPPORT_TIER,
+  CASE_STATUS,
+} from "@/constants/projectDetailsConstants";
 
 // Interface for case creation metadata.
 export interface CaseCreationMetadata {
@@ -84,11 +89,11 @@ export const mockProjectDetails: ProjectDetails[] = [
     description:
       "Official conference management app for WSO2 events, providing schedules, sessions, speaker details, and attendee engagement features.",
     createdOn: "2025-07-17 09:06:14",
-    type: "Free",
+    type: PROJECT_TYPE.FREE,
     subscription: {
       startDate: "2025-07-01",
       endDate: "2026-07-01",
-      supportTier: "Enterprise",
+      supportTier: SUPPORT_TIER.ENTERPRISE,
     },
   },
   {
@@ -98,11 +103,11 @@ export const mockProjectDetails: ProjectDetails[] = [
     description:
       "A unified platform that brings multiple WSO2 services and tools into a single application for seamless user experience.",
     createdOn: "2025-08-15 10:30:00",
-    type: "Subscription",
+    type: PROJECT_TYPE.SUBSCRIPTION,
     subscription: {
       startDate: "2025-08-01",
       endDate: "2026-08-01",
-      supportTier: "Enterprise",
+      supportTier: SUPPORT_TIER.ENTERPRISE,
     },
   },
   {
@@ -112,11 +117,11 @@ export const mockProjectDetails: ProjectDetails[] = [
     description:
       "An internal support and operations tool designed to streamline issue tracking, quick fixes, and service monitoring.",
     createdOn: "2025-09-02 14:15:22",
-    type: "Subscription",
+    type: PROJECT_TYPE.SUBSCRIPTION,
     subscription: {
       startDate: "2025-09-01",
       endDate: "2026-09-01",
-      supportTier: "Standard",
+      supportTier: SUPPORT_TIER.STANDARD,
     },
   },
   {
@@ -126,11 +131,11 @@ export const mockProjectDetails: ProjectDetails[] = [
     description:
       "A dedicated portal for WSO2 partners to manage collaborations, access resources, track integrations, and view partner analytics.",
     createdOn: "2025-10-10 08:45:10",
-    type: "Subscription",
+    type: PROJECT_TYPE.SUBSCRIPTION,
     subscription: {
       startDate: "2025-10-01",
       endDate: "2026-10-01",
-      supportTier: "Enterprise",
+      supportTier: SUPPORT_TIER.ENTERPRISE,
     },
   },
 ];
@@ -228,7 +233,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "status-open",
-      label: "Open",
+      label: CASE_STATUS.OPEN,
     },
   },
   {
@@ -254,7 +259,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "status-in-progress",
-      label: "In Progress",
+      label: CASE_STATUS.IN_PROGRESS,
     },
   },
   {
@@ -277,7 +282,7 @@ export const mockCases: CaseListItem[] = [
     severity: null,
     status: {
       id: "status-open",
-      label: "Open",
+      label: CASE_STATUS.OPEN,
     },
   },
   {
@@ -303,7 +308,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "status-open",
-      label: "Open",
+      label: CASE_STATUS.OPEN,
     },
   },
   {
@@ -333,7 +338,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "status-open",
-      label: "Open",
+      label: CASE_STATUS.OPEN,
     },
   },
   {
@@ -359,7 +364,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "status-resolved",
-      label: "Resolved",
+      label: CASE_STATUS.RESOLVED,
     },
   },
 ];
