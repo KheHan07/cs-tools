@@ -38,6 +38,7 @@ export interface ProjectCardProps {
   status?: string;
   subtitle: string;
   title: string;
+  isStatsError?: boolean;
 }
 
 /**
@@ -56,6 +57,7 @@ export default function ProjectCard({
   activeChats,
   date,
   onViewDashboard,
+  isStatsError,
 }: ProjectCardProps): JSX.Element {
   // Hook to navigate between routes.
   const navigate = useNavigate();
@@ -85,7 +87,11 @@ export default function ProjectCard({
       }}
     >
       {/* project card badges */}
-      <ProjectCardBadges projectKey={projectKey} status={resolvedStatus} />
+      <ProjectCardBadges
+        projectKey={projectKey}
+        status={resolvedStatus}
+        isError={isStatsError}
+      />
       {/* project card info */}
       <ProjectCardInfo subtitle={subtitle} title={title} />
       {/* project card stats */}
@@ -93,6 +99,7 @@ export default function ProjectCard({
         activeChats={resolvedActiveChats}
         date={date}
         openCases={resolvedOpenCases}
+        isError={isStatsError}
       />
       {/* project card actions */}
       <ProjectCardActions onViewDashboard={handleViewDashboard} />
