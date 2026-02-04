@@ -18,6 +18,7 @@ import type { JSX } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router";
 import ProjectHub from "@/pages/ProjectHub";
 import ProjectPage from "@/pages/ProjectPage";
+import SupportPage from "@/pages/SupportPage";
 import AppLayout from "@/layouts/AppLayout";
 
 export default function App(): JSX.Element {
@@ -43,7 +44,7 @@ export default function App(): JSX.Element {
               element={<ProjectPage title="Project Details" />}
             />
             {/* Support */}
-            <Route path="support" element={<ProjectPage title="Support" />} />
+            <Route path="support" element={<SupportPage />} />
             {/* Updates */}
             <Route path="updates" element={<ProjectPage title="Updates" />} />
             {/* SecurityCenter */}

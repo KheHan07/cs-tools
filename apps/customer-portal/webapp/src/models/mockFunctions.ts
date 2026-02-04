@@ -20,6 +20,8 @@ import {
   mockStatusOptions,
 } from "@/models/mockData";
 
+import type { ProjectSupportStats } from "@/models/responses";
+
 /**
  * Returns a random status from the mock status options.
  *
@@ -51,4 +53,18 @@ export const getMockActiveChats = (): number => {
   return mockActiveChatsOptions[
     Math.floor(Math.random() * mockActiveChatsOptions.length)
   ];
+};
+
+/**
+ * Returns mock support statistics for a project.
+ *
+ * @returns {ProjectSupportStats} Mock project support statistics.
+ */
+export const getMockProjectSupportStats = (): ProjectSupportStats => {
+  return {
+    activeChats: Math.floor(Math.random() * 10),
+    resolvedChats: Math.floor(Math.random() * 30),
+    sessionChats: Math.floor(Math.random() * 20),
+    totalCases: Math.floor(Math.random() * 50),
+  };
 };

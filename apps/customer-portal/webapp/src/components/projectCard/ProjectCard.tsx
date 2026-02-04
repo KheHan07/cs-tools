@@ -15,7 +15,7 @@
 // under the License.
 
 import { Form } from "@wso2/oxygen-ui";
-import React, { type JSX } from "react";
+import { type JSX } from "react";
 import { useNavigate } from "react-router";
 import ProjectCardActions from "@/components/projectCard/ProjectCardActions";
 import ProjectCardBadges from "@/components/projectCard/ProjectCardBadges";
@@ -75,7 +75,7 @@ export interface ProjectCardProps {
  * @param {ProjectCardProps} props - The props for the component.
  * @returns {JSX.Element} The rendered Project Card.
  */
-const ProjectCard: React.FC<ProjectCardProps> = ({
+export default function ProjectCard({
   id,
   projectKey,
   title,
@@ -85,7 +85,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   activeChats = getMockActiveChats(),
   date,
   onViewDashboard,
-}: ProjectCardProps): JSX.Element => {
+}: ProjectCardProps): JSX.Element {
   /**
    * Hook to navigate between routes.
    */
@@ -128,6 +128,4 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <ProjectCardActions />
     </Form.CardButton>
   );
-};
-
-export default ProjectCard;
+}

@@ -74,3 +74,26 @@ export interface UserProfile {
   avatar: string;
   role: string;
 }
+
+/**
+ * Project support statistics.
+ */
+export interface ProjectSupportStats {
+  /**
+   * Total number of cases in the project.
+   */
+  totalCases: number;
+  /**
+   * Number of active chats in the project.
+   */
+  activeChats: number;
+  /**
+   * Number of chat sessions in the project.
+   */
+  sessionChats: number;
+  /**
+   * Number of resolved chats in the project.
+   */
+  resolvedChats: number;
+}
+

@@ -22,4 +22,8 @@ export const ApiQueryKeys = {
    * Key for project search api call.
    */
   PROJECTS: "projects",
+  /**
+   * Key for project support statistics api call.
+   */
+  SUPPORT_STATS: "support-stats",
 } as const;

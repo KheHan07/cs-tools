@@ -33,7 +33,7 @@ import type { SearchProjectsResponse } from "@/models/responses";
  * @param {boolean} fetchAll - If true, treats this as a shared "all projects" query.
  * @returns {UseInfiniteQueryResult<InfiniteData<SearchProjectsResponse>, Error>} The infinite query result object.
  */
-export default function useSearchProjects(
+export default function useGetProjects(
   searchData: SearchProjectsRequest = {},
   fetchAll: boolean = false,
 ): UseInfiniteQueryResult<InfiniteData<SearchProjectsResponse>, Error> {

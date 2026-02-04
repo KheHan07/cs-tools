@@ -17,7 +17,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import useSearchProjects from "@/api/useSearchProjects";
+import useGetProjects from "@/api/useGetProjects";
 import { mockProjects } from "@/models/mockData";
 import type { ReactNode } from "react";
 
@@ -44,10 +44,10 @@ const createWrapper = () => {
   );
 };
 
-describe("useSearchProjects", () => {
+describe("useGetProjects", () => {
   it("should return paginated mock projects in pages on query execution", async () => {
     const { result } = renderHook(
-      () => useSearchProjects({ pagination: { offset: 0, limit: 2 } }),
+      () => useGetProjects({ pagination: { offset: 0, limit: 2 } }),
       {
         wrapper: createWrapper(),
       },
@@ -67,7 +67,7 @@ describe("useSearchProjects", () => {
   });
 
   it("should handle default pagination if none provided", async () => {
-    const { result } = renderHook(() => useSearchProjects(), {
+    const { result } = renderHook(() => useGetProjects(), {
       wrapper: createWrapper(),
     });
 
