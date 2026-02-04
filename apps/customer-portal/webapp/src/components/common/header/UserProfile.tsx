@@ -14,11 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { UserMenu } from "@wso2/oxygen-ui";
+import { Skeleton, UserMenu } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 import { useNavigate } from "react-router";
-import { mockUser } from "@/models/mockData";
+import { useAsgardeo } from "@asgardeo/react";
+import { User } from "@wso2/oxygen-ui-icons-react";
 import { useLogger } from "@/hooks/useLogger";
+import useGetUserDetails from "@/api/useGetUserDetails";
+import ErrorIndicator from "@/components/common/errorIndicator/ErrorIndicator";
 
 /**
  * User profile component.
@@ -28,18 +31,57 @@ import { useLogger } from "@/hooks/useLogger";
 export default function UserProfile(): JSX.Element {
   // Navigation hook.
   const navigate = useNavigate();
+  const { signOut } = useAsgardeo();
+  const { data: userDetails, isLoading, isError } = useGetUserDetails();
 
   // Logger hook.
   const logger = useLogger();
+
+  const user = userDetails
+    ? {
+        name:
+          userDetails.firstName || userDetails.lastName
+            ? `${userDetails.firstName || ""} ${userDetails.lastName || ""}`.trim()
+            : "--",
+        email: userDetails.email || "--",
+        avatar:
+          userDetails.firstName || userDetails.lastName ? (
+            `${(userDetails.firstName?.[0] || "").toUpperCase()}${(
+              userDetails.lastName?.[0] || ""
+            ).toUpperCase()}`
+          ) : (
+            <User />
+          ),
+      }
+    : null;
+
+  // Loading user object with skeletons
+  const loadingUser = {
+    name: <Skeleton variant="text" width={100} />,
+    email: <Skeleton variant="text" width={150} />,
+    avatar: <></>,
+  };
+
+  // Error user object with tooltips
+  const errorUser = {
+    name: <ErrorIndicator entityName="user" />,
+    email: null,
+    avatar: <User />,
+  };
+
+  const userToRender = isLoading ? loadingUser : isError ? errorUser : user;
 
   return (
     <>
       {/* user profile menu */}
       <UserMenu
-        user={mockUser}
+        user={userToRender as any}
         onProfileClick={() => logger.debug("Profile clicked")}
         onSettingsClick={() => logger.debug("Settings clicked")}
-        onLogout={() => navigate("/")}
+        onLogout={() => {
+          signOut();
+          navigate("/");
+        }}
       />
     </>
   );
