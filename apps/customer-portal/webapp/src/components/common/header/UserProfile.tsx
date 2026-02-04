@@ -65,7 +65,6 @@ export default function UserProfile(): JSX.Element {
   // Error user object with tooltips
   const errorUser = {
     name: <ErrorIndicator entityName="user" />,
-    email: null,
     avatar: <User />,
   };
 
