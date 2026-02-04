@@ -43,6 +43,13 @@ vi.mock("@/utils/projectCard", () => ({
   formatProjectDate: vi.fn((date) => `Formatted ${date}`),
 }));
 
+// Mock ErrorIndicator
+vi.mock("@/components/common/errorIndicator/ErrorIndicator", () => ({
+  default: ({ entityName }: any) => (
+    <div data-testid="error-indicator">Error: {entityName}</div>
+  ),
+}));
+
 describe("ProjectCardStats", () => {
   it("should render counts and formatted date", () => {
     const props = {
@@ -70,5 +77,20 @@ describe("ProjectCardStats", () => {
     expect(screen.getByTestId("calendar-icon")).toBeInTheDocument();
     expect(screen.getByTestId("alert-icon")).toBeInTheDocument();
     expect(screen.getByTestId("message-icon")).toBeInTheDocument();
+  });
+
+  it("should render error indicators when isError is true", () => {
+    const props = {
+      openCases: 0,
+      activeChats: 0,
+      date: "2025-07-17",
+      isError: true,
+    };
+
+    render(<ProjectCardStats {...props} />);
+
+    expect(screen.getByText("Error: Open Cases")).toBeInTheDocument();
+    expect(screen.getByText("Error: Active Chats")).toBeInTheDocument();
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 });
