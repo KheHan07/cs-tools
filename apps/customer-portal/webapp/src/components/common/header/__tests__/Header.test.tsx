@@ -134,12 +134,27 @@ vi.mock("../SearchBar", () => ({
   default: () => <div data-testid="search-bar" />,
 }));
 
+// Mock useAsgardeo
+const mockUseAsgardeo = vi.fn(() => ({
+  isLoading: false,
+}));
+vi.mock("@asgardeo/react", () => ({
+  useAsgardeo: () => mockUseAsgardeo(),
+}));
+
 vi.mock("../ProjectSwitcher", () => ({
-  default: ({ projects, selectedProject, onProjectChange, isLoading }: any) => (
+  default: ({
+    projects,
+    selectedProject,
+    onProjectChange,
+    isLoading,
+    isError,
+  }: any) => (
     <div
       data-testid="project-switcher"
       data-selected-id={selectedProject?.id || ""}
       data-loading={isLoading ? "true" : "false"}
+      data-error={isError ? "true" : "false"}
     >
       <select
         data-testid="project-select"
@@ -319,5 +334,31 @@ describe("Header", () => {
 
     const switcher = screen.getByTestId("project-switcher");
     expect(switcher).toHaveAttribute("data-loading", "true");
+  });
+
+  it("should pass isAuthLoading as isLoading into ProjectSwitcher", () => {
+    mockLocation.pathname = "/project-1/dashboard";
+    mockParams.projectId = "project-1";
+    mockUseAsgardeo.mockReturnValue({ isLoading: true });
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    const switcher = screen.getByTestId("project-switcher");
+    expect(switcher).toHaveAttribute("data-loading", "true");
+  });
+
+  it("should pass isError to ProjectSwitcher", () => {
+    mockLocation.pathname = "/project-1/dashboard";
+    mockParams.projectId = "project-1";
+    mockUseSearchProjects.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: true,
+    });
+
+    render(<Header onToggleSidebar={mockOnToggleSidebar} />);
+
+    const switcher = screen.getByTestId("project-switcher");
+    expect(switcher).toHaveAttribute("data-error", "true");
   });
 });
