@@ -19,13 +19,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import UserProfile from "@/components/common/header/UserProfile";
 import { mockUserDetails } from "@/models/mockData";
 
-// Mock @wso2/oxygen-ui
+// Mock UserMenu and Skeleton from @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
   UserMenu: ({ user }: { user: any }) => (
     <div data-testid="user-menu">
-      <span>{user.name}</span>
-      <span>{user.email}</span>
+      <span data-testid="user-name">{user.name}</span>
+      <span data-testid="user-email">{user.email}</span>
     </div>
+  ),
+  Skeleton: () => <div data-testid="skeleton" />,
+}));
+
+// Mock icons
+vi.mock("@wso2/oxygen-ui-icons-react", () => ({
+  User: () => <svg data-testid="user-icon" />,
+}));
+
+// Mock ErrorIndicator
+vi.mock("@/components/common/errorIndicator/ErrorIndicator", () => ({
+  default: ({ entityName }: any) => (
+    <div data-testid="error-indicator">Error: {entityName}</div>
   ),
 }));
 
@@ -46,10 +59,16 @@ vi.mock("@/providers/MockConfigProvider", () => ({
   useMockConfig: () => mockUseMockConfig(),
 }));
 
-// Mock useGetUserDetails
+// Mock useGetUserDetails and generic logger
 const mockUseGetUserDetails = vi.fn();
 vi.mock("@/api/useGetUserDetails", () => ({
   default: () => mockUseGetUserDetails(),
+}));
+
+vi.mock("@/hooks/useLogger", () => ({
+  useLogger: () => ({
+    debug: vi.fn(),
+  }),
 }));
 
 describe("UserProfile", () => {
@@ -68,11 +87,11 @@ describe("UserProfile", () => {
   it("should render the user name and email via UserMenu when authenticated", () => {
     render(<UserProfile />);
 
-    expect(screen.getByText(mockUserDetails.firstName)).toBeInTheDocument();
-    expect(screen.getByText(mockUserDetails.lastName)).toBeInTheDocument();
-    expect(screen.getByText(mockUserDetails.email)).toBeInTheDocument();
-    expect(screen.getByText(mockUserDetails.timeZone)).toBeInTheDocument();
-    expect(screen.getByText(mockUserDetails.id)).toBeInTheDocument();
+    const expectedName = `${mockUserDetails.firstName} ${mockUserDetails.lastName}`;
+    expect(screen.getByTestId("user-name")).toHaveTextContent(expectedName);
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      mockUserDetails.email,
+    );
   });
 
   it("should NOT render if not signed in, not loading, and mocks disabled", () => {
@@ -90,7 +109,15 @@ describe("UserProfile", () => {
     expect(screen.getByTestId("user-menu")).toBeInTheDocument();
   });
 
-  it("should render error user if fetching fails", () => {
+  it("should render skeletons when loading", () => {
+    mockUseAsgardeo.mockReturnValue({ isSignedIn: true, isLoading: true });
+    render(<UserProfile />);
+
+    // Two skeletons expected: name and email
+    expect(screen.getAllByTestId("skeleton")).toHaveLength(2);
+  });
+
+  it("should render error indicator when error occurs", () => {
     mockUseGetUserDetails.mockReturnValue({
       data: null,
       isLoading: false,
@@ -99,6 +126,8 @@ describe("UserProfile", () => {
     });
 
     render(<UserProfile />);
-    expect(screen.getByTestId("user-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("error-indicator")).toHaveTextContent(
+      "Error: user",
+    );
   });
 });
