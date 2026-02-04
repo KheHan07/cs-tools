@@ -29,35 +29,28 @@ const getAuthConfig = (): AuthConfig => {
   const signOutRedirectURL = import.meta.env
     .CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL;
 
-  if (!baseUrl) {
-    console.error(
-      "Auth Config Error: CUSTOMER_PORTAL_AUTH_BASE_URL is not defined in environment variables.",
-    );
-  }
+  const missingVars: string[] = [];
 
-  if (!clientId) {
-    console.error(
-      "Auth Config Error: CUSTOMER_PORTAL_AUTH_CLIENT_ID is not defined in environment variables.",
-    );
-  }
+  if (!baseUrl) missingVars.push("CUSTOMER_PORTAL_AUTH_BASE_URL");
+  if (!clientId) missingVars.push("CUSTOMER_PORTAL_AUTH_CLIENT_ID");
+  if (!signInRedirectURL)
+    missingVars.push("CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL");
+  if (!signOutRedirectURL)
+    missingVars.push("CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL");
 
-  if (!signInRedirectURL) {
-    console.error(
-      "Auth Config Error: CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL is not defined in environment variables.",
-    );
-  }
-
-  if (!signOutRedirectURL) {
-    console.error(
-      "Auth Config Error: CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL is not defined in environment variables.",
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Auth Config Error: Missing required environment variables: ${missingVars.join(
+        ", ",
+      )}`,
     );
   }
 
   return {
-    baseUrl: baseUrl as string,
-    clientId: clientId as string,
-    signInRedirectURL: signInRedirectURL as string,
-    signOutRedirectURL: signOutRedirectURL as string,
+    baseUrl,
+    clientId,
+    signInRedirectURL,
+    signOutRedirectURL,
   };
 };
 

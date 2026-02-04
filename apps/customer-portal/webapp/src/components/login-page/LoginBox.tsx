@@ -24,9 +24,9 @@ export default function LoginBox(): JSX.Element {
   const { signIn } = useAsgardeo();
   const { setMockEnabled } = useMockConfig();
 
-  const handleLogin = (isMock: boolean) => {
+  const handleLogin = async (isMock: boolean) => {
     setMockEnabled(isMock);
-    signIn();
+    await signIn();
   };
 
   return (
@@ -50,7 +50,7 @@ export default function LoginBox(): JSX.Element {
           sx={{ my: 1 }}
           onClick={() => handleLogin(true)}
         >
-          Continue with Mock API's
+          Continue with Mock APIs
         </Button>
         <Button
           fullWidth
@@ -60,7 +60,7 @@ export default function LoginBox(): JSX.Element {
           sx={{ my: 1 }}
           onClick={() => handleLogin(false)}
         >
-          Continue with Real API's
+          Continue with Real APIs
         </Button>
       </Box>
     </Box>
