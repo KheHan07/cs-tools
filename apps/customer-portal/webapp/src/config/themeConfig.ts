@@ -31,4 +31,5 @@ const themes: Record<string, OxygenTheme> = {
 };
 
 export const themeConfig =
-  themes[import.meta.env.CUSTOMER_PORTAL_THEME] || AcrylicOrangeTheme;
+  themes[window.config?.CUSTOMER_PORTAL_THEME || "acrylicOrange"] ||
+  AcrylicOrangeTheme;
