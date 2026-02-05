@@ -16,12 +16,12 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@/providers/MockConfigProvider";
-import { useLogger } from "@/hooks/useLogger";
-import { mockProjects } from "@/models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@/constants/apiConstants";
-import type { SearchProjectsRequest } from "@/models/requests";
-import type { SearchProjectsResponse } from "@/models/responses";
+import { useMockConfig } from "@providers/MockConfigProvider";
+import { useLogger } from "@hooks/useLogger";
+import { mockProjects } from "@models/mockData";
+import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import type { SearchProjectsRequest } from "@models/requests";
+import type { SearchProjectsResponse } from "@models/responses";
 
 /**
  * Custom hook to search projects.

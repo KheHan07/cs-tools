@@ -16,8 +16,8 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import SideBar from "@/components/common/side-nav-bar/SideBar";
-import { APP_SHELL_NAV_ITEMS } from "@/constants/appLayoutConstants";
+import SideBar from "@components/common/side-nav-bar/SideBar";
+import { APP_SHELL_NAV_ITEMS } from "@constants/appLayoutConstants";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => {
@@ -52,8 +52,8 @@ vi.mock("@wso2/oxygen-ui", () => {
       <a href={to}>{children}</a>
     ),
     colors: {
-      blue: { 700: "#1d4ed8" },
-      purple: { 400: "#a78bfa" },
+      blue: { 700: "#1D4ED8" },
+      purple: { 400: "#A78BFA" },
     },
   };
 });

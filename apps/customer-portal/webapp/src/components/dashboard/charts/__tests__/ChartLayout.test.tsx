@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChartLayout from "../ChartLayout";
+import ChartLayout from "@components/dashboard/charts/ChartLayout";
 
 // Mock child components
 vi.mock("../ActiveCasesChart", () => ({

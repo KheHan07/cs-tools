@@ -18,16 +18,16 @@ import { Box, Typography, Grid } from "@wso2/oxygen-ui";
 import { useParams, useOutletContext } from "react-router";
 import { useState, useEffect, type JSX } from "react";
 import { useAsgardeo } from "@asgardeo/react";
-import TabBar from "@/components/common/tab-bar/TabBar";
-import { PROJECT_DETAILS_TABS } from "@/constants/projectDetailsConstants";
-import ProjectInformationCard from "@/components/projectDetails/projectOverview/projectInformation/ProjectInformationCard";
-import ProjectStatisticsCard from "@/components/projectDetails/projectOverview/projectStatistics/ProjectStatisticsCard";
-import ContactInfoCard from "@/components/projectDetails/projectOverview/contactInfo/ContactInfoCard";
-import RecentActivityCard from "@/components/projectDetails/projectOverview/recentActivity/RecentActivityCard";
-import useGetProjectDetails from "@/api/useGetProjectDetails";
-import { useGetProjectStat } from "@/api/useGetProjectStat";
-import { useLogger } from "@/hooks/useLogger";
-import { useLoader } from "@/context/linear-loader/LoaderContext";
+import TabBar from "@components/common/tab-bar/TabBar";
+import { PROJECT_DETAILS_TABS } from "@constants/projectDetailsConstants";
+import ProjectInformationCard from "@components/project-details/project-overview/project-information/ProjectInformationCard";
+import ProjectStatisticsCard from "@components/project-details/project-overview/project-statistics/ProjectStatisticsCard";
+import ContactInfoCard from "@components/project-details/project-overview/contact-info/ContactInfoCard";
+import RecentActivityCard from "@components/project-details/project-overview/recent-activity/RecentActivityCard";
+import useGetProjectDetails from "@api/useGetProjectDetails";
+import { useGetProjectStat } from "@api/useGetProjectStat";
+import { useLogger } from "@hooks/useLogger";
+import { useLoader } from "@context/linear-loader/LoaderContext";
 
 /**
  * ProjectDetails component.

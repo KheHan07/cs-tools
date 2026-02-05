@@ -15,7 +15,7 @@
 // under the License.
 
 import { describe, it, expect } from "vitest";
-import LoggerContext from "@/context/logger/LoggerContext";
+import LoggerContext from "@context/logger/LoggerContext";
 
 describe("LoggerContext", () => {
   it("should have the correct display name", () => {

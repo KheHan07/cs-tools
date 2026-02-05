@@ -21,12 +21,12 @@ import {
   Rocket,
   Server,
 } from "@wso2/oxygen-ui-icons-react";
-import type { TabOption } from "@/components/common/tab-bar/TabBar";
+import type { TabOption } from "@components/common/tab-bar/TabBar";
 import { colors } from "@wso2/oxygen-ui";
 import { User, Shield } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import type { ProjectStatsResponse } from "@/models/responses";
-import { getSystemHealthColor } from "@/utils/projectStats";
+import type { ProjectStatsResponse } from "@models/responses";
+import { getSystemHealthColor } from "@utils/projectStats";
 
 export interface Contact {
   role: string;

@@ -16,11 +16,11 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import DashboardPage from "@/pages/DashboardPage";
-import { DASHBOARD_STATS } from "@/constants/dashboardConstants";
-import { useGetDashboardMockStats } from "@/api/useGetDashboardMockStats";
-import { useGetProjectCasesStats } from "@/api/useGetProjectCasesStats";
-import { LoaderProvider } from "@/context/linear-loader/LoaderContext";
+import DashboardPage from "@pages/DashboardPage";
+import { DASHBOARD_STATS } from "@constants/dashboardConstants";
+import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
+import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
+import { LoaderProvider } from "@context/linear-loader/LoaderContext";
 
 const mockNavigate = vi.fn();
 
@@ -127,12 +127,12 @@ vi.mock("@wso2/oxygen-ui", () => ({
   ),
   colors: {
     common: { white: "#FFFFFF" },
-    blue: { 500: "#3B82F6", 700: "#1d4ed8" },
+    blue: { 500: "#3B82F6", 700: "#1D4ED8" },
     green: { 500: "#22C55E" },
     orange: { 500: "#F97316" },
     red: { 500: "#EF4444" },
     yellow: { 600: "#EAB308" },
-    purple: { 400: "#a78bfa" },
+    purple: { 400: "#A78BFA" },
   },
 }));
 

@@ -17,7 +17,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { getPriorityColor, getStatusColor } from "../casesTable";
+import { getPriorityColor, getStatusColor } from "@utils/casesTable";
 
 describe("casesTable utils", () => {
   describe("getPriorityColor", () => {

@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import LoginFooter from "../LoginFooter";
+import LoginFooter from "@components/login-page/LoginFooter";
 
 describe("LoginFooter", () => {
   it("should render copyright and links", () => {

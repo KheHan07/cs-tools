@@ -16,8 +16,8 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import ProjectHub from "@/pages/ProjectHub";
-import { mockProjects } from "@/models/mockData";
+import ProjectHub from "@pages/ProjectHub";
+import { mockProjects } from "@models/mockData";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -28,8 +28,8 @@ vi.mock("@wso2/oxygen-ui", () => ({
     </div>
   ),
   colors: {
-    blue: { 700: "#1d4ed8" },
-    purple: { 400: "#a78bfa" },
+    blue: { 700: "#1D4ED8" },
+    purple: { 400: "#A78BFA" },
   },
 }));
 

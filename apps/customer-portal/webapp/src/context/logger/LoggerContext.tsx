@@ -17,7 +17,7 @@
  */
 
 import { createContext, type Context } from "react";
-import { type ILogger } from "@/utils/logger";
+import { type ILogger } from "@utils/logger";
 
 /**
  * Context object for the Logger service.

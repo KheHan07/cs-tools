@@ -16,16 +16,16 @@
 
 import { type JSX } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router";
-import ProjectHub from "@/pages/ProjectHub";
-import ProjectPage from "@/pages/ProjectPage";
-import ProjectDetails from "@/pages/ProjectDetails";
-import DashboardPage from "@/pages/DashboardPage";
-import SupportPage from "@/pages/SupportPage";
-import NoveraChatPage from "@/pages/NoveraChatPage";
-import CreateCasePage from "@/pages/CreateCasePage";
-import AppLayout from "@/layouts/AppLayout";
-import { LoaderProvider } from "@/context/linear-loader/LoaderContext";
-import LoginPage from "@/pages/LoginPage";
+import ProjectHub from "@pages/ProjectHub";
+import ProjectPage from "@pages/ProjectPage";
+import ProjectDetails from "@pages/ProjectDetails";
+import DashboardPage from "@pages/DashboardPage";
+import SupportPage from "@pages/SupportPage";
+import NoveraChatPage from "@pages/NoveraChatPage";
+import CreateCasePage from "@pages/CreateCasePage";
+import AppLayout from "@layouts/AppLayout";
+import { LoaderProvider } from "@context/linear-loader/LoaderContext";
+import LoginPage from "@pages/LoginPage";
 import AuthGuard from "@/AuthGuard";
 
 export default function App(): JSX.Element {

@@ -23,7 +23,7 @@ import {
   TrendingUp,
 } from "@wso2/oxygen-ui-icons-react";
 import { type ComponentType } from "react";
-import type { ProjectSupportStats } from "@/models/responses";
+import type { ProjectSupportStats } from "@models/responses";
 
 // Interface for support statistics card configuration.
 export interface SupportStatConfig {

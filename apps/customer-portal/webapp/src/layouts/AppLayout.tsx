@@ -14,15 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { notificationBannerConfig } from "@/config/notificationBannerConfig";
+import { notificationBannerConfig } from "@config/notificationBannerConfig";
 import { AppShell, Box, useAppShell, LinearProgress } from "@wso2/oxygen-ui";
 import { type JSX, type ReactNode } from "react";
-import { useLoader } from "@/context/linear-loader/LoaderContext";
+import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useLocation, Outlet } from "react-router";
-import GlobalNotificationBanner from "@/components/common/notification-banner/GlobalNotificationBanner";
-import Footer from "@/components/common/footer/Footer";
-import Header from "@/components/common/header/Header";
-import SideBar from "@/components/common/side-nav-bar/SideBar";
+import GlobalNotificationBanner from "@components/common/notification-banner/GlobalNotificationBanner";
+import Footer from "@components/common/footer/Footer";
+import Header from "@components/common/header/Header";
+import SideBar from "@components/common/side-nav-bar/SideBar";
 
 /**
  * AppLayout component.

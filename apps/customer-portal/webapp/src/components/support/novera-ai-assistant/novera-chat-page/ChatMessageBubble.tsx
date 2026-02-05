@@ -17,7 +17,7 @@
 import { Box, Paper, Typography } from "@wso2/oxygen-ui";
 import { Bot } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import type { Message } from "@/pages/NoveraChatPage";
+import type { Message } from "@pages/NoveraChatPage";
 
 interface ChatMessageBubbleProps {
   message: Message;
@@ -56,7 +56,7 @@ export default function ChatMessageBubble({
             flexShrink: 0,
           }}
         >
-          <Bot size={16} color="#ea580c" />
+          <Bot size={16} color="#C2410C" />
         </Paper>
       )}
       <Box sx={{ maxWidth: "80%" }}>

@@ -16,7 +16,7 @@
 
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import GlobalNotificationBanner from "../GlobalNotificationBanner";
+import GlobalNotificationBanner from "@components/common/notification-banner/GlobalNotificationBanner";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({

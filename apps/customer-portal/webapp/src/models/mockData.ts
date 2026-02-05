@@ -19,12 +19,12 @@ import type {
   ProjectListItem,
   ProjectDetails,
   UserDetails,
-} from "@/models/responses";
+} from "@models/responses";
 import {
   PROJECT_TYPE,
   SUPPORT_TIER,
   CASE_STATUS,
-} from "@/constants/projectDetailsConstants";
+} from "@constants/projectDetailsConstants";
 
 // Interface for case creation metadata.
 export interface CaseCreationMetadata {

@@ -16,7 +16,7 @@
 
 import { Box, Typography, Chip, Skeleton } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 interface ProjectNameProps {
   name: string;

@@ -18,19 +18,19 @@ import { Box, Button, Grid, Typography } from "@wso2/oxygen-ui";
 import { CircleCheck } from "@wso2/oxygen-ui-icons-react";
 import { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useGetCaseCreationDetails } from "@/api/useGetCaseCreationDetails";
-import useGetProjectDetails from "@/api/useGetProjectDetails";
-import { useLogger } from "@/hooks/useLogger";
-import { useLoader } from "@/context/linear-loader/LoaderContext";
-import { AIInfoCard } from "@/components/support/case-creation-layout/AIInfoCard";
-import { BasicInformationSection } from "@/components/support/case-creation-layout/BasicInformationSection";
-import { CaseCreationHeader } from "@/components/support/case-creation-layout/CaseCreationHeader";
-import { CaseDetailsSection } from "@/components/support/case-creation-layout/CaseDetailsSection";
-import { ConversationSummary } from "@/components/support/case-creation-layout/ConversationSummary";
+import { useGetCaseCreationDetails } from "@api/useGetCaseCreationDetails";
+import useGetProjectDetails from "@api/useGetProjectDetails";
+import { useLogger } from "@hooks/useLogger";
+import { useLoader } from "@context/linear-loader/LoaderContext";
+import { AIInfoCard } from "@components/support/case-creation-layout/AIInfoCard";
+import { BasicInformationSection } from "@components/support/case-creation-layout/BasicInformationSection";
+import { CaseCreationHeader } from "@components/support/case-creation-layout/CaseCreationHeader";
+import { CaseDetailsSection } from "@components/support/case-creation-layout/CaseDetailsSection";
+import { ConversationSummary } from "@components/support/case-creation-layout/ConversationSummary";
 import {
   getGeneratedIssueTitle,
   getGeneratedIssueDescription,
-} from "@/models/mockFunctions";
+} from "@models/mockFunctions";
 
 /**
  * CreateCasePage component to review and edit AI-generated case details.

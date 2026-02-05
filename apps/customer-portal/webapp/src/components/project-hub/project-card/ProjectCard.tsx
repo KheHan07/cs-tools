@@ -17,16 +17,16 @@
 import { Form } from "@wso2/oxygen-ui";
 import { useMemo, type JSX } from "react";
 import { useNavigate } from "react-router";
-import { useGetProjectStat } from "@/api/useGetProjectStat";
-import ProjectCardActions from "@/components/project-hub/project-card/ProjectCardActions";
-import ProjectCardBadges from "@/components/project-hub/project-card/ProjectCardBadges";
-import ProjectCardInfo from "@/components/project-hub/project-card/ProjectCardInfo";
-import ProjectCardStats from "@/components/project-hub/project-card/ProjectCardStats";
+import { useGetProjectStat } from "@api/useGetProjectStat";
+import ProjectCardActions from "@components/project-hub/project-card/ProjectCardActions";
+import ProjectCardBadges from "@components/project-hub/project-card/ProjectCardBadges";
+import ProjectCardInfo from "@components/project-hub/project-card/ProjectCardInfo";
+import ProjectCardStats from "@components/project-hub/project-card/ProjectCardStats";
 import {
   getMockActiveChats,
   getMockOpenCases,
   getMockStatus,
-} from "@/models/mockFunctions";
+} from "@models/mockFunctions";
 
 // Props for the ProjectCard component.
 export interface ProjectCardProps {

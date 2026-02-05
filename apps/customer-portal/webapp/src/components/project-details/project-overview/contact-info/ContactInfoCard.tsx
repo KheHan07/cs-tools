@@ -17,8 +17,8 @@
 import { Box, Card, CardContent, Typography, Divider } from "@wso2/oxygen-ui";
 import { Users } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import { contacts } from "@/constants/projectDetailsConstants";
-import ContactRow from "./ContactRow";
+import { contacts } from "@constants/projectDetailsConstants";
+import ContactRow from "@components/project-details/project-overview/contact-info/ContactRow";
 
 const ContactInfoCard = (): JSX.Element => {
   return (

@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AIInfoCard } from "../AIInfoCard";
+import { AIInfoCard } from "@components/support/case-creation-layout/AIInfoCard";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -26,7 +26,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
     <div data-testid="card-content">{children}</div>
   ),
   colors: {
-    orange: { 700: "#c2410c" },
+    orange: { 700: "#C2410C" },
   },
   Typography: ({ children }: any) => <span>{children}</span>,
 }));

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { sloganListItems } from "@/constants/loginScreenConstants";
+import { sloganListItems } from "@constants/loginScreenConstants";
 import { Stack, Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 

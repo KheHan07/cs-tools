@@ -28,8 +28,8 @@ import {
   MessageSquare,
 } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
-import { formatProjectDate } from "@/utils/projectCard";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
+import { formatProjectDate } from "@utils/projectCard";
 
 interface ProjectCardStatsProps {
   activeChats: number;

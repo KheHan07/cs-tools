@@ -16,7 +16,7 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import ProjectDetails from "../ProjectDetails";
+import ProjectDetails from "@pages/ProjectDetails";
 
 // Mock hooks
 const mockUseLogger = {
@@ -92,10 +92,10 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => <span>{children}</span>,
   Grid: ({ children }: any) => <div>{children}</div>,
   colors: {
-    blue: { 700: "#blue" },
-    purple: { 700: "#purple" },
-    teal: { 700: "#teal" },
-    orange: { 700: "#orange" },
+    blue: { 700: "#1D4ED8" },
+    purple: { 700: "#9C27B0" },
+    teal: { 700: "#008080" },
+    orange: { 700: "#FFA500" },
   },
 }));
 

@@ -16,7 +16,7 @@
 
 import { Box, Button, Typography } from "@wso2/oxygen-ui";
 import { Code, Cloud } from "@wso2/oxygen-ui-icons-react";
-import { useMockConfig } from "@/providers/MockConfigProvider";
+import { useMockConfig } from "@providers/MockConfigProvider";
 import { useAsgardeo } from "@asgardeo/react";
 import type { JSX } from "react";
 

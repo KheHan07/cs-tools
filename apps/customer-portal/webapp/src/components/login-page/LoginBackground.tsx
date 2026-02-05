@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import LoginInvertedImage from "@/assets/images/login-page/login-screen-inverted.svg";
-import LoginImage from "@/assets/images/login-page/login-screen.svg";
+import LoginInvertedImage from "@assets/images/login-page/login-screen-inverted.svg";
+import LoginImage from "@assets/images/login-page/login-screen.svg";
 import { ColorSchemeImage } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 

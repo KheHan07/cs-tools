@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { StatCard } from "../StatCard";
+import { StatCard } from "@components/dashboard/stats/StatCard";
 
 // Mock useParams
 vi.mock("react-router", () => ({

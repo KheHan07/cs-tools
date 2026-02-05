@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { CasesTrendChart } from "../CasesTrendChart";
+import { CasesTrendChart } from "@components/dashboard/charts/CasesTrendChart";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -33,7 +33,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
     <div data-testid="skeleton" data-variant={variant}></div>
   ),
   colors: {
-    common: { white: "#ffffff" },
+    common: { white: "#FFFFFF" },
     blue: { 500: "#3B82F6" },
     green: { 500: "#22C55E" },
     orange: { 500: "#F97316" },

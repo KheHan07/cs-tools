@@ -16,13 +16,13 @@
 
 import { Box, Typography } from "@wso2/oxygen-ui";
 import { useEffect, useMemo, type JSX } from "react";
-import useGetProjects from "@/api/useGetProjects";
-import { useLogger } from "@/hooks/useLogger";
-import ProjectCard from "@/components/project-hub/project-card/ProjectCard";
-import ProjectCardSkeleton from "@/components/project-hub/project-card/ProjectCardSkeleton";
+import useGetProjects from "@api/useGetProjects";
+import { useLogger } from "@hooks/useLogger";
+import ProjectCard from "@components/project-hub/project-card/ProjectCard";
+import ProjectCardSkeleton from "@components/project-hub/project-card/ProjectCardSkeleton";
 import { FolderOpen } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 /**
  * ProjectHub component.

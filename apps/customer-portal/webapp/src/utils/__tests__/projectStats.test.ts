@@ -24,7 +24,7 @@ import {
   getSubscriptionStatus,
   getSubscriptionColor,
   calculateProgress,
-} from "../projectStats";
+} from "@utils/projectStats";
 
 describe("projectStats utils", () => {
   describe("formatProjectDate", () => {

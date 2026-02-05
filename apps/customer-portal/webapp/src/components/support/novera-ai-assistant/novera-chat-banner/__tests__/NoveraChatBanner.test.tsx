@@ -16,7 +16,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import NoveraChatBanner from "@/components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
+import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
 
 const mockNavigate = vi.fn();
 

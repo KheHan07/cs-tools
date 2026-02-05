@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import LoginSlogan from "../LoginSlogan";
+import LoginSlogan from "@components/login-page/LoginSlogan";
 
 describe("LoginSlogan", () => {
   it("should render the welcome message", () => {

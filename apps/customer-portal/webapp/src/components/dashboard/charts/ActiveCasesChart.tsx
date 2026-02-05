@@ -22,9 +22,9 @@ import {
   ResponsiveContainer,
 } from "@wso2/oxygen-ui-charts-react";
 import type { JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
-import { ChartLegend } from "./ChartLegend";
-import { ACTIVE_CASES_CHART_DATA } from "@/constants/dashboardConstants";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
+import { ChartLegend } from "@components/dashboard/charts/ChartLegend";
+import { ACTIVE_CASES_CHART_DATA } from "@constants/dashboardConstants";
 
 interface ActiveCasesChartProps {
   data: {

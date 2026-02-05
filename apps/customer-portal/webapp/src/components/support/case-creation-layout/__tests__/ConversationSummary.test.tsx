@@ -16,14 +16,14 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ConversationSummary } from "../ConversationSummary";
-import type { CaseCreationMetadata } from "@/models/mockData";
+import { ConversationSummary } from "@components/support/case-creation-layout/ConversationSummary";
+import type { CaseCreationMetadata } from "@models/mockData";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,
   colors: {
-    orange: { 700: "#c2410c" },
+    orange: { 700: "#C2410C" },
   },
   Divider: () => <hr />,
   Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,

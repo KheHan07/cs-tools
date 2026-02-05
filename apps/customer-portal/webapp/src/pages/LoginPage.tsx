@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import Actions from "@/components/common/header/Actions";
-import Brand from "@/components/common/header/Brand";
-import LoginBackground from "@/components/login-page/LoginBackground";
-import LoginBox from "@/components/login-page/LoginBox";
-import LoginFooter from "@/components/login-page/LoginFooter";
-import LoginSlogan from "@/components/login-page/LoginSlogan";
-import ParticleBackground from "@/components/login-page/ParticleBackground";
+import Actions from "@components/common/header/Actions";
+import Brand from "@components/common/header/Brand";
+import LoginBackground from "@components/login-page/LoginBackground";
+import LoginBox from "@components/login-page/LoginBox";
+import LoginFooter from "@components/login-page/LoginFooter";
+import LoginSlogan from "@components/login-page/LoginSlogan";
+import ParticleBackground from "@components/login-page/ParticleBackground";
 import { Box, Grid, Header as HeaderUI, Paper, Stack } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 

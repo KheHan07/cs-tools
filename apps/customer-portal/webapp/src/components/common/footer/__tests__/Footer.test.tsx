@@ -16,12 +16,12 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import Footer from "@/components/common/footer/Footer";
+import Footer from "@components/common/footer/Footer";
 import {
   COMPANY_NAME,
   PRIVACY_POLICY_URL,
   TERMS_OF_SERVICE_URL,
-} from "@/constants/appLayoutConstants";
+} from "@constants/appLayoutConstants";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({

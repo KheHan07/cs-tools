@@ -17,8 +17,8 @@
  */
 
 import { useMemo, type PropsWithChildren, type ReactElement } from "react";
-import { Logger, type ILogger } from "@/utils/logger";
-import LoggerContext from "@/context/logger/LoggerContext";
+import { Logger, type ILogger } from "@utils/logger";
+import LoggerContext from "@context/logger/LoggerContext";
 
 interface LoggerProviderProps {
   logger?: ILogger;

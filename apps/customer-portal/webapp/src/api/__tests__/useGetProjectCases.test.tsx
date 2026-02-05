@@ -17,7 +17,7 @@
 import { renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import useGetProjectCases from "../useGetProjectCases";
+import useGetProjectCases from "@api/useGetProjectCases";
 import React, { type JSX } from "react";
 
 // Mock @asgardeo/react

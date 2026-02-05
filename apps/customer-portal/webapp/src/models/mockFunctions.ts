@@ -19,15 +19,15 @@ import {
   mockCaseCreationMetadata,
   mockOpenCasesOptions,
   mockStatusOptions,
-} from "@/models/mockData";
-import type { CaseCreationMetadata } from "@/models/mockData";
+} from "@models/mockData";
+import type { CaseCreationMetadata } from "@models/mockData";
 
 import type {
   ProjectCasesStats,
   ProjectSupportStats,
   DashboardMockStats,
   ProjectStatsResponse,
-} from "@/models/responses";
+} from "@models/responses";
 
 /**
  * Returns a random status from the mock status options.

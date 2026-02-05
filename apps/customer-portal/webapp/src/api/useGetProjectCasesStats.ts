@@ -16,11 +16,11 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@/providers/MockConfigProvider";
-import { getMockProjectCasesStats } from "@/models/mockFunctions";
-import { useLogger } from "@/hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@/constants/apiConstants";
-import type { ProjectCasesStats } from "@/models/responses";
+import { useMockConfig } from "@providers/MockConfigProvider";
+import { getMockProjectCasesStats } from "@models/mockFunctions";
+import { useLogger } from "@hooks/useLogger";
+import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import type { ProjectCasesStats } from "@models/responses";
 
 /**
  * Custom hook to fetch project case statistics by ID.

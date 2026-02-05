@@ -21,7 +21,7 @@ import {
   SUPPORT_TIER,
   PROJECT_TYPE,
   SYSTEM_HEALTH,
-} from "@/constants/projectDetailsConstants";
+} from "@constants/projectDetailsConstants";
 
 /**
  * Formats a date string into "MMM DD, YYYY" format.
@@ -53,10 +53,7 @@ export const getSLAStatusColor = (
 ): "success" | "error" | "default" | "warning" => {
   const normalizedStatus = status?.toLowerCase();
 
-  if (
-    normalizedStatus === SLA_STATUS.GOOD.toLowerCase() ||
-    normalizedStatus === "good"
-  ) {
+  if (normalizedStatus === SLA_STATUS.GOOD.toLowerCase()) {
     return "success";
   }
 

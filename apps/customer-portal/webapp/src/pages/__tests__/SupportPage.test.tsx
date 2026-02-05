@@ -17,7 +17,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import SupportPage from "@/pages/SupportPage";
+import SupportPage from "@pages/SupportPage";
 
 // Mock react-router
 vi.mock("react-router", async () => {
@@ -57,10 +57,10 @@ vi.mock("@wso2/oxygen-ui", () => ({
     <div data-testid={`typography-${variant}`}>{children}</div>
   ),
   colors: {
-    red: { 500: "#f44336" },
-    blue: { 500: "#2196f3", 700: "#1d4ed8" },
-    green: { 500: "#4caf50" },
-    purple: { 500: "#9c27b0", 400: "#a78bfa" },
+    red: { 500: "#F44336" },
+    blue: { 500: "#2196F3", 700: "#1D4ED8" },
+    green: { 500: "#4CAF50" },
+    purple: { 500: "#9C27B0", 400: "#A78BFA" },
   },
   Divider: () => <hr />,
   Button: ({ children }: any) => <button>{children}</button>,

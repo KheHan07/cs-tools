@@ -16,7 +16,7 @@
 
 import { Form, Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import { stripHtmlTags } from "@/utils/projectCard";
+import { stripHtmlTags } from "@utils/projectCard";
 
 interface ProjectCardInfoProps {
   title: string;

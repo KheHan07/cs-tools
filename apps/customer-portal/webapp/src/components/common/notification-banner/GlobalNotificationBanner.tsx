@@ -16,7 +16,7 @@
 
 import { NotificationBanner } from "@wso2/oxygen-ui";
 import { useState, useEffect, type JSX } from "react";
-import { notificationBannerConfig } from "@/config/notificationBannerConfig";
+import { notificationBannerConfig } from "@config/notificationBannerConfig";
 
 // Props for the GlobalNotificationBanner component.
 interface GlobalNotificationBannerProps {

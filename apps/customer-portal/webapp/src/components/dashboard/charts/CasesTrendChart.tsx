@@ -21,12 +21,12 @@ import {
   ResponsiveContainer,
 } from "@wso2/oxygen-ui-charts-react";
 import type { JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import {
   CASES_TREND_CHART_DATA,
   TREND_CHART_ERROR_PLACEHOLDER_DATA,
-} from "@/constants/dashboardConstants";
-import { ChartLegend } from "./ChartLegend";
+} from "@constants/dashboardConstants";
+import { ChartLegend } from "@components/dashboard/charts/ChartLegend";
 
 interface CasesTrendChartProps {
   data: Array<{

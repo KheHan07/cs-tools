@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@layouts/AppLayout";
 
 // Mock @wso2/oxygen-ui
 const mockShellActions = {

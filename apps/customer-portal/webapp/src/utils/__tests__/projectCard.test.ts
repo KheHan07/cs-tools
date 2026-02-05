@@ -15,7 +15,7 @@
 // under the License.
 
 import { describe, expect, it } from "vitest";
-import { formatProjectDate, getStatusColor } from "@/utils/projectCard";
+import { formatProjectDate, getStatusColor } from "@utils/projectCard";
 
 describe("projectCard utilities", () => {
   describe("formatProjectDate", () => {

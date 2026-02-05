@@ -16,8 +16,8 @@
 
 import { Box, Grid, StatCard, Skeleton } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import { SUPPORT_STAT_CONFIGS } from "@/constants/supportConstants";
-import type { ProjectSupportStats } from "@/models/responses";
+import { SUPPORT_STAT_CONFIGS } from "@constants/supportConstants";
+import type { ProjectSupportStats } from "@models/responses";
 
 export interface CasesOverviewStatCardProps {
   isLoading: boolean;

@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ProjectCardStats from "@/components/project-hub/project-card/ProjectCardStats";
+import ProjectCardStats from "@components/project-hub/project-card/ProjectCardStats";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -27,7 +27,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
   },
   Typography: ({ children }: any) => <span>{children}</span>,
   colors: {
-    blue: { 500: "#2196f3" },
+    blue: { 500: "#2196F3" },
   },
   Skeleton: () => <div data-testid="skeleton" />,
 }));
@@ -45,7 +45,7 @@ vi.mock("@/utils/projectCard", () => ({
 }));
 
 // Mock ErrorIndicator
-vi.mock("@/components/common/errorIndicator/ErrorIndicator", () => ({
+vi.mock("@/components/common/error-indicator/ErrorIndicator", () => ({
   default: ({ entityName }: any) => (
     <div data-testid="error-indicator">Error: {entityName}</div>
   ),

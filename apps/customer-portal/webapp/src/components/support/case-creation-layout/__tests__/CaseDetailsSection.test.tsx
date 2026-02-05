@@ -17,7 +17,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { CaseDetailsSection } from "../CaseDetailsSection";
+import { CaseDetailsSection } from "@components/support/case-creation-layout/CaseDetailsSection";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({

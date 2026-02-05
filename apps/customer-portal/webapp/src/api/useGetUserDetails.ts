@@ -16,10 +16,10 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@/providers/MockConfigProvider";
-import { mockUserDetails } from "@/models/mockData";
-import { type UserDetails } from "@/models/responses";
-import { useLogger } from "@/hooks/useLogger";
+import { useMockConfig } from "@providers/MockConfigProvider";
+import { mockUserDetails } from "@models/mockData";
+import { type UserDetails } from "@models/responses";
+import { useLogger } from "@hooks/useLogger";
 
 /**
  * Hook to get user details.

@@ -16,7 +16,7 @@
 
 import { render, screen, act } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { LoaderProvider, useLoader } from "../LoaderContext";
+import { LoaderProvider, useLoader } from "@context/linear-loader/LoaderContext";
 
 // Mock Oxygen UI
 vi.mock("@wso2/oxygen-ui", () => ({

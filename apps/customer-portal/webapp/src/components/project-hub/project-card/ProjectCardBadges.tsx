@@ -16,8 +16,8 @@
 
 import { Box, Chip, Form, Skeleton } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import { getStatusColor } from "@/utils/projectCard";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import { getStatusColor } from "@utils/projectCard";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 interface ProjectCardBadgesProps {
   projectKey: string;

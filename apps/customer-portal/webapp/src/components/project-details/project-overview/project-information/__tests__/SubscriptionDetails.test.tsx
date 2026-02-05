@@ -16,8 +16,8 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import SubscriptionDetails from "../SubscriptionDetails";
-import { SUBSCRIPTION_STATUS } from "@/constants/projectDetailsConstants";
+import SubscriptionDetails from "@components/project-details/project-overview/project-information/SubscriptionDetails";
+import { SUBSCRIPTION_STATUS } from "@constants/projectDetailsConstants";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -33,8 +33,8 @@ vi.mock("@wso2/oxygen-ui", () => ({
   ),
   Skeleton: () => <div data-testid="skeleton" />,
   colors: {
-    blue: { 700: "#1976d2" },
-    purple: { 400: "#ab47bc" },
+    blue: { 700: "#1976D2" },
+    purple: { 400: "#AB47BC" },
   },
 }));
 

@@ -16,7 +16,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChatInput from "@/components/support/novera-ai-assistant/novera-chat-page/ChatInput";
+import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/ChatInput";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -44,7 +44,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
   ),
   colors: {
     orange: {
-      700: "#c2410c",
+      700: "#C2410C",
     },
   },
 }));

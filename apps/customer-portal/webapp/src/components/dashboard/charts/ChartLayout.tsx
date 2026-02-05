@@ -16,9 +16,9 @@
 
 import { Grid } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
-import { ActiveCasesChart } from "./ActiveCasesChart";
-import { CasesTrendChart } from "./CasesTrendChart";
-import { OutstandingIncidentsChart } from "./OutstandingIncidentsChart";
+import { ActiveCasesChart } from "@components/dashboard/charts/ActiveCasesChart";
+import { CasesTrendChart } from "@components/dashboard/charts/CasesTrendChart";
+import { OutstandingIncidentsChart } from "@components/dashboard/charts/OutstandingIncidentsChart";
 
 interface ChartLayoutProps {
   outstandingCases: {

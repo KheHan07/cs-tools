@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ContactInfoCard from "../ContactInfoCard";
+import ContactInfoCard from "@components/project-details/project-overview/contact-info/ContactInfoCard";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -45,7 +45,7 @@ vi.mock("@/constants/projectDetailsConstants", () => ({
       role: "Role 2",
       email: "email2@example.com",
       icon: "icon-2",
-      bgColor: "#fff",
+      bgColor: "#FFF",
     },
   ],
 }));

@@ -17,7 +17,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { MemoryRouter, Routes, Route } from "react-router";
-import NoveraChatPage from "@/pages/NoveraChatPage";
+import NoveraChatPage from "@pages/NoveraChatPage";
 
 // Mock mockFunctions
 vi.mock("@/models/mockFunctions", () => ({
@@ -51,7 +51,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Divider: () => <hr />,
   colors: {
     orange: {
-      700: "#c2410c",
+      700: "#C2410C",
     },
   },
 }));
