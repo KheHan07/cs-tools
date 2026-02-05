@@ -18,8 +18,8 @@
 
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useLogger } from "@/hooks/useLogger";
-import LoggerProvider from "@/context/logger/LoggerProvider";
+import { useLogger } from "@hooks/useLogger";
+import LoggerProvider from "@context/logger/LoggerProvider";
 import { type PropsWithChildren } from "react";
 
 describe("useLogger", () => {

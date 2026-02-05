@@ -17,8 +17,8 @@
  */
 
 import { useContext } from "react";
-import LoggerContext from "@/context/logger/LoggerContext";
-import { type ILogger } from "@/utils/logger";
+import LoggerContext from "@context/logger/LoggerContext";
+import { type ILogger } from "@utils/logger";
 
 // Hook to access the logger from any component.
 export const useLogger = (): ILogger => {
