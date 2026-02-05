@@ -15,10 +15,10 @@
 // under the License.
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { getCaseCreationMetadata } from "@/models/mockFunctions";
-import { useLogger } from "@/hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@/constants/apiConstants";
-import type { CaseCreationMetadata } from "@/models/mockData";
+import { getCaseCreationMetadata } from "@models/mockFunctions";
+import { useLogger } from "@hooks/useLogger";
+import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import type { CaseCreationMetadata } from "@models/mockData";
 
 /**
  * Custom hook to fetch case creation metadata.

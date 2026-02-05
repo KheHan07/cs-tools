@@ -16,11 +16,11 @@
 
 import { useAsgardeo } from "@asgardeo/react";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { useMockConfig } from "@/providers/MockConfigProvider";
-import { getMockDashboardStats } from "@/models/mockFunctions";
-import { useLogger } from "@/hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@/constants/apiConstants";
-import type { DashboardMockStats } from "@/models/responses";
+import { useMockConfig } from "@providers/MockConfigProvider";
+import { getMockDashboardStats } from "@models/mockFunctions";
+import { useLogger } from "@hooks/useLogger";
+import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import type { DashboardMockStats } from "@models/responses";
 
 /**
  * Custom hook to fetch dashboard mock statistics.

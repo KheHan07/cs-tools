@@ -16,11 +16,11 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@/providers/MockConfigProvider";
-import { useLogger } from "@/hooks/useLogger";
-import { mockCaseMetadata } from "@/models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@/constants/apiConstants";
-import type { CaseMetadataResponse } from "@/models/responses";
+import { useMockConfig } from "@providers/MockConfigProvider";
+import { useLogger } from "@hooks/useLogger";
+import { mockCaseMetadata } from "@models/mockData";
+import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import type { CaseMetadataResponse } from "@models/responses";
 
 /**
  * Custom hook to fetch case filters for a specific project.
