@@ -25,13 +25,13 @@ import {
 } from "@wso2/oxygen-ui";
 import { Zap } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 import {
   getRecentActivityItems,
   type ActivityItem,
-} from "@/constants/projectDetailsConstants";
-import type { ProjectStatsResponse } from "@/models/responses";
+} from "@constants/projectDetailsConstants";
+import type { ProjectStatsResponse } from "@models/responses";
 
 interface RecentActivityCardProps {
   activity?: ProjectStatsResponse["recentActivity"];

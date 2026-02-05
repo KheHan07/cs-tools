@@ -26,10 +26,10 @@ import {
 } from "@wso2/oxygen-ui";
 import { Activity } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
-import type { ProjectStatsResponse } from "@/models/responses";
-import { statItems } from "@/constants/projectDetailsConstants";
+import type { ProjectStatsResponse } from "@models/responses";
+import { statItems } from "@constants/projectDetailsConstants";
 
 interface ProjectStatisticsCardProps {
   stats?: ProjectStatsResponse["projectStats"];

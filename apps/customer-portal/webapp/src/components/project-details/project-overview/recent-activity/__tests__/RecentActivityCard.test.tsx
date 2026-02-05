@@ -16,8 +16,8 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import RecentActivityCard from "../RecentActivityCard";
-import { getRecentActivityItems } from "@/constants/projectDetailsConstants";
+import RecentActivityCard from "@components/project-details/project-overview/recent-activity/RecentActivityCard";
+import { getRecentActivityItems } from "@constants/projectDetailsConstants";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
