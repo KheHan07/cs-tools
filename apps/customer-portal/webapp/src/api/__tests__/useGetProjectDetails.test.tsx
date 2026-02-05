@@ -17,8 +17,8 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import useGetProjectDetails from "@/api/useGetProjectDetails";
-import { mockProjectDetails } from "@/models/mockData";
+import useGetProjectDetails from "@api/useGetProjectDetails";
+import { mockProjectDetails } from "@models/mockData";
 import type { ReactNode } from "react";
 
 vi.mock("@/constants/apiConstants", async (importOriginal) => {

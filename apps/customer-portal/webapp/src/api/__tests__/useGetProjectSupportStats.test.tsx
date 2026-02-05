@@ -16,7 +16,7 @@
 
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
+import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
