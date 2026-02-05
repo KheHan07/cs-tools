@@ -16,8 +16,8 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import Header from "@/components/common/header/Header";
-import { mockProjects } from "@/models/mockData";
+import Header from "@components/common/header/Header";
+import { mockProjects } from "@models/mockData";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({

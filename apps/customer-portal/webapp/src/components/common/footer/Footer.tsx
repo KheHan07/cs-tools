@@ -18,7 +18,7 @@ import {
   COMPANY_NAME,
   PRIVACY_POLICY_URL,
   TERMS_OF_SERVICE_URL,
-} from "@/constants/appLayoutConstants";
+} from "@constants/appLayoutConstants";
 import { Footer as FooterUI } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 
