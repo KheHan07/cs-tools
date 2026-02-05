@@ -21,12 +21,12 @@ import { useNavigate, useParams } from "react-router";
 import { useGetCaseCreationDetails } from "@/api/useGetCaseCreationDetails";
 import useGetProjectDetails from "@/api/useGetProjectDetails";
 import { useLogger } from "@/hooks/useLogger";
-import { useLoader } from "@/context/linearLoader/LoaderContext";
-import { AIInfoCard } from "@/components/support/caseCreationLayout/AIInfoCard";
-import { BasicInformationSection } from "@/components/support/caseCreationLayout/BasicInformationSection";
-import { CaseCreationHeader } from "@/components/support/caseCreationLayout/CaseCreationHeader";
-import { CaseDetailsSection } from "@/components/support/caseCreationLayout/CaseDetailsSection";
-import { ConversationSummary } from "@/components/support/caseCreationLayout/ConversationSummary";
+import { useLoader } from "@/context/linear-loader/LoaderContext";
+import { AIInfoCard } from "@/components/support/case-creation-layout/AIInfoCard";
+import { BasicInformationSection } from "@/components/support/case-creation-layout/BasicInformationSection";
+import { CaseCreationHeader } from "@/components/support/case-creation-layout/CaseCreationHeader";
+import { CaseDetailsSection } from "@/components/support/case-creation-layout/CaseDetailsSection";
+import { ConversationSummary } from "@/components/support/case-creation-layout/ConversationSummary";
 import {
   getGeneratedIssueTitle,
   getGeneratedIssueDescription,

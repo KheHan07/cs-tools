@@ -17,7 +17,7 @@
 import { Box, Typography, Skeleton } from "@wso2/oxygen-ui";
 import { TrendingUp, TrendingDown } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import ErrorIndicator from "@/components/common/errorIndicator/ErrorIndicator";
+import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
 import { type TrendData } from "@/models/responses";
 
 interface TrendIndicatorProps {

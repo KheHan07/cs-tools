@@ -23,7 +23,7 @@ import {
 import { FolderOpen } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { ProjectListItem } from "@/models/responses";
-import ErrorIndicator from "@/components/common/errorIndicator/ErrorIndicator";
+import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
 
 // Props for the ProjectSwitcher component.
 interface ProjectSwitcherProps {

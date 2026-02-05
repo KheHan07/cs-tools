@@ -22,7 +22,7 @@ import { useMockConfig } from "@/providers/MockConfigProvider";
 import { User } from "@wso2/oxygen-ui-icons-react";
 import { useLogger } from "@/hooks/useLogger";
 import useGetUserDetails from "@/api/useGetUserDetails";
-import ErrorIndicator from "@/components/common/errorIndicator/ErrorIndicator";
+import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
 
 /**
  * User profile component.

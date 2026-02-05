@@ -18,8 +18,8 @@ import { useParams } from "react-router";
 import { useEffect, type JSX } from "react";
 import { Typography, Box } from "@wso2/oxygen-ui";
 import { useAsgardeo } from "@asgardeo/react";
-import CasesOverviewStatCard from "@/components/support/casesOverviewStats/CasesOverviewStatCard";
-import NoveraChatBanner from "@/components/support/noveraAIAssistant/noveraChatBanner/NoveraChatBanner";
+import CasesOverviewStatCard from "@/components/support/cases-overview-stats/CasesOverviewStatCard";
+import NoveraChatBanner from "@/components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
 import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
 import { useLogger } from "@/hooks/useLogger";
 

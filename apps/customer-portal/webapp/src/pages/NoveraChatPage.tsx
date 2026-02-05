@@ -17,9 +17,9 @@
 import { Box, Paper, Divider } from "@wso2/oxygen-ui";
 import { useState, useRef, useEffect, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
-import ChatHeader from "@/components/support/noveraAIAssistant/noveraChatPage/ChatHeader";
-import ChatInput from "@/components/support/noveraAIAssistant/noveraChatPage/ChatInput";
-import ChatMessageList from "@/components/support/noveraAIAssistant/noveraChatPage/ChatMessageList";
+import ChatHeader from "@/components/support/novera-ai-assistant/novera-chat-page/ChatHeader";
+import ChatInput from "@/components/support/novera-ai-assistant/novera-chat-page/ChatInput";
+import ChatMessageList from "@/components/support/novera-ai-assistant/novera-chat-page/ChatMessageList";
 import { getNoveraResponse } from "@/models/mockFunctions";
 
 export interface Message {

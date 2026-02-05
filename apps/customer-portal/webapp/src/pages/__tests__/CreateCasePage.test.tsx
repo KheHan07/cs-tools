@@ -20,7 +20,7 @@ import { describe, expect, it, vi } from "vitest";
 import { useGetCaseCreationDetails } from "@/api/useGetCaseCreationDetails";
 import useGetProjectDetails from "@/api/useGetProjectDetails";
 import CreateCasePage from "@/pages/CreateCasePage";
-import { LoaderProvider } from "@/context/linearLoader/LoaderContext";
+import { LoaderProvider } from "@/context/linear-loader/LoaderContext";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({

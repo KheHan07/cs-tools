@@ -21,7 +21,7 @@ import {
   Rocket,
   Server,
 } from "@wso2/oxygen-ui-icons-react";
-import type { TabOption } from "@/components/common/tabBar/TabBar";
+import type { TabOption } from "@/components/common/tab-bar/TabBar";
 import { colors } from "@wso2/oxygen-ui";
 import { User, Shield } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";

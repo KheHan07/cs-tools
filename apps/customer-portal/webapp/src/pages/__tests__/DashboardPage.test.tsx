@@ -20,7 +20,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import { DASHBOARD_STATS } from "@/constants/dashboardConstants";
 import { useGetDashboardMockStats } from "@/api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@/api/useGetProjectCasesStats";
-import { LoaderProvider } from "@/context/linearLoader/LoaderContext";
+import { LoaderProvider } from "@/context/linear-loader/LoaderContext";
 
 const mockNavigate = vi.fn();
 

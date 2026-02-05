@@ -25,7 +25,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { Info } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import ErrorIndicator from "@/components/common/errorIndicator/ErrorIndicator";
+import ErrorIndicator from "@/components/common/error-indicator/ErrorIndicator";
 import { TrendIndicator } from "./TrendIndicator";
 import { type StatCardColor } from "@/constants/dashboardConstants";
 import { type TrendData } from "@/models/responses";
