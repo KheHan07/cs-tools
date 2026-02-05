@@ -21,7 +21,7 @@ import {
   SUPPORT_TIER,
   PROJECT_TYPE,
   SYSTEM_HEALTH,
-} from "@/constants/projectDetailsConstants";
+} from "@constants/projectDetailsConstants";
 
 /**
  * Formats a date string into "MMM DD, YYYY" format.
