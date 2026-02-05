@@ -57,8 +57,8 @@ vi.mock("@wso2/oxygen-ui", () => ({
     Switchers: ({ children }: any) => <div>{children}</div>,
   },
   colors: {
-    blue: { 700: "#1d4ed8" },
-    purple: { 400: "#a78bfa" },
+    blue: { 700: "#1D4ED8" },
+    purple: { 400: "#A78BFA" },
   },
 }));
 

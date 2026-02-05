@@ -40,13 +40,13 @@ vi.mock("@wso2/oxygen-ui", () => ({
     Container: ({ children }: any) => <div>{children}</div>,
   },
   colors: {
-    orange: { 500: "#ff9800" },
-    green: { 500: "#4caf50" },
-    blue: { 500: "#2196f3" },
-    grey: { 500: "#9e9e9e" },
-    red: { 500: "#f44336" },
-    yellow: { 600: "#fdd835" },
-    purple: { 400: "#ab47bc" },
+    orange: { 500: "#FF9800" },
+    green: { 500: "#4CAF50" },
+    blue: { 500: "#2196F3" },
+    grey: { 500: "#9E9E9E" },
+    red: { 500: "#F44336" },
+    yellow: { 600: "#FDD835" },
+    purple: { 400: "#AB47BC" },
   },
 }));
 
