@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import LoginBackground from "../LoginBackground";
+import LoginBackground from "@components/login-page/LoginBackground";
 
 describe("LoginBackground", () => {
   it("should render the background image", () => {
