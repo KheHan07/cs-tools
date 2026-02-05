@@ -45,7 +45,7 @@ vi.mock("@/utils/projectCard", () => ({
 }));
 
 // Mock ErrorIndicator
-vi.mock("@/components/common/errorIndicator/ErrorIndicator", () => ({
+vi.mock("@/components/common/error-indicator/ErrorIndicator", () => ({
   default: ({ entityName }: any) => (
     <div data-testid="error-indicator">Error: {entityName}</div>
   ),
