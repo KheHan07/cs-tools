@@ -19,7 +19,6 @@ import type {
   ProjectListItem,
   ProjectDetails,
   UserDetails,
-  UserProfile,
 } from "@/models/responses";
 import {
   PROJECT_TYPE,
