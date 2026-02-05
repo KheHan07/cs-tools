@@ -23,7 +23,7 @@ import type { CaseCreationMetadata } from "@models/mockData";
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,
   colors: {
-    orange: { 700: "#c2410c" },
+    orange: { 700: "#C2410C" },
   },
   Divider: () => <hr />,
   Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,

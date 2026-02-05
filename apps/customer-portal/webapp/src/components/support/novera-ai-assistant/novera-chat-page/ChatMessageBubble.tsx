@@ -56,7 +56,7 @@ export default function ChatMessageBubble({
             flexShrink: 0,
           }}
         >
-          <Bot size={16} color="#ea580c" />
+          <Bot size={16} color="#C2410C" />
         </Paper>
       )}
       <Box sx={{ maxWidth: "80%" }}>

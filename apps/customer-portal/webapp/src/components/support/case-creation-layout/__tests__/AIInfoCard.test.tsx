@@ -26,7 +26,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
     <div data-testid="card-content">{children}</div>
   ),
   colors: {
-    orange: { 700: "#c2410c" },
+    orange: { 700: "#C2410C" },
   },
   Typography: ({ children }: any) => <span>{children}</span>,
 }));

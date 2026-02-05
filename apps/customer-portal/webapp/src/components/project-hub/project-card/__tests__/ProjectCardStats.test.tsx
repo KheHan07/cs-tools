@@ -27,7 +27,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
   },
   Typography: ({ children }: any) => <span>{children}</span>,
   colors: {
-    blue: { 500: "#2196f3" },
+    blue: { 500: "#2196F3" },
   },
   Skeleton: () => <div data-testid="skeleton" />,
 }));
