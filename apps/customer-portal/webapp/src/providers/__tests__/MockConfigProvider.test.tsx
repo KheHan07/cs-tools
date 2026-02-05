@@ -16,7 +16,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MockConfigProvider, useMockConfig } from "../MockConfigProvider";
+import { MockConfigProvider, useMockConfig } from "@providers/MockConfigProvider";
 
 // Test component to consume context
 const TestComponent = () => {

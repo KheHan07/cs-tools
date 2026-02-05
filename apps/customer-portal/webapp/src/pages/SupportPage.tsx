@@ -18,10 +18,10 @@ import { useParams } from "react-router";
 import { useEffect, type JSX } from "react";
 import { Typography, Box } from "@wso2/oxygen-ui";
 import { useAsgardeo } from "@asgardeo/react";
-import CasesOverviewStatCard from "@/components/support/cases-overview-stats/CasesOverviewStatCard";
-import NoveraChatBanner from "@/components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
-import { useGetProjectSupportStats } from "@/api/useGetProjectSupportStats";
-import { useLogger } from "@/hooks/useLogger";
+import CasesOverviewStatCard from "@components/support/cases-overview-stats/CasesOverviewStatCard";
+import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
+import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
+import { useLogger } from "@hooks/useLogger";
 
 /**
  * SupportPage component to display case details for a project.

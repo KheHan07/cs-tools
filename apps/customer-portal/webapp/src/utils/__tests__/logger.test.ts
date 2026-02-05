@@ -15,7 +15,7 @@
 // under the License.
 
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { Logger, LogLevel } from "@/utils/logger";
+import { Logger, LogLevel } from "@utils/logger";
 
 describe("Logger", () => {
   let consoleDebugSpy: any;
