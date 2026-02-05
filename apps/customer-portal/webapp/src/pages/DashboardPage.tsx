@@ -19,13 +19,13 @@ import { useNavigate, useParams } from "react-router";
 import { useEffect, type JSX } from "react";
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@/hooks/useLogger";
-import { useLoader } from "@/context/linearLoader/LoaderContext";
+import { useLoader } from "@/context/linear-loader/LoaderContext";
 import { useGetDashboardMockStats } from "@/api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@/api/useGetProjectCasesStats";
 import { DASHBOARD_STATS } from "@/constants/dashboardConstants";
 import { StatCard } from "@/components/dashboard/stats/StatCard";
 import ChartLayout from "@/components/dashboard/charts/ChartLayout";
-import CasesTable from "@/components/dashboard/casesTable/CasesTable";
+import CasesTable from "@/components/dashboard/cases-table/CasesTable";
 import { ArrowRight, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 
 /**
