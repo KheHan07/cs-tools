@@ -16,11 +16,11 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import DashboardPage from "@/pages/DashboardPage";
-import { DASHBOARD_STATS } from "@/constants/dashboardConstants";
-import { useGetDashboardMockStats } from "@/api/useGetDashboardMockStats";
-import { useGetProjectCasesStats } from "@/api/useGetProjectCasesStats";
-import { LoaderProvider } from "@/context/linear-loader/LoaderContext";
+import DashboardPage from "@pages/DashboardPage";
+import { DASHBOARD_STATS } from "@constants/dashboardConstants";
+import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
+import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
+import { LoaderProvider } from "@context/linear-loader/LoaderContext";
 
 const mockNavigate = vi.fn();
 

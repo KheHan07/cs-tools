@@ -17,7 +17,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import SupportPage from "@/pages/SupportPage";
+import SupportPage from "@pages/SupportPage";
 
 // Mock react-router
 vi.mock("react-router", async () => {

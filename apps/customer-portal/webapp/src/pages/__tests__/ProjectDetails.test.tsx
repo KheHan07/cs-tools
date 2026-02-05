@@ -16,7 +16,7 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import ProjectDetails from "../ProjectDetails";
+import ProjectDetails from "@pages/ProjectDetails";
 
 // Mock hooks
 const mockUseLogger = {
