@@ -14,19 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ChatHeader from "@/components/support/noveraAIAssistant/noveraChatPage/ChatHeader";
+import ChatMessageBubble from "@/components/support/novera-ai-assistant/novera-chat-page/ChatMessageBubble";
 
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div data-testid="box">{children}</div>,
-  Button: ({ children, onClick, startIcon }: any) => (
-    <button data-testid="button" onClick={onClick}>
-      {startIcon}
-      {children}
-    </button>
-  ),
+  Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
@@ -35,17 +30,32 @@ vi.mock("@wso2/oxygen-ui", () => ({
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   Bot: () => <svg data-testid="icon-bot" />,
-  ArrowLeft: () => <svg data-testid="icon-back" />,
 }));
 
-describe("ChatHeader", () => {
-  it("should call onBack when back button is clicked", () => {
-    const onBackMock = vi.fn();
-    render(<ChatHeader onBack={onBackMock} />);
+describe("ChatMessageBubble", () => {
+  it("should render user message correctly", () => {
+    const userMsg: any = {
+      id: "1",
+      text: "Hello Bot",
+      sender: "user",
+      timestamp: new Date(),
+    };
+    render(<ChatMessageBubble message={userMsg} />);
 
-    const backButton = screen.getByRole("button", { name: /Back to Support/i });
-    fireEvent.click(backButton);
+    expect(screen.getByText("Hello Bot")).toBeInTheDocument();
+    expect(screen.queryByTestId("icon-bot")).not.toBeInTheDocument();
+  });
 
-    expect(onBackMock).toHaveBeenCalled();
+  it("should render bot message with avatar correctly", () => {
+    const botMsg: any = {
+      id: "2",
+      text: "Hello User",
+      sender: "bot",
+      timestamp: new Date(),
+    };
+    render(<ChatMessageBubble message={botMsg} />);
+
+    expect(screen.getByText("Hello User")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-bot")).toBeInTheDocument();
   });
 });
