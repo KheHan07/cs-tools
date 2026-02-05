@@ -18,15 +18,15 @@ import { ListingTable } from "@wso2/oxygen-ui";
 import { type JSX, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
-import useGetProjectCases from "@/api/useGetProjectCases";
-import useGetCasesFilters from "@/api/useGetCasesFilters";
-import { useLoader } from "@/context/linear-loader/LoaderContext";
+import useGetProjectCases from "@api/useGetProjectCases";
+import useGetCasesFilters from "@api/useGetCasesFilters";
+import { useLoader } from "@context/linear-loader/LoaderContext";
 import FilterPopover, {
   type FilterField,
-} from "@/components/common/filter-panel/FilterPopover";
-import type { CaseSearchRequest } from "@/models/requests";
-import CasesTableHeader from "./CasesTableHeader";
-import CasesList from "./CasesList";
+} from "@components/common/filter-panel/FilterPopover";
+import type { CaseSearchRequest } from "@models/requests";
+import CasesTableHeader from "@components/dashboard/cases-table/CasesTableHeader";
+import CasesList from "@components/dashboard/cases-table/CasesList";
 
 interface CasesTableProps {
   projectId: string;

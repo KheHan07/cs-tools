@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ActiveCasesChart } from "../ActiveCasesChart";
+import { ActiveCasesChart } from "@components/dashboard/charts/ActiveCasesChart";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
