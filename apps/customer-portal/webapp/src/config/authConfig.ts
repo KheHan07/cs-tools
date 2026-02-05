@@ -14,6 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// Extend window interface to include our config
+declare global {
+  interface Window {
+    config: {
+      CUSTOMER_PORTAL_AUTH_BASE_URL: string;
+      CUSTOMER_PORTAL_AUTH_CLIENT_ID: string;
+      CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL: string;
+      CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL: string;
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: string;
+      CUSTOMER_PORTAL_THEME: string;
+      CUSTOMER_PORTAL_LOG_LEVEL: string;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_VISIBLE: boolean;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_SEVERITY?: string;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_TITLE?: string;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_MESSAGE?: string;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_ACTION_LABEL?: string;
+      CUSTOMER_PORTAL_MAINTENANCE_BANNER_ACTION_URL?: string;
+    };
+  }
+}
+
 interface AuthConfig {
   baseUrl: string;
   clientId: string;
@@ -22,12 +43,11 @@ interface AuthConfig {
 }
 
 const getAuthConfig = (): AuthConfig => {
-  const baseUrl = import.meta.env.CUSTOMER_PORTAL_AUTH_BASE_URL;
-  const clientId = import.meta.env.CUSTOMER_PORTAL_AUTH_CLIENT_ID;
-  const signInRedirectURL = import.meta.env
-    .CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL;
-  const signOutRedirectURL = import.meta.env
-    .CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL;
+  const config = window.config;
+  const baseUrl = config?.CUSTOMER_PORTAL_AUTH_BASE_URL;
+  const clientId = config?.CUSTOMER_PORTAL_AUTH_CLIENT_ID;
+  const signInRedirectURL = config?.CUSTOMER_PORTAL_AUTH_SIGN_IN_REDIRECT_URL;
+  const signOutRedirectURL = config?.CUSTOMER_PORTAL_AUTH_SIGN_OUT_REDIRECT_URL;
 
   const missingVars: string[] = [];
 
@@ -40,7 +60,7 @@ const getAuthConfig = (): AuthConfig => {
 
   if (missingVars.length > 0) {
     throw new Error(
-      `Auth Config Error: Missing required environment variables: ${missingVars.join(
+      `Auth Config Error: Missing required configuration: ${missingVars.join(
         ", ",
       )}`,
     );

@@ -16,6 +16,6 @@
 
 // Configuration for the Logger service.
 export const loggerConfig = {
-  level: import.meta.env.CUSTOMER_PORTAL_LOG_LEVEL || "ERROR",
+  level: window.config?.CUSTOMER_PORTAL_LOG_LEVEL || "ERROR",
   prefix: "CustomerPortal",
 };

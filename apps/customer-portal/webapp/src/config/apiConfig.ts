@@ -15,11 +15,12 @@
 // under the License.
 
 // Base URL for the API service.
-export const BACKEND_BASE_URL = import.meta.env
-  .CUSTOMER_PORTAL_BACKEND_BASE_URL;
+export const BACKEND_BASE_URL = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
 if (!BACKEND_BASE_URL) {
-  throw new Error("Missing required env variables: baseUrl");
+  throw new Error(
+    "Missing required configuration: CUSTOMER_PORTAL_BACKEND_BASE_URL",
+  );
 }
 
 // Interface for the API configuration.

@@ -66,7 +66,7 @@ export function useGetProjectStat(
 
       try {
         const idToken = await getIdToken();
-        const baseUrl = import.meta.env.CUSTOMER_PORTAL_BACKEND_BASE_URL;
+        const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
