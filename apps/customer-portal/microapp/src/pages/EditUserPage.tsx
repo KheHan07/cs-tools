@@ -1,15 +1,12 @@
 import { useState, type ReactNode } from "react";
 import { Avatar, Button, Card, pxToRem, Stack, TextField, Typography, useTheme } from "@wso2/oxygen-ui";
 import { Link, useLocation } from "react-router-dom";
-import { InvitationSummaryContent, RoleSelector } from "@components/features/users";
+import { InvitationSummaryContent, RoleSelector, type RoleName } from "@components/features/users";
 import { useProject } from "@context/project";
 
 import { MOCK_PROJECTS } from "@src/mocks/data/projects";
-import { MOCK_ROLES } from "@src/mocks/data/users";
 import { Clock4, Mail } from "@wso2/oxygen-ui-icons-react";
 import { stringAvatar } from "../utils/others";
-
-export type RoleName = (typeof MOCK_ROLES)[number]["name"];
 
 export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "edit" }) {
   const theme = useTheme();
