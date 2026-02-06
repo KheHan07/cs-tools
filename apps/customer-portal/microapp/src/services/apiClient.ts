@@ -108,7 +108,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.code === axios.isCancel(error)) {
+    if (axios.isCancel(error)) {
       return Promise.reject(error);
     }
     Logger.error(`API request failed`, {
