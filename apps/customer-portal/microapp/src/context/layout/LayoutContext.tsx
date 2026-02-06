@@ -14,11 +14,11 @@ export type LayoutContextType = {
   endSlot?: ReactNode;
   appBarSlots?: ReactNode;
   setTitleOverride: (title: string | undefined) => void;
-  setOverlineSlotOverride: (slot: ReactNode | string) => void;
-  setSubtitleSlotOverride: (slot: ReactNode | string) => void;
-  setStartSlotOverride: (slot: ReactNode) => void;
-  setEndSlotOverride: (slot: ReactNode) => void;
-  setAppBarSlotsOverride: (slot: ReactNode) => void;
+  setOverlineSlotOverride: (slot: ReactNode | string | undefined) => void;
+  setSubtitleSlotOverride: (slot: ReactNode | string | undefined) => void;
+  setStartSlotOverride: (slot: ReactNode | undefined) => void;
+  setEndSlotOverride: (slot: ReactNode | undefined) => void;
+  setAppBarSlotsOverride: (slot: ReactNode | undefined) => void;
 
   /* TabBar Properties */
   activeTabIndex: number;
