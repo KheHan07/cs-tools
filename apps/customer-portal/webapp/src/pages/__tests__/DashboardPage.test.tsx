@@ -42,14 +42,6 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-// Mock @asgardeo/react
-vi.mock("@asgardeo/react", () => ({
-  useAsgardeo: () => ({
-    isLoading: false,
-    state: { isAuthenticated: true },
-  }),
-}));
-
 // Mock useLogger
 vi.mock("@hooks/useLogger", () => ({
   useLogger: () => ({

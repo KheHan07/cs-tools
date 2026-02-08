@@ -38,8 +38,9 @@ export function getBlockDisplay(tag: string): {
  * @returns Markdown string.
  */
 export function htmlToMarkdown(html: string): string {
-  const div = document.createElement("div");
-  div.innerHTML = html;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const body = doc.body;
   let out = "";
   const walk = (node: Node): string => {
     if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? "";
@@ -102,11 +103,17 @@ export function htmlToMarkdown(html: string): string {
           Array.from(node.childNodes).map(walk).join("") +
           (children.trim() ? "\n\n" : "")
         );
+      case "script":
+      case "style":
+      case "iframe":
+      case "object":
+      case "embed":
+        return "";
       default:
         return Array.from(node.childNodes).map(walk).join("");
     }
   };
-  Array.from(div.childNodes).forEach((n) => {
+  Array.from(body.childNodes).forEach((n) => {
     out += walk(n);
   });
   return out.replace(/\n{3,}/g, "\n\n").trim() || "";
@@ -141,22 +148,55 @@ export function markdownToHtml(md: string): string {
   );
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
 
+  // Protect code blocks before splitting by blank lines
+  const placeholders: string[] = [];
+  html = html.replace(/<pre>[\s\S]*?<\/pre>/g, (match) => {
+    const id = `__BT_CODE_BLOCK_PLACEHOLDER_${placeholders.length}__`;
+    placeholders.push(match);
+    return id;
+  });
+
+  // Handle unordered lists
+  html = html.replace(/^[\t ]*[*+-] (.+)(\n[\t ]*[*+-] (.+))*/gm, (match) => {
+    const items = match
+      .split("\n")
+      .map((line) => `<li>${line.replace(/^[\t ]*[*+-] /, "").trim()}</li>`)
+      .join("");
+    return `<ul>${items}</ul>`;
+  });
+
+  // Handle ordered lists
+  html = html.replace(/^[\t ]*\d+\. (.+)(\n[\t ]*\d+\. (.+))*/gm, (match) => {
+    const items = match
+      .split("\n")
+      .map((line) => `<li>${line.replace(/^[\t ]*\d+\. /, "").trim()}</li>`)
+      .join("");
+    return `<ol>${items}</ol>`;
+  });
+
   const blocks = html.split(/(\n\s*\n|<hr\/>)/).filter((b) => b.trim() !== "");
-  const result = blocks
+  let result = blocks
     .map((block) => {
       const t = block.trim();
       if (t === "") return "";
       if (t === "<hr/>") return "<hr/>";
+      // Don't wrap code block placeholders in <p> labels
       if (
         t.startsWith("<h") ||
-        t.startsWith("<pre") ||
         t.startsWith("<ul") ||
-        t.startsWith("<ol")
-      )
+        t.startsWith("<ol") ||
+        t.startsWith("__BT_CODE_BLOCK_PLACEHOLDER_")
+      ) {
         return t;
+      }
       return `<p>${t.replace(/\n/g, "<br/>")}</p>`;
     })
     .join("");
+
+  // Restore code blocks
+  placeholders.forEach((content, i) => {
+    result = result.replace(`__BT_CODE_BLOCK_PLACEHOLDER_${i}__`, content);
+  });
 
   return result || "";
 }
@@ -402,10 +442,41 @@ export function toggleList(type: "ul" | "ol"): void {
   if (node && node.nodeType === Node.ELEMENT_NODE) {
     const el = node as HTMLElement;
     if (el.tagName === "LI") {
-      // Basic unwrap if already in list (could be improved)
+      const parentList = el.parentNode as HTMLElement;
+      if (!parentList) return;
+
+      const outerParent = parentList.parentNode;
+      if (!outerParent) return;
+
+      // Create the new paragraph for the current LI
       const p = document.createElement("p");
       p.innerHTML = el.innerHTML;
-      el.parentNode?.parentNode?.replaceChild(p, el.parentNode);
+
+      // Extract all siblings after the current LI
+      const nextSiblings: Node[] = [];
+      let sibling = el.nextSibling;
+      while (sibling) {
+        nextSiblings.push(sibling);
+        sibling = sibling.nextSibling;
+      }
+
+      // If there are next siblings, we move them to a new list of the same type
+      if (nextSiblings.length > 0) {
+        const newList = document.createElement(parentList.tagName);
+        nextSiblings.forEach((s) => newList.appendChild(s));
+        outerParent.insertBefore(newList, parentList.nextSibling);
+      }
+
+      // Insert the paragraph after the original (possibly truncated) list
+      outerParent.insertBefore(p, parentList.nextSibling);
+
+      // Remove the targeted LI
+      el.remove();
+
+      // If the original list is now empty, remove it
+      if (parentList.childNodes.length === 0) {
+        parentList.remove();
+      }
     } else {
       // Wrap current block in a list
       const list = document.createElement(type);

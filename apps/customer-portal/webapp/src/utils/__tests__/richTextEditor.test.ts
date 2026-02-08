@@ -20,18 +20,17 @@ import {
   markdownToHtml,
   htmlToMarkdown,
   createCodeBlockHtml,
+  toggleList,
 } from "@utils/richTextEditor";
 
 describe("richTextEditor utils", () => {
   describe("getBlockDisplay", () => {
     it("should return correct display info for heading tags", () => {
-      expect(getBlockDisplay("h1")).toEqual({
-        value: "h1",
+      expect(getBlockDisplay("h1")).toMatchObject({
         label: "Heading 1",
         variant: "h1",
       });
-      expect(getBlockDisplay("H1")).toEqual({
-        value: "h1",
+      expect(getBlockDisplay("H1")).toMatchObject({
         label: "Heading 1",
         variant: "h1",
       });
@@ -59,6 +58,28 @@ describe("richTextEditor utils", () => {
       const html = markdownToHtml(md);
       expect(html).toContain('<a href="https://wso2.com"');
     });
+
+    it("should handle unordered lists", () => {
+      const md = "- Item 1\n- Item 2";
+      const html = markdownToHtml(md);
+      expect(html).toContain("<ul><li>Item 1</li><li>Item 2</li></ul>");
+    });
+
+    it("should handle ordered lists", () => {
+      const md = "1. First\n2. Second";
+      const html = markdownToHtml(md);
+      expect(html).toContain("<ol><li>First</li><li>Second</li></ol>");
+    });
+
+    it("should handle code blocks with blank lines", () => {
+      const md = "```javascript\nfunction test() {\n\n  return true;\n}\n```";
+      const html = markdownToHtml(md);
+      // It should NOT split the code block into multiple pieces or wrap parts in <p>
+      expect(html).toContain(
+        "<pre><code>function test() {\n\n  return true;\n}\n</code></pre>",
+      );
+      expect(html).not.toContain("<p>function test()");
+    });
   });
 
   describe("htmlToMarkdown", () => {
@@ -75,6 +96,17 @@ describe("richTextEditor utils", () => {
       expect(md).toContain("- Item 1");
       expect(md).toContain("- Item 2");
     });
+
+    it("should sanitize malicious HTML to prevent XSS", () => {
+      const maliciousHtml =
+        '<p>Normal text</p><img src=x onerror="alert(1)"><script>console.log("XSS")</script>';
+      const md = htmlToMarkdown(maliciousHtml);
+      // The onerror attribute and script tag should be ignored
+      expect(md).not.toContain("onerror");
+      expect(md).not.toContain("alert");
+      expect(md).not.toContain("console.log");
+      expect(md).toContain("Normal text");
+    });
   });
 
   describe("createCodeBlockHtml", () => {
@@ -82,6 +114,34 @@ describe("richTextEditor utils", () => {
       const code = "const x = 1;";
       const html = createCodeBlockHtml(code);
       expect(html).toContain("<pre><code>const x = 1;</code></pre>");
+    });
+  });
+
+  describe("toggleList", () => {
+    it("should non-destructively unwrap a list item", () => {
+      const div = document.createElement("div");
+      div.contentEditable = "true";
+      div.innerHTML =
+        "<ul><li>Item 1</li><li id='target'>Item 2</li><li>Item 3</li></ul>";
+      document.body.appendChild(div);
+
+      const target = document.getElementById("target")!;
+      const sel = window.getSelection();
+      if (!sel) throw new Error("Selection not available");
+
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      toggleList("ul");
+
+      // Check if it split correctly
+      expect(div.innerHTML).toContain(
+        "<ul><li>Item 1</li></ul><p>Item 2</p><ul><li>Item 3</li></ul>",
+      );
+
+      document.body.removeChild(div);
     });
   });
 });

@@ -26,7 +26,7 @@ import { AIInfoCard } from "@components/support/case-creation-layout/header/AIIn
 import { BasicInformationSection } from "@components/support/case-creation-layout/sections/basic-information-section/BasicInformationSection";
 import { CaseCreationHeader } from "@components/support/case-creation-layout/header/CaseCreationHeader";
 import { CaseDetailsSection } from "@components/support/case-creation-layout/sections/case-details-section/CaseDetailsSection";
-import { ConversationSummary } from "@components/support/case-creation-layout/sections/converstion-summary-section/ConversationSummary";
+import { ConversationSummary } from "@components/support/case-creation-layout/sections/conversation-summary-section/ConversationSummary";
 import {
   getGeneratedIssueTitle,
   getGeneratedIssueDescription,
