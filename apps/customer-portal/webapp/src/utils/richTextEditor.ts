@@ -154,7 +154,8 @@ export function markdownToHtml(md: string): string {
   html = html.replace(/(^|\W)_(.+?)_(?=\W|$)/g, "$1<em>$2</em>");
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    (_m, text, url) =>
+      `<a href="${sanitizeUrl(url)}" target="_blank" rel="noopener">${text}</a>`,
   );
 
   // 4. Restore code spans
@@ -224,6 +225,18 @@ export function markdownToHtml(md: string): string {
  * @param text - The text to escape.
  * @returns Escaped HTML string.
  */
+const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
+
+/**
+ * Sanitizes a URL by allowing only safe protocols.
+ * @param url - The URL to sanitize.
+ * @returns Sanitized URL or an empty string if unsafe.
+ */
+function sanitizeUrl(url: string): string {
+  const decoded = url.replace(/&amp;/g, "&"); // un-escape for check
+  return SAFE_URL_PATTERN.test(decoded.trim()) ? url : "";
+}
+
 export function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")

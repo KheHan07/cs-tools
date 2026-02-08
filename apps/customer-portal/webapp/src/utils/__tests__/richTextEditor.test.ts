@@ -59,6 +59,22 @@ describe("richTextEditor utils", () => {
       expect(html).toContain('<a href="https://wso2.com"');
     });
 
+    it("should sanitize dangerous link protocols to prevent XSS", () => {
+      const protocols = [
+        "javascript:alert(1)",
+        "data:text/html,<script>alert(1)</script>",
+        "vbscript:msgbox('hi')",
+        "JAVASCRIPT:alert(1)",
+      ];
+
+      protocols.forEach((uri) => {
+        const md = `[click me](${uri})`;
+        const html = markdownToHtml(md);
+        expect(html).toContain('<a href=""');
+        expect(html).not.toContain(uri);
+      });
+    });
+
     it("should handle unordered lists", () => {
       const md = "- Item 1\n- Item 2";
       const html = markdownToHtml(md);
@@ -97,8 +113,7 @@ describe("richTextEditor utils", () => {
         "This is a list:\n- <img src=x onerror=alert(1)>\n- Normal item";
       const html = markdownToHtml(md);
       expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
-      expect(html).not.toContain("<img src=x");
-      expect(html).not.toContain("onerror");
+      expect(html).not.toMatch(/<img[^>]*onerror/);
     });
 
     it("should protect markdown markup inside inline code spans", () => {
