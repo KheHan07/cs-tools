@@ -63,13 +63,13 @@ export function getChatActionColor(action: ChatAction): ChatActionState {
  */
 export function getChatStatusColor(status: string): string {
   const normalized = status?.toLowerCase() || "";
-  if (normalized.includes(ChatStatus.RESOLVED)) {
+  if (normalized.includes(ChatStatus.RESOLVED.toLowerCase())) {
     return "success.main";
   }
-  if (normalized.includes(ChatStatus.STILL_OPEN)) {
+  if (normalized.includes(ChatStatus.STILL_OPEN.toLowerCase())) {
     return "info.main";
   }
-  if (normalized.includes(ChatStatus.ABANDONED)) {
+  if (normalized.includes(ChatStatus.ABANDONED.toLowerCase())) {
     return "error.main";
   }
   return "secondary.main";
