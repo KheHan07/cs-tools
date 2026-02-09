@@ -17,8 +17,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getChatStatusAction,
-  getChatStatusChipSx,
-  getChatStatusRowSx,
+  getChatStatusColor,
   formatRelativeTime,
 } from "@utils/support";
 
@@ -36,35 +35,21 @@ describe("support utils", () => {
     });
   });
 
-  describe("getChatStatusChipSx", () => {
-    it("should return green sx for Resolved", () => {
-      const sx = getChatStatusChipSx("Resolved") as any;
-      expect(sx.bgcolor).toBeDefined();
-      expect(sx.color).toBeDefined();
-      expect(sx.borderColor).toBeDefined();
+  describe("getChatStatusColor", () => {
+    it("should return success.main for Resolved", () => {
+      expect(getChatStatusColor("Resolved")).toBe("success.main");
     });
 
-    it("should return blue sx for Still Open", () => {
-      const sx = getChatStatusChipSx("Still Open") as any;
-      expect(sx.bgcolor).toBeDefined();
-      expect(sx.color).toBeDefined();
+    it("should return info.main for Still Open", () => {
+      expect(getChatStatusColor("Still Open")).toBe("info.main");
     });
 
-    it("should return grey sx for Abandoned", () => {
-      const sx = getChatStatusChipSx("Abandoned") as any;
-      expect(sx.bgcolor).toBeDefined();
-    });
-  });
-
-  describe("getChatStatusRowSx", () => {
-    it("should return green tint for Resolved", () => {
-      const sx = getChatStatusRowSx("Resolved") as any;
-      expect(sx.bgcolor).toBeDefined();
+    it("should return error.main for Abandoned", () => {
+      expect(getChatStatusColor("Abandoned")).toBe("error.main");
     });
 
-    it("should return blue tint for Still Open", () => {
-      const sx = getChatStatusRowSx("Still Open") as any;
-      expect(sx.bgcolor).toBeDefined();
+    it("should return secondary.main for others", () => {
+      expect(getChatStatusColor("")).toBe("secondary.main");
     });
   });
 
