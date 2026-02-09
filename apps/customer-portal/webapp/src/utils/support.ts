@@ -14,8 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleQuestionMark,
+  Clock,
+  MessageCircle,
+} from "@wso2/oxygen-ui-icons-react";
 import { ChatAction, ChatStatus } from "@constants/supportConstants";
 import type { Theme } from "@wso2/oxygen-ui";
+import { type ComponentType } from "react";
 
 export type ChatActionState =
   | "primary"
@@ -154,4 +162,21 @@ export function deriveFilterLabels(id: string): {
   }`;
 
   return { allLabel, label };
+}
+
+/**
+ * Returns the icon component for a given case status label.
+ *
+ * @param statusLabel - The case status label (e.g., "Open", "Working in Progress").
+ * @returns {ComponentType<any>} The icon component.
+ */
+export function getStatusIcon(statusLabel?: string): ComponentType<any> {
+  const normalized = statusLabel?.toLowerCase() || "";
+  if (normalized.includes("open")) return CircleAlert;
+  if (normalized.includes("progress")) return Clock;
+  if (normalized.includes("awaiting")) return MessageCircle;
+  if (normalized.includes("waiting")) return CircleQuestionMark;
+  if (normalized.includes("resolved") || normalized.includes("closed"))
+    return CircleCheck;
+  return CircleAlert;
 }
