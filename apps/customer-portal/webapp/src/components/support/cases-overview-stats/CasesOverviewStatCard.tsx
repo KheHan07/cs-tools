@@ -36,13 +36,7 @@ export default function CasesOverviewStatCard({
 }: CasesOverviewStatCardProps): JSX.Element {
   return (
     <Box>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          mb: 3,
-        }}
-      >
+      <Grid container spacing={2}>
         {SUPPORT_STAT_CONFIGS.map((stat) => {
           const SecondaryIcon = stat.secondaryIcon;
 
