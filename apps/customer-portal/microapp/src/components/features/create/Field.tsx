@@ -8,21 +8,16 @@ import {
   type SelectChangeEvent,
 } from "@wso2/oxygen-ui";
 
-export function SelectField({
-  name,
-  label,
-  options,
-  value = 0,
-  startAdornment,
-  onChange,
-}: {
+interface SelectFieldProps {
   name: string;
   label: string;
   options: { value: number; label: string }[];
   value?: number;
   startAdornment?: React.ReactNode;
   onChange?: (event: SelectChangeEvent<number>) => void;
-}) {
+}
+
+export function SelectField({ name, label, options, value = 0, startAdornment, onChange }: SelectFieldProps) {
   return (
     <FormControl component={Stack} gap={1} fullWidth>
       <InputLabel>{label}</InputLabel>

@@ -2,7 +2,13 @@ import { Stack, Typography, pxToRem } from "@wso2/oxygen-ui";
 import type { LucideIcon } from "@wso2/oxygen-ui-icons-react";
 import type { ReactNode } from "react";
 
-export function InfoField({ label, value, icon }: { label: string; value: string | ReactNode; icon?: LucideIcon }) {
+interface InfoFieldProps {
+  label: string;
+  value: string | ReactNode;
+  icon?: LucideIcon;
+}
+
+export function InfoField({ label, value, icon }: InfoFieldProps) {
   const Icon = icon;
 
   return (

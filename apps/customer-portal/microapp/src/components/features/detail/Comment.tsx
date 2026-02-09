@@ -1,6 +1,11 @@
 import { Card, Stack, Typography } from "@wso2/oxygen-ui";
+interface CommentProps {
+  children: string;
+  author: string;
+  timestamp: string;
+}
 
-export function Comment({ children, author, timestamp }: { children: string; author: string; timestamp: string }) {
+export function Comment({ children, author, timestamp }: CommentProps) {
   return (
     <Card component={Stack} p={1} gap={1.5} sx={{ bgcolor: "background.default" }}>
       <Stack direction="row" justifyContent="space-between">
