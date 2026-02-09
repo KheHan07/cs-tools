@@ -131,11 +131,19 @@ export default function OutstandingCasesList({
                 label={c.status?.label ?? "—"}
                 icon={<Clock size={12} />}
                 sx={{
-                  px: 0.5,
                   bgcolor: alpha(resolvedColor, 0.1),
                   color: resolvedColor,
+                  px: 0,
+                  height: 20,
+                  fontSize: "0.75rem",
                   "& .MuiChip-icon": {
                     color: "inherit",
+                    ml: "6px",
+                    mr: "6px",
+                  },
+                  "& .MuiChip-label": {
+                    pl: 0,
+                    pr: "6px",
                   },
                 }}
               />
