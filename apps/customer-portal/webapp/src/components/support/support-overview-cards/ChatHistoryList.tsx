@@ -133,13 +133,15 @@ export default function ChatHistoryList({
                     •
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {item.messages} messages
+                    {item.messages}{" "}
+                    {item.messages === 1 ? "message" : "messages"}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     •
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {item.kbArticles} KB articles
+                    {item.kbArticles}{" "}
+                    {item.kbArticles === 1 ? "KB article" : "KB articles"}
                   </Typography>
                 </Stack>
               </Box>
