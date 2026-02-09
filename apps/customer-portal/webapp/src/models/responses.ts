@@ -195,6 +195,7 @@ export interface CaseMetadataResponse {
   statuses: MetadataItem[];
   severities: MetadataItem[];
   caseTypes: MetadataItem[];
+  deployments: MetadataItem[];
 }
 
 // Chat history list item (support chat session summary).

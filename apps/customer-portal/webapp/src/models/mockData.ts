@@ -315,10 +315,15 @@ export const mockCaseMetadata = {
     },
     { id: "b9bc97ee1b3df0106a67caa1604bcb7f", label: "Cloud Query" },
     { id: "bfa1473c1bbcb410cb6898aebd4bcb52", label: "Hosting" },
-    { id: "c10c0ffd1b18f010cb6898aebd4bcb0f", label: "Task" },
     { id: "e0eb43fd1b18f010cb6898aebd4bcb3c", label: "Improvement" },
     { id: "e30dbe1b1b319950d64e64a2604bcb75", label: "Test" },
     { id: "f46103f81bbcb410cb6898aebd4bcb27", label: "Hosting Task" },
+  ],
+  deployments: [
+    { id: "deployment-dev", label: "Development" },
+    { id: "deployment-prod", label: "Production" },
+    { id: "deployment-qa", label: "QA" },
+    { id: "deployment-staging", label: "Staging" },
   ],
 };
 
