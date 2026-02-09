@@ -49,12 +49,12 @@ describe("casesTable utils", () => {
   });
 
   describe("getStatusColor", () => {
-    it("should return 'primary.main' for open status", () => {
-      expect(getStatusColor("Open")).toBe("primary.main");
+    it("should return 'info.main' for open status", () => {
+      expect(getStatusColor("Open")).toBe("info.main");
     });
 
-    it("should return 'info.main' for awaiting response", () => {
-      expect(getStatusColor("Awaiting Response")).toBe("info.main");
+    it("should return 'primary.main' for awaiting response", () => {
+      expect(getStatusColor("Awaiting Response")).toBe("primary.main");
     });
 
     it("should return 'warning.main' for in progress", () => {

@@ -64,6 +64,9 @@ export const SUPPORT_STAT_CONFIGS: SupportStatConfig[] = [
   },
 ];
 
+// Number of outstanding cases to show on support overview cards.
+export const SUPPORT_OVERVIEW_CASES_LIMIT = 5;
+
 // Rich text editor constants
 export const RICH_TEXT_HISTORY_LIMIT = 50;
 export const RICH_TEXT_UNDO_DEBOUNCE_MS = 600;
