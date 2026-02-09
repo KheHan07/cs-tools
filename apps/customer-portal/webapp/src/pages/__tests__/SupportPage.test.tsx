@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import React, { type ReactElement } from "react";
+import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -57,6 +57,11 @@ vi.mock("@asgardeo/react", () => ({
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div data-testid="box">{children}</div>,
+  Stack: ({ children, spacing }: any) => (
+    <div data-testid="stack" data-spacing={spacing}>
+      {children}
+    </div>
+  ),
   Grid: ({ children, container, spacing, size, sx }: any) => (
     <div
       data-testid={container ? "grid-container" : "grid-item"}
@@ -145,13 +150,13 @@ vi.mock("@api/useGetProjectSupportStats", () => ({
 }));
 
 // Mock useGetProjectCases (avoids pulling in useAsgardeo)
-vi.mock("@/api/useGetProjectCases", () => ({
+vi.mock("@api/useGetProjectCases", () => ({
   __esModule: true,
   default: () => ({ data: { cases: [] }, isLoading: false }),
 }));
 
 // Mock useGetChatHistory
-vi.mock("@/api/useGetChatHistory", () => ({
+vi.mock("@api/useGetChatHistory", () => ({
   useGetChatHistory: () => ({ data: { chatHistory: [] } }),
 }));
 

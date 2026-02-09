@@ -63,15 +63,17 @@ export default function SupportOverviewCard({
 
   return (
     <Paper
-      sx={{
-        p: 2.5,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        height: "100%",
-        width: "100%",
-        ...sx,
-      }}
+      sx={[
+        {
+          p: 2.5,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          height: "100%",
+          width: "100%",
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
         <Paper
