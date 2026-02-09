@@ -92,7 +92,11 @@ export default function SupportPage(): JSX.Element {
 
   return (
     <Stack spacing={3}>
-      <CasesOverviewStatCard isLoading={isActuallyLoading} stats={stats} />
+      <CasesOverviewStatCard
+        isLoading={isActuallyLoading}
+        isError={isError}
+        stats={stats}
+      />
       <NoveraChatBanner />
       <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
         <Grid size={{ xs: 12, lg: 6 }} sx={{ display: "flex" }}>
@@ -102,7 +106,7 @@ export default function SupportPage(): JSX.Element {
             icon={FileText}
             iconVariant="orange"
             footerButtonLabel="View all cases"
-            onFooterClick={() => navigate("../dashboard")}
+            onFooterClick={() => navigate("cases")}
           >
             <OutstandingCasesList cases={cases} isLoading={isCasesLoading} />
           </SupportOverviewCard>
