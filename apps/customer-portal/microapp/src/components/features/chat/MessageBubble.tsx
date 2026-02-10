@@ -59,6 +59,9 @@ export function MessageBubble({ author, blocks, timestamp = "Just Now", sx }: Ch
                     ))}
                   </Stack>
                 );
+
+              default:
+                return null;
             }
           })}
         </Stack>
