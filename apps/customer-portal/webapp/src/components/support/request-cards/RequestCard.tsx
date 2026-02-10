@@ -72,8 +72,14 @@ export default function RequestCard({
     main?: string;
   };
 
-  const iconBgColor = alpha(palette.light ?? palette.main ?? "secondary", 0.1);
-  const infoBoxBgColor = alpha(palette.light ?? palette.main ?? "primary", 0.1);
+  const iconBgColor = alpha(
+    palette.light ?? palette.main ?? theme.palette.grey[300],
+    0.1,
+  );
+  const infoBoxBgColor = alpha(
+    palette.light ?? palette.main ?? theme.palette.grey[300],
+    0.1,
+  );
 
   return (
     <Paper
