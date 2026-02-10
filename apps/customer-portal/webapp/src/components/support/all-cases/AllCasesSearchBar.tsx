@@ -50,7 +50,7 @@ export interface AllCasesSearchBarProps {
 }
 
 /**
- * AllCasesSearchBar component with search input and filters toggle button.
+ * Component with search input and filters toggle button.
  *
  * @param {AllCasesSearchBarProps} props - Search term, change handler, and filters toggle.
  * @returns {JSX.Element} The rendered search bar.

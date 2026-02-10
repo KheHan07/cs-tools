@@ -25,6 +25,14 @@ export interface SupportStatGridProps<T extends string> {
   stats: Partial<Record<T, number>> | undefined | null;
   isError?: boolean;
   entityName?: string;
+  spacing?: number;
+  itemSize?: {
+    xs?: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+    xl?: number;
+  };
 }
 
 /**
@@ -39,9 +47,11 @@ export default function SupportStatGrid<T extends string>({
   stats,
   isError,
   entityName = "statistics",
+  spacing = 2,
+  itemSize = { xs: 12, sm: 6, md: 3 },
 }: SupportStatGridProps<T>): JSX.Element {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={spacing}>
       {configs.map((stat) => {
         const SecondaryIcon = stat.secondaryIcon;
         const Icon = stat.icon;
@@ -49,11 +59,7 @@ export default function SupportStatGrid<T extends string>({
         return (
           <Grid
             key={stat.key}
-            size={{
-              xs: 12,
-              sm: 6,
-              md: 3,
-            }}
+            size={itemSize}
             sx={{
               position: "relative",
             }}
@@ -86,7 +92,7 @@ export default function SupportStatGrid<T extends string>({
                 ) : isError ? (
                   <ErrorIndicator entityName={entityName} />
                 ) : (
-                  (stats?.[stat.key] ?? 0)
+                  (stats?.[stat.key] ?? "--")
                 )
               }
               icon={<Icon />}

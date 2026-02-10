@@ -20,13 +20,17 @@ import AllCasesList from "@components/support/all-cases/AllCasesList";
 import { mockCases } from "@models/mockData";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 
+// Mock the table utils
+vi.mock("@utils/casesTable", () => ({
+  getPriorityColor: vi.fn(() => "error"),
+  getStatusColor: vi.fn(() => "success.main"),
+}));
+
 // Mock the support utils
 vi.mock("@utils/support", () => ({
-  getStatusIcon: vi.fn(() => () => <div data-testid="status-icon" />),
-  getStatusColor: vi.fn(() => "success.main"),
-  getPriorityColor: vi.fn(() => "error"),
-  resolveColorFromTheme: vi.fn(() => "#000"),
   formatRelativeTime: vi.fn(() => "2 hours ago"),
+  getStatusIcon: vi.fn(() => () => <div data-testid="status-icon" />),
+  resolveColorFromTheme: vi.fn(() => "#000000"),
 }));
 
 describe("AllCasesList", () => {

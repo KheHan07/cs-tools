@@ -15,6 +15,7 @@
 // under the License.
 
 import {
+  Activity,
   Bot,
   CircleAlert,
   CircleCheck,
@@ -24,6 +25,7 @@ import {
   MessageCircle,
   MessageSquare,
   TrendingUp,
+  Zap,
 } from "@wso2/oxygen-ui-icons-react";
 import { type ComponentType } from "react";
 import type {
@@ -58,6 +60,39 @@ export interface SupportStatConfig<Key = keyof ProjectSupportStats> {
   label: string;
   secondaryIcon?: ComponentType;
 }
+
+/**
+ * Valid keys for project time tracking statistics.
+ */
+export type TimeTrackingStatKey =
+  | "totalHours"
+  | "billableHours"
+  | "nonBillableHours";
+
+/**
+ * Configuration for the time tracking statistics cards.
+ */
+export const TIME_TRACKING_STAT_CONFIGS: SupportStatConfig<TimeTrackingStatKey>[] =
+  [
+    {
+      icon: Clock,
+      iconColor: "primary",
+      key: "totalHours",
+      label: "Total Hours",
+    },
+    {
+      icon: Zap,
+      iconColor: "success",
+      key: "billableHours",
+      label: "Billable Hours",
+    },
+    {
+      icon: Activity,
+      iconColor: "info",
+      key: "nonBillableHours",
+      label: "Non-Billable Hours",
+    },
+  ];
 
 /**
  * Valid keys for all cases statistics.
@@ -231,12 +266,10 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
     filterKey: "caseTypes",
     id: "category",
     metadataKey: "caseTypes",
-    useLabelAsValue: true,
   },
   {
     filterKey: "deploymentId",
     id: "deployment",
     metadataKey: "deployments",
-    useLabelAsValue: true,
   },
 ];

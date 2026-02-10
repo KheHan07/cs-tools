@@ -18,7 +18,7 @@ import { Box, Card, Stack, Skeleton } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 
 /**
- * AllCasesListSkeleton component to display loading state for the all cases list.
+ * Component to display loading state for the all cases list.
  *
  * @returns {JSX.Element} The rendered skeleton list.
  */
