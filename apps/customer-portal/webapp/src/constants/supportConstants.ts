@@ -101,3 +101,21 @@ export const RICH_TEXT_BLOCK_TAGS: Array<{
   { value: "body2", label: "Body 2", variant: "body2" },
   { value: "caption", label: "Caption", variant: "caption" },
 ];
+
+export const SERVICE_REQUEST_BULLET_ITEMS = [
+  "Service restarts and upgrades",
+  "Certificate management",
+  "Infrastructure scaling",
+  "Configuration changes",
+  "Log and information requests",
+  "Security updates",
+] as const;
+
+export const CHANGE_REQUEST_BULLET_ITEMS = [
+  "Formal approval process",
+  "Scheduled implementation",
+  "Customer review and approval",
+  "Rollback capabilities",
+  "Calendar visualization",
+  "Complete audit trail",
+] as const;
