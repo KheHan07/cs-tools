@@ -17,7 +17,7 @@
 import { render, screen } from "@testing-library/react";
 import { useAsgardeo } from "@asgardeo/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import AuthGuard from "@AuthGuard";
+import AuthGuard from "../AuthGuard";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { useLoader } from "@context/linear-loader/LoaderContext";

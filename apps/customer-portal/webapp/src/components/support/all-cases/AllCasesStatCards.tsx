@@ -17,34 +17,39 @@
 import { Box } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import SupportStatGrid from "@components/common/stat-grid/SupportStatGrid";
-import { SUPPORT_STAT_CONFIGS } from "@constants/supportConstants";
-import type { ProjectSupportStats } from "@models/responses";
+import type { ProjectCasesStats } from "@models/responses";
+import {
+  ALL_CASES_STAT_CONFIGS,
+  getAllCasesFlattenedStats,
+} from "@constants/supportConstants";
 
-export interface CasesOverviewStatCardProps {
+export interface AllCasesStatCardsProps {
   isLoading: boolean;
   isError?: boolean;
-  stats: ProjectSupportStats | undefined;
+  stats: ProjectCasesStats | undefined;
 }
 
 /**
- * CasesOverviewStatCard component to display a grid of support statistics.
+ * AllCasesStatCards component to display 4 stat cards for case statistics.
  *
- * @param {CasesOverviewStatCardProps} props - The props for the component.
- * @returns {JSX.Element} The rendered CasesOverviewStatCard component.
+ * @param {AllCasesStatCardsProps} props - Loading state and stats data.
+ * @returns {JSX.Element} The rendered stat cards grid.
  */
-export default function CasesOverviewStatCard({
+export default function AllCasesStatCards({
   isLoading,
   isError,
   stats,
-}: CasesOverviewStatCardProps): JSX.Element {
+}: AllCasesStatCardsProps): JSX.Element {
+  const flattenedStats = getAllCasesFlattenedStats(stats);
+
   return (
-    <Box>
+    <Box sx={{ mb: 3 }}>
       <SupportStatGrid
         isLoading={isLoading}
         isError={isError}
-        entityName="support"
-        stats={stats}
-        configs={SUPPORT_STAT_CONFIGS}
+        entityName="case"
+        configs={ALL_CASES_STAT_CONFIGS}
+        stats={flattenedStats}
       />
     </Box>
   );

@@ -61,7 +61,9 @@ export default function OutstandingCasesList({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%" }}
+    >
       {cases.map((c) => {
         const colorPath = getStatusColor(c.status?.label);
         const resolvedColor = resolveColorFromTheme(colorPath, theme);
@@ -105,15 +107,21 @@ export default function OutstandingCasesList({
             />
 
             <Form.CardContent sx={{ p: 0 }}>
-              <Typography
-                variant="body2"
-                color="text.primary"
-                sx={{
-                  overflow: "hidden",
-                }}
-              >
-                {c.title}
-              </Typography>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  sx={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
+                  {c.title}
+                </Typography>
+              </Box>
             </Form.CardContent>
 
             <Form.CardActions sx={{ p: 0, justifyContent: "space-between" }}>
@@ -123,12 +131,19 @@ export default function OutstandingCasesList({
                 label={c.status?.label ?? "—"}
                 icon={<Clock size={12} />}
                 sx={{
-                  px: 0.5,
                   bgcolor: alpha(resolvedColor, 0.1),
                   color: resolvedColor,
-                  borderColor: "transparent",
+                  px: 0,
+                  height: 20,
+                  fontSize: "0.75rem",
                   "& .MuiChip-icon": {
                     color: "inherit",
+                    ml: "6px",
+                    mr: "6px",
+                  },
+                  "& .MuiChip-label": {
+                    pl: 0,
+                    pr: "6px",
                   },
                 }}
               />

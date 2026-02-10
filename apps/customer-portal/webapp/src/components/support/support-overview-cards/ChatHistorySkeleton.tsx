@@ -14,21 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { SUPPORT_OVERVIEW_CASES_LIMIT } from "@/constants/supportConstants";
 import { Box, Form, Skeleton } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
+import { SUPPORT_OVERVIEW_CHAT_LIMIT } from "@constants/supportConstants";
 
 /**
- * Renders a list of loading skeletons for the outstanding cases list.
+ * Renders a list of loading skeletons for the chat history list.
  *
  * @returns {JSX.Element} The skeleton list.
  */
-export default function OutstandingCasesSkeleton(): JSX.Element {
+export default function ChatHistorySkeleton(): JSX.Element {
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%" }}
     >
-      {Array.from({ length: SUPPORT_OVERVIEW_CASES_LIMIT }).map((_, index) => (
+      {Array.from({ length: SUPPORT_OVERVIEW_CHAT_LIMIT }).map((_, index) => (
         <Form.CardButton
           key={`skeleton-${index}`}
           sx={{
@@ -37,14 +37,33 @@ export default function OutstandingCasesSkeleton(): JSX.Element {
             flexDirection: "column",
             alignItems: "stretch",
             gap: 1.5,
+            pointerEvents: "none",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Skeleton variant="text" width={60} height={20} />
-            <Skeleton variant="circular" width={8} height={8} />
-            <Skeleton variant="text" width={40} height={16} />
-          </Box>
-          <Skeleton variant="text" width="90%" height={24} />
+          <Form.CardContent
+            sx={{
+              p: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+              <Box sx={{ display: "flex", flexShrink: 0 }}>
+                <Skeleton variant="circular" width={20} height={20} />
+              </Box>
+              <Box sx={{ flexGrow: 1 }}>
+                <Skeleton variant="text" width="90%" height={24} />
+              </Box>
+            </Box>
+            <Box sx={{ pl: 4 }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Skeleton variant="text" width={40} height={16} />
+                <Skeleton variant="text" width={4} height={16} />
+                <Skeleton variant="text" width={60} height={16} />
+              </Box>
+            </Box>
+          </Form.CardContent>
           <Box
             sx={{
               display: "flex",
@@ -53,7 +72,7 @@ export default function OutstandingCasesSkeleton(): JSX.Element {
             }}
           >
             <Skeleton variant="rounded" width={80} height={20} />
-            <Skeleton variant="text" width={100} height={16} />
+            <Skeleton variant="text" width={60} height={16} />
           </Box>
         </Form.CardButton>
       ))}

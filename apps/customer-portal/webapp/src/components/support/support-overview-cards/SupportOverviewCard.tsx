@@ -22,6 +22,8 @@ import {
   alpha,
   colors,
   useTheme,
+  type SxProps,
+  type Theme,
 } from "@wso2/oxygen-ui";
 import { ArrowRight } from "@wso2/oxygen-ui-icons-react";
 import type { ComponentType } from "react";
@@ -35,6 +37,7 @@ export interface SupportOverviewCardProps {
   children: React.ReactNode;
   footerButtonLabel: string;
   onFooterClick: () => void;
+  sx?: SxProps<Theme>;
 }
 
 /**
@@ -51,6 +54,7 @@ export default function SupportOverviewCard({
   children,
   footerButtonLabel,
   onFooterClick,
+  sx,
 }: SupportOverviewCardProps): JSX.Element {
   const theme = useTheme();
   const paletteKey = iconVariant === "blue" ? "info" : "warning";
@@ -59,12 +63,17 @@ export default function SupportOverviewCard({
 
   return (
     <Paper
-      sx={{
-        p: 2.5,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-      }}
+      sx={[
+        {
+          p: 2.5,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          height: "100%",
+          width: "100%",
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
         <Paper
@@ -91,7 +100,15 @@ export default function SupportOverviewCard({
         </Box>
       </Box>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+          flex: 1,
+          width: "100%",
+        }}
+      >
         {children}
       </Box>
 

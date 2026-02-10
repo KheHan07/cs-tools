@@ -16,8 +16,8 @@
 
 import { useParams, useNavigate } from "react-router";
 import { useEffect, type JSX } from "react";
-import { Typography, Box, Grid } from "@wso2/oxygen-ui";
-import { FileText } from "@wso2/oxygen-ui-icons-react";
+import { Typography, Box, Grid, Stack } from "@wso2/oxygen-ui";
+import { FileText, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import CasesOverviewStatCard from "@components/support/cases-overview-stats/CasesOverviewStatCard";
 import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
@@ -25,10 +25,15 @@ import SupportOverviewCard from "@components/support/support-overview-cards/Supp
 import OutstandingCasesList from "@components/support/support-overview-cards/OutstandingCasesList";
 import ServiceRequestCard from "@components/support/request-cards/ServiceRequestCard";
 import ChangeRequestCard from "@components/support/request-cards/ChangeRequestCard";
+import ChatHistoryList from "@components/support/support-overview-cards/ChatHistoryList";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
 import useGetProjectCases from "@api/useGetProjectCases";
+import { useGetChatHistory } from "@api/useGetChatHistory";
 import { useLogger } from "@hooks/useLogger";
-import { SUPPORT_OVERVIEW_CASES_LIMIT } from "@constants/supportConstants";
+import {
+  SUPPORT_OVERVIEW_CASES_LIMIT,
+  SUPPORT_OVERVIEW_CHAT_LIMIT,
+} from "@constants/supportConstants";
 
 /**
  * SupportPage component to display case details for a project.
@@ -53,9 +58,16 @@ export default function SupportPage(): JSX.Element {
       sortBy: { field: "createdOn", order: "desc" },
     },
   );
+
+  const { data: chatHistoryData, isFetching: isChatLoading } =
+    useGetChatHistory(projectId || "");
+
   const { isLoading: isAuthLoading } = useAsgardeo();
 
   const cases = casesData?.cases ?? [];
+  const chatItems =
+    chatHistoryData?.chatHistory?.slice(0, SUPPORT_OVERVIEW_CHAT_LIMIT) ?? [];
+
   const isActuallyLoading = isAuthLoading || isFetching || (!stats && !isError);
 
   useEffect(() => {
@@ -81,20 +93,42 @@ export default function SupportPage(): JSX.Element {
   }
 
   return (
-    <Box>
-      <CasesOverviewStatCard isLoading={isActuallyLoading} stats={stats} />
+    <Stack spacing={3}>
+      <CasesOverviewStatCard
+        isLoading={isActuallyLoading}
+        isError={isError}
+        stats={stats}
+      />
       <NoveraChatBanner />
-      <Grid container spacing={2} sx={{ mt: 3 }}>
-        <Grid size={{ xs: 12, lg: 6 }}>
+      <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: "flex" }}>
           <SupportOverviewCard
             title="Outstanding Cases"
-            subtitle="Latest 5 support tickets"
+            subtitle={`Latest ${SUPPORT_OVERVIEW_CASES_LIMIT} support tickets`}
             icon={FileText}
             iconVariant="orange"
             footerButtonLabel="View all cases"
-            onFooterClick={() => navigate("../dashboard")}
+            onFooterClick={() => navigate("cases")}
           >
             <OutstandingCasesList cases={cases} isLoading={isCasesLoading} />
+          </SupportOverviewCard>
+        </Grid>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: "flex" }}>
+          <SupportOverviewCard
+            title="Chat History"
+            subtitle="Recent Novera conversations"
+            icon={MessageSquare}
+            iconVariant="blue"
+            footerButtonLabel="View all chat history"
+            onFooterClick={() => navigate("chat")}
+          >
+            <ChatHistoryList
+              items={chatItems}
+              isLoading={isChatLoading}
+              onItemAction={(chatId) => {
+                navigate("chat", { state: { chatId } });
+              }}
+            />
           </SupportOverviewCard>
         </Grid>
       </Grid>
@@ -108,6 +142,6 @@ export default function SupportPage(): JSX.Element {
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </Stack>
   );
 }

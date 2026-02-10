@@ -14,11 +14,73 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { colors, type SxProps, type Theme } from "@wso2/oxygen-ui";
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleQuestionMark,
+  Clock,
+  MessageCircle,
+} from "@wso2/oxygen-ui-icons-react";
+import { ChatAction, ChatStatus } from "@constants/supportConstants";
+import type { Theme } from "@wso2/oxygen-ui";
+import { type ComponentType } from "react";
+
+export type ChatActionState =
+  | "primary"
+  | "info"
+  | "success"
+  | "warning"
+  | "error";
+
+/**
+ * Returns whether to show View or Resume for a chat status.
+ *
+ * @param status - Chat status string (e.g. Resolved, Still Open, Abandoned).
+ * @returns {ChatActionType} "view" or "resume".
+ */
+export function getChatStatusAction(status: string): ChatAction {
+  const normalized = status?.toLowerCase() || "";
+  if (normalized.includes("open")) return ChatAction.RESUME;
+  return ChatAction.VIEW;
+}
+
+/**
+ * Returns the color for a chat action button.
+ *
+ * @param action - The action type ("view" or "resume").
+ * @returns {ChatActionState} Palette color path.
+ */
+export function getChatActionColor(action: ChatAction): ChatActionState {
+  if (action === ChatAction.RESUME) {
+    return "info";
+  }
+  return "primary";
+}
+
+/**
+ * Returns the color path for a chat status.
+ *
+ * @param status - Chat status string.
+ * @returns {string} Palette color path.
+ */
+export function getChatStatusColor(status: string): string {
+  const normalized = status?.toLowerCase() || "";
+  if (normalized.includes(ChatStatus.RESOLVED.toLowerCase())) {
+    return "success.main";
+  }
+  if (normalized.includes(ChatStatus.STILL_OPEN.toLowerCase())) {
+    return "info.main";
+  }
+  if (normalized.includes(ChatStatus.ABANDONED.toLowerCase())) {
+    return "error.main";
+  }
+  return "secondary.main";
+}
+
 /**
  * Resolves a color from the theme palette for the alpha() utility.
  *
- * @param path - Color path (e.g., 'primary.main').
+ * @param path - Color path.
  * @param theme - Oxygen UI theme.
  * @returns {string} The resolved color string.
  */
@@ -37,7 +99,7 @@ export function resolveColorFromTheme(path: string, theme: Theme): string {
  * Formats a date string or Date object into a relative time (e.g., "2 days ago", "1 hour ago").
  *
  * @param date - Date string or Date object.
- * @returns {string} Human-readable relative time.
+ * @returns {string} Human readable relative time.
  */
 export function formatRelativeTime(date: string | Date | undefined): string {
   if (!date) return "--";
@@ -72,4 +134,43 @@ export function formatRelativeTime(date: string | Date | undefined): string {
 
   const diffInYears = Math.floor(diffInMonths / 12);
   return `${diffInYears} year${diffInYears === 1 ? "" : "s"} ago`;
+}
+
+/**
+ * Derives the label and pluralized "all" label from a filter ID.
+ *
+ * @param id - The filter ID (e.g., "status").
+ * @returns { label: string; allLabel: string } The derived labels.
+ */
+export function deriveFilterLabels(id: string): {
+  label: string;
+  allLabel: string;
+} {
+  const label = id.charAt(0).toUpperCase() + id.slice(1);
+  const allLabel = `All ${
+    label.endsWith("s")
+      ? `${label}es`
+      : label.endsWith("y")
+        ? `${label.slice(0, -1)}ies`
+        : `${label}s`
+  }`;
+
+  return { allLabel, label };
+}
+
+/**
+ * Returns the icon component for a given case status label.
+ *
+ * @param statusLabel - The case status label (e.g., "Open", "Working in Progress").
+ * @returns {ComponentType<any>} The icon component.
+ */
+export function getStatusIcon(statusLabel?: string): ComponentType<any> {
+  const normalized = statusLabel?.toLowerCase() || "";
+  if (normalized.includes("open")) return CircleAlert;
+  if (normalized.includes("progress")) return Clock;
+  if (normalized.includes("awaiting")) return MessageCircle;
+  if (normalized.includes("waiting")) return CircleQuestionMark;
+  if (normalized.includes("resolved") || normalized.includes("closed"))
+    return CircleCheck;
+  return CircleAlert;
 }
