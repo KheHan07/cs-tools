@@ -115,13 +115,13 @@ export default function AllCasesList({
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      {caseItem.severity?.label || "—"}
+                      {caseItem.severity?.label || "--"}
                     </Typography>
                   </Box>
                   <Chip
                     size="small"
                     variant="outlined"
-                    label={caseItem.status?.label || "—"}
+                    label={caseItem.status?.label || "--"}
                     icon={<StatusIcon size={12} />}
                     sx={{
                       bgcolor: alpha(resolvedColor, 0.1),

@@ -90,7 +90,7 @@ export const TIME_TRACKING_STAT_CONFIGS: SupportStatConfig<TimeTrackingStatKey>[
       icon: Activity,
       iconColor: "info",
       key: "nonBillableHours",
-      label: "Non-Billable",
+      label: "Non-Billable Hours",
     },
   ];
 
@@ -247,12 +247,10 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
     filterKey: "caseTypes",
     id: "category",
     metadataKey: "caseTypes",
-    useLabelAsValue: true,
   },
   {
     filterKey: "deploymentId",
     id: "deployment",
     metadataKey: "deployments",
-    useLabelAsValue: true,
   },
 ];

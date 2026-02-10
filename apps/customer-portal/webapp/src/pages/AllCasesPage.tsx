@@ -31,6 +31,7 @@ import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectCases from "@api/useGetProjectCases";
+import type { AllCasesFilterValues } from "@models/responses";
 import AllCasesStatCards from "@components/support/all-cases/AllCasesStatCards";
 import AllCasesSearchBar from "@components/support/all-cases/AllCasesSearchBar";
 import AllCasesList from "@components/support/all-cases/AllCasesList";
@@ -46,12 +47,7 @@ export default function AllCasesPage(): JSX.Element {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState<{
-    statusId?: string;
-    severityId?: string;
-    caseTypes?: string;
-    deploymentId?: string;
-  }>({});
+  const [filters, setFilters] = useState<AllCasesFilterValues>({});
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -110,14 +106,14 @@ export default function AllCasesPage(): JSX.Element {
     // Apply category/case type filter
     if (filters.caseTypes) {
       filtered = filtered.filter(
-        (caseItem) => caseItem.type?.label === filters.caseTypes,
+        (caseItem) => caseItem.type?.id === filters.caseTypes,
       );
     }
 
     // Apply deployment filter
     if (filters.deploymentId) {
       filtered = filtered.filter(
-        (caseItem) => caseItem.deployment?.label === filters.deploymentId,
+        (caseItem) => caseItem.deployment?.id === filters.deploymentId,
       );
     }
 
@@ -165,9 +161,6 @@ export default function AllCasesPage(): JSX.Element {
     setSearchTerm(value);
     setPage(1);
   };
-
-  const isLoading =
-    isStatsLoading || isFiltersMetadataLoading || isCasesLoading;
 
   return (
     <Stack spacing={3}>
@@ -245,7 +238,7 @@ export default function AllCasesPage(): JSX.Element {
       </Box>
 
       {/* Cases list */}
-      <AllCasesList cases={paginatedCases} isLoading={isLoading} />
+      <AllCasesList cases={paginatedCases} isLoading={isCasesLoading} />
 
       {/* Pagination */}
       {totalPages > 1 && (

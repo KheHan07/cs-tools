@@ -65,7 +65,7 @@ export default function ChatHistoryList({
     return <ChatHistorySkeleton />;
   }
 
-  if (items.length === 0) {
+  if (!items || items.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary">
         No chat history.

@@ -36,7 +36,7 @@ export type ChatActionState =
  * Returns whether to show View or Resume for a chat status.
  *
  * @param status - Chat status string (e.g. Resolved, Still Open, Abandoned).
- * @returns {ChatActionType} "view" or "resume".
+ * @returns {ChatAction} "view" or "resume".
  */
 export function getChatStatusAction(status: string): ChatAction {
   const normalized = status?.toLowerCase() || "";
