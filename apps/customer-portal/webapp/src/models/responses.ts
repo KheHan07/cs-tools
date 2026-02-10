@@ -195,4 +195,28 @@ export interface CaseMetadataResponse {
   statuses: MetadataItem[];
   severities: MetadataItem[];
   caseTypes: MetadataItem[];
+  deployments: MetadataItem[];
+}
+
+// Chat history list item (support chat session summary).
+export interface ChatHistoryItem {
+  chatId: string;
+  title: string;
+  startedTime: string;
+  messages: number;
+  kbArticles: number;
+  status: string;
+}
+
+// Response for project chat history list.
+export interface ChatHistoryResponse {
+  chatHistory: ChatHistoryItem[];
+}
+
+// Interface for all cases filters state
+export interface AllCasesFilterValues {
+  statusId?: string;
+  severityId?: string;
+  caseTypes?: string;
+  deploymentId?: string;
 }

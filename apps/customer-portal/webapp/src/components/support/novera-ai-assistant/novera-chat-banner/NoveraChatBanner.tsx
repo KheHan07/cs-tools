@@ -30,7 +30,6 @@ export default function NoveraChatBanner(): JSX.Element {
   return (
     <Paper
       sx={{
-        mb: 8,
         p: 3,
         display: "flex",
         alignItems: "center",

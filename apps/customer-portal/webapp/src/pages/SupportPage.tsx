@@ -14,14 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useEffect, type JSX } from "react";
-import { Typography, Box } from "@wso2/oxygen-ui";
+import { Typography, Box, Grid, Stack } from "@wso2/oxygen-ui";
+import { FileText, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import CasesOverviewStatCard from "@components/support/cases-overview-stats/CasesOverviewStatCard";
 import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
+import SupportOverviewCard from "@components/support/support-overview-cards/SupportOverviewCard";
+import OutstandingCasesList from "@components/support/support-overview-cards/OutstandingCasesList";
+import ServiceRequestCard from "@components/support/request-cards/ServiceRequestCard";
+import ChangeRequestCard from "@components/support/request-cards/ChangeRequestCard";
+import ChatHistoryList from "@components/support/support-overview-cards/ChatHistoryList";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
+import useGetProjectCases from "@api/useGetProjectCases";
+import { useGetChatHistory } from "@api/useGetChatHistory";
 import { useLogger } from "@hooks/useLogger";
+import {
+  SUPPORT_OVERVIEW_CASES_LIMIT,
+  SUPPORT_OVERVIEW_CHAT_LIMIT,
+} from "@constants/supportConstants";
 
 /**
  * SupportPage component to display case details for a project.
@@ -30,7 +42,7 @@ import { useLogger } from "@hooks/useLogger";
  */
 export default function SupportPage(): JSX.Element {
   const logger = useLogger();
-
+  const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
 
   const {
@@ -39,7 +51,22 @@ export default function SupportPage(): JSX.Element {
     isError,
   } = useGetProjectSupportStats(projectId || "");
 
+  const { data: casesData, isFetching: isCasesLoading } = useGetProjectCases(
+    projectId || "",
+    {
+      pagination: { offset: 0, limit: SUPPORT_OVERVIEW_CASES_LIMIT },
+      sortBy: { field: "createdOn", order: "desc" },
+    },
+  );
+
+  const { data: chatHistoryData, isFetching: isChatLoading } =
+    useGetChatHistory(projectId || "");
+
   const { isLoading: isAuthLoading } = useAsgardeo();
+
+  const cases = casesData?.cases ?? [];
+  const chatItems =
+    chatHistoryData?.chatHistory?.slice(0, SUPPORT_OVERVIEW_CHAT_LIMIT) ?? [];
 
   const isActuallyLoading = isAuthLoading || isFetching || (!stats && !isError);
 
@@ -66,9 +93,55 @@ export default function SupportPage(): JSX.Element {
   }
 
   return (
-    <Box>
-      <CasesOverviewStatCard isLoading={isActuallyLoading} stats={stats} />
+    <Stack spacing={3}>
+      <CasesOverviewStatCard
+        isLoading={isActuallyLoading}
+        isError={isError}
+        stats={stats}
+      />
       <NoveraChatBanner />
-    </Box>
+      <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: "flex" }}>
+          <SupportOverviewCard
+            title="Outstanding Cases"
+            subtitle={`Latest ${SUPPORT_OVERVIEW_CASES_LIMIT} support tickets`}
+            icon={FileText}
+            iconVariant="orange"
+            footerButtonLabel="View all cases"
+            onFooterClick={() => navigate("cases")}
+          >
+            <OutstandingCasesList cases={cases} isLoading={isCasesLoading} />
+          </SupportOverviewCard>
+        </Grid>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: "flex" }}>
+          <SupportOverviewCard
+            title="Chat History"
+            subtitle="Recent Novera conversations"
+            icon={MessageSquare}
+            iconVariant="blue"
+            footerButtonLabel="View all chat history"
+            onFooterClick={() => navigate("chat")}
+          >
+            <ChatHistoryList
+              items={chatItems}
+              isLoading={isChatLoading}
+              onItemAction={(chatId) => {
+                navigate("chat", { state: { chatId } });
+              }}
+            />
+          </SupportOverviewCard>
+        </Grid>
+      </Grid>
+      <Box sx={{ mt: 3 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <ServiceRequestCard />
+          </Grid>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <ChangeRequestCard />
+          </Grid>
+        </Grid>
+      </Box>
+    </Stack>
   );
 }

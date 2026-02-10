@@ -1,0 +1,178 @@
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import { describe, expect, it } from "vitest";
+import { ChatAction, ChatStatus } from "@constants/supportConstants";
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleQuestionMark,
+  Clock,
+  MessageCircle,
+} from "@wso2/oxygen-ui-icons-react";
+import {
+  getChatStatusAction,
+  getChatStatusColor,
+  getChatActionColor,
+  formatRelativeTime,
+  deriveFilterLabels,
+  getStatusIcon,
+  resolveColorFromTheme,
+} from "@utils/support";
+import { createTheme } from "@wso2/oxygen-ui";
+
+describe("support utils", () => {
+  describe("getChatStatusAction", () => {
+    it("should return resume for Still Open", () => {
+      expect(getChatStatusAction(ChatStatus.STILL_OPEN)).toBe(
+        ChatAction.RESUME,
+      );
+      expect(getChatStatusAction(ChatStatus.STILL_OPEN.toLowerCase())).toBe(
+        ChatAction.RESUME,
+      );
+    });
+
+    it("should return view for Resolved and Abandoned", () => {
+      expect(getChatStatusAction(ChatStatus.RESOLVED)).toBe(ChatAction.VIEW);
+      expect(getChatStatusAction(ChatStatus.ABANDONED)).toBe(ChatAction.VIEW);
+      expect(getChatStatusAction("")).toBe(ChatAction.VIEW);
+    });
+  });
+
+  describe("getChatActionColor", () => {
+    it("should return info for RESUME", () => {
+      expect(getChatActionColor(ChatAction.RESUME)).toBe("info");
+    });
+
+    it("should return primary for VIEW", () => {
+      expect(getChatActionColor(ChatAction.VIEW)).toBe("primary");
+    });
+  });
+
+  describe("getChatStatusColor", () => {
+    it("should return success.main for Resolved", () => {
+      expect(getChatStatusColor(ChatStatus.RESOLVED)).toBe("success.main");
+    });
+
+    it("should return info.main for Still Open", () => {
+      expect(getChatStatusColor(ChatStatus.STILL_OPEN)).toBe("info.main");
+    });
+
+    it("should return error.main for Abandoned", () => {
+      expect(getChatStatusColor(ChatStatus.ABANDONED)).toBe("error.main");
+    });
+
+    it("should return secondary.main for others", () => {
+      expect(getChatStatusColor("")).toBe("secondary.main");
+    });
+  });
+
+  describe("resolveColorFromTheme", () => {
+    const theme = createTheme();
+
+    it("should resolve primary.main", () => {
+      expect(resolveColorFromTheme("primary.main", theme)).toBe(
+        theme.palette.primary.main,
+      );
+    });
+
+    it("should return the path itself if not found in theme", () => {
+      expect(resolveColorFromTheme("non.existent.color", theme)).toBe(
+        "non.existent.color",
+      );
+    });
+  });
+
+  describe("formatRelativeTime", () => {
+    it("should return '--' for undefined date", () => {
+      expect(formatRelativeTime(undefined)).toBe("--");
+    });
+
+    it("should return 'just now' for very recent dates", () => {
+      const now = new Date();
+      expect(formatRelativeTime(now)).toBe("just now");
+    });
+
+    it("should format minutes ago", () => {
+      const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+      expect(formatRelativeTime(fiveMinsAgo)).toBe("5 minutes ago");
+    });
+
+    it("should format hours ago", () => {
+      const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      expect(formatRelativeTime(twoHoursAgo)).toBe("2 hours ago");
+    });
+
+    it("should format days ago", () => {
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      expect(formatRelativeTime(threeDaysAgo)).toBe("3 days ago");
+    });
+  });
+
+  describe("deriveFilterLabels", () => {
+    it("should derive labels for status", () => {
+      expect(deriveFilterLabels("status")).toEqual({
+        label: "Status",
+        allLabel: "All Statuses",
+      });
+    });
+
+    it("should derive labels for category", () => {
+      expect(deriveFilterLabels("category")).toEqual({
+        label: "Category",
+        allLabel: "All Categories",
+      });
+    });
+
+    it("should derive labels for severity", () => {
+      expect(deriveFilterLabels("severity")).toEqual({
+        label: "Severity",
+        allLabel: "All Severities",
+      });
+    });
+
+    it("should derive labels for deployment", () => {
+      expect(deriveFilterLabels("deployment")).toEqual({
+        label: "Deployment",
+        allLabel: "All Deployments",
+      });
+    });
+  });
+
+  describe("getStatusIcon", () => {
+    it("should return CircleAlert for Open", () => {
+      expect(getStatusIcon("Open")).toBe(CircleAlert);
+      expect(getStatusIcon("open")).toBe(CircleAlert);
+    });
+
+    it("should return Clock for In Progress", () => {
+      expect(getStatusIcon("In Progress")).toBe(Clock);
+    });
+
+    it("should return MessageCircle for Awaiting Reply", () => {
+      expect(getStatusIcon("Awaiting Customer Reply")).toBe(MessageCircle);
+    });
+
+    it("should return CircleQuestionMark for Waiting", () => {
+      expect(getStatusIcon("Waiting for WSO2")).toBe(CircleQuestionMark);
+    });
+
+    it("should return CircleCheck for Resolved or Closed", () => {
+      expect(getStatusIcon("Resolved")).toBe(CircleCheck);
+      expect(getStatusIcon("Closed")).toBe(CircleCheck);
+    });
+  });
+});

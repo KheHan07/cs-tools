@@ -14,13 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Grid, StatCard, Skeleton } from "@wso2/oxygen-ui";
+import { Box } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
+import SupportStatGrid from "@components/common/stat-grid/SupportStatGrid";
 import { SUPPORT_STAT_CONFIGS } from "@constants/supportConstants";
 import type { ProjectSupportStats } from "@models/responses";
 
 export interface CasesOverviewStatCardProps {
   isLoading: boolean;
+  isError?: boolean;
   stats: ProjectSupportStats | undefined;
 }
 
@@ -32,61 +34,18 @@ export interface CasesOverviewStatCardProps {
  */
 export default function CasesOverviewStatCard({
   isLoading,
+  isError,
   stats,
 }: CasesOverviewStatCardProps): JSX.Element {
   return (
     <Box>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          mb: 3,
-        }}
-      >
-        {SUPPORT_STAT_CONFIGS.map((stat) => {
-          const SecondaryIcon = stat.secondaryIcon;
-
-          return (
-            <Grid
-              key={stat.key}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 3,
-              }}
-              sx={{
-                position: "relative",
-              }}
-            >
-              {SecondaryIcon && (
-                <Box
-                  sx={{
-                    opacity: 0.4,
-                    position: "absolute",
-                    right: 24,
-                    top: 20,
-                    zIndex: 1,
-                  }}
-                >
-                  <SecondaryIcon />
-                </Box>
-              )}
-              <StatCard
-                label={stat.label}
-                value={
-                  isLoading
-                    ? ((
-                        <Skeleton variant="text" width="40%" height={24} />
-                      ) as any)
-                    : (stats?.[stat.key] ?? 0)
-                }
-                icon={<stat.icon />}
-                iconColor={stat.iconColor}
-              />
-            </Grid>
-          );
-        })}
-      </Grid>
+      <SupportStatGrid
+        isLoading={isLoading}
+        isError={isError}
+        entityName="support"
+        stats={stats}
+        configs={SUPPORT_STAT_CONFIGS}
+      />
     </Box>
   );
 }
