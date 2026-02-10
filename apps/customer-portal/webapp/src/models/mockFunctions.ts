@@ -271,7 +271,7 @@ export const getMockProjectStats = (): ProjectStatsResponse => {
 /**
  * Returns mock deployments for a project (used when isMockEnabled).
  *
- * @param {string} [projectId] - Optional project ID; currently returns same list for all projects.
+ * @param {string} [_projectId] - Optional project ID; currently returns same list for all projects.
  * @returns {DeploymentsResponse} Mock deployments list.
  */
 export const getMockDeployments = (

@@ -231,7 +231,7 @@ export interface DeploymentProduct {
   cores: number;
   tps: number;
   releasedDate: string;
-  eolDate: string;
+  endOfLifeDate: string;
   updateLevel: string;
 }
 
