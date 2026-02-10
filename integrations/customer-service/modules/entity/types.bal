@@ -53,6 +53,6 @@ public type Contact record {|
     # Email of the customer
     string? email;
     # Account (Salesforce) related to the contact
-    Account? account;
+    Account? account = ();
     json...;
 |};

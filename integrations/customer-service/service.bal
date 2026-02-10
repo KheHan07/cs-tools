@@ -53,7 +53,7 @@ service / on new http:Listener(9090) {
             };
         }
         return from entity:Contact {id, email, account} in contacts
-            let Account sanitizedAccount = account is entity:Account ? {id: account.id} : {}
+            let Account? sanitizedAccount = account is entity:Account ? {id: account.id} : ()
             select {id, email, account: sanitizedAccount};
     }
 }

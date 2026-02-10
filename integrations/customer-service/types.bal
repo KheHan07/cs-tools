@@ -17,15 +17,15 @@
 # Contact.
 public type Contact record {|
     # ID
-    string id?;
+    string? id;
     # Email
-    string email?;
+    string? email;
     # Account information
-    Account account?;
+    Account? account = ();
 |};
 
 # Account.
 public type Account record {|
     # Account ID
-    string id?;
+    string? id;
 |};
