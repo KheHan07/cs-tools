@@ -15,24 +15,19 @@ Get a list of contacts for given filters.
 ### Request Parameters
 
 | Name  | Located In | Description     | Required | Schema |
-|------|-----------|----------------|----------|--------|
-| Input | Payload   | Contact filters | Optional      | ```json
+| :--- | :--- | :--- | :--- | :--- |
+| Input | Payload   | Contact filters | Optional | See Schema Below |
+
+**Request Body Schema:**
+
+```json
 {
   "email": "user@wso2.com"
 }
-``` |
+json```
 
----
+**Responses**
 
-### Responses
-
-#### ✅ 200 OK
-
-**Description:** Successful response.
-
-**Body**
-
-```json
 [
   {
     "id": "C001",
@@ -43,7 +38,7 @@ Get a list of contacts for given filters.
   },
   {
     "id": "C002",
-    "email": "jane@wso2.com",
+    "email": "user2@wso2.com",
     "account": null
   }
 ]

@@ -31,6 +31,10 @@ public type ContactFilter record {|
         pattern: re `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
     }
     string? email = ();
+    # Limit
+    int? 'limit = DEFAULT_RECORD_LIMIT;
+    # Offset
+    int? offset = DEFAULT_RECORD_OFFSET;
 |};
 
 # [Entity] Account
