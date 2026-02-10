@@ -20,6 +20,29 @@ import RequestCard from "@components/support/request-cards/RequestCard";
 
 const MockIcon = () => <span data-testid="mock-icon">Icon</span>;
 
+// Mock oxygen-ui components
+vi.mock("@wso2/oxygen-ui", () => ({
+  Box: ({ children, component, ...props }: any) => (
+    <div data-testid="box" data-component={component} {...props}>
+      {children}
+    </div>
+  ),
+  Button: ({ children, onClick, endIcon, startIcon }: any) => (
+    <button onClick={onClick}>
+      {startIcon} {children} {endIcon}
+    </button>
+  ),
+  Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
+  Typography: ({ children }: any) => <span>{children}</span>,
+  alpha: (color: string) => color,
+  useTheme: () => ({
+    palette: {
+      info: { light: "#03A9F4", main: "#0288D1" },
+      grey: { 300: "#E0E0E0" },
+    },
+  }),
+}));
+
 describe("RequestCard", () => {
   it("should render title, subtitle, info box and buttons", () => {
     render(
