@@ -66,14 +66,14 @@ export function ProjectCard({ id, name, description, type, status, metrics, onCl
         <Typography variant="body2">{description}</Typography>
       </Stack>
       <Grid p={2} spacing={1.5} container>
-        {Object.keys(metrics).map((key) => {
+        {Object.keys(metrics).map((key, index) => {
           const meta = PROJECT_METRIC_META[key as ProjectMetricKey];
           const value = metrics[key as ProjectMetricKey];
 
           if (value === undefined) return null;
 
           return (
-            <Grid size={{ xs: 6 }}>
+            <Grid key={index} size={{ xs: 6 }}>
               <MetricItem meta={meta} value={value} />
             </Grid>
           );
