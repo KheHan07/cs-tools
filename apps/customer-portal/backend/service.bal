@@ -951,8 +951,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             entity:getDeployedProducts(userInfo.idToken, id);
         if productsResponse is error {
             if getStatusCode(productsResponse) == http:STATUS_FORBIDDEN {
-                string customeErr = string `Access to deployment ID: ${id} is forbidden for user: ${userInfo.userId}`;
-                log:printWarn(customeErr);
+                log:printWarn(string `Access to deployment ID: ${id} is forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
                         message: "Access to the requested deployment is forbidden!"
