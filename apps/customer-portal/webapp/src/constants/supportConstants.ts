@@ -74,25 +74,25 @@ export type AllCasesStatKey =
 export const ALL_CASES_STAT_CONFIGS: SupportStatConfig<AllCasesStatKey>[] = [
   {
     icon: CircleAlert,
-    iconColor: "info",
+    iconColor: "error",
     key: "openCases",
     label: "Open",
   },
   {
     icon: Clock,
-    iconColor: "warning",
+    iconColor: "success",
     key: "workInProgress",
-    label: "Working in Progress",
+    label: "Work in Progress",
   },
   {
     icon: MessageCircle,
-    iconColor: "primary",
+    iconColor: "warning",
     key: "waitingOnClient",
     label: "Awaiting Info",
   },
   {
     icon: CircleQuestionMark,
-    iconColor: "secondary",
+    iconColor: "info",
     key: "waitingOnWso2",
     label: "Waiting on WSO2",
   },
@@ -180,6 +180,7 @@ export const RICH_TEXT_BLOCK_TAGS: Array<{
   { value: "subtitle1", label: "Subtitle 1", variant: "subtitle1" },
   { value: "subtitle2", label: "Subtitle 2", variant: "subtitle2" },
   { value: "body1", label: "Body 1", variant: "body1" },
+  { value: "body2", label: "Body 2", variant: "body2" },
   { value: "caption", label: "Caption", variant: "caption" },
 ];
 

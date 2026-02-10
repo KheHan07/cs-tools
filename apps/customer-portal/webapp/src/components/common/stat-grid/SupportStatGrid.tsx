@@ -19,10 +19,10 @@ import { type JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { type SupportStatConfig } from "@constants/supportConstants";
 
-export interface SupportStatGridProps {
+export interface SupportStatGridProps<T extends string> {
   isLoading: boolean;
-  configs: SupportStatConfig<any>[];
-  stats: any;
+  configs: SupportStatConfig<T>[];
+  stats: Partial<Record<T, number>> | undefined | null;
   isError?: boolean;
   entityName?: string;
 }
@@ -33,13 +33,13 @@ export interface SupportStatGridProps {
  * @param {SupportStatGridProps} props - The props for the component.
  * @returns {JSX.Element} The rendered SupportStatGrid component.
  */
-export default function SupportStatGrid({
+export default function SupportStatGrid<T extends string>({
   isLoading,
   configs,
   stats,
   isError,
   entityName = "statistics",
-}: SupportStatGridProps): JSX.Element {
+}: SupportStatGridProps<T>): JSX.Element {
   return (
     <Grid container spacing={2}>
       {configs.map((stat) => {
