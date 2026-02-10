@@ -17,18 +17,17 @@
 import { useParams, useNavigate } from "react-router";
 import { useEffect, type JSX } from "react";
 import { Typography, Box, Grid } from "@wso2/oxygen-ui";
-import { FileText, MessageSquare } from "@wso2/oxygen-ui-icons-react";
+import { FileText } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import CasesOverviewStatCard from "@components/support/cases-overview-stats/CasesOverviewStatCard";
 import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
 import SupportOverviewCard from "@components/support/support-overview-cards/SupportOverviewCard";
 import OutstandingCasesList from "@components/support/support-overview-cards/OutstandingCasesList";
+import RequestCards from "@components/support/request-cards/RequestCards";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
 import useGetProjectCases from "@api/useGetProjectCases";
 import { useLogger } from "@hooks/useLogger";
-import {
-  SUPPORT_OVERVIEW_CASES_LIMIT,
-} from "@constants/supportConstants";
+import { SUPPORT_OVERVIEW_CASES_LIMIT } from "@constants/supportConstants";
 
 /**
  * SupportPage component to display case details for a project.
@@ -98,6 +97,9 @@ export default function SupportPage(): JSX.Element {
           </SupportOverviewCard>
         </Grid>
       </Grid>
+      <Box sx={{ mt: 3 }}>
+        <RequestCards />
+      </Box>
     </Box>
   );
 }
