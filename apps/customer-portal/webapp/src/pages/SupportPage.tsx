@@ -23,6 +23,8 @@ import CasesOverviewStatCard from "@components/support/cases-overview-stats/Case
 import NoveraChatBanner from "@components/support/novera-ai-assistant/novera-chat-banner/NoveraChatBanner";
 import SupportOverviewCard from "@components/support/support-overview-cards/SupportOverviewCard";
 import OutstandingCasesList from "@components/support/support-overview-cards/OutstandingCasesList";
+import ServiceRequestCard from "@components/support/request-cards/ServiceRequestCard";
+import ChangeRequestCard from "@components/support/request-cards/ChangeRequestCard";
 import ChatHistoryList from "@components/support/support-overview-cards/ChatHistoryList";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
 import useGetProjectCases from "@api/useGetProjectCases";
@@ -130,6 +132,16 @@ export default function SupportPage(): JSX.Element {
           </SupportOverviewCard>
         </Grid>
       </Grid>
+      <Box sx={{ mt: 3 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <ServiceRequestCard />
+          </Grid>
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <ChangeRequestCard />
+          </Grid>
+        </Grid>
+      </Box>
     </Stack>
   );
 }
