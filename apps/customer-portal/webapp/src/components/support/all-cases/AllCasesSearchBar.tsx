@@ -81,12 +81,14 @@ export default function AllCasesSearchBar({
             placeholder="Search cases by ID, title, or description..."
             value={searchTerm}
             onChange={handleSearchChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={16} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search size={16} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         </Box>
