@@ -128,8 +128,10 @@ public type CaseCreatePayload record {|
     @constraint:String {minLength: 1}
     string productId;
     # Case title
+    @constraint:String {minLength: 1, maxLength: 500}
     string title;
     # Case description
+    @constraint:String {minLength: 1, maxLength: 65000}
     string description;
     # Issue type ID
     int issueTypeKey;

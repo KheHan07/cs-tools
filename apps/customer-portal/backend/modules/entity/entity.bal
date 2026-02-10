@@ -92,7 +92,7 @@ public isolated function getCase(string idToken, string caseId) returns CaseResp
 # 
 # + idToken - ID token for authorization
 # + payload - Case creation payload
-# + return - Nil or error
+# + return - Case creation response or error
 public isolated function addCase(string idToken, CaseCreatePayload payload) returns CaseCreateResponse|error {
     return csEntityClient->/cases.post(payload, generateHeaders(idToken));
 }
