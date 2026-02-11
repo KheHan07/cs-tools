@@ -22,7 +22,7 @@ import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import ProjectCard from "@components/project-hub/project-card/ProjectCard";
 import ProjectCardSkeleton from "@components/project-hub/project-card/ProjectCardSkeleton";
-import { FolderOpen, TriangleAlert } from "@wso2/oxygen-ui-icons-react";
+import { FolderOpen } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import EmptyIcon from "@components/common/empty-state/EmptyIcon";
 import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
@@ -126,6 +126,11 @@ export default function ProjectHub(): JSX.Element {
           }}
         >
           <ErrorStateIcon />
+          <Typography variant="h4">Something Went Wrong</Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            We couldn&apos;t load the data right now. Please try again or refresh
+            the page.
+          </Typography>
         </Box>
       );
     }
@@ -143,6 +148,10 @@ export default function ProjectHub(): JSX.Element {
           }}
         >
           <EmptyIcon />
+          <Typography variant="h4">No Projects Yet</Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            Projects will appear here once they are created or assigned to you
+          </Typography>
         </Box>
       );
     }
@@ -209,49 +218,36 @@ export default function ProjectHub(): JSX.Element {
           justifyContent: "center",
         }}
       >
-        <Box
-          sx={{
-            mb: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-          }}
-        >
-          {/* project hub title */}
+        {!(isError || (!isLoading && !isAuthLoading && projects.length === 0)) && (
           <Box
             sx={{
-              mb: 1,
+              mb: 3,
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: 1.5,
+              textAlign: "center",
             }}
           >
-            {isError ? (
-              <Box component="span" sx={{ color: "error.main" }}>
-                <TriangleAlert size={28} />
-              </Box>
-            ) : (
+            {/* project hub title */}
+            <Box
+              sx={{
+                mb: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+              }}
+            >
               <FolderOpen size={28} />
-            )}
-            <Typography variant="h4">
-              {isError
-                ? "Something Went Wrong"
-                : !isLoading && !isAuthLoading && projects.length === 0
-                  ? "No Projects Yet"
-                  : "Select Your Project"}
+              <Typography variant="h4">Select Your Project</Typography>
+            </Box>
+
+            {/* project hub subtitle */}
+            <Typography variant="subtitle2" color="text.secondary">
+              Choose a project to access your support cases, chat history, and
+              dashboard
             </Typography>
           </Box>
-
-          {/* project hub subtitle */}
-          <Typography variant="subtitle2" color="text.secondary">
-            {isError
-              ? "We couldn't load the data right now. Please try again or refresh the page."
-              : !isLoading && !isAuthLoading && projects.length === 0
-                ? "Projects will appear here once they are created or assigned to you"
-                : "Choose a project to access your support cases, chat history, and dashboard"}
-          </Typography>
-        </Box>
+        )}
         <Box sx={{ width: "100%" }}>{renderContent()}</Box>
       </Box>
     </Box>
