@@ -50,29 +50,37 @@ export default function useGetCaseDetails(
         return { ...mockCaseDetails, id: caseId };
       }
 
-      const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
-      if (!baseUrl) {
-        throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
+      try {
+        const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
+        if (!baseUrl) {
+          throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
+        }
+
+        const idToken = await getIdToken();
+        const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}`;
+        const response = await fetch(requestUrl, {
+          method: "GET",
+          headers: addApiHeaders(idToken),
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Error fetching case details: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        const data: CaseDetails = await response.json();
+        logger.debug("[useGetCaseDetails] Data received:", data);
+        return data;
+      } catch (error) {
+        logger.error("[useGetCaseDetails] Error:", error);
+        throw error;
       }
-
-      const idToken = await getIdToken();
-      const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}`;
-      const response = await fetch(requestUrl, {
-        method: "GET",
-        headers: addApiHeaders(idToken),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error fetching case details: ${response.statusText}`);
-      }
-
-      const data: CaseDetails = await response.json();
-      logger.debug("[useGetCaseDetails] Data received:", data);
-      return data;
     },
     enabled:
       !!projectId &&
       !!caseId &&
       (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    staleTime: 5 * 60 * 1000,
   });
 }
