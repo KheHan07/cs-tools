@@ -129,5 +129,7 @@ export default function useGetProjectCases(
       return nextOffset < lastPage.totalRecords ? nextOffset : undefined;
     },
     enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
