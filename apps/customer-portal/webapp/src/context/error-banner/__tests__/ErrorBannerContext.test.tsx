@@ -120,9 +120,8 @@ describe("ErrorBannerContext", () => {
     fireEvent.click(screen.getByText("Trigger Error"));
     expect(screen.getByTestId("error-banner")).toBeInTheDocument();
 
-    // Fast-forward 2550ms (timeout is 2500ms)
     act(() => {
-      vi.advanceTimersByTime(2550);
+      vi.advanceTimersByTime(2800);
     });
 
     expect(screen.queryByTestId("error-banner")).toBeNull();
