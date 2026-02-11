@@ -167,10 +167,10 @@ export const FILTER_FIELDS: FilterField[] = [
     label: "Deployment",
     type: "select",
     options: [
-      { label: "Development", value: "Development" },
-      { label: "Production", value: "production" },
-      { label: "QA", value: "QA" },
-      { label: "Staging", value: "Staging" },
+      { label: "Development", value: "1" },
+      { label: "Production", value: "2" },
+      { label: "QA", value: "3" },
+      { label: "Staging", value: "4" },
     ],
   },
   {
@@ -198,7 +198,7 @@ export const FILTER_FIELDS: FilterField[] = [
     ],
   },
   {
-    id: "caseTypes",
+    id: "issueTypes",
     label: "Case Type",
     type: "select",
     options: [
