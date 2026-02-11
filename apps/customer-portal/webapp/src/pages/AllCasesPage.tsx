@@ -62,19 +62,18 @@ export default function AllCasesPage(): JSX.Element {
   // Fetch filter metadata
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
 
-  // Fetch all cases
-  const { data: casesData, isFetching: isCasesLoading } = useGetProjectCases(projectId || "", {
-  pagination: {
-    limit: 10,
-    offset: 0,
-  },
-  sortBy: {
-    field: "createdOn",
-    order: "desc",
-  },
-});
+  // Fetch all cases using infinite query
+  const { data, isFetching: isCasesLoading } = useGetProjectCases(
+    projectId || "",
+    {
+      sortBy: {
+        field: "createdOn",
+        order: "desc",
+      },
+    },
+  );
 
-  const allCases = casesData?.cases ?? [];
+  const allCases = data?.pages.flatMap((page) => page.cases) ?? [];
 
   // Frontend filtering and search
   const filteredAndSearchedCases = useMemo(() => {
