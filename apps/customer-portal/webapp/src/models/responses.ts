@@ -331,3 +331,18 @@ export interface Deployment {
 export interface DeploymentsResponse {
   deployments: Deployment[];
 }
+
+// Case classification response from /cases/classify.
+export interface CaseClassificationResponse {
+  issueType: string;
+  severityLevel: string;
+  case_info: {
+    description: string;
+    shortDescription: string;
+    productName: string;
+    productVersion: string;
+    environment: string;
+    tier: string;
+    region: string;
+  };
+}
