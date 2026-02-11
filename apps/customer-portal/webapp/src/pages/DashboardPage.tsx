@@ -14,12 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Button, Grid, NotificationBanner } from "@wso2/oxygen-ui";
+import { Box, Button, Grid } from "@wso2/oxygen-ui";
 import { useNavigate, useParams } from "react-router";
-import { useEffect, type JSX } from "react";
+import { useEffect, useRef, type JSX } from "react";
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import { DASHBOARD_STATS } from "@constants/dashboardConstants";
@@ -67,19 +68,30 @@ export default function DashboardPage(): JSX.Element {
   }, [isDashboardLoading, showLoader, hideLoader]);
 
   useEffect(() => {
-    if (isErrorMock) {
-      logger.error(`Failed to load mock stats for project ID: ${projectId}`);
-    }
-    if (isErrorCases) {
-      logger.error(`Failed to load cases stats for project ID: ${projectId}`);
-    }
-  }, [isErrorMock, isErrorCases, logger, projectId]);
-
-  useEffect(() => {
     if (mockStats && casesStats) {
       logger.debug(`Dashboard data loaded for project ID: ${projectId}`);
     }
   }, [mockStats, casesStats, logger, projectId]);
+
+  const { showError } = useErrorBanner();
+  const hasShownErrorRef = useRef(false);
+
+  useEffect(() => {
+    if ((isErrorMock || isErrorCases) && !hasShownErrorRef.current) {
+      hasShownErrorRef.current = true;
+      showError("dashboard statistics");
+
+      if (isErrorMock) {
+        logger.error(`Failed to load mock stats for project ID: ${projectId}`);
+      }
+      if (isErrorCases) {
+        logger.error(`Failed to load cases stats for project ID: ${projectId}`);
+      }
+    }
+    if (!isErrorMock && !isErrorCases) {
+      hasShownErrorRef.current = false;
+    }
+  }, [isErrorMock, isErrorCases, showError, logger, projectId]);
 
   const handleSupportClick = () => {
     if (projectId) {
@@ -91,14 +103,6 @@ export default function DashboardPage(): JSX.Element {
 
   return (
     <Box sx={{ width: "100%", pt: 0, position: "relative" }}>
-      {(isErrorMock || isErrorCases) && (
-        <NotificationBanner
-          visible
-          severity="error"
-          title="Error"
-          message="Error loading dashboard statistics. Please try again later."
-        />
-      )}
       {/* Get support button */}
       <Box
         sx={{
