@@ -16,7 +16,7 @@
 
 import { Box, Button, Grid, Typography } from "@wso2/oxygen-ui";
 import { CircleCheck } from "@wso2/oxygen-ui-icons-react";
-import { useState, useEffect, useRef, type JSX } from "react";
+import { useState, useEffect, useRef, type FormEvent, type JSX } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { useGetCaseCreationDetails } from "@api/useGetCaseCreationDetails";
 import useGetCasesFilters from "@api/useGetCasesFilters";
@@ -92,7 +92,15 @@ export default function CreateCasePage(): JSX.Element {
   }, [projectDetails]);
 
   useEffect(() => {
-    if (hasInitializedRef.current || (!metadata && !classification)) {
+    if (hasInitializedRef.current) {
+      return;
+    }
+
+    if (isLoading || isFiltersLoading) {
+      return;
+    }
+
+    if (!metadata) {
       return;
     }
 
@@ -100,7 +108,8 @@ export default function CreateCasePage(): JSX.Element {
       setProject(metadata.projects[0]);
     }
 
-    const initialProduct = classificationProduct || metadata?.products?.[0] || "";
+    const initialProduct =
+      classificationProduct || metadata?.products?.[0] || "";
     const initialDeployment =
       classificationDeployment || metadata?.deploymentTypes?.[0] || "";
 
@@ -125,9 +134,7 @@ export default function CreateCasePage(): JSX.Element {
     setIssueType(initialIssueType);
     setSeverity(initialSeverity);
 
-    setTitle(
-      classificationInfo?.shortDescription || getGeneratedIssueTitle(),
-    );
+    setTitle(classificationInfo?.shortDescription || getGeneratedIssueTitle());
     setDescription(
       classificationInfo?.description || getGeneratedIssueDescription(),
     );
@@ -141,6 +148,8 @@ export default function CreateCasePage(): JSX.Element {
     classificationProduct,
     classificationSeverity,
     filters,
+    isFiltersLoading,
+    isLoading,
     metadata,
     project,
     projectId,
@@ -160,7 +169,7 @@ export default function CreateCasePage(): JSX.Element {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
   };
 
@@ -172,12 +181,13 @@ export default function CreateCasePage(): JSX.Element {
   const extraIssueTypes =
     classificationIssueType && !hasIssueType ? [classificationIssueType] : [];
 
-  const severityLevelsList =
-    (filters?.severities || metadata?.severityLevels || []) as {
-      id: string;
-      label: string;
-      description?: string;
-    }[];
+  const severityLevelsList = (filters?.severities ||
+    metadata?.severityLevels ||
+    []) as {
+    id: string;
+    label: string;
+    description?: string;
+  }[];
   const hasSeverity = severityLevelsList.some(
     (level) =>
       level.id === classificationSeverity ||
@@ -186,6 +196,18 @@ export default function CreateCasePage(): JSX.Element {
   const extraSeverityLevels =
     classificationSeverity && !hasSeverity
       ? [{ id: classificationSeverity, label: classificationSeverity }]
+      : [];
+
+  const baseDeploymentOptions = metadata?.deploymentTypes ?? [];
+  const baseProductOptions = metadata?.products ?? [];
+  const extraDeploymentOptions =
+    classificationDeployment &&
+    !baseDeploymentOptions.includes(classificationDeployment)
+      ? [classificationDeployment]
+      : [];
+  const extraProductOptions =
+    classificationProduct && !baseProductOptions.includes(classificationProduct)
+      ? [classificationProduct]
       : [];
 
   const renderContent = () => {
@@ -219,12 +241,8 @@ export default function CreateCasePage(): JSX.Element {
               setDeployment={setDeployment}
               metadata={metadata}
               isLoading={isLoading || isProjectLoading}
-              extraDeploymentOptions={
-                classificationDeployment ? [classificationDeployment] : []
-              }
-              extraProductOptions={
-                classificationProduct ? [classificationProduct] : []
-              }
+              extraDeploymentOptions={extraDeploymentOptions}
+              extraProductOptions={extraProductOptions}
             />
 
             <CaseDetailsSection
