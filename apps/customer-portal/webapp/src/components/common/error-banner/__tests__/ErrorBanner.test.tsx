@@ -19,22 +19,19 @@ import { describe, expect, it, vi } from "vitest";
 import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 
 vi.mock("@wso2/oxygen-ui", () => ({
-  Box: ({ children }: any) => <div data-testid="box">{children}</div>,
-  IconButton: ({ children, onClick, "aria-label": ariaLabel }: any) => (
-    <button data-testid="close-button" onClick={onClick} aria-label={ariaLabel}>
+  Alert: ({ children, onClose, severity }: any) => (
+    <div data-testid="error-banner" role="alert" data-severity={severity}>
       {children}
-    </button>
+      <button data-testid="close-button" onClick={onClose}>
+        Close
+      </button>
+    </div>
   ),
-  LinearProgress: ({ value }: any) => (
-    <div data-testid="linear-progress" data-value={value} />
-  ),
-  Paper: ({ children }: any) => (
-    <div data-testid="error-banner" role="alert">
+  Box: ({ children, sx }: any) => (
+    <div data-testid="box" style={sx}>
       {children}
     </div>
   ),
-  Stack: ({ children }: any) => <div data-testid="stack">{children}</div>,
-  Typography: ({ children }: any) => <span>{children}</span>,
 }));
 
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
@@ -42,29 +39,19 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
 }));
 
 describe("ErrorBanner", () => {
-  it("should render api name and progress", () => {
+  it("should render api name", () => {
     const onClose = vi.fn();
-    render(
-      <ErrorBanner
-        apiName="dashboard statistics"
-        progress={75}
-        onClose={onClose}
-      />,
-    );
+    render(<ErrorBanner apiName="dashboard statistics" onClose={onClose} />);
 
     expect(screen.getByTestId("error-banner")).toBeInTheDocument();
     expect(
       screen.getByText("Error loading dashboard statistics"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("linear-progress")).toHaveAttribute(
-      "data-value",
-      "75",
-    );
   });
 
   it("should call onClose when close button is clicked", () => {
     const onClose = vi.fn();
-    render(<ErrorBanner apiName="projects" progress={50} onClose={onClose} />);
+    render(<ErrorBanner apiName="projects" onClose={onClose} />);
 
     fireEvent.click(screen.getByTestId("close-button"));
 
