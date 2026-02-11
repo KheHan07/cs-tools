@@ -15,7 +15,13 @@
 // under the License.
 
 import { useParams, useNavigate } from "react-router";
-import { useState, useMemo, useEffect, type JSX, type ChangeEvent } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  type JSX,
+  type ChangeEvent,
+} from "react";
 import {
   Box,
   Button,
@@ -62,18 +68,29 @@ export default function AllCasesPage(): JSX.Element {
   // Fetch filter metadata
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
 
+  const caseSearchRequest = useMemo(
+    () => ({
+      filters: {
+        statusId: filters.statusId ? Number(filters.statusId) : undefined,
+        severityId: filters.severityId ? Number(filters.severityId) : undefined,
+        issueId: filters.issueTypes ? Number(filters.issueTypes) : undefined,
+        deploymentId: filters.deploymentId || undefined,
+      },
+      sortBy: {
+        field: "createdOn",
+        order: "desc" as const,
+      },
+    }),
+    [filters],
+  );
+
   // Fetch all cases using infinite query (runs in parallel with stats when projectId and auth are ready)
   const {
     data,
     isLoading: isCasesQueryLoading,
     hasNextPage,
     fetchNextPage,
-  } = useGetProjectCases(projectId || "", {
-    sortBy: {
-      field: "createdOn",
-      order: "desc",
-    },
-  });
+  } = useGetProjectCases(projectId || "", caseSearchRequest);
 
   // Show skeletons until each section has a response (covers query disabled by auth + initial fetch).
   const hasStatsResponse = stats !== undefined;
@@ -95,7 +112,7 @@ export default function AllCasesPage(): JSX.Element {
   const allCases = data?.pages.flatMap((page) => page.cases) ?? [];
   const apiTotalRecords = data?.pages?.[0]?.totalRecords ?? 0;
 
-  // Frontend filtering and search
+  // Frontend search and sort
   const filteredAndSearchedCases = useMemo(() => {
     let filtered = [...allCases];
 
@@ -110,34 +127,6 @@ export default function AllCasesPage(): JSX.Element {
       );
     }
 
-    // Apply status filter
-    if (filters.statusId) {
-      filtered = filtered.filter(
-        (caseItem) => caseItem.status?.id === filters.statusId,
-      );
-    }
-
-    // Apply severity filter
-    if (filters.severityId) {
-      filtered = filtered.filter(
-        (caseItem) => caseItem.severity?.id === filters.severityId,
-      );
-    }
-
-    // Apply category/case type filter
-    if (filters.issueTypes) {
-      filtered = filtered.filter(
-        (caseItem) => caseItem.issueType?.id === filters.issueTypes,
-      );
-    }
-
-    // Apply deployment filter
-    if (filters.deploymentId) {
-      filtered = filtered.filter(
-        (caseItem) => caseItem.deployment?.id === filters.deploymentId,
-      );
-    }
-
     // Apply sorting
     filtered.sort((a, b) => {
       const dateA = new Date(a.createdOn).getTime() || 0;
@@ -146,18 +135,9 @@ export default function AllCasesPage(): JSX.Element {
     });
 
     return filtered;
-  }, [allCases, searchTerm, filters, sortOrder]);
+  }, [allCases, searchTerm, sortOrder]);
 
-  const hasActiveFiltersOrSearch =
-    Boolean(searchTerm.trim()) ||
-    Boolean(filters.statusId) ||
-    Boolean(filters.severityId) ||
-    Boolean(filters.issueTypes) ||
-    Boolean(filters.deploymentId);
-
-  const totalItems = hasActiveFiltersOrSearch
-    ? filteredAndSearchedCases.length
-    : apiTotalRecords || filteredAndSearchedCases.length;
+  const totalItems = apiTotalRecords || filteredAndSearchedCases.length;
 
   // Pagination logic
   const paginatedCases = useMemo(() => {
