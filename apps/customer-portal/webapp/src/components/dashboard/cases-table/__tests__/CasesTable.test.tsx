@@ -19,6 +19,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
 import useGetProjectCases from "@api/useGetProjectCases";
 import useGetCasesFilters from "@api/useGetCasesFilters";
+import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 
 // Mock dependencies
 vi.mock("react-router", () => ({
@@ -35,20 +36,30 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-vi.mock("@wso2/oxygen-ui", () => ({
-  ListingTable: {
-    Container: ({ children }: any) => <div>{children}</div>,
-  },
-  colors: {
-    orange: { 500: "#FF9800" },
-    green: { 500: "#4CAF50" },
-    blue: { 500: "#2196F3" },
-    grey: { 500: "#9E9E9E" },
-    red: { 500: "#F44336" },
-    yellow: { 600: "#FDD835" },
-    purple: { 400: "#AB47BC" },
-  },
+vi.mock("@context/linear-loader/LoaderContext", () => ({
+  useLoader: () => ({
+    showLoader: vi.fn(),
+    hideLoader: vi.fn(),
+  }),
 }));
+
+vi.mock("@hooks/useLogger", () => ({
+  useLogger: () => ({
+    debug: vi.fn(),
+    error: vi.fn(),
+  }),
+}));
+
+vi.mock("@wso2/oxygen-ui", async (importOriginal) => {
+  const actual = (await importOriginal()) as any;
+  return {
+    ...actual,
+    ListingTable: {
+      ...actual.ListingTable,
+      Container: ({ children }: any) => <div>{children}</div>,
+    },
+  };
+});
 
 vi.mock("../CasesTableHeader", () => ({
   default: ({
@@ -79,7 +90,7 @@ vi.mock("../CasesList", () => ({
   ),
 }));
 
-vi.mock("@/components/common/filterPanel/FilterPopover", () => ({
+vi.mock("@components/common/filter-panel/FilterPopover", () => ({
   default: ({ open, onClose, onSearch, isLoading, isError }: any) =>
     open ? (
       <div data-testid="filter-popover">
@@ -96,6 +107,7 @@ vi.mock("@/components/common/filterPanel/FilterPopover", () => ({
 }));
 
 describe("CasesTable", () => {
+  const theme = createTheme();
   const mockProjectId = "proj-123";
   const mockUseGetProjectCases = vi.mocked(useGetProjectCases);
   const mockUseGetCasesFilters = vi.mocked(useGetCasesFilters);
@@ -114,20 +126,28 @@ describe("CasesTable", () => {
   });
 
   it("should render correctly", () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     expect(screen.getByTestId("cases-table-header")).toBeInTheDocument();
     expect(screen.getByTestId("cases-list")).toBeInTheDocument();
     expect(mockUseGetProjectCases).toHaveBeenCalledWith(
       mockProjectId,
       expect.objectContaining({
-        pagination: { offset: 0, limit: 10 },
+        pagination: { offset: 0, limit: 5 },
       }),
     );
   });
 
   it("should open and close filter popover", () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     expect(screen.queryByTestId("filter-popover")).toBeNull();
 
@@ -141,7 +161,11 @@ describe("CasesTable", () => {
   });
 
   it("should update filters and fetch data when searching", async () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     // Open filter and search
     fireEvent.click(screen.getByText("Filter"));
@@ -161,7 +185,11 @@ describe("CasesTable", () => {
   });
 
   it("should handle page changes", async () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     fireEvent.click(screen.getByText("Change Page"));
 
@@ -169,14 +197,18 @@ describe("CasesTable", () => {
       expect(mockUseGetProjectCases).toHaveBeenCalledWith(
         mockProjectId,
         expect.objectContaining({
-          pagination: { offset: 20, limit: 10 }, // Page 2 (index) * 10
+          pagination: { offset: 10, limit: 5 }, // Page 2 (index) * 5
         }),
       );
     });
   });
 
   it("should handle rows per page changes", async () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     fireEvent.click(screen.getByText("Change Rows"));
 
@@ -191,7 +223,11 @@ describe("CasesTable", () => {
   });
 
   it("should handle remove filter", async () => {
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     // Simulate applying a filter first (Search)
     fireEvent.click(screen.getByText("Filter"));
@@ -213,11 +249,15 @@ describe("CasesTable", () => {
 
   it("should propagate loading and error states to FilterPopover", () => {
     mockUseGetCasesFilters.mockReturnValue({
-      isLoading: true,
+      isFetching: true,
       isError: true,
     } as any);
 
-    render(<CasesTable projectId={mockProjectId} />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CasesTable projectId={mockProjectId} />
+      </ThemeProvider>,
+    );
 
     // Open filter
     fireEvent.click(screen.getByText("Filter"));

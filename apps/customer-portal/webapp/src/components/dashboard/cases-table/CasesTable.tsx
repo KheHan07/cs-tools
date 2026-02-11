@@ -53,7 +53,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
       label: "Status",
       type: "select",
       options:
-        filtersMetadata?.statuses.map((s) => ({
+        filtersMetadata?.statuses?.map((s) => ({
           label: s.label,
           value: s.id,
         })) || [],
@@ -63,27 +63,30 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
       label: "Severity",
       type: "select",
       options:
-        filtersMetadata?.severities.map((s) => ({
+        filtersMetadata?.severities?.map((s) => ({
           label: s.label,
           value: s.id,
         })) || [],
     },
     {
-      id: "caseTypes",
+      id: "issueTypes",
       label: "Case Type",
       type: "select",
-      options: filtersMetadata?.caseTypes.map((t) => t.label) || [],
+      options:
+        filtersMetadata?.issueTypes?.map((t) => ({
+          label: t.label,
+          value: t.id,
+        })) || [],
     },
     {
       id: "deploymentId",
       label: "Deployment",
       type: "select",
-      options: [
-        { label: "Development", value: "Development" },
-        { label: "Production", value: "Production" },
-        { label: "QA", value: "QA" },
-        { label: "Staging", value: "Staging" },
-      ],
+      options:
+        filtersMetadata?.deployments?.map((d) => ({
+          label: d.label,
+          value: d.id,
+        })) || [],
     },
   ];
 
@@ -94,12 +97,16 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
   const requestBody: CaseSearchRequest = {
     ...(hasFilters && {
       filters: {
-        deploymentId: filters.deploymentId || undefined,
+        deploymentId: filters.deploymentId
+          ? parseInt(filters.deploymentId, 10)
+          : undefined,
         severityId: filters.severityId
           ? parseInt(filters.severityId, 10)
           : undefined,
         statusId: filters.statusId ? parseInt(filters.statusId, 10) : undefined,
-        caseTypes: filters.caseTypes ? [filters.caseTypes] : undefined,
+        issueId: filters.issueTypes
+          ? parseInt(filters.issueTypes, 10)
+          : undefined,
       },
     }),
     pagination: {
