@@ -23,8 +23,14 @@ export const ERROR_BANNER_PROGRESS_INTERVAL_MS = 100;
 // Footer height in pixels.
 export const FOOTER_HEIGHT_PX = 64;
 
+// Header height in pixels.
+export const HEADER_HEIGHT_PX = 64;
+
 // Vertical gap in pixels.
 export const BANNER_FOOTER_GAP_PX = 24;
+
+// Vertical gap from the top in pixels.
+export const BANNER_HEADER_GAP_PX = 24;
 
 // Horizontal gap in pixels.
 export const BANNER_RIGHT_GAP_PX = 24;

@@ -16,10 +16,11 @@
 
 import { Alert, Box } from "@wso2/oxygen-ui";
 import {
-  BANNER_FOOTER_GAP_PX,
+  BANNER_HEADER_GAP_PX,
   BANNER_RIGHT_GAP_PX,
-  FOOTER_HEIGHT_PX,
+  HEADER_HEIGHT_PX,
 } from "@constants/errorBannerConstants";
+import type { JSX } from "react";
 
 interface ErrorBannerProps {
   apiName: string;
@@ -41,7 +42,7 @@ export default function ErrorBanner({
     <Box
       sx={{
         position: "fixed",
-        bottom: FOOTER_HEIGHT_PX + BANNER_FOOTER_GAP_PX,
+        top: HEADER_HEIGHT_PX + BANNER_HEADER_GAP_PX,
         right: BANNER_RIGHT_GAP_PX,
         width: 400,
         zIndex: 10,
@@ -50,7 +51,6 @@ export default function ErrorBanner({
       <Alert
         severity="error"
         onClose={onClose}
-        //variant="filled"
         elevation={6}
         sx={{ width: "100%" }}
       >
