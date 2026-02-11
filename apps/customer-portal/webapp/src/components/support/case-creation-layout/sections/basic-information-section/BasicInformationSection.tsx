@@ -62,16 +62,19 @@ export const BasicInformationSection = ({
 }: BasicInformationSectionProps): JSX.Element => {
   const [isEditing, setIsEditing] = useState(false);
   const deploymentOptions = Array.from(
-    new Set([
-      ...(metadata?.deploymentTypes ?? []),
-      ...(extraDeploymentOptions ?? []),
-    ].filter((value) => value && value.trim() !== "")),
+    new Set(
+      [
+        ...(metadata?.deploymentTypes ?? []),
+        ...(extraDeploymentOptions ?? []),
+      ].filter((value) => value && value.trim() !== ""),
+    ),
   );
   const productOptions = Array.from(
-    new Set([
-      ...(metadata?.products ?? []),
-      ...(extraProductOptions ?? []),
-    ].filter((value) => value && value.trim() !== "")),
+    new Set(
+      [...(metadata?.products ?? []), ...(extraProductOptions ?? [])].filter(
+        (value) => value && value.trim() !== "",
+      ),
+    ),
   );
 
   return (
