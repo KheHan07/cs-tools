@@ -48,7 +48,7 @@ export default function AllCasesPage(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<AllCasesFilterValues>({});
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("asc");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -63,13 +63,16 @@ export default function AllCasesPage(): JSX.Element {
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
 
   // Fetch all cases
-  const { data: casesData, isFetching: isCasesLoading } = useGetProjectCases(
-    projectId || "",
-    {
-      pagination: { offset: 0, limit: 1000 },
-      sortBy: { field: "createdOn", order: "desc" },
-    },
-  );
+  const { data: casesData, isFetching: isCasesLoading } = useGetProjectCases(projectId || "", {
+  pagination: {
+    limit: 10,
+    offset: 0,
+  },
+  sortBy: {
+    field: "createdOn",
+    order: "desc",
+  },
+});
 
   const allCases = casesData?.cases ?? [];
 

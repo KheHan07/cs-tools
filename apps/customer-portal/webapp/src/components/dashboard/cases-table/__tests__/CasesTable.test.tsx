@@ -69,8 +69,15 @@ vi.mock("../CasesTableHeader", () => ({
     onClearAll,
   }: any) => (
     <div data-testid="cases-table-header">
-      <button onClick={onFilterClick}>Filter</button>
-      <button onClick={() => onRemoveFilter("statusId")}>Remove status</button>
+      <button onClick={onFilterClick} data-testid="filter-button">
+        Filter
+      </button>
+      <button
+        onClick={() => onRemoveFilter("statusId")}
+        data-testid="remove-status-button"
+      >
+        Remove status
+      </button>
       <button onClick={() => onUpdateFilter("priority", "High")}>
         Update priority
       </button>
@@ -80,8 +87,10 @@ vi.mock("../CasesTableHeader", () => ({
 }));
 
 vi.mock("../CasesList", () => ({
-  default: ({ onPageChange, onRowsPerPageChange }: any) => (
+  default: ({ data, onPageChange, onRowsPerPageChange }: any) => (
     <div data-testid="cases-list">
+      <span data-testid="case-count">{data?.cases.length || 0}</span>
+      <span data-testid="total-records">{data?.totalRecords || 0}</span>
       <button onClick={() => onPageChange(null, 2)}>Change Page</button>
       <button onClick={() => onRowsPerPageChange({ target: { value: "25" } })}>
         Change Rows
@@ -116,7 +125,7 @@ describe("CasesTable", () => {
     vi.clearAllMocks();
     mockUseGetProjectCases.mockReturnValue({
       data: { cases: [], totalRecords: 0, offset: 0, limit: 10 },
-      isLoading: false,
+      isFetching: false,
     } as any);
     mockUseGetCasesFilters.mockReturnValue({
       data: undefined,
@@ -137,7 +146,14 @@ describe("CasesTable", () => {
     expect(mockUseGetProjectCases).toHaveBeenCalledWith(
       mockProjectId,
       expect.objectContaining({
-        pagination: { offset: 0, limit: 5 },
+        pagination: { offset: 0, limit: 1000 },
+        filters: expect.objectContaining({
+          deploymentId: "",
+          issueId: 0,
+          severityId: 0,
+          statusId: 0,
+        }),
+        sortBy: { field: "createdOn", order: "asc" },
       }),
     );
   });
@@ -161,6 +177,18 @@ describe("CasesTable", () => {
   });
 
   it("should update filters and fetch data when searching", async () => {
+    // Simulate some cases in rawData
+    mockUseGetProjectCases.mockReturnValue({
+      data: {
+        cases: [
+          { id: "1", status: { id: "1" }, severity: { id: "2" } },
+          { id: "2", status: { id: "2" }, severity: { id: "2" } },
+        ],
+        totalRecords: 2,
+      },
+      isFetching: false,
+    } as any);
+
     render(
       <ThemeProvider theme={theme}>
         <CasesTable projectId={mockProjectId} />
@@ -172,15 +200,10 @@ describe("CasesTable", () => {
     fireEvent.click(screen.getByText("Search"));
 
     await waitFor(() => {
-      expect(mockUseGetProjectCases).toHaveBeenCalledWith(
-        mockProjectId,
-        expect.objectContaining({
-          filters: expect.objectContaining({
-            statusId: 1,
-            severityId: 2,
-          }),
-        }),
-      );
+      // The count should be 1 (filtered locally)
+      expect(screen.getByTestId("case-count")).toHaveTextContent("1");
+      // Total records in current view should be 1
+      expect(screen.getByTestId("total-records")).toHaveTextContent("1");
     });
   });
 
@@ -191,13 +214,15 @@ describe("CasesTable", () => {
       </ThemeProvider>,
     );
 
+    // Handle page changes should not trigger a new API call in client-side mode
     fireEvent.click(screen.getByText("Change Page"));
 
     await waitFor(() => {
+      // Still only called with the initial load params (once or twice depending on render cycles)
       expect(mockUseGetProjectCases).toHaveBeenCalledWith(
         mockProjectId,
         expect.objectContaining({
-          pagination: { offset: 10, limit: 5 }, // Page 2 (index) * 5
+          pagination: { offset: 0, limit: 1000 },
         }),
       );
     });
@@ -213,37 +238,46 @@ describe("CasesTable", () => {
     fireEvent.click(screen.getByText("Change Rows"));
 
     await waitFor(() => {
+      // Still only called with initial load params
       expect(mockUseGetProjectCases).toHaveBeenCalledWith(
         mockProjectId,
         expect.objectContaining({
-          pagination: { offset: 0, limit: 25 }, // Reset to page 0
+          pagination: { offset: 0, limit: 1000 },
         }),
       );
     });
   });
 
   it("should handle remove filter", async () => {
+    // Simulate some cases in rawData
+    mockUseGetProjectCases.mockReturnValue({
+      data: {
+        cases: [{ id: "1", status: { id: "1" } }],
+        totalRecords: 1,
+      },
+      isFetching: false,
+    } as any);
+
     render(
       <ThemeProvider theme={theme}>
         <CasesTable projectId={mockProjectId} />
       </ThemeProvider>,
     );
 
-    // Simulate applying a filter first (Search)
-    fireEvent.click(screen.getByText("Filter"));
+    // Filter by statusId: "1"
+    const filterBtn = await screen.findByTestId("filter-button");
+    fireEvent.click(filterBtn);
     fireEvent.click(screen.getByText("Search"));
 
-    // Then remove
-    fireEvent.click(screen.getByText("Remove status"));
+    await waitFor(() => {
+      expect(screen.getByTestId("case-count")).toHaveTextContent("1");
+    });
+
+    // Remove status filter
+    fireEvent.click(screen.getByTestId("remove-status-button"));
 
     await waitFor(() => {
-      // Expect statusId to be undefined or removed from filters
-      expect(mockUseGetProjectCases).toHaveBeenCalledWith(
-        mockProjectId,
-        expect.objectContaining({
-          filters: expect.not.objectContaining({ statusId: expect.anything() }),
-        }),
-      );
+      expect(screen.getByTestId("case-count")).toHaveTextContent("1");
     });
   });
 

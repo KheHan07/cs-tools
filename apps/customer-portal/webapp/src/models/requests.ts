@@ -29,7 +29,7 @@ export interface SearchProjectsRequest {
 export interface CaseSearchRequest {
   filters?: {
     issueId?: number;
-    deploymentId?: number;
+    deploymentId?: string;
     severityId?: number;
     statusId?: number;
   };

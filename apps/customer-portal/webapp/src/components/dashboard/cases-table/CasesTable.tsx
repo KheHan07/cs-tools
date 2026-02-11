@@ -15,7 +15,7 @@
 // under the License.
 
 import { ListingTable } from "@wso2/oxygen-ui";
-import { type JSX, useState, useEffect } from "react";
+import { type JSX, useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
 import useGetProjectCases from "@api/useGetProjectCases";
@@ -90,28 +90,10 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
     },
   ];
 
-  const parseFilterId = (value: string | undefined): number | undefined => {
-    if (!value) return undefined;
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? undefined : parsed;
-  };
-
-  const hasFilters = Object.values(filters).some(
-    (val) => val !== undefined && val !== "" && val !== null,
-  );
-
   const requestBody: CaseSearchRequest = {
-    ...(hasFilters && {
-      filters: {
-        deploymentId: parseFilterId(filters.deploymentId),
-        severityId: parseFilterId(filters.severityId),
-        statusId: parseFilterId(filters.statusId),
-        issueId: parseFilterId(filters.issueTypes),
-      },
-    }),
     pagination: {
-      offset: page * rowsPerPage,
-      limit: rowsPerPage,
+      offset: 0,
+      limit: 1000,
     },
     sortBy: {
       field: "createdOn",
@@ -120,10 +102,43 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
   };
 
   const {
-    data,
+    data: rawData,
     isFetching: isFetchingCases,
     isError,
   } = useGetProjectCases(projectId, requestBody);
+
+  const allCases = rawData?.cases ?? [];
+
+  const filteredCases = useMemo(() => {
+    let filtered = [...allCases];
+
+    if (filters.statusId) {
+      filtered = filtered.filter((c) => c.status?.id === filters.statusId);
+    }
+    if (filters.severityId) {
+      filtered = filtered.filter((c) => c.severity?.id === filters.severityId);
+    }
+    if (filters.issueTypes) {
+      filtered = filtered.filter((c) => c.issueType?.id === filters.issueTypes);
+    }
+    if (filters.deploymentId) {
+      filtered = filtered.filter(
+        (c) => c.deployment?.id === filters.deploymentId,
+      );
+    }
+
+    return filtered;
+  }, [allCases, filters]);
+
+  const paginatedData = useMemo(() => {
+    const startIndex = page * rowsPerPage;
+    return {
+      cases: filteredCases.slice(startIndex, startIndex + rowsPerPage),
+      totalRecords: filteredCases.length,
+      offset: startIndex,
+      limit: rowsPerPage,
+    };
+  }, [filteredCases, page, rowsPerPage]);
 
   const tableLoading = isAuthLoading || isFetchingCases || isFetchingFilters;
 
@@ -218,7 +233,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
       <CasesList
         isLoading={isFetchingCases || isAuthLoading}
         isError={isError}
-        data={data}
+        data={paginatedData}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
