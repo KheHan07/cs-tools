@@ -24,7 +24,6 @@ import { useLoader } from "@context/linear-loader/LoaderContext";
 import FilterPopover, {
   type FilterField,
 } from "@components/common/filter-panel/FilterPopover";
-import type { CaseSearchRequest } from "@models/requests";
 import CasesTableHeader from "@components/dashboard/cases-table/CasesTableHeader";
 import CasesList from "@components/dashboard/cases-table/CasesList";
 
@@ -90,24 +89,18 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
     },
   ];
 
-  const requestBody: CaseSearchRequest = {
-    pagination: {
-      offset: 0,
-      limit: 1000,
-    },
+  const {
+    data,
+    isFetching: isFetchingCases,
+    isError,
+  } = useGetProjectCases(projectId, {
     sortBy: {
       field: "createdOn",
       order: "desc",
     },
-  };
+  });
 
-  const {
-    data: rawData,
-    isFetching: isFetchingCases,
-    isError,
-  } = useGetProjectCases(projectId, requestBody);
-
-  const allCases = rawData?.cases ?? [];
+  const allCases = data?.pages.flatMap((page) => page.cases) ?? [];
 
   const filteredCases = useMemo(() => {
     let filtered = [...allCases];
