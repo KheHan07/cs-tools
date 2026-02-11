@@ -101,6 +101,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
   });
 
   const allCases = data?.pages.flatMap((page) => page.cases) ?? [];
+  const apiTotalRecords = data?.pages?.[0]?.totalRecords ?? 0;
 
   const filteredCases = useMemo(() => {
     let filtered = [...allCases];
@@ -125,13 +126,18 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
 
   const paginatedData = useMemo(() => {
     const startIndex = page * rowsPerPage;
+    const hasActiveFilters = Object.keys(filters).length > 0;
+    const totalRecords = hasActiveFilters
+      ? filteredCases.length
+      : apiTotalRecords || filteredCases.length;
+
     return {
       cases: filteredCases.slice(startIndex, startIndex + rowsPerPage),
-      totalRecords: filteredCases.length,
+      totalRecords,
       offset: startIndex,
       limit: rowsPerPage,
     };
-  }, [filteredCases, page, rowsPerPage]);
+  }, [filteredCases, page, rowsPerPage, filters, apiTotalRecords]);
 
   const tableLoading = isAuthLoading || isFetchingCases || isFetchingFilters;
 
