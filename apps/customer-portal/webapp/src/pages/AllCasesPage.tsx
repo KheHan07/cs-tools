@@ -95,7 +95,7 @@ export default function AllCasesPage(): JSX.Element {
   // Show skeletons until each section has a response (covers query disabled by auth + initial fetch).
   const hasStatsResponse = stats !== undefined;
   const hasCasesResponse = data !== undefined;
-  const isStatsAreaLoading =
+  const isStatsLoading =
     isStatsQueryLoading || (!!projectId && !hasStatsResponse);
   const isCasesAreaLoading =
     isCasesQueryLoading || (!!projectId && !hasCasesResponse);
@@ -201,7 +201,7 @@ export default function AllCasesPage(): JSX.Element {
 
       {/* Stat cards */}
       <AllCasesStatCards
-        isLoading={isStatsAreaLoading}
+        isLoading={isStatsLoading}
         isError={isStatsError}
         stats={stats}
       />
