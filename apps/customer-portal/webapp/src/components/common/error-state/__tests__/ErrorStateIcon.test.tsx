@@ -25,7 +25,7 @@ describe("ErrorStateIcon", () => {
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveAttribute("viewBox", "0 0 592 421");
-    expect(svg).toHaveAttribute("aria-hidden", "");
+    expect(svg).toHaveAttribute("aria-hidden", "true");
   });
 
   it("should accept and pass through SVG props", () => {
