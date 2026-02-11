@@ -82,11 +82,11 @@ describe("SupportStatGrid", () => {
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("should handle missing stats gracefully by showing 0", () => {
+  it('should handle missing stats gracefully by showing "--"', () => {
     render(
       <SupportStatGrid isLoading={false} configs={mockConfigs} stats={{}} />,
     );
 
-    expect(screen.getAllByText("0")).toHaveLength(2);
+    expect(screen.getAllByText("--")).toHaveLength(2);
   });
 });

@@ -93,6 +93,13 @@ export interface ProjectCasesStats {
   };
 }
 
+// Project time tracking statistics.
+export interface ProjectTimeTrackingStats {
+  totalHours: number;
+  billableHours: number;
+  nonBillableHours: number;
+}
+
 export interface TrendData {
   value: string;
   direction: "up" | "down";

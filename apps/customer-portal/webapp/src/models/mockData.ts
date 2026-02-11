@@ -649,7 +649,7 @@ export const mockCases: CaseListItem[] = [
       label: "High (P2)",
     },
     status: {
-      id: "10",
+      id: "1001",
       label: CASE_STATUS.IN_PROGRESS,
     },
   },
