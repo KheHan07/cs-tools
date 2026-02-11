@@ -217,6 +217,6 @@ public type UpdateLevel record {|
     # Channel
     string channel;
     # Update level
-    @jsondata:Name {value: "update-level"}
+    @jsondata:Name {value: "update-levels"}
     int[] updateLevels;
 |};
