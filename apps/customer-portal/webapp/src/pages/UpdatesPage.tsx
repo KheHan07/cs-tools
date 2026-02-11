@@ -14,12 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box } from "@wso2/oxygen-ui";
+import { Box, Typography } from "@wso2/oxygen-ui";
 import { useParams } from "react-router";
-import { useState, type JSX } from "react";
+import { useState, useEffect, useRef, type JSX } from "react";
 import TabBar from "@components/common/tab-bar/TabBar";
 import { UpdatesStatsGrid } from "@components/updates/UpdatesStatsGrid";
 import { useGetUpdatesStats } from "@api/useGetUpdatesStats";
+import { useLoader } from "@context/linear-loader/LoaderContext";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import { useLogger } from "@hooks/useLogger";
 
 const UPDATES_TABS = [
   { id: "my-updates", label: "My Updates" },
@@ -32,10 +35,57 @@ const UPDATES_TABS = [
  * @returns {JSX.Element} The rendered Updates page.
  */
 export default function UpdatesPage(): JSX.Element {
+  const logger = useLogger();
   const { projectId } = useParams<{ projectId: string }>();
   const [activeTab, setActiveTab] = useState("my-updates");
+  const { showLoader, hideLoader } = useLoader();
+  const { showError } = useErrorBanner();
+  const hasShownErrorRef = useRef(false);
 
   const { data, isLoading, isError } = useGetUpdatesStats(projectId || "");
+
+  const isUpdatesLoading = isLoading || (!data && !isError);
+
+  useEffect(() => {
+    if (isUpdatesLoading) {
+      showLoader();
+      return () => hideLoader();
+    }
+  }, [isUpdatesLoading, showLoader, hideLoader]);
+
+  useEffect(() => {
+    if (data) {
+      logger.debug(`Updates data loaded for project ID: ${projectId}`);
+    }
+  }, [data, logger, projectId]);
+
+  useEffect(() => {
+    if (isError && !hasShownErrorRef.current) {
+      hasShownErrorRef.current = true;
+      showError("updates statistics");
+      logger.error(`Failed to load updates stats for project ID: ${projectId}`);
+    }
+    if (!isError) {
+      hasShownErrorRef.current = false;
+    }
+  }, [isError, showError, logger, projectId]);
+
+  const renderContent = (): JSX.Element => {
+    if (activeTab === "my-updates") {
+      return (
+        <UpdatesStatsGrid
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+        />
+      );
+    }
+    return (
+      <Typography variant="body1" color="text.secondary">
+        All updates content
+      </Typography>
+    );
+  };
 
   return (
     <Box sx={{ width: "100%", pt: 0 }}>
@@ -44,11 +94,7 @@ export default function UpdatesPage(): JSX.Element {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      <UpdatesStatsGrid
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-      />
+      {renderContent()}
     </Box>
   );
 }
