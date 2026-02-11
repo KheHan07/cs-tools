@@ -19,7 +19,7 @@ import { useParams } from "react-router";
 import { useState, useEffect, useRef, type JSX } from "react";
 import TabBar from "@components/common/tab-bar/TabBar";
 import { UpdatesStatsGrid } from "@components/updates/UpdatesStatsGrid";
-import { useGetUpdatesStats } from "@api/useGetUpdatesStats";
+import { useGetProductUpdatesStats } from "@api/useGetProductUpdatesStats";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useLogger } from "@hooks/useLogger";
@@ -42,7 +42,7 @@ export default function UpdatesPage(): JSX.Element {
   const { showError } = useErrorBanner();
   const hasShownErrorRef = useRef(false);
 
-  const { data, isLoading, isError } = useGetUpdatesStats(projectId || "");
+  const { data, isLoading, isError } = useGetProductUpdatesStats(projectId || "");
 
   const isUpdatesLoading = isLoading || (!data && !isError);
 
