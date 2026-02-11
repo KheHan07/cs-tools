@@ -109,7 +109,6 @@ vi.mock("@wso2/oxygen-ui", () => ({
     </div>
   ),
   Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
-  alpha: (color: string, opacity: number) => `alpha(${color}, ${opacity})`,
   useTheme: () => ({
     palette: {
       primary: { main: "#0070F3" },
