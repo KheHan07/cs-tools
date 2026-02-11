@@ -1523,6 +1523,9 @@ export const mockCaseComments: CaseComment[] = [
     createdOn: "2025-12-23 14:42:46",
     createdBy: "para-admin@wso2.com",
     isEscalated: false,
+  },
+];
+
 // Mock deployments for project detail Deployments tab.
 export const mockDeployments: Deployment[] = [
   {
