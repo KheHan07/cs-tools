@@ -23,32 +23,6 @@ import { CaseDetailsSection } from "@components/support/case-creation-layout/sec
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,
   Chip: ({ label }: any) => <div>{label}</div>,
-  ComplexSelect: Object.assign(
-    ({ children, value, onChange, disabled, renderValue }: any) => (
-      <div data-testid="complex-select-wrapper">
-        <div data-testid="complex-select-display">
-          {renderValue ? renderValue(value) : value}
-        </div>
-        <select
-          data-testid="complex-select"
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-        >
-          {children}
-        </select>
-      </div>
-    ),
-    {
-      MenuItem: Object.assign(
-        ({ value }: any) => <option value={value}>{value}</option>,
-        {
-          Icon: () => null,
-          Text: ({ primary }: any) => primary,
-        },
-      ),
-    },
-  ),
   Form: {
     ElementWrapper: ({ children }: any) => <div>{children}</div>,
   },
@@ -68,13 +42,14 @@ vi.mock("@wso2/oxygen-ui", () => ({
     <option value={value}>{children}</option>
   ),
   Paper: ({ children }: any) => <div>{children}</div>,
-  Select: ({ children, value, onChange, disabled, renderValue }: any) => (
+  Select: ({ children, value, onChange, disabled, renderValue, id }: any) => (
     <div data-testid="select-wrapper">
       <div data-testid="select-display">
         {renderValue ? renderValue(value) : value}
       </div>
       <select
-        data-testid="select"
+        id={id}
+        data-testid={id || "select"}
         value={value}
         onChange={onChange}
         disabled={disabled}
@@ -159,14 +134,14 @@ describe("CaseDetailsSection", () => {
     expect(screen.getByTestId("case-description-editor")).toHaveValue(
       "Old Desc",
     );
-    expect(screen.getByTestId("select")).toHaveValue("Performance");
-    expect(screen.getByTestId("complex-select")).toHaveValue("S2");
+    expect(screen.getByTestId("issue-type-select")).toHaveValue("Performance");
+    expect(screen.getByTestId("severity-level-select")).toHaveValue("S2");
 
     // All fields disabled by default
     expect(screen.getByTestId("input-title")).toBeDisabled();
     expect(screen.getByTestId("case-description-editor")).toBeDisabled();
-    expect(screen.getByTestId("select")).toBeDisabled();
-    expect(screen.getByTestId("complex-select")).toBeDisabled();
+    expect(screen.getByTestId("issue-type-select")).toBeDisabled();
+    expect(screen.getByTestId("severity-level-select")).toBeDisabled();
   });
 
   it("should enable fields when edit mode is toggled", () => {
@@ -177,8 +152,8 @@ describe("CaseDetailsSection", () => {
 
     expect(screen.getByTestId("input-title")).not.toBeDisabled();
     expect(screen.getByTestId("case-description-editor")).not.toBeDisabled();
-    expect(screen.getByTestId("select")).not.toBeDisabled();
-    expect(screen.getByTestId("complex-select")).not.toBeDisabled();
+    expect(screen.getByTestId("issue-type-select")).not.toBeDisabled();
+    expect(screen.getByTestId("severity-level-select")).not.toBeDisabled();
   });
 
   it("should call setters when inputs change in edit mode", () => {
@@ -197,12 +172,12 @@ describe("CaseDetailsSection", () => {
     });
     expect(defaultProps.setDescription).toHaveBeenCalledWith("New Desc");
 
-    fireEvent.change(screen.getByTestId("select"), {
+    fireEvent.change(screen.getByTestId("issue-type-select"), {
       target: { value: "Outage" },
     });
     expect(defaultProps.setIssueType).toHaveBeenCalledWith("Outage");
 
-    fireEvent.change(screen.getByTestId("complex-select"), {
+    fireEvent.change(screen.getByTestId("severity-level-select"), {
       target: { value: "S1" },
     });
     expect(defaultProps.setSeverity).toHaveBeenCalledWith("S1");

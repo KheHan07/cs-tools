@@ -19,6 +19,7 @@ import { CircleCheck } from "@wso2/oxygen-ui-icons-react";
 import { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useGetCaseCreationDetails } from "@api/useGetCaseCreationDetails";
+import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectDetails from "@api/useGetProjectDetails";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
@@ -45,6 +46,9 @@ export default function CreateCasePage(): JSX.Element {
   const { data: metadata, isLoading, isError } = useGetCaseCreationDetails();
   const { data: projectDetails, isLoading: isProjectLoading } =
     useGetProjectDetails(projectId || "");
+  const { data: filters, isLoading: isFiltersLoading } = useGetCasesFilters(
+    projectId || "",
+  );
 
   const [project, setProject] = useState("");
   const [title, setTitle] = useState("");
@@ -57,13 +61,13 @@ export default function CreateCasePage(): JSX.Element {
   const hasInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (isLoading || isProjectLoading) {
+    if (isLoading || isProjectLoading || isFiltersLoading) {
       showLoader();
     } else {
       hideLoader();
     }
     return () => hideLoader();
-  }, [isLoading, isProjectLoading, showLoader, hideLoader]);
+  }, [isLoading, isProjectLoading, isFiltersLoading, showLoader, hideLoader]);
 
   useEffect(() => {
     if (projectDetails?.name) {
@@ -78,13 +82,21 @@ export default function CreateCasePage(): JSX.Element {
       }
       setProduct(metadata.products?.[0] || "");
       setDeployment(metadata.deploymentTypes?.[0] || "");
-      setIssueType(metadata.issueTypes?.[0] || "");
-      setSeverity(metadata.severityLevels?.[1]?.id || "");
+
+      // TODO: Remove this fallback logic once the mock interface removed.
+      const initialIssueType =
+        filters?.issueTypes?.[0]?.label || metadata.issueTypes?.[0] || "";
+      const initialSeverity =
+        filters?.severities?.[1]?.id || metadata.severityLevels?.[1]?.id || "";
+
+      setIssueType(initialIssueType);
+      setSeverity(initialSeverity);
+
       setTitle(getGeneratedIssueTitle());
       setDescription(getGeneratedIssueDescription());
       hasInitializedRef.current = true;
     }
-  }, [metadata, project, projectId]);
+  }, [metadata, filters, project, projectId]);
 
   useEffect(() => {
     if (isError) {
@@ -147,7 +159,8 @@ export default function CreateCasePage(): JSX.Element {
               severity={severity}
               setSeverity={setSeverity}
               metadata={metadata}
-              isLoading={isLoading}
+              filters={filters}
+              isLoading={isLoading || isFiltersLoading}
               storageKey={
                 projectId ? `create-case-draft-${projectId}` : undefined
               }

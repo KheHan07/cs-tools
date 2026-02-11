@@ -26,7 +26,7 @@ import {
 import { Calendar, FileText, User } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
-import { getPriorityColor, getStatusColor } from "@utils/casesTable";
+import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatRelativeTime,
   resolveColorFromTheme,
@@ -111,7 +111,7 @@ export default function AllCasesList({
                         width: 8,
                         height: 8,
                         borderRadius: "50%",
-                        bgcolor: `${getPriorityColor(caseItem.severity?.label)}.main`,
+                        bgcolor: getSeverityColor(caseItem.severity?.label),
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">

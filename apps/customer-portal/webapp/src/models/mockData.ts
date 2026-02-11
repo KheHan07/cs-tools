@@ -227,46 +227,19 @@ export const mockCaseCreationMetadata: CaseCreationMetadata = {
   ],
   deploymentTypes: ["Production", "Non-Production", "Development"],
   issueTypes: [
-    "Query",
-    "Bug",
-    "Sub-Task",
-    "Announcement",
-    "Admin Task",
-    "Story",
-    "New Feature",
-    "Change Requests",
-    "Service Request",
-    "Hosting Query",
-    "Cloud Incident",
-    "Incident",
-    "Engagement",
-    "NFR",
-    "Security Report Analysis",
-    "Cloud Query",
-    "Hosting",
-    "Task",
-    "Improvement",
-    "Test",
-    "Hosting Task",
+    "Error",
+    "Partial Outage",
+    "Performance Degradation",
+    "Question",
+    "Security or Compliance",
+    "Total Outage",
   ],
   severityLevels: [
-    {
-      id: "14",
-      label: "Catastrophic (P0)",
-      description: "Business critical system down",
-    },
-    {
-      id: "10",
-      label: "Critical (P1)",
-      description: "Business critical system down",
-    },
-    {
-      id: "11",
-      label: "High (P2)",
-      description: "Important features affected",
-    },
-    { id: "12", label: "Medium (P3)", description: "Minor issues" },
-    { id: "13", label: "Low (P4)", description: "General questions" },
+    { id: "60", label: "S0", description: "Business critical system down" },
+    { id: "61", label: "S1", description: "Important features affected" },
+    { id: "62", label: "S2", description: "Moderate impact" },
+    { id: "63", label: "S3", description: "Minor issue" },
+    { id: "64", label: "S4", description: "General question" },
   ],
   conversationSummary: {
     messagesExchanged: 8,
@@ -648,7 +621,7 @@ export const mockCases: CaseListItem[] = [
     },
     status: {
       id: "10",
-      label: CASE_STATUS.IN_PROGRESS,
+      label: CASE_STATUS.WORK_IN_PROGRESS,
     },
   },
   {
@@ -1493,7 +1466,7 @@ export const mockCaseDetails: CaseDetails = {
   deployedProduct: null,
   issueType: null,
   state: { id: 1, label: "Open" },
-  severity: { id: 10, label: "Critical (P1)" },
+  severity: { id: 60, label: "S0" },
 };
 
 // Mock case comments.
@@ -1501,7 +1474,7 @@ export const mockCaseComments: CaseComment[] = [
   {
     id: "1398232c1bceb290a002c9d3604bcb27",
     content:
-      "[code]<p>Test comment</p><p><img src=\"/db98232c1bceb290a002c9d3604bcb27.iix\"></p><p><br></p><p>test</p>[/code]",
+      '[code]<p>Test comment</p><p><img src="/db98232c1bceb290a002c9d3604bcb27.iix"></p><p><br></p><p>test</p>[/code]',
     type: "comments",
     createdOn: "2025-12-23 14:49:58",
     createdBy: "para-admin@wso2.com",
@@ -1509,7 +1482,8 @@ export const mockCaseComments: CaseComment[] = [
   },
   {
     id: "712727a81bceb290a002c9d3604bcbcc",
-    content: "[code]<p>www</p><p><img src=\"/3d2727a81bceb290a002c9d3604bcbcc.iix\"></p>[/code]",
+    content:
+      '[code]<p>www</p><p><img src="/3d2727a81bceb290a002c9d3604bcbcc.iix"></p>[/code]',
     type: "comments",
     createdOn: "2025-12-23 14:43:36",
     createdBy: "para-admin@wso2.com",

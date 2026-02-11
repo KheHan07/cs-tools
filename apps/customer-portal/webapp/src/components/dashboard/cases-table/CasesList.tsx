@@ -32,7 +32,7 @@ import {
 import { ExternalLink, MoreVertical } from "@wso2/oxygen-ui-icons-react";
 import { type JSX, type ChangeEvent } from "react";
 import type { CaseSearchResponse } from "@models/responses";
-import { getPriorityColor, getStatusColor } from "@utils/casesTable";
+import { getSeverityColor, getStatusColor } from "@utils/casesTable";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CasesTableSkeleton from "@components/dashboard/cases-table/CasesTableSkeleton";
 
@@ -159,8 +159,12 @@ const CasesList = ({
                     <Chip
                       label={row.severity?.label || "--"}
                       size="small"
-                      color={getPriorityColor(row.severity?.label)}
                       variant="outlined"
+                      sx={{
+                        color: getSeverityColor(row.severity?.label),
+                        borderColor: getSeverityColor(row.severity?.label),
+                        fontWeight: 500,
+                      }}
                     />
                   </TableCell>
                   <TableCell>

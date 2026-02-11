@@ -28,7 +28,7 @@ import { Clock } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
 import OutstandingCasesSkeleton from "./OutstandingCasesSkeleton";
-import { getPriorityColor, getStatusColor } from "@utils/casesTable";
+import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import { formatRelativeTime, resolveColorFromTheme } from "@utils/support";
 
 export interface OutstandingCasesListProps {
@@ -96,7 +96,7 @@ export default function OutstandingCasesList({
                       height: 8,
                       borderRadius: "50%",
                       flexShrink: 0,
-                      bgcolor: `${getPriorityColor(c.severity?.label)}.main`,
+                      bgcolor: getSeverityColor(c.severity?.label),
                     }}
                   />
                   <Typography variant="caption" color="text.secondary">

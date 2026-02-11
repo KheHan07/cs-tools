@@ -174,29 +174,24 @@ export const SLA_STATUS = {
 
 export type SLAStatus = (typeof SLA_STATUS)[keyof typeof SLA_STATUS];
 
-export const CASE_PRIORITY = {
-  CATASTROPHIC: "Catastrophic (P0)",
-  CRITICAL: "Critical (P1)",
-  HIGH: "High (P2)",
-  MEDIUM: "Medium (P3)",
-  LOW: "Low (P4)",
+export const CASE_SEVERITY = {
+  S0: "S0",
+  S1: "S1",
+  S2: "S2",
+  S3: "S3",
+  S4: "S4",
 } as const;
 
-export type CasePriority = (typeof CASE_PRIORITY)[keyof typeof CASE_PRIORITY];
+export type CaseSeverity = (typeof CASE_SEVERITY)[keyof typeof CASE_SEVERITY];
 
 export const CASE_STATUS = {
   OPEN: "Open",
-  IN_PROGRESS: "In Progress",
-  WAITING_ON_CLIENT: "Waiting On Client",
   WORK_IN_PROGRESS: "Work In Progress",
   AWAITING_INFO: "Awaiting Info",
   WAITING_ON_WSO2: "Waiting On WSO2",
   SOLUTION_PROPOSED: "Solution Proposed",
   CLOSED: "Closed",
   REOPENED: "Reopened",
-  CANCELLED: "Cancelled",
-  DEFERRED: "Deferred",
-  CHANGE_SCHEDULED: "Change Scheduled",
 } as const;
 
 export type CaseStatus = (typeof CASE_STATUS)[keyof typeof CASE_STATUS];

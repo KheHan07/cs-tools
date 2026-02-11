@@ -17,34 +17,18 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { getPriorityColor, getStatusColor } from "@utils/casesTable";
+import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 
 describe("casesTable utils", () => {
-  describe("getPriorityColor", () => {
-    it("should return 'error' for critical severity", () => {
-      expect(getPriorityColor("Critical")).toBe("error");
-      expect(getPriorityColor("S1")).toBe("error");
-      expect(getPriorityColor("critical")).toBe("error");
-    });
-
-    it("should return 'warning' for high severity", () => {
-      expect(getPriorityColor("High")).toBe("warning");
-      expect(getPriorityColor("S2")).toBe("warning");
-    });
-
-    it("should return 'info' for medium severity", () => {
-      expect(getPriorityColor("Medium")).toBe("info");
-      expect(getPriorityColor("S3")).toBe("info");
-    });
-
-    it("should return 'success' for low severity", () => {
-      expect(getPriorityColor("Low")).toBe("success");
-      expect(getPriorityColor("S4")).toBe("success");
-    });
-
-    it("should return 'default' for unknown severity", () => {
-      expect(getPriorityColor("Unknown")).toBe("default");
-      expect(getPriorityColor(undefined)).toBe("default");
+  describe("getSeverityColor", () => {
+    it("should return correct MUI color paths for severity levels", () => {
+      expect(getSeverityColor("S0")).toBe("error.main");
+      expect(getSeverityColor("S1")).toBe("warning.main");
+      expect(getSeverityColor("S2")).toBe("text.disabled");
+      expect(getSeverityColor("S3")).toBe("info.main");
+      expect(getSeverityColor("S4")).toBe("success.main");
+      expect(getSeverityColor("Unknown")).toBe("text.secondary");
+      expect(getSeverityColor(undefined)).toBe("text.secondary");
     });
   });
 

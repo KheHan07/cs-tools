@@ -148,6 +148,22 @@ vi.mock("@api/useGetProjectDetails", () => ({
   })),
 }));
 
+// Mock useGetCasesFilters hook
+vi.mock("@api/useGetCasesFilters", () => ({
+  default: vi.fn(() => ({
+    data: {
+      statuses: [{ id: "1", label: "Open" }],
+      severities: [
+        { id: "60", label: "S0", description: "S0 desc" },
+        { id: "61", label: "S1", description: "S1 desc" },
+      ],
+      issueTypes: [{ id: "6", label: "Error" }],
+    },
+    isLoading: false,
+    isError: false,
+  })),
+}));
+
 describe("CreateCasePage", () => {
   it("should render all sections correctly", () => {
     render(
