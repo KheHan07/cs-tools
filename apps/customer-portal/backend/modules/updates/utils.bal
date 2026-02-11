@@ -14,20 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Global mock delay for API hooks to simulate network latency.
-export const API_MOCK_DELAY = 800;
-
-// Constants for API-related query keys.
-export const ApiQueryKeys = {
-  PROJECTS: "projects",
-  PROJECT_DETAILS: "project-details",
-  SUPPORT_STATS: "support-stats",
-  CASE_CREATION_METADATA: "case-creation-metadata",
-  CASES_STATS: "cases-stats",
-  DASHBOARD_STATS: "dashboard-stats",
-  PROJECT_STATS: "project-stats",
-  PROJECT_CASES: "project-cases",
-  CHAT_HISTORY: "chat-history",
-  DEPLOYMENTS: "deployments",
-  TIME_TRACKING_STATS: "time-tracking-stats",
-} as const;
+# Generate authorization headers.
+#
+# + token - ID token for authorization
+# + return - Map of headers with authorization
+isolated function generateHeaders(string token) returns map<string|string[]> => {"x-jwt-assertion": token};

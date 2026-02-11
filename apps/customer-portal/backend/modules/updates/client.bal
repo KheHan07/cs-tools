@@ -14,20 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Global mock delay for API hooks to simulate network latency.
-export const API_MOCK_DELAY = 800;
+import ballerina/http;
 
-// Constants for API-related query keys.
-export const ApiQueryKeys = {
-  PROJECTS: "projects",
-  PROJECT_DETAILS: "project-details",
-  SUPPORT_STATS: "support-stats",
-  CASE_CREATION_METADATA: "case-creation-metadata",
-  CASES_STATS: "cases-stats",
-  DASHBOARD_STATS: "dashboard-stats",
-  PROJECT_STATS: "project-stats",
-  PROJECT_CASES: "project-cases",
-  CHAT_HISTORY: "chat-history",
-  DEPLOYMENTS: "deployments",
-  TIME_TRACKING_STATS: "time-tracking-stats",
-} as const;
+configurable string updatesServiceUrl = ?;
+configurable ClientCredentialsOauth2Config clientCredentialsOauth2Config = ?;
+
+final http:Client updatesClient = check new (updatesServiceUrl, {
+    auth: {
+        ...clientCredentialsOauth2Config
+    },
+    httpVersion: http:HTTP_1_1,
+    http1Settings: {keepAlive: http:KEEPALIVE_NEVER},
+    timeout: 300.0,
+    retryConfig: {
+        count: 3,
+        interval: 2.0,
+        statusCodes: [
+            http:STATUS_REQUEST_TIMEOUT,
+            http:STATUS_BAD_GATEWAY,
+            http:STATUS_SERVICE_UNAVAILABLE,
+            http:STATUS_GATEWAY_TIMEOUT
+        ]
+    }
+});
