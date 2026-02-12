@@ -237,7 +237,7 @@ public type Attachment record {|
     # MIME type of the file
     string 'type;
     # File size
-    string size;
+    int size;
     # User who created the attachment
     string createdBy;
     # Created date and time
