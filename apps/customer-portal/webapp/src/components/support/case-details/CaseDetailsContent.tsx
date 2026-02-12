@@ -79,6 +79,7 @@ export default function CaseDetailsContent({
     assignedEngineer && typeof assignedEngineer === "string"
       ? assignedEngineer
           .split(" ")
+          .filter(Boolean)
           .map((n) => n[0])
           .join("")
           .toUpperCase()

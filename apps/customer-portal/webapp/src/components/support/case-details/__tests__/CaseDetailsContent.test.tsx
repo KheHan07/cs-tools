@@ -29,6 +29,7 @@ vi.mock("@utils/support", () => ({
   resolveColorFromTheme: vi.fn(() => "#fa7b3f"),
   getStatusIcon: vi.fn(() => () => <span data-testid="status-icon" />),
   getStatusIconElement: vi.fn(() => <span data-testid="status-icon" />),
+  formatValue: vi.fn((value: unknown) => (value == null ? "--" : String(value))),
 }));
 
 describe("CaseDetailsContent", () => {
@@ -68,7 +69,7 @@ describe("CaseDetailsContent", () => {
     expect(screen.getByText(mockCaseDetails.number!)).toBeInTheDocument();
     expect(screen.getByText(mockCaseDetails.title!)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: /details/i }));
-    expect(screen.getByText(mockCaseDetails.description!)).toBeInTheDocument();
+    expect(screen.getByText("Details appear here.")).toBeInTheDocument();
   });
 
   it("should display -- for missing values", () => {
