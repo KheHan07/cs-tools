@@ -42,7 +42,7 @@ service / on new http:Listener(9090) {
     #
     # + filter - Contact search payload
     # + return - List of contacts or http:InternalServerError
-    resource function post contacts/search(entity:ContactSearchPayload filter) returns Contact[]|http:InternalServerError {
+    resource function post contacts/search(entity:ContactSearchPayload filter) returns http:Ok|http:InternalServerError {
         entity:Contact[]|error contacts = entity:searchContacts(filter);
         if contacts is error {
             log:printError(ERR_MSG_GET_CONTACTS, contacts);
@@ -52,16 +52,26 @@ service / on new http:Listener(9090) {
                 }
             };
         }
-        return from entity:Contact {id, email, account} in contacts
-            let Account? sanitizedAccount = account is entity:Account ? {id: account.id} : ()
-            select {id, email, account: sanitizedAccount};
+        return <http:Ok>{
+            body: from entity:Contact {id, email, account} in contacts
+                let Account? sanitizedAccount = account is entity:Account ? {id: account.id} : ()
+                select {id, email, account: sanitizedAccount}
+        };
     }
 
     # Retrieve the contact by email.
     #
     # + filter - Contact search payload
-    # + return - Contact | InternalServerError 
-    resource function post contacts/find(entity:ContactSearchPayload filter) returns http:Ok|http:InternalServerError {
+    # + return - Contact | InternalServerError | BadRequest
+    resource function post contacts/find(entity:ContactSearchPayload filter) returns http:Ok|http:InternalServerError|http:BadRequest {
+        if filter.email !is string {
+            log:printWarn(ERR_MSG_CONTACTS_BAD_REQUEST);
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_MSG_CONTACTS_BAD_REQUEST
+                }
+            };
+        }
         entity:Contact[]|error contacts = entity:searchContacts(filter);
         if contacts is error {
             log:printError(ERR_MSG_GET_CONTACTS, contacts);

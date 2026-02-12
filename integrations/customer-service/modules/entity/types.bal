@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/constraint;
+
 # Contact search payload.
 public type ContactSearchPayload record {|
     # Email
