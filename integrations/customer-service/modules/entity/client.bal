@@ -16,18 +16,9 @@
 import ballerina/http;
 
 configurable string baseUrl = ?;
-configurable Oauth2Config authConfig = ?;
 
 @display {
     label: "Sales Entity Service",
     id: "sales/sales-entity-service"
 }
-final http:Client httpClient = check new (baseUrl, {
-    auth: {
-        ...authConfig
-    },
-    httpVersion: http:HTTP_1_1,
-    http1Settings: {
-        keepAlive: http:KEEPALIVE_NEVER
-    }
-});
+final http:Client httpClient = check new (baseUrl);

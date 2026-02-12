@@ -15,16 +15,6 @@
 // under the License.
 import ballerina/constraint;
 
-# [Configurable] OAuth2 entity application configuration.
-type Oauth2Config record {|
-    # OAuth2 token endpoint
-    string tokenUrl;
-    # OAuth2 client ID
-    string clientId;
-    # OAuth2 client secret
-    string clientSecret;
-|};
-
 # Contact search payload.
 public type ContactSearchPayload record {|
     # Email
