@@ -17,7 +17,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import useGetCaseAttchments from "@api/useGetCaseAttchments";
+import useGetCaseAttachments from "@api/useGetCaseAttachments";
 import { mockCaseAttachments } from "@models/mockData";
 
 vi.mock("@constants/apiConstants", async (importOriginal) => {
@@ -55,7 +55,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
-describe("useGetCaseAttchments", () => {
+describe("useGetCaseAttachments", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
@@ -64,7 +64,7 @@ describe("useGetCaseAttchments", () => {
 
   it("should return mock attachments when isMockEnabled is true", async () => {
     const { result } = renderHook(
-      () => useGetCaseAttchments("case-001"),
+      () => useGetCaseAttachments("case-001"),
       { wrapper },
     );
 
@@ -81,12 +81,12 @@ describe("useGetCaseAttchments", () => {
   });
 
   it("should not fetch when caseId is missing", () => {
-    const { result } = renderHook(() => useGetCaseAttchments(""), { wrapper });
+    const { result } = renderHook(() => useGetCaseAttachments(""), { wrapper });
     expect(result.current.isFetching).toBe(false);
   });
 
   it("should use correct query key", () => {
-    renderHook(() => useGetCaseAttchments("case-001"), { wrapper });
+    renderHook(() => useGetCaseAttachments("case-001"), { wrapper });
     const query = queryClient.getQueryCache().findAll({
       queryKey: ["case-attachments", "case-001", 10, 0, true],
     })[0];
@@ -95,7 +95,7 @@ describe("useGetCaseAttchments", () => {
 
   it("should respect limit and offset options when mock is enabled", async () => {
     const { result } = renderHook(
-      () => useGetCaseAttchments("case-001", { limit: 2, offset: 1 }),
+      () => useGetCaseAttachments("case-001", { limit: 2, offset: 1 }),
       { wrapper },
     );
 
