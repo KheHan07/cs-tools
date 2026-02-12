@@ -56,4 +56,39 @@ service / on new http:Listener(9090) {
             let Account? sanitizedAccount = account is entity:Account ? {id: account.id} : ()
             select {id, email, account: sanitizedAccount};
     }
+
+    # Retrieve the contact by email.
+    #
+    # + email - Contact email
+    # + return - Contact | InternalServerError | NotFound
+    resource function get contacts/[entity:EmailString email]() returns Contact|http:InternalServerError|http:NotFound {
+        entity:ContactSearchPayload filter = {
+            email: email
+        };
+        entity:Contact[]|error contacts = entity:searchContacts(filter);
+        if contacts is error {
+            log:printError(ERR_MSG_GET_CONTACTS, contacts);
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_GET_CONTACTS
+                }
+            };
+        }
+        if contacts.length() != 1 {
+            log:printError(ERR_MSG_CONTACTS_NOTFOUND);
+            return <http:NotFound>{
+                body: {
+                    message: ERR_MSG_CONTACTS_NOTFOUND
+                }
+            };
+        }
+        log:printDebug(`Contact ID: ${contacts[0].id}`);
+        return {
+            id: contacts[0].id,
+            email: contacts[0].email,
+            account: {
+                id: contacts[0].account?.id
+            }
+        };
+    }
 }

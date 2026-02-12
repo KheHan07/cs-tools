@@ -14,15 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/constraint;
+# Email Constraint.
+@constraint:String {
+    minLength: 1,
+    pattern: re `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+}
+public type EmailString string;
 
 # Contact search payload.
 public type ContactSearchPayload record {|
     # Email
-    @constraint:String {
-        minLength: 1,
-        pattern: re `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-    }
-    string? email = ();
+    EmailString? email = ();
     # Limit
     int? 'limit = DEFAULT_RECORD_LIMIT;
     # Offset

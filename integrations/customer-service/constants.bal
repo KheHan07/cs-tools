@@ -15,3 +15,4 @@
 // under the License.
 
 const ERR_MSG_GET_CONTACTS = "An error occurred while retrieving contacts";
+const ERR_MSG_CONTACTS_NOTFOUND = "Contact not found";
