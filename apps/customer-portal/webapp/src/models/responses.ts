@@ -332,6 +332,25 @@ export interface DeploymentsResponse {
   deployments: Deployment[];
 }
 
+// Case attachment item.
+export interface CaseAttachment {
+  id: string;
+  name: string;
+  type: string;
+  sizeBytes: string;
+  downloadUrl: string;
+  createdOn: string;
+  createdBy: string;
+}
+
+// Response for case attachments list.
+export interface CaseAttachmentsResponse {
+  limit: number;
+  offset: number;
+  totalRecords: number;
+  attachments: CaseAttachment[];
+}
+
 // Updates statistics response.
 export interface UpdatesStats {
   productsTracked: number | null;
