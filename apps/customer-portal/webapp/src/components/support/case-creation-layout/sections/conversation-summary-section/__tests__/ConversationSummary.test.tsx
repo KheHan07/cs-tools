@@ -41,6 +41,14 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   MessageSquare: () => <svg data-testid="icon-message" />,
 }));
 
+vi.mock("@components/common/error-indicator/ErrorIndicator", () => ({
+  default: ({ entityName }: { entityName: string }) => (
+    <span data-testid="error-indicator" data-entity={entityName}>
+      Error: {entityName}
+    </span>
+  ),
+}));
+
 describe("ConversationSummary", () => {
   const mockMetadata: CaseCreationMetadata = {
     projects: [],
@@ -81,10 +89,22 @@ describe("ConversationSummary", () => {
     ).toBeInTheDocument();
   });
 
-  it("should render 'N/A' when metadata fields are missing", () => {
-    render(<ConversationSummary metadata={{} as any} isLoading={false} />);
+  it("should render error indicators when metadata conversation summary is missing", () => {
+    render(<ConversationSummary metadata={{} as CaseCreationMetadata} isLoading={false} />);
 
-    const naElements = screen.getAllByText("N/A");
-    expect(naElements).toHaveLength(3);
+    const errorIndicators = screen.getAllByTestId("error-indicator");
+    expect(errorIndicators).toHaveLength(3);
+    expect(errorIndicators[0]).toHaveAttribute(
+      "data-entity",
+      "Messages exchanged",
+    );
+    expect(errorIndicators[1]).toHaveAttribute(
+      "data-entity",
+      "Troubleshooting attempts",
+    );
+    expect(errorIndicators[2]).toHaveAttribute(
+      "data-entity",
+      "KB articles reviewed",
+    );
   });
 });

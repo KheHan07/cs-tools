@@ -22,6 +22,7 @@ import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/
 import ChatMessageList from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageList";
 import { getNoveraResponse } from "@models/mockFunctions";
 import { useQueries } from "@tanstack/react-query";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { usePostCaseClassifications } from "@api/usePostCaseClassifications";
 import {
   fetchDeploymentProducts,
@@ -57,7 +58,7 @@ export default function NoveraChatPage(): JSX.Element {
   const deploymentIds = projectDeployments?.map((d) => d.id).filter(Boolean) ?? [];
   const deploymentProductQueries = useQueries({
     queries: deploymentIds.map((deploymentId) => ({
-      queryKey: ["deployment-products", deploymentId] as const,
+      queryKey: [ApiQueryKeys.DEPLOYMENT_PRODUCTS, deploymentId] as const,
       queryFn: () =>
         fetchDeploymentProducts(deploymentId, {
           getIdToken,
@@ -65,14 +66,24 @@ export default function NoveraChatPage(): JSX.Element {
         }),
     })),
   });
-  const productDetails = Array.from(
-    new Set(
-      deploymentProductQueries
-        .flatMap((q) => q.data ?? [])
-        .map((item) => item.product?.label)
-        .filter((label): label is string => Boolean(label?.trim())),
-    ),
+  const deploymentProductsLoading = deploymentProductQueries.some(
+    (q) => q.isLoading,
   );
+  const deploymentProductsError = deploymentProductQueries.some(
+    (q) => q.isError,
+  );
+  const deploymentProductsReady =
+    !deploymentProductsLoading && !deploymentProductsError;
+  const productDetails = deploymentProductsReady
+    ? Array.from(
+        new Set(
+          deploymentProductQueries
+            .flatMap((q) => q.data ?? [])
+            .map((item) => item.product?.label)
+            .filter((label): label is string => Boolean(label?.trim())),
+        ),
+      )
+    : [];
   const { data: projectDetails } = useGetProjectDetails(projectId || "");
   const { mutateAsync, isPending } = usePostCaseClassifications();
 
@@ -118,7 +129,7 @@ export default function NoveraChatPage(): JSX.Element {
       });
     } catch (error) {
       logger.error("Failed to classify case details", error);
-      showError("case classification");
+      showError("Case classification failed. Please try again.");
     }
   };
   const [messages, setMessages] = useState<Message[]>([
@@ -145,6 +156,12 @@ export default function NoveraChatPage(): JSX.Element {
       pendingTimeoutsRef.current = [];
     };
   }, []);
+
+  useEffect(() => {
+    if (deploymentProductsError) {
+      showError("Could not load product options. Please try again.");
+    }
+  }, [deploymentProductsError, showError]);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -216,6 +233,7 @@ export default function NoveraChatPage(): JSX.Element {
             showEscalationBanner={messages.length > 4}
             onCreateCase={handleCreateCase}
             isCreateCaseLoading={isPending}
+            isCreateCaseDisabled={deploymentProductsError}
           />
         </Paper>
       </Box>

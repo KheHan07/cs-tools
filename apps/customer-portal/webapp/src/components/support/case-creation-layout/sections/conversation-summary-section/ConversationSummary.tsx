@@ -25,6 +25,7 @@ import {
 import { Bot, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseCreationMetadata } from "@models/mockData";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 interface ConversationSummaryProps {
   metadata?: CaseCreationMetadata;
@@ -57,10 +58,12 @@ export function ConversationSummary({
           </Typography>
           {isLoading ? (
             <Skeleton variant="text" width="20%" height={20} />
-          ) : (
+          ) : metadata?.conversationSummary?.messagesExchanged != null ? (
             <Typography variant="body2">
-              {metadata?.conversationSummary?.messagesExchanged ?? "N/A"}
+              {metadata.conversationSummary.messagesExchanged}
             </Typography>
+          ) : (
+            <ErrorIndicator entityName="Messages exchanged" size="small" />
           )}
         </Box>
         {/* troubleshooting stat wrapper */}
@@ -70,10 +73,15 @@ export function ConversationSummary({
           </Typography>
           {isLoading ? (
             <Skeleton variant="text" width="60%" height={20} />
-          ) : (
+          ) : metadata?.conversationSummary?.troubleshootingAttempts != null ? (
             <Typography variant="body2">
-              {metadata?.conversationSummary?.troubleshootingAttempts ?? "N/A"}
+              {metadata.conversationSummary.troubleshootingAttempts}
             </Typography>
+          ) : (
+            <ErrorIndicator
+              entityName="Troubleshooting attempts"
+              size="small"
+            />
           )}
         </Box>
         {/* KB articles stat wrapper */}
@@ -83,10 +91,12 @@ export function ConversationSummary({
           </Typography>
           {isLoading ? (
             <Skeleton variant="text" width="50%" height={20} />
-          ) : (
+          ) : metadata?.conversationSummary?.kbArticlesReviewed != null ? (
             <Typography variant="body2">
-              {metadata?.conversationSummary?.kbArticlesReviewed ?? "N/A"}
+              {metadata.conversationSummary.kbArticlesReviewed}
             </Typography>
+          ) : (
+            <ErrorIndicator entityName="KB articles reviewed" size="small" />
           )}
         </Box>
       </Box>
