@@ -18,6 +18,7 @@ import type {
   CaseListItem,
   CaseDetails,
   CaseComment,
+  CaseAttachment,
   ProjectListItem,
   ProjectDetails,
   UserDetails,
@@ -1497,6 +1498,37 @@ export const mockCaseComments: CaseComment[] = [
     createdOn: "2025-12-23 14:42:46",
     createdBy: "para-admin@wso2.com",
     isEscalated: false,
+  },
+];
+
+// Mock case attachments returned when isMockEnabled (useGetCaseAttchments).
+export const mockCaseAttachments: CaseAttachment[] = [
+  {
+    id: "att-001",
+    name: "screenshot-error.png",
+    type: "image/png",
+    sizeBytes: "245760",
+    downloadUrl: "https://example.com/files/att-001",
+    createdOn: "2025-12-23 14:49:58",
+    createdBy: "para-admin@wso2.com",
+  },
+  {
+    id: "att-002",
+    name: "logs-debug.txt",
+    type: "text/plain",
+    sizeBytes: "10240",
+    downloadUrl: "https://example.com/files/att-002",
+    createdOn: "2025-12-23 14:43:36",
+    createdBy: "para-admin@wso2.com",
+  },
+  {
+    id: "att-003",
+    name: "config-backup.zip",
+    type: "application/zip",
+    sizeBytes: "524288",
+    downloadUrl: "https://example.com/files/att-003",
+    createdOn: "2025-12-23 14:42:46",
+    createdBy: "para-admin@wso2.com",
   },
 ];
 
