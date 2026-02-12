@@ -114,7 +114,13 @@ const CasesList = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 0.25,
+                      }}
+                    >
                       <Typography
                         component="span"
                         variant="body2"
