@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Button } from "@wso2/oxygen-ui";
+import { Button, type SxProps, type Theme } from "@wso2/oxygen-ui";
 import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 
 export interface CaseDetailsBackButtonProps {
   onClick: () => void;
-  sx?: { mb?: number; ml?: number; alignSelf?: string };
+  sx?: SxProps<Theme>;
 }
 
 /**

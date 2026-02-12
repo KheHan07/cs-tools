@@ -22,11 +22,7 @@ import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 function renderTabPanels(activeTab: number) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <CaseDetailsTabPanels
-        activeTab={activeTab}
-        data={undefined}
-        isError={false}
-      />
+      <CaseDetailsTabPanels activeTab={activeTab} />
     </ThemeProvider>,
   );
 }
