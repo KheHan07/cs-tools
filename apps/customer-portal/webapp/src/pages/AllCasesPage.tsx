@@ -89,14 +89,13 @@ export default function AllCasesPage(): JSX.Element {
   const {
     data,
     isLoading: isCasesQueryLoading,
-    isFetching: isCasesFetching,
     hasNextPage,
     fetchNextPage,
   } = useGetProjectCases(projectId || "", caseSearchRequest);
 
   const { showLoader, hideLoader } = useLoader();
 
-  // Show skeletons until each section has a response (covers query disabled by auth + initial fetch).
+  // Show loader only for initial load (until first stats + cases response), not for background refetches or fetchNextPage.
   const hasStatsResponse = stats !== undefined;
   const hasCasesResponse = data !== undefined;
   const isStatsLoading =
@@ -104,15 +103,15 @@ export default function AllCasesPage(): JSX.Element {
   const isCasesAreaLoading =
     isCasesQueryLoading || (!!projectId && !hasCasesResponse);
 
-  const isPageLoading = isStatsLoading || isCasesAreaLoading || isCasesFetching;
+  const isInitialPageLoading = isStatsLoading || isCasesAreaLoading;
 
   useEffect(() => {
-    if (isPageLoading) {
+    if (isInitialPageLoading) {
       showLoader();
       return () => hideLoader();
     }
     hideLoader();
-  }, [isPageLoading, showLoader, hideLoader]);
+  }, [isInitialPageLoading, showLoader, hideLoader]);
 
   // Background-load all remaining pages so search/filters work on full dataset.
   useEffect(() => {
