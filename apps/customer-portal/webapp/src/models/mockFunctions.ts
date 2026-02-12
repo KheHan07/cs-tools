@@ -21,6 +21,7 @@ import {
   mockOpenCasesOptions,
   mockDeployments,
   mockStatusOptions,
+  mockUpdatesStats,
 } from "@models/mockData";
 import type { CaseCreationMetadata } from "@models/mockData";
 
@@ -32,6 +33,7 @@ import type {
   ProjectStatsResponse,
   ChatHistoryResponse,
   DeploymentsResponse,
+  UpdatesStats,
   CaseClassificationResponse,
 } from "@models/responses";
 import type { CaseClassificationRequest } from "@models/requests";
@@ -294,6 +296,13 @@ export const getMockDeployments = (
 ): DeploymentsResponse => {
   return { deployments: mockDeployments };
 };
+
+/**
+ * Returns mock updates statistics (used when isMockEnabled for useGetUpdatesStats).
+ *
+ * @returns {UpdatesStats} Mock updates statistics.
+ */
+export const getMockUpdatesStats = (): UpdatesStats => mockUpdatesStats;
 
 /**
  * Returns mock case classification response.

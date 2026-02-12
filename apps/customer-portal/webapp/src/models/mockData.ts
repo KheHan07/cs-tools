@@ -24,6 +24,7 @@ import type {
   Deployment,
   ChatHistoryResponse,
   CaseMetadataResponse,
+  UpdatesStats,
 } from "@models/responses";
 import {
   PROJECT_TYPE,
@@ -1611,3 +1612,13 @@ export const mockDeployments: Deployment[] = [
     uptimePercent: 98.5,
   },
 ];
+
+// Mock updates statistics (used when isMockEnabled for useGetUpdatesStats).
+export const mockUpdatesStats: UpdatesStats = {
+  productsTracked: 4,
+  totalUpdatesInstalled: 70,
+  totalUpdatesInstalledBreakdown: { regular: 50, security: 20 },
+  totalUpdatesPending: 69,
+  totalUpdatesPendingBreakdown: { regular: 37, security: 32 },
+  securityUpdatesPending: 32,
+};
