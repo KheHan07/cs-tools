@@ -340,6 +340,7 @@ export interface UpdatesStats {
   totalUpdatesPending: number | null;
   totalUpdatesPendingBreakdown?: { regular: number; security: number };
   securityUpdatesPending: number | null;
+}
 
 // Case classification response.
 export interface CaseClassificationResponse {

@@ -303,6 +303,8 @@ export const getMockDeployments = (
  * @returns {UpdatesStats} Mock updates statistics.
  */
 export const getMockUpdatesStats = (): UpdatesStats => mockUpdatesStats;
+
+/**
  * Returns mock case classification response.
  *
  * @param {CaseClassificationRequest} request - Classification request body.
