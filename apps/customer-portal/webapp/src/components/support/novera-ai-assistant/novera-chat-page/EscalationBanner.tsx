@@ -29,6 +29,8 @@ interface EscalationBannerProps {
   visible: boolean;
   onCreateCase: () => void;
   isLoading?: boolean;
+  /** When true, Create Case button is disabled (e.g. product options failed to load). */
+  isCreateCaseDisabled?: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ export default function EscalationBanner({
   visible,
   onCreateCase,
   isLoading = false,
+  isCreateCaseDisabled = false,
 }: EscalationBannerProps): JSX.Element | null {
   if (!visible) return null;
 
@@ -75,7 +78,7 @@ export default function EscalationBanner({
         size="medium"
         color="primary"
         onClick={onCreateCase}
-        disabled={isLoading}
+        disabled={isLoading || isCreateCaseDisabled}
         startIcon={
           isLoading ? <CircularProgress size={16} color="inherit" /> : undefined
         }

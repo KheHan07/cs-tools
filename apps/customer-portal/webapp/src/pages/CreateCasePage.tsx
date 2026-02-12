@@ -97,6 +97,14 @@ export default function CreateCasePage(): JSX.Element {
   const { showSuccess } = useSuccessBanner();
   const { mutate: postCase, isPending: isCreatePending } = usePostCase();
 
+  useEffect(() => {
+    if (deploymentProductsError) {
+      showError(
+        "Failed to load product options. Some options may be unavailable.",
+      );
+    }
+  }, [deploymentProductsError, showError]);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [issueType, setIssueType] = useState("");
@@ -156,6 +164,7 @@ export default function CreateCasePage(): JSX.Element {
     const initialSeverity =
       severityMatch?.id || classificationSeverity || fallbackSeverity;
 
+    // Defer state updates to avoid cascading renders (eslint: no setState in effect body).
     queueMicrotask(() => {
       setProduct(initialProduct);
       setDeployment(initialDeployment);
@@ -205,13 +214,13 @@ export default function CreateCasePage(): JSX.Element {
       filters?.deployments,
     );
     if (!deploymentMatch) {
-      showError("Create case");
+      showError("create case: invalid deployment");
       return;
     }
 
     const productId = resolveProductId(product, allDeploymentProducts);
     if (!productId) {
-      showError("Create case");
+      showError("create case: invalid product");
       return;
     }
 
@@ -342,7 +351,8 @@ export default function CreateCasePage(): JSX.Element {
                 isFiltersLoading ||
                 isCreatePending ||
                 !projectId ||
-                deploymentProductsLoading
+                deploymentProductsLoading ||
+                deploymentProductsError
               }
             >
               {isCreatePending ? "Creating..." : "Create Support Case"}

@@ -26,6 +26,7 @@ interface ChatInputProps {
   showEscalationBanner: boolean;
   onCreateCase: () => void;
   isCreateCaseLoading?: boolean;
+  isCreateCaseDisabled?: boolean;
 }
 
 /**
@@ -43,6 +44,7 @@ export default function ChatInput({
   showEscalationBanner,
   onCreateCase,
   isCreateCaseLoading,
+  isCreateCaseDisabled,
 }: ChatInputProps): JSX.Element {
   return (
     <Box sx={{ p: 2, bgcolor: "background.paper", flexShrink: 0 }}>
@@ -50,6 +52,7 @@ export default function ChatInput({
         visible={showEscalationBanner}
         onCreateCase={onCreateCase}
         isLoading={isCreateCaseLoading}
+        isCreateCaseDisabled={isCreateCaseDisabled}
       />
       <Box sx={{ display: "flex", gap: 1 }}>
         <TextField
