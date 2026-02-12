@@ -19,12 +19,12 @@ import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import { getStatusColor } from "@utils/casesTable";
 import { resolveColorFromTheme, getStatusIconElement } from "@utils/support";
-import CaseDetailsBackButton from "@components/support/case-details/CaseDetailsBackButton";
-import CaseDetailsHeader from "@components/support/case-details/CaseDetailsHeader";
-import CaseDetailsActionRow from "@components/support/case-details/CaseDetailsActionRow";
-import CaseDetailsTabs from "@components/support/case-details/CaseDetailsTabs";
-import CaseDetailsTabPanels from "@components/support/case-details/CaseDetailsTabPanels";
 import CaseDetailsSkeleton from "@components/support/case-details/CaseDetailsSkeleton";
+import CaseDetailsBackButton from "@case-details/CaseDetailsBackButton";
+import CaseDetailsTabs from "@case-details/CaseDetailsTabs";
+import CaseDetailsTabPanels from "@case-details/CaseDetailsTabPanels";
+import CaseDetailsHeader from "@case-details/CaseDetailsHeader";
+import CaseDetailsActionRow from "@case-details/CaseDetailsActionRow";
 
 export interface CaseDetailsContentProps {
   data: CaseDetails | undefined;
@@ -137,16 +137,12 @@ export default function CaseDetailsContent({
           <CaseDetailsTabs
             focusMode={focusMode}
             value={activeTab}
-            onChange={(_e, newValue) => setActiveTab(newValue)}
+            onChange={(_e: unknown, newValue: number) => setActiveTab(newValue)}
             onFocusModeToggle={() => setFocusMode((prev) => !prev)}
           />
         </Paper>
 
-        <CaseDetailsTabPanels
-          activeTab={activeTab}
-          data={data}
-          isError={isError}
-        />
+        <CaseDetailsTabPanels activeTab={activeTab} />
       </Box>
     </Box>
   );
