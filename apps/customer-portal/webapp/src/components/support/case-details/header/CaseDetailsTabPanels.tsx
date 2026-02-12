@@ -16,19 +16,15 @@
 
 import { Box, Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import type { CaseDetails } from "@models/responses";
 
 export interface CaseDetailsTabPanelsProps {
   activeTab: number;
-  data: CaseDetails | undefined;
-  isError: boolean;
-  isLoading?: boolean;
 }
 
 /**
  * Renders the active tab panel for case details (Activity, Details, Attachments, Calls, Knowledge Base).
  *
- * @param {CaseDetailsTabPanelsProps} props - Active tab index, case data, and error state.
+ * @param {CaseDetailsTabPanelsProps} props - Active tab index.
  * @returns {JSX.Element | null} The panel content.
  */
 export default function CaseDetailsTabPanels({

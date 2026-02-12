@@ -131,11 +131,7 @@ export default function CaseDetailsContent({
           />
         </Paper>
 
-        <CaseDetailsTabPanels
-          activeTab={activeTab}
-          data={data}
-          isError={isError}
-        />
+        <CaseDetailsTabPanels activeTab={activeTab} />
       </Box>
     </Box>
   );
