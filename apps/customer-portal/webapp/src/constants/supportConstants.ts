@@ -16,14 +16,18 @@
 
 import {
   Activity,
+  BookOpen,
   Bot,
   CircleAlert,
   CircleCheck,
   CircleQuestionMark,
   Clock,
   FileText,
+  Info,
   MessageCircle,
   MessageSquare,
+  Paperclip,
+  Phone,
   TrendingUp,
   Zap,
 } from "@wso2/oxygen-ui-icons-react";
@@ -176,6 +180,22 @@ export const SUPPORT_STAT_CONFIGS: SupportStatConfig[] = [
     key: "activeChats",
     label: "Active Chats",
   },
+];
+
+/**
+ * Case details tab configuration (label + icon for Activity, Details, Attachments, etc.).
+ */
+export interface CaseDetailsTabConfig {
+  label: string;
+  Icon: ComponentType<{ size?: number }>;
+}
+
+export const CASE_DETAILS_TABS: CaseDetailsTabConfig[] = [
+  { label: "Activity", Icon: MessageSquare },
+  { label: "Details", Icon: Info },
+  { label: "Attachments (0)", Icon: Paperclip },
+  { label: "Calls (0)", Icon: Phone },
+  { label: "Knowledge Base (0)", Icon: BookOpen },
 ];
 
 // Number of outstanding cases to show on support overview cards.
