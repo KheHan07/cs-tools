@@ -85,7 +85,7 @@ service / on new http:Listener(9090) {
         return <http:Ok>{
             body: {
                 id: contacts[0].id,
-                accountId: account is entity:Account ? {id: account.id} : (),
+                accountId: account is entity:Account ? account.id : "",
                 isUserExist: true
             }
         };
