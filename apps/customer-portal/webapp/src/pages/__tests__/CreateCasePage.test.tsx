@@ -90,7 +90,7 @@ vi.mock("@wso2/oxygen-ui-icons-react", async (importOriginal) => {
 
 // Mock case-creation-layout components (paths may not exist in repo)
 vi.mock(
-  "@components/support/case-creation-layout/sections/basic-information-section/BasicInformationSection",
+  "@components/support/case-creation-layout/form-sections/basic-information-section/BasicInformationSection",
   () => ({ BasicInformationSection: () => null }),
 );
 vi.mock(
@@ -98,11 +98,11 @@ vi.mock(
   () => ({ CaseCreationHeader: () => null }),
 );
 vi.mock(
-  "@components/support/case-creation-layout/sections/case-details-section/CaseDetailsSection",
+  "@components/support/case-creation-layout/form-sections/case-details-section/CaseDetailsSection",
   () => ({ CaseDetailsSection: () => null }),
 );
 vi.mock(
-  "@components/support/case-creation-layout/sections/conversation-summary-section/ConversationSummary",
+  "@components/support/case-creation-layout/form-sections/conversation-summary-section/ConversationSummary",
   () => ({ ConversationSummary: () => null }),
 );
 

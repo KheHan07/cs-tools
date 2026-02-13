@@ -2,7 +2,8 @@
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License. You may obtain a copy of the License at
+// in compliance with the License.
+// You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -107,7 +108,6 @@ export function ConversationSummary({
           color: "primary.main",
           cursor: isLoading ? "default" : "pointer",
           fontWeight: 600,
-          "&:hover": { textDecoration: isLoading ? "none" : "underline" },
           mb: 3,
           display: "block",
           opacity: isLoading ? 0.5 : 1,
