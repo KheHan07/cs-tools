@@ -166,12 +166,14 @@ describe("AllCasesPage", () => {
     // Search
     fireEvent.change(searchInput, { target: { value: targetCaseNumber } });
 
-    // Should only show 1 case (total from API stays mock total; text may be split across nodes)
+    // Should only show 1 case (total from API is mock totalRecords === mockCases.length; text may be split across nodes)
     await waitFor(() => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
-        screen.getByText((c, el) => text("Showing 1 of 41 cases", el)),
+        screen.getByText((c, el) =>
+          text(`Showing 1 of ${mockCases.length} cases`, el),
+        ),
       ).toBeInTheDocument();
       expect(screen.getAllByText("Showing 1 cases")[0]).toBeInTheDocument();
     });
@@ -183,15 +185,16 @@ describe("AllCasesPage", () => {
     const filterButton = screen.getByTestId("filter-status-open");
     fireEvent.click(filterButton);
 
-    // Page shows (paginated count) of (api totalRecords); mock returns totalRecords: 41
+    // Page shows (paginated count) of (api totalRecords); mock uses totalRecords: mockCases.length
     const displayedCount = Math.min(10, mockCases.length);
+    const totalCases = mockCases.length;
 
     await waitFor(() => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
         screen.getByText((c, el) =>
-          text(`Showing ${displayedCount} of 41 cases`, el),
+          text(`Showing ${displayedCount} of ${totalCases} cases`, el),
         ),
       ).toBeInTheDocument();
     });
