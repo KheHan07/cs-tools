@@ -50,11 +50,11 @@ describe("UploadAttachmentModal", () => {
     expect(screen.getByRole("button", { name: /choose file/i })).toBeInTheDocument();
   });
 
-  it("should have Attachment name field and Save disabled when mock is enabled", () => {
+  it("should have Attachment name field and Upload disabled when mock is enabled", () => {
     renderModal();
     expect(screen.getByLabelText(/attachment name/i)).toBeInTheDocument();
-    const saveBtn = screen.getByRole("button", { name: /^save$/i });
-    expect(saveBtn).toBeDisabled();
+    const uploadBtn = screen.getByRole("button", { name: /^upload$/i });
+    expect(uploadBtn).toBeDisabled();
   });
 
   it("should not render dialog when open is false", () => {

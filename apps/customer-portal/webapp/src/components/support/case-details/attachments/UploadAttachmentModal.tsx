@@ -15,6 +15,7 @@
 // under the License.
 
 import {
+  Alert,
   Button,
   CircularProgress,
   Dialog,
@@ -28,7 +29,6 @@ import { X } from "@wso2/oxygen-ui-icons-react";
 import { useCallback, useRef, useState, type JSX } from "react";
 import { usePostAttachments } from "@api/usePostAttachments";
 import { useMockConfig } from "@providers/MockConfigProvider";
-import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "@constants/supportConstants";
 import UploadAttachmentDropZone from "@case-details-attachments/UploadAttachmentDropZone";
 import SelectedFileDisplay from "@case-details-attachments/SelectedFileDisplay";
@@ -44,7 +44,7 @@ export interface UploadAttachmentModalProps {
 
 /**
  * Modal for uploading a case attachment: drag-and-drop or file picker, optional name (defaults to file name).
- * Save is disabled when isMockEnabled. Max file size 15 MB; shows ErrorBanner when exceeded.
+ * Upload is disabled when isMockEnabled. Max file size 15 MB; shows ErrorBanner when exceeded.
  *
  * @param {UploadAttachmentModalProps} props - open, caseId, onClose, optional onSuccess.
  * @returns {JSX.Element} The upload attachment modal.
@@ -66,7 +66,7 @@ export default function UploadAttachmentModal({
 
   const fileTooLarge = file ? file.size > MAX_ATTACHMENT_SIZE_BYTES : false;
   const displayName = name.trim() || (file?.name ?? "");
-  const canSave =
+  const canUpload =
     !isMockEnabled &&
     !!file &&
     !fileTooLarge &&
@@ -122,7 +122,7 @@ export default function UploadAttachmentModal({
     e.target.value = "";
   }, [setFileWithValidation]);
 
-  const handleSave = useCallback(() => {
+  const handleUpload = useCallback(() => {
     if (!file || fileTooLarge || isMockEnabled) return;
     const attachmentName = (name.trim() || file.name).trim();
     if (!attachmentName) return;
@@ -153,89 +153,91 @@ export default function UploadAttachmentModal({
   }, [caseId, file, name, fileTooLarge, isMockEnabled, postAttachments, handleClose, onSuccess]);
 
   return (
-    <>
-      {fileSizeErrorVisible && (
-        <ErrorBanner
-          message="File size exceeds 15 MB limit."
-          onClose={() => setFileSizeErrorVisible(false)}
-        />
-      )}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="sm"
-        fullWidth
-        aria-labelledby="upload-attachment-dialog-title"
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="upload-attachment-dialog-title"
+    >
+      <DialogTitle
+        id="upload-attachment-dialog-title"
+        sx={{ pr: 6, position: "relative" }}
       >
-        <DialogTitle
-          id="upload-attachment-dialog-title"
-          sx={{ pr: 6, position: "relative" }}
+        Upload Attachment
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{ position: "absolute", right: 12, top: 12 }}
+          size="small"
         >
-          Upload Attachment
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{ position: "absolute", right: 12, top: 12 }}
-            size="small"
+          <X size={20} aria-hidden />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ pt: 1 }}>
+        {fileSizeErrorVisible && (
+          <Alert
+            severity="error"
+            onClose={() => setFileSizeErrorVisible(false)}
+            sx={{ mb: 2 }}
           >
-            <X size={20} aria-hidden />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="*/*"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            aria-hidden
-          />
+            File size exceeds 15 MB limit.
+          </Alert>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="*/*"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+          aria-hidden
+        />
 
-          {!file ? (
-            <UploadAttachmentDropZone
-              dragOver={dragOver}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onChooseFile={handleFileSelect}
-            />
-          ) : (
-            <SelectedFileDisplay fileName={file.name} fileType={file.type} />
-          )}
-
-          <TextField
-            fullWidth
-            label="Attachment name (optional)"
-            placeholder="Leave empty to use file name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={!file}
+        {!file ? (
+          <UploadAttachmentDropZone
+            dragOver={dragOver}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onChooseFile={handleFileSelect}
           />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, pt: 1 }}>
-          <Button onClick={handleClose} disabled={postAttachments.isPending}>
-            Cancel
+        ) : (
+          <SelectedFileDisplay fileName={file.name} fileType={file.type} />
+        )}
+
+        <TextField
+          fullWidth
+          label="Attachment name"
+          placeholder="Leave empty to use file name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={!file}
+        />
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2, pt: 1 }}>
+        <Button onClick={handleClose} disabled={postAttachments.isPending}>
+          Cancel
+        </Button>
+        {postAttachments.isPending ? (
+          <Button
+            variant="outlined"
+            startIcon={<CircularProgress color="inherit" size={16} />}
+            disabled
+          >
+            Uploading
           </Button>
-          {postAttachments.isPending ? (
-            <Button
-              variant="outlined"
-              startIcon={<CircularProgress color="inherit" size={16} />}
-              disabled
-            >
-              Uploading
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              disabled={!canSave}
-            >
-              Save
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
-    </>
+        ) : (
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={handleUpload}
+            disabled={!canUpload}
+          >
+            Upload
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
   );
 }
