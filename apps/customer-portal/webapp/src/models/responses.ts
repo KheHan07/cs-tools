@@ -233,7 +233,6 @@ export interface CaseComment {
   createdOn: string;
   createdBy: string;
   isEscalated: boolean;
-  /** Inline attachments (e.g. embedded images) for replaceInlineImageSources. */
   inlineAttachments?: InlineAttachment[];
 }
 
