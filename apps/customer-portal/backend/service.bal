@@ -1287,7 +1287,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     #
     # + payload - Product vulnerability search payload containing filters
     # + return - List of product vulnerabilities or an error
-    isolated resource function post product/vulnerabilities/search(http:RequestContext ctx,
+    isolated resource function post products/vulnerabilities/search(http:RequestContext ctx,
             ProductVulnerabilitySearchPayload payload) returns http:Ok|http:InternalServerError {
 
         // TODO: Implement actual search logic based on filters in the payload. For now, returning mock data.
