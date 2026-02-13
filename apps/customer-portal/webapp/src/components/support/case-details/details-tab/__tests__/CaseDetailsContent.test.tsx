@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen, userEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import CaseDetailsContent from "@case-details-details/CaseDetailsContent";
@@ -67,11 +67,10 @@ describe("CaseDetailsContent", () => {
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
   });
 
-  it("should hide header and action row when focus mode is on", async () => {
-    const user = userEvent.setup();
+  it("should hide header and action row when focus mode is on", () => {
     renderContent();
     const focusButton = screen.getByRole("button", { name: /focus mode/i });
-    await user.click(focusButton);
+    fireEvent.click(focusButton);
     expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
   });
 

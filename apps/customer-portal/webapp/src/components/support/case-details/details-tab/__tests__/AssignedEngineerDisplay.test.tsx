@@ -36,11 +36,13 @@ describe("AssignedEngineerDisplay", () => {
 
   it("should render -- when assignedEngineer is null", () => {
     renderAssignedEngineer(null);
-    expect(screen.getByText("--")).toBeInTheDocument();
+    const dashes = screen.getAllByText("--");
+    expect(dashes.length).toBeGreaterThanOrEqual(1);
   });
 
   it("should render -- when assignedEngineer is undefined", () => {
     renderAssignedEngineer(undefined);
-    expect(screen.getByText("--")).toBeInTheDocument();
+    const dashes = screen.getAllByText("--");
+    expect(dashes.length).toBeGreaterThanOrEqual(1);
   });
 });

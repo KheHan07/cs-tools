@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen, userEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import AttachmentListItem from "@case-details-attachments/AttachmentListItem";
@@ -23,8 +23,9 @@ import type { CaseAttachment } from "@models/responses";
 const mockAttachment: CaseAttachment = {
   id: "att-1",
   name: "screenshot.png",
+  type: "image/png",
   size: 102400,
-  sizeBytes: 102400,
+  sizeBytes: "102400",
   createdBy: "user@example.com",
   createdOn: "2026-02-13 10:00:00",
   downloadUrl: "https://example.com/download/att-1",
@@ -47,11 +48,10 @@ describe("AttachmentListItem", () => {
     expect(screen.getByText("2026-02-13 10:00:00")).toBeInTheDocument();
   });
 
-  it("should call onDownload when Download button is clicked", async () => {
+  it("should call onDownload when Download button is clicked", () => {
     const onDownload = vi.fn();
-    const user = userEvent.setup();
     renderItem(mockAttachment, onDownload);
-    await user.click(screen.getByRole("button", { name: /download/i }));
+    fireEvent.click(screen.getByRole("button", { name: /download/i }));
     expect(onDownload).toHaveBeenCalledWith(mockAttachment);
   });
 });

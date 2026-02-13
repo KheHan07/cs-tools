@@ -25,6 +25,7 @@ import {
 import { useMemo, useState } from "react";
 import type { CaseComment } from "@models/responses";
 import {
+  getInitials,
   stripCodeWrapper,
   stripCustomerCommentAddedLabel,
   replaceInlineImageSources,
@@ -38,21 +39,6 @@ export interface CommentBubbleProps {
   isCurrentUser: boolean;
   primaryBg: string;
   userDetails?: { email?: string; firstName?: string; lastName?: string } | null;
-}
-
-function deriveInitialsFromEmail(email: string): string {
-  const part = email.split("@")[0] ?? "";
-  return (
-    part
-      .replace(/[._-]/g, " ")
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((s) => s[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "?"
-  );
 }
 
 /**
@@ -82,14 +68,14 @@ export default function CommentBubble({
     if (isCurrentUser && userDetails) {
       const { firstName, lastName, email } = userDetails;
       const fromName =
-        firstName || lastName
-          ? `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.trim().toUpperCase()
+        firstName != null || lastName != null
+          ? getInitials([firstName, lastName].filter(Boolean).join(" "))
           : "";
-      if (fromName) return fromName;
-      if (email) return deriveInitialsFromEmail(email);
+      if (fromName !== "--") return fromName;
+      if (email) return getInitials(email);
     }
     if (!isCurrentUser) {
-      return deriveInitialsFromEmail(comment.createdBy ?? "");
+      return getInitials(comment.createdBy ?? "");
     }
     return "?";
   }, [isCurrentUser, comment.createdBy, userDetails]);
