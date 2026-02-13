@@ -38,11 +38,23 @@ export type ChatActionState =
  * @param value - Raw value from API or state.
  * @returns {string} Display string.
  */
-export function formatValue(
-  value: string | number | null | undefined,
-): string {
+export function formatValue(value: string | number | null | undefined): string {
   if (value == null || value === "") return "--";
   return String(value);
+}
+
+/**
+ * Formats byte count for display (e.g. 1024 -> "1 KB", 245760 -> "240 KB").
+ *
+ * @param bytes - Size in bytes (number or string from API).
+ * @returns {string} Formatted string like "1.2 MB" or "18 KB".
+ */
+export function formatFileSize(bytes: number | string | null | undefined): string {
+  const n = typeof bytes === "string" ? parseInt(bytes, 10) : bytes;
+  if (n == null || Number.isNaN(n)) return "--";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1).replace(/\.0$/, "")} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1).replace(/\.0$/, "")} MB`;
 }
 
 /**
@@ -171,13 +183,54 @@ export function deriveFilterLabels(id: string): {
   return { allLabel, label };
 }
 
+/** Attachment file category for icon selection. */
+export type AttachmentFileCategory =
+  | "image"
+  | "pdf"
+  | "archive"
+  | "text"
+  | "file";
+
+/**
+ * Returns the file category for attachment icon/display (image, pdf, archive, text, file).
+ *
+ * @param fileName - File name.
+ * @param type - MIME type.
+ * @returns {AttachmentFileCategory} The category.
+ */
+export function getAttachmentFileCategory(
+  fileName: string,
+  type: string,
+): AttachmentFileCategory {
+  const n = fileName.toLowerCase();
+  const t = type.toLowerCase();
+  if (
+    /\.(png|jpe?g|gif|webp|svg|bmp|ico)$/i.test(n) ||
+    t.startsWith("image/")
+  ) {
+    return "image";
+  }
+  if (/\.pdf$/i.test(n) || t.includes("pdf")) return "pdf";
+  if (
+    /\.(zip|rar|7z|tar|gz)$/i.test(n) ||
+    t.includes("zip") ||
+    t.includes("archive")
+  ) {
+    return "archive";
+  }
+  if (/\.(log|txt)$/i.test(n) || t.startsWith("text/")) return "text";
+  return "file";
+}
+
 /**
  * Returns the icon component for a given case status label.
  *
  * @param statusLabel - The case status label (e.g., "Open", "Working in Progress").
  * @returns {ComponentType<{ size?: number }>} The icon component.
  */
-export function getStatusIcon(statusLabel?: string): ComponentType<{ size?: number }> {
+export function getStatusIcon(
+  statusLabel?: string,
+): ComponentType<{ size?: number }> {
   const normalized = statusLabel?.toLowerCase() || "";
   if (normalized.includes("open")) return CircleAlert;
   if (normalized.includes("progress")) return Clock;
@@ -197,7 +250,7 @@ export function getStatusIcon(statusLabel?: string): ComponentType<{ size?: numb
  */
 export function getStatusIconElement(
   statusLabel: string | null | undefined,
-  size = 12
+  size = 12,
 ): ReactNode {
   const Icon = getStatusIcon(statusLabel ?? undefined);
   return createElement(Icon, { size });
