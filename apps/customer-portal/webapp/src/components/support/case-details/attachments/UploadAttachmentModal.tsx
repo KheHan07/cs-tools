@@ -28,6 +28,7 @@ import {
 import { X } from "@wso2/oxygen-ui-icons-react";
 import { useCallback, useRef, useState, type JSX } from "react";
 import { usePostAttachments } from "@api/usePostAttachments";
+import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "@constants/supportConstants";
 import UploadAttachmentDropZone from "@case-details-attachments/UploadAttachmentDropZone";
@@ -56,6 +57,7 @@ export default function UploadAttachmentModal({
   onSuccess,
 }: UploadAttachmentModalProps): JSX.Element {
   const { isMockEnabled } = useMockConfig();
+  const { showSuccess } = useSuccessBanner();
   const postAttachments = usePostAttachments();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -149,6 +151,7 @@ export default function UploadAttachmentModal({
         },
         {
           onSuccess: () => {
+            showSuccess("Attachment uploaded successfully.");
             handleClose();
             onSuccess?.();
           },
@@ -161,7 +164,7 @@ export default function UploadAttachmentModal({
       );
     };
     reader.readAsDataURL(file);
-  }, [caseId, file, name, fileTooLarge, isMockEnabled, postAttachments, handleClose, onSuccess]);
+  }, [caseId, file, name, fileTooLarge, isMockEnabled, postAttachments, showSuccess, handleClose, onSuccess]);
 
   return (
     <Dialog

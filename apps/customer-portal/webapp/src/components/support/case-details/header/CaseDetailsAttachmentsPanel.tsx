@@ -100,7 +100,10 @@ export default function CaseDetailsAttachmentsPanel({
         first.data.totalRecords !== combinedLength));
 
   const isLoading =
-    first.isLoading || (secondEnabled && (second.isLoading || !second.data));
+    first.isLoading ||
+    (secondEnabled &&
+      !second.isError &&
+      (second.isLoading || !second.data));
 
   const handleDownload = (att: CaseAttachment) => {
     if (att.downloadUrl) {
