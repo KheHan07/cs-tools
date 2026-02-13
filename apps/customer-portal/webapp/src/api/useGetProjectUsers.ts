@@ -19,6 +19,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { mockProjectUsers } from "@models/mockData";
 import type { MockProjectUser } from "@models/mockData";
 import { useMockConfig } from "@providers/MockConfigProvider";
+import { ApiQueryKeys } from "@constants/apiConstants";
 
 /**
  * Custom hook to fetch project users.
@@ -32,7 +33,7 @@ export default function useGetProjectUsers(
     const { isMockEnabled } = useMockConfig();
 
     return useQuery<MockProjectUser[]>({
-        queryKey: ["projectUsers", projectId],
+        queryKey: [ApiQueryKeys.PROJECT_USERS, projectId],
         queryFn: async () => {
             if (isMockEnabled) {
                 return mockProjectUsers;
