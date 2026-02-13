@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { Box, Button, Chip, Typography } from "@wso2/oxygen-ui";
+import { ArrowLeft, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 
 export interface CaseCreationHeaderProps {
@@ -21,9 +23,53 @@ export interface CaseCreationHeaderProps {
 }
 
 /**
- * Stub for CaseCreationHeader (case creation layout).
- * @returns {JSX.Element}
+ * Header section for the Case Creation page.
+ *
+ * @param {CaseCreationHeaderProps} props - Component props.
+ * @returns {JSX.Element} The rendered header.
  */
-export function CaseCreationHeader(_props: CaseCreationHeaderProps): JSX.Element {
-  return null;
+export function CaseCreationHeader({
+  onBack,
+}: CaseCreationHeaderProps): JSX.Element {
+  return (
+    <Box sx={{ mb: 3 }}>
+      {/* navigation button container */}
+      <Button
+        startIcon={<ArrowLeft size={16} />}
+        onClick={() => onBack?.()}
+        variant="text"
+        sx={{ mb: 2 }}
+      >
+        Back to Chat
+      </Button>
+      {/* header content container */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        {/* title and description container */}
+        <Box>
+          <Typography variant="h5" sx={{ mb: 0.5 }}>
+            Review Case Details
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Please review and edit the auto-populated information before
+            submitting
+          </Typography>
+        </Box>
+        <Chip
+          icon={<Sparkles size={10} />}
+          label="AI Generated"
+          color="warning"
+          variant="outlined"
+          sx={{ p: 0.5 }}
+        />
+      </Box>
+    </Box>
+  );
 }
