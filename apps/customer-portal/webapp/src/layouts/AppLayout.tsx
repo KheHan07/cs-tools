@@ -23,6 +23,7 @@ import GlobalNotificationBanner from "@components/common/notification-banner/Glo
 import Footer from "@components/common/footer/Footer";
 import Header from "@components/common/header/Header";
 import SideBar from "@components/common/side-nav-bar/SideBar";
+import { BackgroundTokenRefresh } from "@providers/BackgroundTokenRefresh";
 
 /**
  * AppLayout component.
@@ -56,6 +57,7 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
 
   return (
     <>
+      <BackgroundTokenRefresh />
       <GlobalNotificationBanner visible={notificationBannerConfig.visible} />
       <AppShell>
         {/* Header component. */}

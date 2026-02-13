@@ -36,6 +36,7 @@ export default function AppWithConfig(): JSX.Element {
       afterSignInUrl={authConfig.signInRedirectURL}
       afterSignOutUrl={authConfig.signOutRedirectURL}
       scopes={["openid", "email", "groups"]}
+      storage="localStorage"
     >
       <MockConfigProvider>
         <LoggerProvider config={loggerConfig}>
