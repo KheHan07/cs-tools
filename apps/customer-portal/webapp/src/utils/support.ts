@@ -255,3 +255,67 @@ export function getStatusIconElement(
   const Icon = getStatusIcon(statusLabel ?? undefined);
   return createElement(Icon, { size });
 }
+
+/**
+ * Formats a comment/activity date for display (e.g. "Jan 1, 2026, 2:30 PM").
+ *
+ * @param date - ISO date string or parseable date.
+ * @returns {string} Formatted date string.
+ */
+export function formatCommentDate(date: string | undefined): string {
+  if (!date) return "--";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "--";
+  return d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Strips a code-block wrapper from HTML content if present (e.g. outer div from rich editor).
+ *
+ * @param html - Raw HTML string.
+ * @returns {string} HTML without the wrapper.
+ */
+export function stripCodeWrapper(html: string): string {
+  if (!html?.trim()) return "";
+  const trimmed = html.trim();
+  const match = trimmed.match(
+    /^<div[^>]*class="[^"]*code-wrapper[^"]*"[^>]*>([\s\S]*)<\/div>$/i,
+  );
+  if (match) return match[1].trim();
+  return trimmed;
+}
+
+/** Shape used by replaceInlineImageSources (id -> url mapping). */
+export interface InlineAttachmentRef {
+  id: string;
+  url: string;
+}
+
+/**
+ * Replaces inline image placeholders (e.g. cid:xxx or data-attachment-id) with URLs from attachments.
+ *
+ * @param html - HTML string that may contain img src placeholders.
+ * @param attachments - Optional list of inline attachments (id, url).
+ * @returns {string} HTML with image sources replaced.
+ */
+export function replaceInlineImageSources(
+  html: string,
+  attachments: InlineAttachmentRef[] | undefined,
+): string {
+  if (!html?.trim()) return "";
+  if (!attachments?.length) return html;
+  const byId = new Map(attachments.map((a) => [a.id, a.url]));
+  return html.replace(
+    /(<img[^>]*\ssrc=)(["'])(?:cid:)?([^"']+)\2/gi,
+    (_match, prefix, quote, id) => {
+      const url = byId.get(id.trim()) ?? "";
+      return `${prefix}${quote}${url}${quote}`;
+    },
+  );
+}
