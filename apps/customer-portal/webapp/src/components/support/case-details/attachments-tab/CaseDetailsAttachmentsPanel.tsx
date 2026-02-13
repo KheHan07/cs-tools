@@ -15,6 +15,7 @@
 // under the License.
 
 import {
+  Alert,
   Box,
   Button,
   Paper,
@@ -47,6 +48,8 @@ function getAttachmentIcon(att: CaseAttachment): JSX.Element {
   switch (category) {
     case "image":
       return <Image size={20} aria-hidden />;
+    case "pdf":
+      return <FileText size={20} aria-hidden />;
     case "text":
       return <FileText size={20} aria-hidden />;
     case "archive":
@@ -92,8 +95,21 @@ export default function CaseDetailsAttachmentsPanel({
     return [...first.data.attachments, ...second.data.attachments];
   }, [first.data, needMore, second.data]);
 
+  const combinedLength =
+    (first.data?.attachments?.length ?? 0) +
+    (second.data?.attachments?.length ?? 0);
+  const hasPartialError =
+    secondEnabled &&
+    (second.isError ||
+      (first.data != null &&
+        totalRecords > 0 &&
+        first.data.totalRecords !== combinedLength));
+
   const isLoading =
-    first.isLoading || (secondEnabled && (second.isLoading || !second.data));
+    first.isLoading ||
+    (secondEnabled &&
+      !second.isError &&
+      (second.isLoading || !second.data));
 
   const handleDownload = (att: CaseAttachment) => {
     if (att.downloadUrl) {
@@ -181,6 +197,12 @@ export default function CaseDetailsAttachmentsPanel({
           </Stack>
         ) : (
           <Stack spacing={2}>
+            {hasPartialError && (
+              <Alert severity="warning" sx={{ mb: 1 }}>
+                Some attachments may not be shown. The list may be incomplete due
+                to a load error or API limits.
+              </Alert>
+            )}
             {allAttachments.map((att) => (
               <Paper
                 key={att.id}

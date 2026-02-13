@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Typography } from "@wso2/oxygen-ui";
+import { Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import CaseDetailsActivityPanel from "@case-details-activity/CaseDetailsActivityPanel";

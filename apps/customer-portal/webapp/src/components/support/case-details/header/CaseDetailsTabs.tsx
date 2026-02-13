@@ -68,9 +68,10 @@ export default function CaseDetailsTabs({
           "& .MuiTabs-indicator": { bgcolor: "primary.main" },
         }}
       >
-        {CASE_DETAILS_TABS.map(({ label, Icon }, index) => {
+        {CASE_DETAILS_TABS.map(({ label, Icon }) => {
+          const isAttachmentsTab = label.startsWith("Attachments");
           const tabLabel =
-            index === 2 && attachmentCount !== undefined
+            isAttachmentsTab && attachmentCount !== undefined
               ? `Attachments (${attachmentCount})`
               : label;
           return (
