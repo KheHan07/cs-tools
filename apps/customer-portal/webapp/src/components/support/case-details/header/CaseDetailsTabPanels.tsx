@@ -14,45 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Typography } from "@wso2/oxygen-ui";
+import { Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import CaseDetailsAttachmentsPanel from "@case-details/CaseDetailsAttachmentsPanel";
+import type { CaseDetails } from "@models/responses";
+import CaseDetailsAttachmentsPanel from "@case-details-attachments/CaseDetailsAttachmentsPanel";
+import CaseDetailsDetailsPanel from "../details-tab/CaseDetailsDetailsPanel";
 
 export interface CaseDetailsTabPanelsProps {
   activeTab: number;
   caseId: string;
+  data?: CaseDetails;
+  isError?: boolean;
 }
 
 /**
  * Renders the active tab panel for case details (Activity, Details, Attachments, Calls, Knowledge Base).
  *
- * @param {CaseDetailsTabPanelsProps} props - Active tab index.
+ * @param {CaseDetailsTabPanelsProps} props - Active tab index, case data, and error state.
  * @returns {JSX.Element | null} The panel content.
  */
 export default function CaseDetailsTabPanels({
   activeTab,
   caseId,
+  data,
+  isError = false,
 }: CaseDetailsTabPanelsProps): JSX.Element | null {
-  const panelBorderSx = { border: 1, borderColor: "divider", p: 2 };
-
   if (activeTab === 0) {
     return (
-      <Box sx={panelBorderSx}>
-        <Typography variant="body2" color="text.secondary">
-          Activity timeline will appear here.
-        </Typography>
-      </Box>
+      <Typography variant="body2" color="text.secondary">
+        Activity timeline will appear here.
+      </Typography>
     );
   }
 
   if (activeTab === 1) {
-    return (
-      <Box sx={panelBorderSx}>
-        <Typography variant="body2" color="text.secondary">
-          Details appear here.
-        </Typography>
-      </Box>
-    );
+    return <CaseDetailsDetailsPanel data={data} isError={isError} />;
   }
 
   if (activeTab === 2) {
@@ -61,21 +57,17 @@ export default function CaseDetailsTabPanels({
 
   if (activeTab === 3) {
     return (
-      <Box sx={panelBorderSx}>
-        <Typography variant="body2" color="text.secondary">
-          Calls will appear here.
-        </Typography>
-      </Box>
+      <Typography variant="body2" color="text.secondary">
+        Calls will appear here.
+      </Typography>
     );
   }
 
   if (activeTab === 4) {
     return (
-      <Box sx={panelBorderSx}>
-        <Typography variant="body2" color="text.secondary">
-          Knowledge Base articles will appear here.
-        </Typography>
-      </Box>
+      <Typography variant="body2" color="text.secondary">
+        Knowledge Base articles will appear here.
+      </Typography>
     );
   }
 

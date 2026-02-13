@@ -18,7 +18,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import CaseDetailsTabPanels from "@case-details/CaseDetailsTabPanels";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
-import { mockCaseAttachments } from "@models/mockData";
+import { mockCaseAttachments, mockCaseDetails } from "@models/mockData";
 
 vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
   __esModule: true,
@@ -44,10 +44,19 @@ vi.mock("@api/useGetCaseAttachments", () => ({
   }),
 }));
 
-function renderTabPanels(activeTab: number, caseId = "case-1") {
+function renderTabPanels(
+  activeTab: number,
+  caseId = "case-1",
+  options?: { data?: typeof mockCaseDetails; isError?: boolean },
+) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <CaseDetailsTabPanels activeTab={activeTab} caseId={caseId} />
+      <CaseDetailsTabPanels
+        activeTab={activeTab}
+        caseId={caseId}
+        data={options?.data ?? mockCaseDetails}
+        isError={options?.isError ?? false}
+      />
     </ThemeProvider>,
   );
 }
@@ -60,9 +69,11 @@ describe("CaseDetailsTabPanels", () => {
     ).toBeInTheDocument();
   });
 
-  it("should show Details placeholder when activeTab is 1", () => {
+  it("should show Details panel with case overview and cards when activeTab is 1", () => {
     renderTabPanels(1);
-    expect(screen.getByText("Details appear here.")).toBeInTheDocument();
+    expect(screen.getByText("CS0001001")).toBeInTheDocument();
+    expect(screen.getByText("Product & Environment")).toBeInTheDocument();
+    expect(screen.getByText("Customer Information")).toBeInTheDocument();
   });
 
   it("should show Attachments panel with list and download when activeTab is 2", () => {
