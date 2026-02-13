@@ -1766,3 +1766,43 @@ export const mockProductUpdateLevels: ProductUpdateLevelsResponse = [
     ],
   },
 ];
+
+// Mock project users (used when isMockEnabled).
+export interface MockProjectUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: "Invited" | "Registered";
+}
+
+export const mockProjectUsers: MockProjectUser[] = [
+  {
+    id: "1",
+    firstName: "nisal",
+    lastName: "perera",
+    email: "nisal@example.com",
+    status: "Registered",
+  },
+  {
+    id: "2",
+    firstName: "kalindu",
+    lastName: "janaka",
+    email: "kalindu@example.com",
+    status: "Invited",
+  },
+  {
+    id: "3",
+    firstName: "uditha",
+    lastName: "loku",
+    email: "uditha@example.com",
+    status: "Registered",
+  },
+  {
+    id: "4",
+    firstName: "thamindu",
+    lastName: "periis",
+    email: "thamindu@example.com",
+    status: "Invited",
+  },
+];
