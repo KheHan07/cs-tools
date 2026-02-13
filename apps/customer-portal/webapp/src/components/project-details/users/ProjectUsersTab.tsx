@@ -33,11 +33,11 @@ import {
 } from "@wso2/oxygen-ui";
 import { Plus, Trash } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import AddProjectUserDialog from "./AddProjectUserDialog";
 import { getUserStatusColor } from "@utils/projectStats";
 import type { MockProjectUser } from "@models/mockData";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import useGetProjectUsers from "@api/useGetProjectUsers";
+import AddProjectUserDialog from "@components/project-details/users/AddProjectUserDialog";
 
 interface ProjectUsersTabProps {
     projectId: string;
