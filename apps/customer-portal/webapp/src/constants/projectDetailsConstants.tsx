@@ -201,7 +201,7 @@ export const CASE_STATUS = {
 
 export type CaseStatus = (typeof CASE_STATUS)[keyof typeof CASE_STATUS];
 
-export const PROJECT_USER_TYPES = {
+export const PROJECT_USER_STATUSES = {
   INVITED: "invited",
   REGISTERED: "registered",
 } as const;

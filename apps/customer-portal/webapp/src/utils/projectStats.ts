@@ -21,7 +21,7 @@ import {
   SUPPORT_TIER,
   PROJECT_TYPE,
   SYSTEM_HEALTH,
-  PROJECT_USER_TYPES,
+  PROJECT_USER_STATUSES,
 } from "@constants/projectDetailsConstants";
 
 /**
@@ -227,11 +227,11 @@ export const getUserStatusColor = (
 ): "primary" | "info" | "default" | "success" | "warning" | "error" => {
   const normalizedStatus = status?.toLowerCase();
 
-  if (normalizedStatus === PROJECT_USER_TYPES.REGISTERED.toLowerCase()) {
+  if (normalizedStatus === PROJECT_USER_STATUSES.REGISTERED.toLowerCase()) {
     return "success";
   }
 
-  if (normalizedStatus === PROJECT_USER_TYPES.INVITED.toLowerCase()) {
+  if (normalizedStatus === PROJECT_USER_STATUSES.INVITED.toLowerCase()) {
     return "warning";
   }
 
