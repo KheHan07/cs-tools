@@ -63,6 +63,12 @@ export default function ProjectUsersTab({
         error,
     } = useGetProjectUsers(projectId);
 
+    // Reset local state when projectId changes
+    useEffect(() => {
+        setLocalUsers([]);
+        setInitialized(false);
+    }, [projectId]);
+
     // Sync fetched data to local state for add/delete operations
     useEffect(() => {
         if (fetchedUsers && !initialized) {
@@ -94,7 +100,6 @@ export default function ProjectUsersTab({
             status: "Invited",
         };
         setLocalUsers((prevUsers) => [...prevUsers, user]);
-        setIsDialogOpen(false);
     };
 
     const renderTableSkeleton = (): JSX.Element => (
