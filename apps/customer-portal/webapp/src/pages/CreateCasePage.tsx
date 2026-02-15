@@ -48,6 +48,7 @@ import {
   resolveIssueTypeKey,
   resolveProductId,
 } from "@utils/caseCreation";
+import { htmlToPlainText } from "@utils/richTextEditor";
 import UploadAttachmentModal from "@components/support/case-details/attachments-tab/UploadAttachmentModal";
 
 const DEFAULT_CASE_TITLE = "Support case";
@@ -75,6 +76,7 @@ export default function CreateCasePage(): JSX.Element {
   const [deployment, setDeployment] = useState("");
   const [severity, setSeverity] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
+  const attachmentNamesRef = useRef<Map<string, string>>(new Map());
   const [isUploadingAttachments, setIsUploadingAttachments] = useState(false);
   const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const { data: projectDeployments, isLoading: isDeploymentsLoading } =
@@ -181,11 +183,21 @@ export default function CreateCasePage(): JSX.Element {
     setIsAttachmentModalOpen(true);
   };
 
-  const handleSelectAttachment = (file: File) => {
+  const fileKey = (f: File) =>
+    `${f.name}-${f.size}-${f.lastModified}`;
+
+  const handleSelectAttachment = (file: File, attachmentName?: string) => {
+    if (attachmentName?.trim()) {
+      attachmentNamesRef.current.set(fileKey(file), attachmentName.trim());
+    }
     setAttachments((prev) => [...prev, file]);
   };
 
   const handleAttachmentRemove = (index: number) => {
+    const file = attachments[index];
+    if (file) {
+      attachmentNamesRef.current.delete(fileKey(file));
+    }
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -220,7 +232,7 @@ export default function CreateCasePage(): JSX.Element {
 
     const payload: CreateCaseRequest = {
       deploymentId: String(deploymentMatch.id),
-      description,
+      description: htmlToPlainText(description),
       issueTypeKey,
       productId: String(productId),
       projectId,
@@ -236,6 +248,8 @@ export default function CreateCasePage(): JSX.Element {
           setIsUploadingAttachments(true);
           try {
             const uploadPromises = attachments.map((file) => {
+              const displayName =
+                attachmentNamesRef.current.get(fileKey(file)) || file.name;
               return new Promise<void>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = async () => {
@@ -249,8 +263,8 @@ export default function CreateCasePage(): JSX.Element {
                     await postAttachments.mutateAsync({
                       caseId,
                       body: {
-                        referenceType: "case", // Updated from 'attachment' to 'case' as per usePostAttachments.ts example
-                        name: file.name,
+                        referenceType: "case",
+                        name: displayName,
                         type: file.type || "application/octet-stream",
                         content,
                       },
@@ -269,9 +283,8 @@ export default function CreateCasePage(): JSX.Element {
             await Promise.all(uploadPromises);
             showSuccess("Case created and attachments uploaded successfully");
             navigate(`/${projectId}/support/cases/${caseId}`);
-          } catch (error) {
+          } catch {
             showError("Case created, but some attachments failed to upload.");
-            // Navigate anyway? Or stay? Usually it's better to navigate to the case.
             navigate(`/${projectId}/support/cases/${caseId}`);
           } finally {
             setIsUploadingAttachments(false);

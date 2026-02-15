@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { type ReactElement } from "react";
+import { type ReactElement, type RefObject } from "react";
 import { type Theme } from "@wso2/oxygen-ui";
 import {
   File as FileIcon,
@@ -24,6 +24,32 @@ import {
   FileText,
 } from "@wso2/oxygen-ui-icons-react";
 import { createCommand, type LexicalCommand } from "lexical";
+
+/**
+ * Derives alt text from a URL or filename (e.g. "image.png" -> "image").
+ */
+export function deriveAltFromFilename(src: string): string {
+  try {
+    const url = new URL(src);
+    const path = url.pathname || "";
+    const match = path.match(/\/([^/]+)$/);
+    const name = (match?.[1] ?? path) || "Image";
+    const base = name.replace(/\.[^.]+$/, "");
+    return base ? base : "Image";
+  } catch {
+    return "Image";
+  }
+}
+
+/**
+ * Converts HTML to plain text by stripping tags and decoding entities.
+ */
+export function htmlToPlainText(html: string): string {
+  if (!html || typeof html !== "string") return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").trim();
+}
 
 /**
  * Escapes HTML entities in a string.
@@ -84,14 +110,17 @@ export const getFileIcon = (file: File, theme: Theme): ReactElement => {
 };
 
 /**
- * Scrolls an element by a given amount.
+ * Scrolls an element by a given amount. Accepts either element id or ref.
  */
 export const scrollElement = (
-  elementId: string,
+  elementIdOrRef: string | RefObject<HTMLElement | null>,
   direction: "left" | "right",
   scrollAmount: number = 200,
 ) => {
-  const container = document.getElementById(elementId);
+  const container =
+    typeof elementIdOrRef === "string"
+      ? document.getElementById(elementIdOrRef)
+      : elementIdOrRef.current;
   if (container) {
     container.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
@@ -101,6 +130,16 @@ export const scrollElement = (
 };
 
 /**
+ * Payload for INSERT_IMAGE_COMMAND.
+ */
+export interface InsertImagePayload {
+  src: string;
+  altText?: string;
+}
+
+/**
  * Lexical Command for inserting an image.
  */
-export const INSERT_IMAGE_COMMAND: LexicalCommand<string> = createCommand();
+export const INSERT_IMAGE_COMMAND: LexicalCommand<
+  string | InsertImagePayload
+> = createCommand();
