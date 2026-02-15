@@ -40,7 +40,7 @@ export interface UploadAttachmentModalProps {
   caseId?: string;
   onClose: () => void;
   onSuccess?: () => void;
-  onSelect?: (file: File) => void;
+  onSelect?: (file: File, attachmentName?: string) => void;
 }
 
 /**
@@ -139,7 +139,7 @@ export default function UploadAttachmentModal({
     if (!attachmentName) return;
 
     if (onSelect) {
-      onSelect(file);
+      onSelect(file, attachmentName);
       handleClose();
       return;
     }
