@@ -14,31 +14,31 @@ import { MessageBubble, type ChatMessage } from "../chat";
 
 export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
   return (
-    <Card p={1.5} component={Stack} gap={1}>
+    <Card sx={{ bgcolor: "background.paper" }} p={1.5} component={Stack} gap={1}>
       <Stack direction="row" alignItems="center" gap={1}>
         <Box color="primary.main">
-          <MessagesSquare size={pxToRem(20)} />
+          <MessagesSquare size={pxToRem(18)} />
         </Box>
-        <Typography variant="h6" fontWeight="medium">
+        <Typography variant="body1" fontWeight="medium">
           Conversation Summary
         </Typography>
       </Stack>
       <Stack gap={1}>
         <Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             Messages Exchanged
           </Typography>
-          <Typography variant="h5" fontWeight="medium">
+          <Typography variant="h6" fontWeight="medium">
             6
           </Typography>
         </Stack>
         <Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             Troubleshooting attempts
           </Typography>
           <Stack direction="row" alignItems="center" gap={1}>
             <Box color="success.main">
-              <CircleCheck size={pxToRem(18)} />
+              <CircleCheck size={pxToRem(16)} />
             </Box>
             <Typography variant="body2" fontWeight="medium">
               2 Steps Completed
@@ -46,12 +46,12 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
           </Stack>
         </Stack>
         <Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             Articles Reviewed
           </Typography>
           <Stack direction="row" alignItems="center" gap={1}>
             <Box color={colors.blue[500]}>
-              <BookOpen size={pxToRem(18)} />
+              <BookOpen size={pxToRem(16)} />
             </Box>
             <Typography variant="body2" fontWeight="medium">
               3 Articles Suggested

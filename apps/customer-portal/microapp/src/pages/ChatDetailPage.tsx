@@ -1,10 +1,11 @@
 import { useLayoutEffect, useState } from "react";
-import { Box, Card, Grid, Stack, Typography, pxToRem } from "@wso2/oxygen-ui";
+import { Box, Grid, Stack, Typography, pxToRem } from "@wso2/oxygen-ui";
 import { BookOpen, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import { StatusChip } from "@components/features/support";
 import { InfoField, OverlineSlot, StickyCommentBar } from "@components/features/detail";
 import { ConversationFeedback, MessageBubble, type ChatMessage } from "@components/features/chat";
 import { useLayout } from "@context/layout";
+import { SectionCard } from "@components/shared";
 
 export default function ChatDetailPage() {
   const layout = useLayout();
@@ -97,17 +98,17 @@ export default function ChatDetailPage() {
       <Stack direction="row" gap={3}>
         <Stack direction="row" alignItems="center" gap={1}>
           <Box color="text.secondary">
-            <MessageSquare size={pxToRem(16)} />
+            <MessageSquare size={pxToRem(14)} />
           </Box>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             8 messages
           </Typography>
         </Stack>
         <Stack direction="row" alignItems="center" gap={1}>
           <Box color="text.secondary">
-            <BookOpen size={pxToRem(16)} />
+            <BookOpen size={pxToRem(14)} />
           </Box>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             3 KB articles
           </Typography>
         </Stack>
@@ -130,10 +131,7 @@ export default function ChatDetailPage() {
   return (
     <>
       <Stack gap={2} mb={10}>
-        <Card component={Stack} p={1.5} gap={1.5} sx={{ bgcolor: "background.paper" }}>
-          <Typography variant="h5" fontWeight="medium">
-            Chat Information
-          </Typography>
+        <SectionCard title="Chat Information">
           <Grid spacing={1.5} container>
             <Grid size={6}>
               <InfoField label="Started" value="Nov 17, 2025 2:15 PM" />
@@ -148,17 +146,14 @@ export default function ChatDetailPage() {
               <InfoField label="Status" value={<StatusChip size="small" status="resolved" />} />
             </Grid>
           </Grid>
-        </Card>
-        <Card component={Stack} p={1.5} gap={1.5}>
-          <Typography variant="h5" fontWeight="medium">
-            Conversation
-          </Typography>
+        </SectionCard>
+        <SectionCard title="Conversation">
           <Stack gap={2} mt={1}>
             {messages.map((message, index) => (
               <MessageBubble key={index} {...message} sx={{ bgcolor: "background.default" }} />
             ))}
           </Stack>
-        </Card>
+        </SectionCard>
         <ConversationFeedback />
       </Stack>
       <StickyCommentBar

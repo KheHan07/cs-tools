@@ -64,7 +64,7 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
         </Stack>
       </SectionCard>
 
-      <SectionCard title="User Status">
+      <SectionCard title="User Role">
         <RoleSelector value={role} onChange={setRole} />
       </SectionCard>
 

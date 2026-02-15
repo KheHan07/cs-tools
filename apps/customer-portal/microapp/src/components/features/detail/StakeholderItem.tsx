@@ -3,7 +3,7 @@ import { User } from "@wso2/oxygen-ui-icons-react";
 
 export function StakeholderItem({ name, role }: { name: string; role: string }) {
   return (
-    <Card component={Stack} direction="row" justifyContent="space-between" p={1}>
+    <Card sx={{ bgcolor: "background.default" }} component={Stack} direction="row" justifyContent="space-between" p={1}>
       <Stack direction="row" gap={1}>
         <Box color="text.secondary">
           <User size={pxToRem(18)} />

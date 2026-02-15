@@ -28,18 +28,18 @@ export function UserListItem({ name, email, role, lastActive }: UserListItemProp
           <Avatar>{name}</Avatar>
           <Stack>
             <Stack direction="row" gap={1} alignItems="center">
-              <Typography variant="body1" fontWeight="medium">
+              <Typography variant="subtitle1" fontWeight="medium">
                 {name}
               </Typography>
               <Chip size="small" label={capitalize(role)} color={admin ? "primary" : "default"} />
             </Stack>
             <Stack direction="row" alignItems="center" gap={1}>
-              <Mail color={theme.palette.text.secondary} size={pxToRem(14)} />
+              <Mail color={theme.palette.text.secondary} size={pxToRem(13)} />
               <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
                 {email}
               </Typography>
             </Stack>
-            <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
+            <Typography variant="caption" fontWeight="regular" color="text.secondary" mt={0.5}>
               Last Active: {lastActive}
             </Typography>
           </Stack>

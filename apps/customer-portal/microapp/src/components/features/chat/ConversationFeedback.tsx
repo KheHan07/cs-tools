@@ -14,7 +14,7 @@ export function ConversationFeedback() {
         <Typography variant="body1" fontWeight="medium">
           Was this conversation helpful?
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
+        <Typography variant="subtitle2" color="text.secondary">
           Your feedback helps us improve Novera
         </Typography>
       </Stack>

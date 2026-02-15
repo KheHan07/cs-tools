@@ -8,7 +8,7 @@ export function KBCard({ id, title }: { id: string; title: string }) {
         <BookOpen size={pxToRem(18)} />
       </Box>
       <Stack>
-        <Typography variant="subtitle1">{title}</Typography>
+        <Typography variant="body2">{title}</Typography>
         <Typography variant="caption" color="text.secondary">
           {id}
         </Typography>

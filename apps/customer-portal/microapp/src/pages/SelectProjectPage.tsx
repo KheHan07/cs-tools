@@ -66,7 +66,7 @@ function SelectProjectContent() {
         Choose a project to access your support cases, chat history, and dashboard
       </Typography>
       <Stack mt={5} gap={3}>
-        <SearchBar size="small" placeholder="Search Users" value="" sx={{ mt: 1 }} fullWidth />
+        <SearchBar size="small" placeholder="Search Projects" value="" sx={{ mt: 1 }} fullWidth />
         {MOCK_PROJECTS.map((props) => (
           <ProjectCard
             key={props.id}

@@ -34,11 +34,11 @@ export function MetricWidget({ label, value, icon, size, base, trend }: MetricWi
         )}
       </Stack>
 
-      <Typography variant={small ? "h4" : "h3"} fontWeight="bold">
+      <Typography variant={small ? "h4" : "h4"} fontWeight="medium" sx={{ mt: 1 }}>
         {value}
       </Typography>
 
-      <Typography variant={small ? "subtitle1" : "h6"} fontWeight="medium" color="text.secondary">
+      <Typography variant={small ? "subtitle2" : "subtitle2"} fontWeight="medium" color="text.secondary">
         {label}
       </Typography>
     </WidgetBox>

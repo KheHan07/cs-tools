@@ -43,7 +43,7 @@ export function NotificationsListItem({
             {title}
           </Typography>
           <Typography
-            variant="subtitle2"
+            variant="caption"
             fontWeight="regular"
             color="text.secondary"
             sx={{
@@ -57,7 +57,7 @@ export function NotificationsListItem({
           </Typography>
         </Stack>
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
+          <Typography variant="caption" fontWeight="regular" color="text.secondary">
             {timestamp}
           </Typography>
           <Chip size="small" label={id} />

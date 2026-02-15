@@ -1,5 +1,5 @@
 import { Card, Stack, Typography, pxToRem, useTheme } from "@wso2/oxygen-ui";
-import { Calendar, ChevronRight, Clock4 } from "@wso2/oxygen-ui-icons-react";
+import { ChevronRight, Clock4 } from "@wso2/oxygen-ui-icons-react";
 import { Circle } from "@mui/icons-material";
 import { PriorityChip, StatusChip } from "@components/features/support";
 import { Link } from "react-router-dom";
@@ -83,7 +83,7 @@ export function ItemCard(props: ItemCardProps) {
           <ChevronRight size={pxToRem(18)} color={theme.palette.text.secondary} />
         </Stack>
 
-        <Typography variant="body1" color="text.primary">
+        <Typography variant="body2" color="text.primary">
           {title}
         </Typography>
 
@@ -106,21 +106,18 @@ export function ItemCard(props: ItemCardProps) {
         </Stack>
 
         {type === "change" && (
-          <Stack direction="row" alignItems="center" gap={1}>
-            <Calendar size={pxToRem(16)} color={theme.palette.text.secondary} />
-            <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
-              Scheduled: {props.scheduled}
-            </Typography>
-          </Stack>
+          <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
+            Scheduled: {props.scheduled}
+          </Typography>
         )}
 
         <Stack gap={0.5} mt={1}>
           <Stack direction="row" alignItems="center" gap={1}>
-            <Clock4 size={pxToRem(16)} color={theme.palette.text.secondary} />
+            <Clock4 size={pxToRem(13)} color={theme.palette.text.secondary} />
             <Typography
               fontWeight="regular"
               color="text.tertiary"
-              sx={(theme) => ({ fontSize: theme.typography.pxToRem(14) })}
+              sx={(theme) => ({ fontSize: theme.typography.pxToRem(13) })}
             >
               {timestamp}
             </Typography>

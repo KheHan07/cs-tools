@@ -51,7 +51,7 @@ export const typography = {
     fontSize: pxToRem(14),
   },
   caption: {
-    fontSize: pxToRem(10),
+    fontSize: pxToRem(11),
   },
   overline: {
     fontSize: pxToRem(8),

@@ -12,7 +12,7 @@ export function Comment({ children, author, timestamp }: CommentProps) {
         <Typography variant="body2" fontWeight="medium">
           {author}
         </Typography>
-        <Typography variant="subtitle2" color="text.secondary">
+        <Typography variant="caption" color="text.secondary">
           {timestamp}
         </Typography>
       </Stack>

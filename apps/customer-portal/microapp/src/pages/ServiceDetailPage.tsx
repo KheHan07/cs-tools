@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react";
-import { Card, Chip, Grid, Stack, Typography } from "@wso2/oxygen-ui";
+import { Chip, Grid, Stack } from "@wso2/oxygen-ui";
 import { User, Users } from "@wso2/oxygen-ui-icons-react";
 import { Timeline } from "@mui/lab";
 import { Comment, InfoField, OverlineSlot, StickyCommentBar, TimelineEntry } from "@components/features/detail";
@@ -8,6 +8,7 @@ import { ChecklistItem } from "@components/features/chat";
 import { useLayout } from "@context/layout";
 
 import { MOCK_REQUIREMENTS, MOCK_TIMELINE_DATA, MOCK_UPDATES } from "@src/mocks/data/service";
+import { SectionCard } from "@components/shared";
 
 export default function ServiceDetailPage() {
   const layout = useLayout();
@@ -42,10 +43,7 @@ export default function ServiceDetailPage() {
   return (
     <>
       <Stack gap={2} mb={10}>
-        <Card component={Stack} p={1.5} gap={1.5} sx={{ bgcolor: "background.paper" }}>
-          <Typography variant="h5" fontWeight="medium">
-            Request Information
-          </Typography>
+        <SectionCard title="Request Information">
           <Grid spacing={1.5} container>
             <Grid size={12}>
               <InfoField
@@ -75,11 +73,8 @@ export default function ServiceDetailPage() {
               <InfoField label="Approved By" value="Manager - Jane Doe" />
             </Grid>
           </Grid>
-        </Card>
-        <Card component={Stack} p={1.5} gap={1.5} sx={{ bgcolor: "background.paper" }}>
-          <Typography variant="h5" fontWeight="medium">
-            Requirements
-          </Typography>
+        </SectionCard>
+        <SectionCard title="Requirements">
           <Stack gap={0.5}>
             {MOCK_REQUIREMENTS.map((text, index) => (
               <ChecklistItem key={index} variant="checkbox">
@@ -87,11 +82,8 @@ export default function ServiceDetailPage() {
               </ChecklistItem>
             ))}
           </Stack>
-        </Card>
-        <Card component={Stack} p={1.5} gap={1.5} sx={{ bgcolor: "background.paper" }}>
-          <Typography variant="h5" fontWeight="medium">
-            Progress Timeline
-          </Typography>
+        </SectionCard>
+        <SectionCard title="Progress Timeline">
           <Timeline
             position="right"
             sx={{
@@ -114,11 +106,8 @@ export default function ServiceDetailPage() {
               />
             ))}
           </Timeline>
-        </Card>
-        <Card component={Stack} p={1.5} gap={1.5} sx={{ bgcolor: "background.paper" }}>
-          <Typography variant="h5" fontWeight="medium">
-            Updates
-          </Typography>
+        </SectionCard>
+        <SectionCard title="Updates">
           <Stack gap={2} pt={1}>
             {updates.map(({ author, timestamp, content }, index) => (
               <Comment author={author} timestamp={timestamp} key={index}>
@@ -126,7 +115,7 @@ export default function ServiceDetailPage() {
               </Comment>
             ))}
           </Stack>
-        </Card>
+        </SectionCard>
       </Stack>
       <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
     </>

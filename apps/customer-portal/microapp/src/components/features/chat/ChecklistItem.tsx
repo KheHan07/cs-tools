@@ -18,7 +18,7 @@ export function ChecklistItem({
   return (
     <Stack direction="row" gap={2}>
       <Box sx={(theme) => ({ color: theme.palette[color]?.main ?? theme.palette.primary.main })}>
-        <Icon size={pxToRem(20)} />
+        <Icon size={pxToRem(18)} />
       </Box>
       <Typography variant="body2">{children}</Typography>
     </Stack>

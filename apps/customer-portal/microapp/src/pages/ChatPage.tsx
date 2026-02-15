@@ -88,9 +88,7 @@ export default function ChatPage() {
         topSlot={
           messages.length > 2 && (
             <Stack direction="row" alignItems="center" gap={2}>
-              <Typography variant="subtitle1">
-                I can create a support case with all the details we've discussed.
-              </Typography>
+              <Typography variant="body2">I can create a support case with all the details we've discussed.</Typography>
               <Button
                 component={Link}
                 to="/create"

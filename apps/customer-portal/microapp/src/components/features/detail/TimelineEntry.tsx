@@ -143,9 +143,9 @@ function Comment({ children, attachment }: { children: string; attachment?: stri
       {attachment && (
         <Stack direction="row" alignItems="center" pt={1} gap={1}>
           <Box color="text.secondary">
-            <Paperclip size={pxToRem(16)} />
+            <Paperclip size={pxToRem(14)} />
           </Box>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             {attachment}
           </Typography>
         </Stack>

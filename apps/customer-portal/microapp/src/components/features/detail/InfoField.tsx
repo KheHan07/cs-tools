@@ -13,7 +13,7 @@ export function InfoField({ label, value, icon }: InfoFieldProps) {
 
   return (
     <Stack gap={0.5}>
-      <Typography variant="subtitle2" color="text.secondary">
+      <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
       <Stack direction="row" alignItems="center" gap={1}>

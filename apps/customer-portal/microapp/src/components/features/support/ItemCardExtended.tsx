@@ -84,10 +84,10 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
           </Stack>
 
           <Stack gap={0.2}>
-            <Typography variant="body1" color="text.primary">
+            <Typography variant="body2" color="text.primary">
               {title}
             </Typography>
-            <Typography variant="subtitle2" color="text.secondary">
+            <Typography sx={(theme) => ({ fontSize: theme.typography.pxToRem(13) })} color="text.secondary">
               {description}
             </Typography>
           </Stack>
@@ -108,7 +108,7 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
         <Stack direction="row" justifyContent="space-between" alignItems="center" gap={5}>
           <Stack direction="row" gap={3}>
             <Stack>
-              <Typography variant="subtitle2" color="text.secondary">
+              <Typography variant="caption" color="text.secondary">
                 {(() => {
                   switch (type) {
                     case "case":
@@ -122,7 +122,7 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
                   }
                 })()}
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="caption">
                 {(() => {
                   switch (type) {
                     case "case":
@@ -138,7 +138,7 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
               </Typography>
             </Stack>
             <Stack>
-              <Typography variant="subtitle2" color="text.secondary">
+              <Typography variant="caption" color="text.secondary">
                 {(() => {
                   switch (type) {
                     case "case":
@@ -152,7 +152,7 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
                   }
                 })()}
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="caption">
                 {(() => {
                   switch (type) {
                     case "case":
@@ -168,7 +168,7 @@ export function ItemCardExtended(props: ItemCardExtendedProps) {
               </Typography>
             </Stack>
           </Stack>
-          <Typography variant="subtitle2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             Updated {updated}
           </Typography>
         </Stack>

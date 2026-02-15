@@ -55,7 +55,7 @@ export default function NotificationsPage() {
     );
 
     layout.setEndSlotOverride(
-      <Button variant="text" sx={{ textTransform: "initial" }} disableRipple>
+      <Button variant="text" sx={{ fontWeight: "medium", textTransform: "initial" }} disableRipple>
         Mark All Read
       </Button>,
     );

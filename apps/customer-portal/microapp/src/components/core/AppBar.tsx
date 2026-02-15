@@ -77,7 +77,7 @@ export function AppBar() {
                   {title}
                 </Typography>
               )}
-              <Typography component="div" variant="body2" fontWeight="regular" color="text.secondary">
+              <Typography component="div" variant="subtitle2" fontWeight="regular" color="text.secondary">
                 {subtitleSlot}
               </Typography>
             </Stack>
@@ -88,9 +88,9 @@ export function AppBar() {
 
         {config.showProjectSelector && (
           <Button sx={{ justifyContent: "space-between", p: 0 }} onClick={openProjectSelector} disableRipple>
-            <Stack direction="row" gap={1}>
+            <Stack direction="row" sx={{ alignItems: "center" }} gap={1}>
               <Folder color={theme.palette.text.secondary} size={pxToRem(18)} />
-              <Typography variant="body2" color="text.secondary" sx={{ textTransform: "initial" }}>
+              <Typography variant="body1" color="text.secondary" sx={{ textTransform: "initial" }}>
                 {project.name}
               </Typography>
             </Stack>
