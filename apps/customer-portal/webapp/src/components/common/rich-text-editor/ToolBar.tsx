@@ -80,7 +80,12 @@ import {
 import { $createCodeNode, $isCodeNode } from "@lexical/code";
 import { $patchStyleText, $setBlocksType } from "@lexical/selection";
 import { TOGGLE_LINK_COMMAND, $isLinkNode } from "@lexical/link";
-import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
+import {
+  $createHeadingNode,
+  $createQuoteNode,
+  $isHeadingNode,
+  $isQuoteNode,
+} from "@lexical/rich-text";
 import { $createParagraphNode } from "lexical";
 
 const Toolbar = ({
@@ -102,6 +107,7 @@ const Toolbar = ({
   const [isCode, setIsCode] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [blockVariant, setBlockVariant] = useState("body1");
 
   const [linkAnchorEl, setLinkAnchorEl] = useState<HTMLButtonElement | null>(
     null,
@@ -121,12 +127,21 @@ const Toolbar = ({
       const parent = node?.getParent();
       setIsLink($isLinkNode(parent) || $isLinkNode(node));
 
-      // Check if current block is a code block
       const element =
         selection.anchor.type === "element"
           ? selection.anchor.getNode()
           : selection.anchor.getNode().getTopLevelElementOrThrow();
       setIsCode($isCodeNode(element));
+
+      if ($isHeadingNode(element)) {
+        setBlockVariant(element.getTag());
+      } else if ($isQuoteNode(element)) {
+        setBlockVariant("quote");
+      } else if ($isCodeNode(element)) {
+        setBlockVariant("body1");
+      } else {
+        setBlockVariant("body1");
+      }
     }
   }, []);
 
@@ -217,6 +232,7 @@ const Toolbar = ({
 
   const onBlockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const variant = e.target.value;
+    setBlockVariant(variant);
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -227,9 +243,12 @@ const Toolbar = ({
               `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
             ),
           );
+          $patchStyleText(selection, { "font-size": null });
         } else if (variant === "quote") {
           $setBlocksType(selection, () => $createQuoteNode());
+          $patchStyleText(selection, { "font-size": null });
         } else {
+          $setBlocksType(selection, () => $createParagraphNode());
           const typo = theme.typography[
             variant as keyof typeof theme.typography
           ] as { fontSize?: string | number };
@@ -261,9 +280,9 @@ const Toolbar = ({
           if (linkText && linkText !== selection.getTextContent()) {
             selection.insertText(linkText);
           }
+          editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
         }
       });
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
     }
     setLinkAnchorEl(null);
     setLinkUrl("");
@@ -391,7 +410,7 @@ const Toolbar = ({
             >
               <select
                 aria-label="Font variant"
-                defaultValue="body1"
+                value={blockVariant}
                 onChange={onBlockChange}
                 onClick={(e) => e.stopPropagation()}
                 style={{
@@ -406,7 +425,10 @@ const Toolbar = ({
                   outline: "none",
                 }}
               >
-                {RICH_TEXT_BLOCK_TAGS.map(({ value, label }) => (
+                {[
+                  ...RICH_TEXT_BLOCK_TAGS,
+                  { value: "quote", label: "Quote", variant: "quote" as const },
+                ].map(({ value, label }) => (
                   <option
                     key={value}
                     value={value}
