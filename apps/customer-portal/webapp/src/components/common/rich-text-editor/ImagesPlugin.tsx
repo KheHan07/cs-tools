@@ -18,7 +18,24 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { COMMAND_PRIORITY_EDITOR, $insertNodes } from "lexical";
 import { useEffect } from "react";
 import { $createImageNode } from "@components/common/rich-text-editor/ImageNode";
-import { INSERT_IMAGE_COMMAND } from "@utils/richTextEditor";
+import {
+  INSERT_IMAGE_COMMAND,
+  deriveAltFromFilename,
+  type InsertImagePayload,
+} from "@utils/richTextEditor";
+
+function getPayloadSrc(payload: string | InsertImagePayload): string {
+  return typeof payload === "string" ? payload : payload.src;
+}
+
+function getPayloadAltText(payload: string | InsertImagePayload): string {
+  if (typeof payload === "string") {
+    return deriveAltFromFilename(payload) || "Uploaded Image";
+  }
+  return (
+    payload.altText || deriveAltFromFilename(payload.src) || "Uploaded Image"
+  );
+}
 
 export default function ImagesPlugin(): null {
   const [editor] = useLexicalComposerContext();
@@ -27,7 +44,9 @@ export default function ImagesPlugin(): null {
     return editor.registerCommand(
       INSERT_IMAGE_COMMAND,
       (payload) => {
-        const imageNode = $createImageNode(payload, "Uploaded Image");
+        const src = getPayloadSrc(payload);
+        const altText = getPayloadAltText(payload);
+        const imageNode = $createImageNode(src, altText);
         $insertNodes([imageNode]);
         return true;
       },

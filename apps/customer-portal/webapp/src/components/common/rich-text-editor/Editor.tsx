@@ -33,7 +33,7 @@ import {
 import { Trash, ChevronLeft, ChevronRight } from "@wso2/oxygen-ui-icons-react";
 import { getFileIcon, scrollElement } from "@utils/richTextEditor";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Toolbar from "@components/common/rich-text-editor/ToolBar";
 import type { JSX } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -111,6 +111,35 @@ const OnChangeHTMLPlugin = ({
   );
 };
 
+/** Static editor config (namespace, nodes, theme). */
+const DEFAULT_EDITOR_CONFIG = {
+  namespace: "MyEditor",
+  nodes: [
+    ListNode,
+    ListItemNode,
+    ImageNode,
+    CodeNode,
+    LinkNode,
+    HeadingNode,
+    QuoteNode,
+  ],
+  theme: {
+    text: {
+      bold: "editor-text-bold",
+      italic: "editor-text-italic",
+      underline: "editor-text-underline",
+      strikethrough: "editor-text-strikethrough",
+      code: "editor-text-code",
+    },
+    list: {
+      ul: "editor-list-ul",
+      ol: "editor-list-ol",
+    },
+    link: "editor-link",
+    code: "editor-code",
+  },
+};
+
 const Editor = ({
   onAttachmentClick,
   attachments = [],
@@ -129,64 +158,49 @@ const Editor = ({
   const oxygenTheme = useTheme();
   const logger = useLogger();
 
-  const initialConfig = {
-    namespace: "MyEditor",
-    nodes: [
-      ListNode,
-      ListItemNode,
-      ImageNode,
-      CodeNode,
-      LinkNode,
-      HeadingNode,
-      QuoteNode,
-    ],
-    theme: {
-      text: {
-        bold: "editor-text-bold",
-        italic: "editor-text-italic",
-        underline: "editor-text-underline",
-        strikethrough: "editor-text-strikethrough",
-        code: "editor-text-code",
+  const memoizedEditorConfig = useMemo(
+    () => ({
+      ...DEFAULT_EDITOR_CONFIG,
+      onError: (error: Error) => {
+        logger.error("Error occurred in rich text editor", error);
       },
-      list: {
-        ul: "editor-list-ul",
-        ol: "editor-list-ol",
-      },
-      link: "editor-link",
-      code: "editor-code",
-    },
-    onError: (error: Error) => {
-      logger.error("Error occured in rich text editor", error);
-    },
-    editable: !disabled,
-  };
+      editable: !disabled,
+    }),
+    [logger, disabled],
+  );
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const scrollNodeRef = useRef<HTMLDivElement | null>(null);
+
   const scrollRef = useCallback((node: HTMLDivElement | null) => {
-    if (node !== null) {
-      const checkScroll = () => {
-        setCanScrollLeft(node.scrollLeft > 0);
-        setCanScrollRight(
-          node.scrollLeft < node.scrollWidth - node.clientWidth - 1,
-        );
-      };
-      checkScroll();
-      node.addEventListener("scroll", checkScroll);
-      window.addEventListener("resize", checkScroll);
-      return () => {
-        node.removeEventListener("scroll", checkScroll);
-        window.removeEventListener("resize", checkScroll);
-      };
-    }
+    scrollNodeRef.current = node;
   }, []);
 
-  const scrollAttachments = (direction: "left" | "right") => {
-    scrollElement("attachments-scroll-container", direction);
-  };
+  useEffect(() => {
+    const node = scrollNodeRef.current;
+    if (!node) return;
+    const checkScroll = () => {
+      setCanScrollLeft(node.scrollLeft > 0);
+      setCanScrollRight(
+        node.scrollLeft < node.scrollWidth - node.clientWidth - 1,
+      );
+    };
+    checkScroll();
+    node.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      node.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [attachments.length]);
+
+  const scrollAttachments = useCallback((direction: "left" | "right") => {
+    scrollElement(scrollNodeRef, direction);
+  }, []);
 
   return (
-    <LexicalComposer initialConfig={initialConfig}>
+    <LexicalComposer initialConfig={memoizedEditorConfig}>
       <Paper
         variant="outlined"
         sx={{
@@ -320,6 +334,7 @@ const Editor = ({
                     <IconButton
                       size="small"
                       onClick={() => scrollAttachments("left")}
+                      aria-label="Scroll attachments left"
                       sx={{
                         color: "text.secondary",
                         "&:hover": {
@@ -334,7 +349,6 @@ const Editor = ({
                 )}
 
                 <Box
-                  id="attachments-scroll-container"
                   ref={scrollRef}
                   sx={{
                     overflowX: "auto",
@@ -413,6 +427,7 @@ const Editor = ({
                     <IconButton
                       size="small"
                       onClick={() => scrollAttachments("right")}
+                      aria-label="Scroll attachments right"
                       sx={{
                         color: "text.secondary",
                         "&:hover": {

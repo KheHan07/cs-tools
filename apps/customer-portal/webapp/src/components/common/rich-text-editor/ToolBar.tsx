@@ -46,7 +46,7 @@ import {
   Button,
   IconButton,
 } from "@wso2/oxygen-ui";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Bold,
   Italic,
@@ -71,7 +71,11 @@ import {
 } from "@wso2/oxygen-ui-icons-react";
 import { mergeRegister } from "@lexical/utils";
 import { RICH_TEXT_BLOCK_TAGS } from "@constants/supportConstants";
-import { INSERT_IMAGE_COMMAND, scrollElement } from "@utils/richTextEditor";
+import {
+  INSERT_IMAGE_COMMAND,
+  scrollElement,
+  sanitizeUrl,
+} from "@utils/richTextEditor";
 import { $createCodeNode, $isCodeNode } from "@lexical/code";
 import { $patchStyleText, $setBlocksType } from "@lexical/selection";
 import { TOGGLE_LINK_COMMAND, $isLinkNode } from "@lexical/link";
@@ -168,14 +172,20 @@ const Toolbar = ({
     editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, format);
   };
 
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") {
-          editor.dispatchCommand(INSERT_IMAGE_COMMAND, reader.result);
+          editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+            src: reader.result,
+            altText: file.name,
+          });
         }
+        if (imageInputRef.current) imageInputRef.current.value = "";
       };
       reader.readAsDataURL(file);
     }
@@ -232,6 +242,7 @@ const Toolbar = ({
   };
 
   const onLinkSubmit = () => {
+    const sanitized = sanitizeUrl(linkUrl);
     if (linkUrl) {
       editor.update(() => {
         const selection = $getSelection();
@@ -241,7 +252,10 @@ const Toolbar = ({
           }
         }
       });
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkUrl);
+      editor.dispatchCommand(
+        TOGGLE_LINK_COMMAND,
+        sanitized || null,
+      );
     }
     setLinkAnchorEl(null);
     setLinkUrl("");
@@ -250,27 +264,33 @@ const Toolbar = ({
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const toolbarScrollRef = useRef<HTMLDivElement | null>(null);
+
   const scrollRef = useCallback((node: HTMLDivElement | null) => {
-    if (node !== null) {
-      const checkScroll = () => {
-        setCanScrollLeft(node.scrollLeft > 0);
-        setCanScrollRight(
-          node.scrollLeft < node.scrollWidth - node.clientWidth - 1,
-        );
-      };
-      checkScroll();
-      node.addEventListener("scroll", checkScroll);
-      window.addEventListener("resize", checkScroll);
-      return () => {
-        node.removeEventListener("scroll", checkScroll);
-        window.removeEventListener("resize", checkScroll);
-      };
-    }
+    toolbarScrollRef.current = node;
   }, []);
 
-  const scroll = (direction: "left" | "right") => {
-    scrollElement("toolbar-scroll-container", direction);
-  };
+  useEffect(() => {
+    const node = toolbarScrollRef.current;
+    if (!node) return;
+    const checkScroll = () => {
+      setCanScrollLeft(node.scrollLeft > 0);
+      setCanScrollRight(
+        node.scrollLeft < node.scrollWidth - node.clientWidth - 1,
+      );
+    };
+    checkScroll();
+    node.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      node.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
+
+  const scroll = useCallback((direction: "left" | "right") => {
+    scrollElement(toolbarScrollRef, direction);
+  }, []);
 
   return (
     <Box
@@ -297,6 +317,7 @@ const Toolbar = ({
           <IconButton
             size="small"
             onClick={() => scroll("left")}
+            aria-label="Scroll toolbar left"
             sx={{
               color: "text.secondary",
               "&:hover": { color: "primary.main", bgcolor: "action.hover" },
@@ -308,7 +329,6 @@ const Toolbar = ({
       )}
 
       <Box
-        id="toolbar-scroll-container"
         ref={scrollRef}
         sx={{
           overflowX: "auto",
@@ -622,6 +642,7 @@ const Toolbar = ({
             <ToggleButton size="small" component="label" value="image">
               <ImageIcon size={16} />
               <input
+                ref={imageInputRef}
                 type="file"
                 hidden
                 accept="image/*"
@@ -634,6 +655,7 @@ const Toolbar = ({
             <ToggleButton
               size="small"
               value="attachment"
+              disabled={!onAttachmentClick}
               onClick={() => onAttachmentClick?.()}
             >
               <Paperclip size={16} />
@@ -654,6 +676,7 @@ const Toolbar = ({
           <IconButton
             size="small"
             onClick={() => scroll("right")}
+            aria-label="Scroll toolbar right"
             sx={{
               color: "text.secondary",
               "&:hover": { color: "primary.main", bgcolor: "action.hover" },
