@@ -16,13 +16,22 @@
 
 import { Box, Button, Grid } from "@wso2/oxygen-ui";
 import { CircleCheck } from "@wso2/oxygen-ui-icons-react";
-import { useState, useEffect, useRef, useMemo, useCallback, type FormEvent, type JSX } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  type FormEvent,
+  type JSX,
+} from "react";
 import { useNavigate, useParams } from "react-router";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectDetails from "@api/useGetProjectDetails";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { useGetDeploymentsProducts } from "@api/useGetDeploymentsProducts";
 import { usePostCase } from "@api/usePostCase";
+import { usePostAttachments } from "@api/usePostAttachments";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
@@ -39,6 +48,7 @@ import {
   resolveIssueTypeKey,
   resolveProductId,
 } from "@utils/caseCreation";
+import UploadAttachmentModal from "@components/support/case-details/attachments-tab/UploadAttachmentModal";
 
 const DEFAULT_CASE_TITLE = "Support case";
 const DEFAULT_CASE_DESCRIPTION = "Please describe your issue here.";
@@ -64,6 +74,9 @@ export default function CreateCasePage(): JSX.Element {
   const [product, setProduct] = useState("");
   const [deployment, setDeployment] = useState("");
   const [severity, setSeverity] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [isUploadingAttachments, setIsUploadingAttachments] = useState(false);
+  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const { data: projectDeployments, isLoading: isDeploymentsLoading } =
     useGetProjectDeployments(projectId || "");
   const baseDeploymentOptions = getBaseDeploymentOptions(projectDeployments);
@@ -79,8 +92,8 @@ export default function CreateCasePage(): JSX.Element {
   } = useGetDeploymentsProducts(selectedDeploymentId);
   const allDeploymentProducts = useMemo(
     () =>
-      (deploymentProductsData ?? []).filter(
-        (item) => item.product?.label?.trim(),
+      (deploymentProductsData ?? []).filter((item) =>
+        item.product?.label?.trim(),
       ),
     [deploymentProductsData],
   );
@@ -88,6 +101,7 @@ export default function CreateCasePage(): JSX.Element {
   const { showError } = useErrorBanner();
   const { showSuccess } = useSuccessBanner();
   const { mutate: postCase, isPending: isCreatePending } = usePostCase();
+  const postAttachments = usePostAttachments();
 
   useEffect(() => {
     if (deploymentProductsError) {
@@ -163,6 +177,18 @@ export default function CreateCasePage(): JSX.Element {
     }
   };
 
+  const handleAttachmentClick = () => {
+    setIsAttachmentModalOpen(true);
+  };
+
+  const handleSelectAttachment = (file: File) => {
+    setAttachments((prev) => [...prev, file]);
+  };
+
+  const handleAttachmentRemove = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!projectId) return;
@@ -203,9 +229,57 @@ export default function CreateCasePage(): JSX.Element {
     };
 
     postCase(payload, {
-      onSuccess: (data) => {
-        showSuccess("Case created successfully");
-        navigate(`/${projectId}/support/cases/${data.id}`);
+      onSuccess: async (data) => {
+        const caseId = data.id;
+
+        if (attachments.length > 0) {
+          setIsUploadingAttachments(true);
+          try {
+            const uploadPromises = attachments.map((file) => {
+              return new Promise<void>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  try {
+                    const base64 =
+                      typeof reader.result === "string" ? reader.result : "";
+                    const commaIndex = base64.indexOf(",");
+                    const content =
+                      commaIndex >= 0 ? base64.slice(commaIndex + 1) : base64;
+
+                    await postAttachments.mutateAsync({
+                      caseId,
+                      body: {
+                        referenceType: "case", // Updated from 'attachment' to 'case' as per usePostAttachments.ts example
+                        name: file.name,
+                        type: file.type || "application/octet-stream",
+                        content,
+                      },
+                    });
+                    resolve();
+                  } catch (err) {
+                    reject(err);
+                  }
+                };
+                reader.onerror = () =>
+                  reject(new Error(`Failed to read file: ${file.name}`));
+                reader.readAsDataURL(file);
+              });
+            });
+
+            await Promise.all(uploadPromises);
+            showSuccess("Case created and attachments uploaded successfully");
+            navigate(`/${projectId}/support/cases/${caseId}`);
+          } catch (error) {
+            showError("Case created, but some attachments failed to upload.");
+            // Navigate anyway? Or stay? Usually it's better to navigate to the case.
+            navigate(`/${projectId}/support/cases/${caseId}`);
+          } finally {
+            setIsUploadingAttachments(false);
+          }
+        } else {
+          showSuccess("Case created successfully");
+          navigate(`/${projectId}/support/cases/${caseId}`);
+        }
       },
       onError: () => {
         showError("We couldn't create your case. Please try again.");
@@ -217,7 +291,8 @@ export default function CreateCasePage(): JSX.Element {
     deploymentTypes: baseDeploymentOptions,
     products: baseProductOptions,
   };
-  const isProductDropdownDisabled = !selectedDeploymentId || deploymentProductsLoading;
+  const isProductDropdownDisabled =
+    !selectedDeploymentId || deploymentProductsLoading;
 
   const renderContent = () => (
     <Grid container spacing={3}>
@@ -238,7 +313,9 @@ export default function CreateCasePage(): JSX.Element {
             metadata={sectionMetadata}
             isDeploymentLoading={isProjectLoading || isDeploymentsLoading}
             isProductDropdownDisabled={isProductDropdownDisabled}
-            isProductLoading={!!selectedDeploymentId && deploymentProductsLoading}
+            isProductLoading={
+              !!selectedDeploymentId && deploymentProductsLoading
+            }
           />
 
           <CaseDetailsSection
@@ -253,6 +330,9 @@ export default function CreateCasePage(): JSX.Element {
             metadata={undefined}
             filters={filters}
             isLoading={isFiltersLoading}
+            attachments={attachments}
+            onAttachmentClick={handleAttachmentClick}
+            onAttachmentRemove={handleAttachmentRemove}
             storageKey={
               projectId ? `create-case-draft-${projectId}` : undefined
             }
@@ -271,13 +351,18 @@ export default function CreateCasePage(): JSX.Element {
                 isProjectLoading ||
                 isFiltersLoading ||
                 isCreatePending ||
+                isUploadingAttachments ||
                 !projectId ||
                 !selectedDeploymentId ||
                 deploymentProductsLoading ||
                 deploymentProductsError
               }
             >
-              {isCreatePending ? "Creating..." : "Create Support Case"}
+              {isCreatePending || isUploadingAttachments
+                ? isUploadingAttachments
+                  ? "Uploading Attachments..."
+                  : "Creating..."
+                : "Create Support Case"}
             </Button>
           </Box>
         </Box>
@@ -297,6 +382,12 @@ export default function CreateCasePage(): JSX.Element {
 
       {/* main content grid container */}
       {renderContent()}
+
+      <UploadAttachmentModal
+        open={isAttachmentModalOpen}
+        onClose={() => setIsAttachmentModalOpen(false)}
+        onSelect={handleSelectAttachment}
+      />
     </Box>
   );
 }
