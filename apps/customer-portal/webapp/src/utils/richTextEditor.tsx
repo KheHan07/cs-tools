@@ -65,11 +65,12 @@ export function escapeHtml(text: string): string {
 
 /**
  * Sanitizes a URL by allowing only safe protocols.
+ * Rejects protocol-relative URLs (e.g. //evil.com); allows single leading slash for relative paths.
  */
-const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
+const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|tel:|\/(?!\/)|#)/i;
 export function sanitizeUrl(url: string): string {
-  const decoded = url.replace(/&amp;/g, "&");
-  return SAFE_URL_PATTERN.test(decoded.trim()) ? url : "";
+  const decoded = url.replace(/&amp;/g, "&").trim();
+  return SAFE_URL_PATTERN.test(decoded) ? decoded : "";
 }
 
 /**
