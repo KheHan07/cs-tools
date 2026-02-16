@@ -15,12 +15,6 @@
 // under the License.
 import customer_portal.types;
 
-# Generate authorization headers.
-#
-# + token - ID token for authorization
-# + return - Map of headers with authorization
-isolated function generateHeaders(string token) returns map<string|string[]> => {"x-jwt-assertion": token};
-
 # Process recommended update levels for a user.
 #
 # + email - Email of the user
