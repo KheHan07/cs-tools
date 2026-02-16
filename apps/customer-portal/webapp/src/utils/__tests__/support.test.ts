@@ -462,9 +462,9 @@ describe("support utils", () => {
   });
 
   describe("getAvailableCaseActions", () => {
-    it("should return empty array for Closed", () => {
-      expect(getAvailableCaseActions("Closed")).toEqual([]);
-      expect(getAvailableCaseActions("closed")).toEqual([]);
+    it("should return Open Related Case for Closed", () => {
+      expect(getAvailableCaseActions("Closed")).toEqual(["Open Related Case"]);
+      expect(getAvailableCaseActions("closed")).toEqual(["Open Related Case"]);
     });
 
     it("should return all actions for Solution Proposed", () => {
