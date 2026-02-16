@@ -132,10 +132,17 @@ const Toolbar = ({
       const parent = node?.getParent();
       setIsLink($isLinkNode(parent) || $isLinkNode(node));
 
-      const element =
-        selection.anchor.type === "element"
-          ? selection.anchor.getNode()
-          : selection.anchor.getNode().getTopLevelElementOrThrow();
+      let element: ReturnType<typeof selection.anchor.getNode>;
+      try {
+        element =
+          selection.anchor.type === "element"
+            ? selection.anchor.getNode()
+            : selection.anchor.getNode().getTopLevelElementOrThrow();
+      } catch {
+        setBlockVariant("body1");
+        setIsCode(false);
+        return;
+      }
       setIsCode($isCodeNode(element));
 
       if ($isHeadingNode(element)) {
