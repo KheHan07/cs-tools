@@ -311,10 +311,10 @@ export default function CreateCasePage(): JSX.Element {
                 `Case created, but ${rejected} of ${results.length} attachment(s) failed to upload.`,
               );
             }
-            navigate(`/${projectId}/support/cases/${caseId}`);
           } finally {
             setIsUploadingAttachments(false);
           }
+          navigate(`/${projectId}/support/cases/${caseId}`);
         } else {
           showSuccess("Case created successfully");
           navigate(`/${projectId}/support/cases/${caseId}`);
