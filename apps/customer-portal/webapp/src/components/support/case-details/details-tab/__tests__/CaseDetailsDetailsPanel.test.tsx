@@ -93,7 +93,7 @@ describe("CaseDetailsDetailsPanel", () => {
     expect(screen.getByText("CS Manager")).toBeInTheDocument();
   });
 
-  it("should display -- for null or undefined values", () => {
+  it("should display -- for null or undefined values and hide Assigned Engineer when null", () => {
     renderDetailsPanel({
       data: {
         ...mockCaseDetails,
@@ -106,6 +106,7 @@ describe("CaseDetailsDetailsPanel", () => {
     });
     const dashes = screen.getAllByText("--");
     expect(dashes.length).toBeGreaterThan(0);
+    expect(screen.queryByText("Assigned Engineer")).not.toBeInTheDocument();
   });
 
   it("should show ErrorStateIcon and error message when isError is true", () => {
