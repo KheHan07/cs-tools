@@ -161,6 +161,7 @@ export default function CaseDetailsContent({
               <CaseDetailsActionRow
                 assignedEngineer={assignedEngineer}
                 engineerInitials={engineerInitials}
+                statusLabel={statusLabel}
                 isLoading={isLoading}
               />
             </>
