@@ -203,11 +203,13 @@ export default function CreateCasePage(): JSX.Element {
   };
 
   const handleAttachmentRemove = (index: number) => {
-    const item = attachments[index];
-    if (item) {
-      attachmentNamesRef.current.delete(item.id);
-    }
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => {
+      const item = prev[index];
+      if (item) {
+        attachmentNamesRef.current.delete(item.id);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleSubmit = (e: FormEvent) => {

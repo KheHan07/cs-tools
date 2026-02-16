@@ -42,7 +42,7 @@ describe("richTextEditor utils", () => {
       expect(deriveAltFromFilename("image.png")).toBe("image");
     });
 
-    it("returns Image when path has no extension", () => {
+    it("returns basename when path has no extension", () => {
       expect(deriveAltFromFilename("https://example.com/photo")).toBe("photo");
     });
 
