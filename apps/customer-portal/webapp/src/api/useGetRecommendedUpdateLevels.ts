@@ -16,45 +16,46 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { getMockUpdatesStats } from "@models/mockFunctions";
+import { getMockRecommendedUpdateLevels } from "@models/mockFunctions";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
-import type { UpdatesStats } from "@models/responses";
+import type { RecommendedUpdateLevelItem } from "@models/responses";
 
 /**
- * Custom hook to fetch product updates statistics.
+ * Custom hook to fetch recommended update levels.
  *
- * @param {string} projectId - The ID of the project.
- * @returns {UseQueryResult<UpdatesStats, Error>} The query result object.
+ * @returns {UseQueryResult<RecommendedUpdateLevelItem[], Error>} The query result object.
  */
-export function useGetProductUpdatesStats(
-  projectId: string,
-): UseQueryResult<UpdatesStats, Error> {
+export function useGetRecommendedUpdateLevels(): UseQueryResult<
+  RecommendedUpdateLevelItem[],
+  Error
+> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
-  return useQuery<UpdatesStats, Error>({
-    queryKey: [ApiQueryKeys.UPDATES_STATS, projectId, isMockEnabled],
-    queryFn: async (): Promise<UpdatesStats> => {
+  return useQuery<RecommendedUpdateLevelItem[], Error>({
+    queryKey: [ApiQueryKeys.RECOMMENDED_UPDATE_LEVELS, isMockEnabled],
+    queryFn: async (): Promise<RecommendedUpdateLevelItem[]> => {
       logger.debug(
-        `Fetching product updates stats for project ID: ${projectId}, mock: ${isMockEnabled}`,
+        `Fetching recommended update levels, mock: ${isMockEnabled}`,
       );
 
       if (isMockEnabled) {
         await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
 
-        const stats: UpdatesStats = getMockUpdatesStats();
+        const data: RecommendedUpdateLevelItem[] =
+          getMockRecommendedUpdateLevels();
 
         logger.debug(
-          `Product updates stats fetched successfully for project ID: ${projectId} (mock)`,
-          stats,
+          "Recommended update levels fetched successfully (mock)",
+          data,
         );
 
-        return stats;
+        return data;
       }
 
       try {
@@ -64,29 +65,29 @@ export function useGetProductUpdatesStats(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/updates/stats`;
+        const requestUrl = `${baseUrl}/updates/recommended-update-levels`;
 
         const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(
-          `[useGetProductUpdatesStats] Response status: ${response.status}`,
+          `[useGetRecommendedUpdateLevels] Response status: ${response.status}`,
         );
 
         if (!response.ok) {
           throw new Error(
-            `Error fetching product updates stats: ${response.statusText}`,
+            `Error fetching recommended update levels: ${response.statusText}`,
           );
         }
 
-        const data: UpdatesStats = await response.json();
-        logger.debug("[useGetProductUpdatesStats] Data received:", data);
+        const data: RecommendedUpdateLevelItem[] = await response.json();
+        logger.debug("[useGetRecommendedUpdateLevels] Data received:", data);
         return data;
       } catch (error) {
-        logger.error("[useGetProductUpdatesStats] Error:", error);
+        logger.error("[useGetRecommendedUpdateLevels] Error:", error);
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
     staleTime: 5 * 60 * 1000,
   });
 }

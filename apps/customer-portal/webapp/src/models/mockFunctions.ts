@@ -24,6 +24,7 @@ import {
   mockDeploymentProducts,
   mockStatusOptions,
   mockUpdatesStats,
+  mockRecommendedUpdateLevels,
   mockProductUpdateLevels,
 } from "@models/mockData";
 import type { CaseCreationMetadata } from "@models/mockData";
@@ -39,6 +40,7 @@ import type {
   ProjectDeploymentItem,
   DeploymentProductItem,
   UpdatesStats,
+  RecommendedUpdateLevelItem,
   ProductUpdateLevelsResponse,
   CaseClassificationResponse,
 } from "@models/responses";
@@ -328,7 +330,15 @@ export const getMockDeploymentProducts = (
 };
 
 /**
- * Returns mock updates statistics (used when isMockEnabled for useGetProductUpdatesStats).
+ * Returns mock recommended update levels.
+ *
+ * @returns {RecommendedUpdateLevelItem[]} Mock recommended update levels.
+ */
+export const getMockRecommendedUpdateLevels =
+  (): RecommendedUpdateLevelItem[] => mockRecommendedUpdateLevels;
+
+/**
+ * Returns mock updates statistics.
  *
  * @returns {UpdatesStats} Mock updates statistics.
  */
@@ -339,8 +349,8 @@ export const getMockUpdatesStats = (): UpdatesStats => mockUpdatesStats;
  *
  * @returns {ProductUpdateLevelsResponse} Mock product update levels.
  */
-export const getMockProductUpdateLevels =
-  (): ProductUpdateLevelsResponse => mockProductUpdateLevels;
+export const getMockProductUpdateLevels = (): ProductUpdateLevelsResponse =>
+  mockProductUpdateLevels;
 
 /**
  * Returns mock case classification response.

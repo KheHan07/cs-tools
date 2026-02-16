@@ -37,7 +37,7 @@ export default function ErrorIndicator({
 
   return (
     <Tooltip title={`Failed to fetch ${entityName} data`}>
-      <IconButton size={size} color="error">
+      <IconButton size={size} color="error" data-testid="error-indicator">
         <TriangleAlert size={iconSize} />
       </IconButton>
     </Tooltip>

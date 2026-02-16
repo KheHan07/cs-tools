@@ -34,7 +34,7 @@ export const ApiQueryKeys = {
   DEPLOYMENTS: "deployments",
   DEPLOYMENT_PRODUCTS: "deployment-products",
   TIME_TRACKING_STATS: "time-tracking-stats",
-  UPDATES_STATS: "updates-stats",
+  RECOMMENDED_UPDATE_LEVELS: "recommended-update-levels",
   PRODUCT_UPDATE_LEVELS: "product-update-levels",
   PRODUCT_VULNERABILITY: "product-vulnerability",
   PROJECT_USERS: "project-users",
