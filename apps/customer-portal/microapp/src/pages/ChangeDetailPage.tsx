@@ -132,9 +132,24 @@ export default function ChangeDetailPage() {
               <TimelineEntry key={index} variant="activity" {...props} last={index === activities.length - 1} />
             ))}
           </Timeline>
+          {/* <Stack direction="row" gap={2}>
+            <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
+          </Stack> */}
+          <Box
+            sx={{
+              "& .MuiStack-root": {
+                position: "static !important",
+                bottom: "auto !important",
+                p: 0,
+                m: 0,
+              },
+            }}
+          >
+            <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
+          </Box>
         </SectionCard>
       </Stack>
-      <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} />
+      {/* <StickyCommentBar placeholder="Add Comment" value={comment} onChange={setComment} onSend={handleSend} /> */}
     </>
   );
 }
