@@ -53,7 +53,7 @@ public isolated function processListUpdates(string idToken, types:ListUpdatePayl
 
     ListUpdatePayload requestPayload = {
         product\-name: payload.productName,
-        product\-base\-version: payload.productBaseVersion,
+        product\-version: payload.productVersion,
         channel: payload.channel,
         start\-update\-level: payload.startUpdateLevel,
         end\-update\-level: payload.endUpdateLevel,
