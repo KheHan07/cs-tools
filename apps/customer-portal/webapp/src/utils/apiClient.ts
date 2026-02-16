@@ -141,17 +141,17 @@ export async function authenticatedFetch(
           refreshPromise = null;
           return t;
         })
-        .catch((err) => {
+        .catch(async (err) => {
           isRefreshing = false;
           refreshPromise = null;
-          signOut();
+          await signOut();
           throw err;
         });
     }
     try {
       newToken = await refreshPromise!;
-    } catch {
-      throw new Error("Token refresh failed");
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Token refresh failed", { cause: err });
     }
     response = await doFetch(newToken);
     if (response.status === 401) {

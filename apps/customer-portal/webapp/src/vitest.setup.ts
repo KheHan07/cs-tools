@@ -21,6 +21,7 @@ import "@testing-library/jest-dom";
 vi.mock("@context/AuthApiContext", () => ({
   useAuthApiClient: () =>
     vi.fn().mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 })),
     ),
   AuthApiProvider: ({ children }: { children: unknown }) => children,
 }));
