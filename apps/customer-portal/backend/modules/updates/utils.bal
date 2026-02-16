@@ -123,10 +123,9 @@ public isolated function processListUpdates(string idToken, types:ListUpdatePayl
 
 # Process product update levels based on the provided parameters.
 #
-# + idToken - ID token for authentication
 # + return - List of product update levels, or an error if the operation fails
-public isolated function processProductUpdateLevels(string idToken) returns types:ProductUpdateLevel[]|error {
-    ProductUpdateLevel[] productUpdateLevels = check getProductUpdateLevels(idToken);
+public isolated function processProductUpdateLevels() returns types:ProductUpdateLevel[]|error {
+    ProductUpdateLevel[] productUpdateLevels = check getProductUpdateLevels();
     return from ProductUpdateLevel level in productUpdateLevels
         select {
             productName: level.product\-name,
