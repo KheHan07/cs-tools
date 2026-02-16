@@ -1740,7 +1740,7 @@ export const mockDeploymentProducts: DeploymentProductItem[] = [
   },
 ];
 
-// Mock updates statistics (used when isMockEnabled for useGetProductUpdatesStats).
+// Mock updates statistics.
 export const mockUpdatesStats: UpdatesStats = {
   productsTracked: 4,
   totalUpdatesInstalled: 66,

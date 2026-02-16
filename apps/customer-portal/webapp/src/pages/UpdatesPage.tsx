@@ -42,9 +42,7 @@ export default function UpdatesPage(): JSX.Element {
   const { showError } = useErrorBanner();
   const hasShownErrorRef = useRef(false);
 
-  const { data, isLoading, isError } = useGetRecommendedUpdateLevels(
-    projectId || "",
-  );
+  const { data, isLoading, isError } = useGetRecommendedUpdateLevels();
 
   const isUpdatesLoading = isLoading || (!data && !isError);
 
