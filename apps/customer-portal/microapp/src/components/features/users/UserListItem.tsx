@@ -31,7 +31,7 @@ export function UserListItem({ name, email, role, lastActive }: UserListItemProp
               <Typography variant="subtitle1" fontWeight="medium">
                 {name}
               </Typography>
-              <Chip size="small" label={capitalize(role)} color={admin ? "primary" : "default"} />
+              <Chip size="small" label={capitalize(role)} />
             </Stack>
             <Stack direction="row" alignItems="center" gap={1}>
               <Mail color={theme.palette.text.secondary} size={pxToRem(13)} />

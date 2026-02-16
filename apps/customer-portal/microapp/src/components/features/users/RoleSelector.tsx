@@ -1,4 +1,4 @@
-import { Stack, Chip, Radio, RadioGroup, FormControlLabel, Box, pxToRem } from "@wso2/oxygen-ui";
+import { Stack, Chip, Radio, RadioGroup, FormControlLabel, Box, pxToRem, useRadioGroup } from "@wso2/oxygen-ui";
 import { ShieldUser } from "@wso2/oxygen-ui-icons-react";
 import { MOCK_ROLES } from "@src/mocks/data/users";
 
@@ -24,6 +24,8 @@ export function RoleSelector({ value, onChange }: RoleSelectorProps) {
 }
 
 export function RoleOption({ role }: { role: RoleName }) {
+  const radioGroup = useRadioGroup();
+  const checked = radioGroup?.value === role;
   const admin = role === "Admin";
 
   return (
@@ -37,7 +39,7 @@ export function RoleOption({ role }: { role: RoleName }) {
       }}
       label={
         <Stack direction="row" alignItems="center" gap={1}>
-          <Chip size="small" label={role} color={admin ? "primary" : "default"} />
+          <Chip size="small" label={role} color={checked ? "primary" : "default"} />
           {admin && (
             <Box color="primary.main">
               <ShieldUser size={pxToRem(18)} />
