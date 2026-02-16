@@ -33,7 +33,7 @@ import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
 } from "@constants/supportConstants";
-import { formatValue } from "@utils/support";
+import { formatValue, getAvailableCaseActions } from "@utils/support";
 
 const ACTION_BUTTON_ICON_SIZE = 12;
 
@@ -61,6 +61,7 @@ function getActionButtonSx(
 export interface CaseDetailsActionRowProps {
   assignedEngineer: string | null | undefined;
   engineerInitials: string;
+  statusLabel?: string | null;
   isLoading?: boolean;
 }
 
@@ -73,6 +74,7 @@ export interface CaseDetailsActionRowProps {
 export default function CaseDetailsActionRow({
   assignedEngineer,
   engineerInitials,
+  statusLabel,
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
@@ -144,7 +146,9 @@ export default function CaseDetailsActionRow({
       </Stack>
 
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-        {CASE_STATUS_ACTIONS.map(({ label, Icon, paletteIntent }) => (
+        {CASE_STATUS_ACTIONS.filter((action) =>
+          getAvailableCaseActions(statusLabel).includes(action.label),
+        ).map(({ label, Icon, paletteIntent }) => (
           <Button
             key={label}
             variant="outlined"
