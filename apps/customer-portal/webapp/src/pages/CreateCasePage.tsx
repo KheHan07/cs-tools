@@ -75,8 +75,10 @@ export default function CreateCasePage(): JSX.Element {
   const [product, setProduct] = useState("");
   const [deployment, setDeployment] = useState("");
   const [severity, setSeverity] = useState("");
-  const [attachments, setAttachments] = useState<File[]>([]);
+  type AttachmentItem = { id: string; file: File };
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const attachmentNamesRef = useRef<Map<string, string>>(new Map());
+  const attachmentIdCounterRef = useRef(0);
   const [isUploadingAttachments, setIsUploadingAttachments] = useState(false);
   const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const { data: projectDeployments, isLoading: isDeploymentsLoading } =
@@ -183,20 +185,27 @@ export default function CreateCasePage(): JSX.Element {
     setIsAttachmentModalOpen(true);
   };
 
-  const fileKey = (f: File) =>
+  const fileSignature = (f: File) =>
     `${f.name}-${f.size}-${f.lastModified}`;
 
   const handleSelectAttachment = (file: File, attachmentName?: string) => {
-    if (attachmentName?.trim()) {
-      attachmentNamesRef.current.set(fileKey(file), attachmentName.trim());
-    }
-    setAttachments((prev) => [...prev, file]);
+    setAttachments((prev) => {
+      const isDuplicate = prev.some(
+        (a) => fileSignature(a.file) === fileSignature(file),
+      );
+      if (isDuplicate) return prev;
+      const uniqueId = `att-${++attachmentIdCounterRef.current}-${Date.now()}`;
+      if (attachmentName?.trim()) {
+        attachmentNamesRef.current.set(uniqueId, attachmentName.trim());
+      }
+      return [...prev, { id: uniqueId, file }];
+    });
   };
 
   const handleAttachmentRemove = (index: number) => {
-    const file = attachments[index];
-    if (file) {
-      attachmentNamesRef.current.delete(fileKey(file));
+    const item = attachments[index];
+    if (item) {
+      attachmentNamesRef.current.delete(item.id);
     }
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
@@ -247,9 +256,9 @@ export default function CreateCasePage(): JSX.Element {
         if (attachments.length > 0) {
           setIsUploadingAttachments(true);
           try {
-            const uploadPromises = attachments.map((file) => {
+            const uploadPromises = attachments.map((item) => {
               const displayName =
-                attachmentNamesRef.current.get(fileKey(file)) || file.name;
+                attachmentNamesRef.current.get(item.id) || item.file.name;
               return new Promise<void>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = async () => {
@@ -265,7 +274,8 @@ export default function CreateCasePage(): JSX.Element {
                       body: {
                         referenceType: "case",
                         name: displayName,
-                        type: file.type || "application/octet-stream",
+                        type:
+                          item.file.type || "application/octet-stream",
                         content,
                       },
                     });
@@ -275,16 +285,30 @@ export default function CreateCasePage(): JSX.Element {
                   }
                 };
                 reader.onerror = () =>
-                  reject(new Error(`Failed to read file: ${file.name}`));
-                reader.readAsDataURL(file);
+                  reject(
+                    new Error(`Failed to read file: ${item.file.name}`),
+                  );
+                reader.readAsDataURL(item.file);
               });
             });
 
-            await Promise.all(uploadPromises);
-            showSuccess("Case created and attachments uploaded successfully");
-            navigate(`/${projectId}/support/cases/${caseId}`);
-          } catch {
-            showError("Case created, but some attachments failed to upload.");
+            const results = await Promise.allSettled(uploadPromises);
+            const fulfilled = results.filter((r) => r.status === "fulfilled").length;
+            const rejected = results.filter((r) => r.status === "rejected").length;
+
+            if (rejected === 0) {
+              showSuccess(
+                "Case created and attachments uploaded successfully",
+              );
+            } else if (fulfilled === 0) {
+              showError(
+                "Case created, but all attachment uploads failed. Please try again.",
+              );
+            } else {
+              showError(
+                `Case created, but ${rejected} of ${results.length} attachment(s) failed to upload.`,
+              );
+            }
             navigate(`/${projectId}/support/cases/${caseId}`);
           } finally {
             setIsUploadingAttachments(false);
@@ -343,7 +367,7 @@ export default function CreateCasePage(): JSX.Element {
             metadata={undefined}
             filters={filters}
             isLoading={isFiltersLoading}
-            attachments={attachments}
+            attachments={attachments.map((a) => a.file)}
             onAttachmentClick={handleAttachmentClick}
             onAttachmentRemove={handleAttachmentRemove}
             storageKey={
