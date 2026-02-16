@@ -16,6 +16,7 @@
 
 import {
   Box,
+  Button,
   Chip,
   FormControl,
   Grid,
@@ -24,12 +25,14 @@ import {
   Paper,
   Select,
   TextField,
+  Tooltip,
   Typography,
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
 import type { CaseMetadataResponse } from "@models/responses";
 import { getSeverityColor } from "@utils/casesTable";
+import Editor from "@components/common/rich-text-editor/Editor";
 
 export interface CaseDetailsSectionProps {
   title?: string;
@@ -46,6 +49,9 @@ export interface CaseDetailsSectionProps {
   storageKey?: string;
   extraIssueTypes?: string[];
   extraSeverityLevels?: { id: string; label: string; description?: string }[];
+  attachments?: File[];
+  onAttachmentClick?: () => void;
+  onAttachmentRemove?: (index: number) => void;
 }
 
 /**
@@ -67,10 +73,18 @@ export function CaseDetailsSection({
   isLoading = false,
   extraIssueTypes,
   extraSeverityLevels,
+  attachments = [],
+  onAttachmentClick,
+  onAttachmentRemove,
 }: CaseDetailsSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
 
-  const meta = metadata as { issueTypes?: unknown[]; severityLevels?: { id: string; label: string; description?: string }[] } | undefined;
+  const meta = metadata as
+    | {
+        issueTypes?: unknown[];
+        severityLevels?: { id: string; label: string; description?: string }[];
+      }
+    | undefined;
   const baseIssueTypes = filters?.issueTypes ?? meta?.issueTypes ?? [];
   const issueTypes = [
     ...baseIssueTypes,
@@ -78,12 +92,16 @@ export function CaseDetailsSection({
       (extra) =>
         !baseIssueTypes.some((base: unknown) => {
           const baseLabel =
-            typeof base === "string" ? base : (base as { label?: string }).label;
+            typeof base === "string"
+              ? base
+              : (base as { label?: string }).label;
           return baseLabel === extra;
         }),
     ),
   ];
-  const baseSeverityLevels = (filters?.severities ?? meta?.severityLevels ?? []) as {
+  const baseSeverityLevels = (filters?.severities ??
+    meta?.severityLevels ??
+    []) as {
     id: string;
     label: string;
     description?: string;
@@ -107,12 +125,32 @@ export function CaseDetailsSection({
         }}
       >
         <Typography variant="h6">Case Details</Typography>
-        <IconButton
-          onClick={() => setIsEditing(true)}
-          aria-label="Edit case details"
-        >
-          <PencilLine size={18} />
-        </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {isEditing ? (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setIsEditing(false)}
+              aria-label="Cancel editing case details"
+            >
+              Cancel
+            </Button>
+          ) : (
+            <Tooltip
+              title="Click here to modify case details"
+              placement="top"
+              arrow
+            >
+              <IconButton
+                onClick={() => setIsEditing(true)}
+                aria-label="Edit case details"
+                disabled={isEditing}
+              >
+                <PencilLine size={18} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
       </Box>
 
       {/* main form fields container */}
@@ -166,15 +204,13 @@ export function CaseDetailsSection({
             />
           </Box>
           <Box>
-            <TextField
-              fullWidth
-              multiline
-              minRows={6}
+            <Editor
+              onAttachmentClick={onAttachmentClick}
+              attachments={attachments}
+              onAttachmentRemove={onAttachmentRemove}
+              disabled={!isEditing}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the issue in detail"
-              disabled={isLoading || !isEditing}
-              data-testid="case-description-editor"
+              onChange={setDescription}
             />
           </Box>
           <Typography
@@ -210,7 +246,11 @@ export function CaseDetailsSection({
                 sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
               />
             </Box>
-            <FormControl fullWidth size="small" disabled={isLoading || !isEditing}>
+            <FormControl
+              fullWidth
+              size="small"
+              disabled={isLoading || !isEditing}
+            >
               <Select
                 id="issue-type-select"
                 value={issueType}
@@ -226,12 +266,16 @@ export function CaseDetailsSection({
                 {issueTypes
                   .filter((type: unknown) => {
                     const label =
-                      typeof type === "string" ? type : (type as { label?: string }).label;
+                      typeof type === "string"
+                        ? type
+                        : (type as { label?: string }).label;
                     return label != null && String(label).trim() !== "";
                   })
                   .map((type: unknown) => {
                     const label =
-                      typeof type === "string" ? type : (type as { label?: string }).label as string;
+                      typeof type === "string"
+                        ? type
+                        : ((type as { label?: string }).label as string);
                     return (
                       <MenuItem key={label} value={label}>
                         {label}
@@ -257,7 +301,11 @@ export function CaseDetailsSection({
                 sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
               />
             </Box>
-            <FormControl fullWidth size="small" disabled={isLoading || !isEditing}>
+            <FormControl
+              fullWidth
+              size="small"
+              disabled={isLoading || !isEditing}
+            >
               <Select
                 id="severity-level-select"
                 value={severity}

@@ -29,12 +29,11 @@ import {
 } from "@wso2/oxygen-ui";
 import { CirclePlay } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
 } from "@constants/supportConstants";
-import { formatValue } from "@utils/support";
+import { formatValue, getAvailableCaseActions } from "@utils/support";
 
 const ACTION_BUTTON_ICON_SIZE = 12;
 
@@ -62,7 +61,7 @@ function getActionButtonSx(
 export interface CaseDetailsActionRowProps {
   assignedEngineer: string | null | undefined;
   engineerInitials: string;
-  isError: boolean;
+  statusLabel?: string | null;
   isLoading?: boolean;
 }
 
@@ -75,7 +74,7 @@ export interface CaseDetailsActionRowProps {
 export default function CaseDetailsActionRow({
   assignedEngineer,
   engineerInitials,
-  isError,
+  statusLabel,
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
@@ -114,9 +113,7 @@ export default function CaseDetailsActionRow({
           </Avatar>
         )}
         <Box>
-          {isError ? (
-            <ErrorIndicator entityName="case details" size="small" />
-          ) : isLoading ? (
+          {isLoading ? (
             <Skeleton variant="text" width={90} height={14} sx={{ mb: 0.25 }} />
           ) : (
             <Typography
@@ -149,7 +146,9 @@ export default function CaseDetailsActionRow({
       </Stack>
 
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-        {CASE_STATUS_ACTIONS.map(({ label, Icon, paletteIntent }) => (
+        {CASE_STATUS_ACTIONS.filter((action) =>
+          getAvailableCaseActions(statusLabel).includes(action.label),
+        ).map(({ label, Icon, paletteIntent }) => (
           <Button
             key={label}
             variant="outlined"

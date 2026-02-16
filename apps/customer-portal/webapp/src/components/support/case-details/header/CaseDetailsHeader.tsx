@@ -17,7 +17,6 @@
 import { Box, Chip, Stack, Typography } from "@wso2/oxygen-ui";
 import { type ReactElement, type ReactNode, type JSX } from "react";
 import { getSeverityColor } from "@utils/casesTable";
-import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { formatValue } from "@utils/support";
 import { CaseDetailsHeaderSkeleton } from "@case-details/CaseDetailsSkeleton";
 
@@ -28,7 +27,6 @@ export interface CaseDetailsHeaderProps {
   statusLabel: string | null | undefined;
   statusChipIcon: ReactNode;
   statusChipSx: Record<string, unknown>;
-  isError: boolean;
   isLoading?: boolean;
 }
 
@@ -45,7 +43,6 @@ export default function CaseDetailsHeader({
   statusLabel,
   statusChipIcon,
   statusChipSx,
-  isError,
   isLoading = false,
 }: CaseDetailsHeaderProps): JSX.Element {
   if (isLoading) {
@@ -60,55 +57,39 @@ export default function CaseDetailsHeader({
         alignItems="center"
         sx={{ mb: 0.5, flexWrap: "wrap" }}
       >
-        {isError ? (
-          <ErrorIndicator entityName="case details" size="small" />
-        ) : (
-          <Typography variant="body2" fontWeight={500} color="text.primary">
-            {formatValue(caseNumber)}
-          </Typography>
-        )}
-        {isError ? (
-          <ErrorIndicator entityName="case details" size="small" />
-        ) : (
+        <Typography variant="body2" fontWeight={500} color="text.primary">
+          {formatValue(caseNumber)}
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+          }}
+        >
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              bgcolor: getSeverityColor(severityLabel ?? undefined),
             }}
-          >
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                bgcolor: getSeverityColor(severityLabel ?? undefined),
-              }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              {formatValue(severityLabel)}
-            </Typography>
-          </Box>
-        )}
-        {isError ? (
-          <ErrorIndicator entityName="case details" size="small" />
-        ) : (
-          <Chip
-            size="small"
-            variant="outlined"
-            label={formatValue(statusLabel)}
-            icon={statusChipIcon as ReactElement}
-            sx={statusChipSx}
           />
-        )}
+          <Typography variant="caption" color="text.secondary">
+            {formatValue(severityLabel)}
+          </Typography>
+        </Box>
+        <Chip
+          size="small"
+          variant="outlined"
+          label={formatValue(statusLabel)}
+          icon={statusChipIcon as ReactElement}
+          sx={statusChipSx}
+        />
       </Stack>
-      {isError ? (
-        <ErrorIndicator entityName="case details" size="small" />
-      ) : (
-        <Typography variant="h6" color="text.primary" sx={{ fontWeight: 500 }}>
-          {formatValue(title)}
-        </Typography>
-      )}
+      <Typography variant="h6" color="text.primary" sx={{ fontWeight: 500 }}>
+        {formatValue(title)}
+      </Typography>
     </Box>
   );
 }

@@ -33,7 +33,9 @@ import {
   formatSlaResponseTime,
   deriveFilterLabels,
   getStatusIcon,
+  getAvailableCaseActions,
   getAttachmentFileCategory,
+  stripHtml,
   resolveColorFromTheme,
   stripCodeWrapper,
   replaceInlineImageSources,
@@ -380,21 +382,27 @@ describe("support utils", () => {
 
     it("should replace src by sys_id when attachment matches", () => {
       const html = '<img src="/sys123.iix" alt="x">';
-      const attachments = [{ sys_id: "sys123", url: "https://example.com/img.png" }];
+      const attachments = [
+        { sys_id: "sys123", url: "https://example.com/img.png" },
+      ];
       const result = replaceInlineImageSources(html, attachments);
       expect(result).toContain("https://example.com/img.png");
     });
 
     it("should replace src by id when attachment matches", () => {
       const html = '<img src="/att456.iix">';
-      const attachments = [{ id: "att456", downloadUrl: "https://cdn.example.com/att.png" }];
+      const attachments = [
+        { id: "att456", downloadUrl: "https://cdn.example.com/att.png" },
+      ];
       const result = replaceInlineImageSources(html, attachments);
       expect(result).toContain("https://cdn.example.com/att.png");
     });
 
     it("should handle single-quoted src", () => {
       const html = "<img src='/sys99.iix' alt=''>";
-      const attachments = [{ sys_id: "sys99", url: "https://example.com/a.png" }];
+      const attachments = [
+        { sys_id: "sys99", url: "https://example.com/a.png" },
+      ];
       const result = replaceInlineImageSources(html, attachments);
       expect(result).toContain("https://example.com/a.png");
     });
@@ -435,6 +443,51 @@ describe("support utils", () => {
       expect(result).toMatch(/Feb/);
       expect(result).toMatch(/13/);
       expect(result).toMatch(/2026/);
+    });
+  });
+
+  describe("stripHtml", () => {
+    it("should remove html tags", () => {
+      expect(stripHtml("<p>Hello</p>")).toBe("Hello");
+      expect(stripHtml("<b>Bold</b> and <i>Italic</i>")).toBe(
+        "Bold and Italic",
+      );
+    });
+
+    it("should return empty string for null, undefined or non-string", () => {
+      expect(stripHtml(null)).toBe("");
+      expect(stripHtml(undefined)).toBe("");
+      expect(stripHtml("" as any)).toBe("");
+    });
+  });
+
+  describe("getAvailableCaseActions", () => {
+    it("should return Open Related Case for Closed", () => {
+      expect(getAvailableCaseActions("Closed")).toEqual(["Open Related Case"]);
+      expect(getAvailableCaseActions("closed")).toEqual(["Open Related Case"]);
+    });
+
+    it("should return all actions for Solution Proposed", () => {
+      expect(getAvailableCaseActions("Solution Proposed")).toEqual([
+        "Closed",
+        "Waiting on WSO2",
+        "Accept Solution",
+        "Reject Solution",
+      ]);
+    });
+
+    it("should return subset for Awaiting Info", () => {
+      expect(getAvailableCaseActions("Awaiting Info")).toEqual([
+        "Closed",
+        "Waiting on WSO2",
+      ]);
+    });
+
+    it("should return only Closed for other states", () => {
+      expect(getAvailableCaseActions("Open")).toEqual(["Closed"]);
+      expect(getAvailableCaseActions("Work in Progress")).toEqual(["Closed"]);
+      expect(getAvailableCaseActions("Reopened")).toEqual(["Closed"]);
+      expect(getAvailableCaseActions(null)).toEqual(["Closed"]);
     });
   });
 });

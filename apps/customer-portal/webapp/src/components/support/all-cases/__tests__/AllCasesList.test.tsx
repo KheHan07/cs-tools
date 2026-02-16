@@ -31,6 +31,7 @@ vi.mock("@utils/support", () => ({
   formatRelativeTime: vi.fn(() => "2 hours ago"),
   getStatusIcon: vi.fn(() => () => <div data-testid="status-icon" />),
   resolveColorFromTheme: vi.fn(() => "#000000"),
+  stripHtml: vi.fn((html) => html),
 }));
 
 describe("AllCasesList", () => {

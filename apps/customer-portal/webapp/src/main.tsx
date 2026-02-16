@@ -14,9 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import Prism from "prismjs";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import AppWithConfig from "./AppWithConfig";
+
+if (typeof window !== "undefined") {
+  (window as unknown as { Prism: typeof Prism }).Prism = Prism;
+}
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

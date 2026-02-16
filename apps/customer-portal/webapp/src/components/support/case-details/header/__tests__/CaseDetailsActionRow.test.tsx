@@ -32,17 +32,15 @@ describe("CaseDetailsActionRow", () => {
         <CaseDetailsActionRow
           assignedEngineer="Jane Doe"
           engineerInitials="JD"
-          isError={false}
+          statusLabel="Open"
         />
       </ThemeProvider>,
     );
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
     expect(screen.getByText("Manage case status")).toBeInTheDocument();
-    expect(screen.getByText("Escalate Case")).toBeInTheDocument();
-    expect(screen.getByText("Waiting on WSO2")).toBeInTheDocument();
-    expect(screen.getByText("Mark as Resolved")).toBeInTheDocument();
-    expect(screen.getByText("Close Case")).toBeInTheDocument();
+    expect(screen.queryByText("Escalate Case")).not.toBeInTheDocument();
+    expect(screen.getByText("Closed")).toBeInTheDocument();
   });
 
   it("should show skeletons for avatar and engineer but keep play icon, Manage case status, and action buttons when isLoading", () => {
@@ -51,31 +49,30 @@ describe("CaseDetailsActionRow", () => {
         <CaseDetailsActionRow
           assignedEngineer={undefined}
           engineerInitials="--"
-          isError={false}
+          statusLabel="Open"
           isLoading={true}
         />
       </ThemeProvider>,
     );
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
     expect(screen.getByText("Manage case status")).toBeInTheDocument();
-    expect(screen.getByText("Escalate Case")).toBeInTheDocument();
-    expect(screen.getByText("Waiting on WSO2")).toBeInTheDocument();
-    expect(screen.getByText("Mark as Resolved")).toBeInTheDocument();
-    expect(screen.getByText("Close Case")).toBeInTheDocument();
+    expect(screen.queryByText("Escalate Case")).not.toBeInTheDocument();
+    expect(screen.getByText("Closed")).toBeInTheDocument();
     const skeletons = container.querySelectorAll(".MuiSkeleton-root");
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("should render error indicator when isError is true", () => {
+  it("should render Open Related Case button for closed status", () => {
     render(
       <ThemeProvider theme={createTheme()}>
         <CaseDetailsActionRow
-          assignedEngineer={undefined}
-          engineerInitials="--"
-          isError={true}
+          assignedEngineer="Jane Doe"
+          engineerInitials="JD"
+          statusLabel="Closed"
         />
       </ThemeProvider>,
     );
-    expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
+    expect(screen.getByText("Open Related Case")).toBeInTheDocument();
+    expect(screen.queryByText("Closed")).not.toBeInTheDocument();
   });
 });

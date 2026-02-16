@@ -171,7 +171,7 @@ describe("AllCasesPage", () => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
-        screen.getByText((c, el) =>
+        screen.getByText((_, el) =>
           text(`Showing 1 of ${mockCases.length} cases`, el),
         ),
       ).toBeInTheDocument();
@@ -193,7 +193,7 @@ describe("AllCasesPage", () => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
-        screen.getByText((c, el) =>
+        screen.getByText((_, el) =>
           text(`Showing ${displayedCount} of ${totalCases} cases`, el),
         ),
       ).toBeInTheDocument();
@@ -243,7 +243,7 @@ describe("AllCasesPage", () => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
-        screen.getByText((c, el) =>
+        screen.getByText((_, el) =>
           text(`Showing 10 of ${totalCases} cases`, el),
         ),
       ).toBeInTheDocument();
@@ -260,7 +260,7 @@ describe("AllCasesPage", () => {
       const text = (content: string, el: Element | null) =>
         el?.textContent?.replace(/\s+/g, " ").trim() === content;
       expect(
-        screen.getByText((c, el) =>
+        screen.getByText((_, el) =>
           text(
             `Showing ${expectedCountOnPage2} of ${totalCases} cases`,
             el,

@@ -33,6 +33,7 @@ import {
   TriangleAlert,
   TrendingUp,
   Zap,
+  RotateCcw,
 } from "@wso2/oxygen-ui-icons-react";
 import { type ComponentType } from "react";
 import type {
@@ -59,8 +60,24 @@ export const ChatStatus = {
 
 export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus];
 
+// Case status types matching API labels.
+export const CaseStatus = {
+  AWAITING_INFO: "Awaiting Info",
+  CLOSED: "Closed",
+  OPEN: "Open",
+  REOPENED: "Reopened",
+  SOLUTION_PROPOSED: "Solution Proposed",
+  WAITING_ON_WSO2: "Waiting on WSO2",
+  WORK_IN_PROGRESS: "Work in Progress",
+} as const;
+
+export type CaseStatus = (typeof CaseStatus)[keyof typeof CaseStatus];
+
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
+
+// Maximum allowed embedded image size in bytes (15MB for base64 images in rich text).
+export const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024;
 
 // Initial limit for case attachments list.
 export const CASE_ATTACHMENTS_INITIAL_LIMIT = 50;
@@ -219,10 +236,11 @@ export interface CaseStatusAction {
 
 // Case status actions shown in the case details action row.
 export const CASE_STATUS_ACTIONS: CaseStatusAction[] = [
-  { label: "Escalate Case", Icon: TriangleAlert, paletteIntent: "error" },
+  { label: "Closed", Icon: CircleX, paletteIntent: "info" },
   { label: "Waiting on WSO2", Icon: CirclePause, paletteIntent: "warning" },
-  { label: "Mark as Resolved", Icon: CircleCheck, paletteIntent: "success" },
-  { label: "Close Case", Icon: CircleX, paletteIntent: "info" },
+  { label: "Accept Solution", Icon: CircleCheck, paletteIntent: "success" },
+  { label: "Reject Solution", Icon: TriangleAlert, paletteIntent: "error" },
+  { label: "Open Related Case", Icon: RotateCcw, paletteIntent: "info" },
 ];
 
 // Number of outstanding cases to show on support overview cards.

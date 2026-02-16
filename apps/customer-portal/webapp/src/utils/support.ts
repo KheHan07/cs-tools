@@ -21,7 +21,11 @@ import {
   Clock,
   MessageCircle,
 } from "@wso2/oxygen-ui-icons-react";
-import { ChatAction, ChatStatus } from "@constants/supportConstants";
+import {
+  ChatAction,
+  ChatStatus,
+  CaseStatus,
+} from "@constants/supportConstants";
 import type { CaseComment } from "@models/responses";
 import type { Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
@@ -97,7 +101,9 @@ export function formatSlaResponseTime(
  * @param bytes - Size in bytes (number or string from API).
  * @returns {string} Formatted string like "1.2 MB" or "18 KB".
  */
-export function formatFileSize(bytes: number | string | null | undefined): string {
+export function formatFileSize(
+  bytes: number | string | null | undefined,
+): string {
   const n = typeof bytes === "string" ? parseInt(bytes, 10) : bytes;
   if (n == null || Number.isNaN(n)) return "--";
   if (n < 1024) return `${n} B`;
@@ -113,8 +119,13 @@ export function formatFileSize(bytes: number | string | null | undefined): strin
  */
 export function getChatStatusAction(status: string): ChatAction {
   const normalized = status?.toLowerCase() || "";
-  if (normalized.includes("open")) return ChatAction.RESUME;
-  return ChatAction.VIEW;
+
+  switch (true) {
+    case normalized.includes("open"):
+      return ChatAction.RESUME;
+    default:
+      return ChatAction.VIEW;
+  }
 }
 
 /**
@@ -124,10 +135,12 @@ export function getChatStatusAction(status: string): ChatAction {
  * @returns {ChatActionState} Palette color path.
  */
 export function getChatActionColor(action: ChatAction): ChatActionState {
-  if (action === ChatAction.RESUME) {
-    return "info";
+  switch (action) {
+    case ChatAction.RESUME:
+      return "info";
+    default:
+      return "primary";
   }
-  return "primary";
 }
 
 /**
@@ -138,16 +151,17 @@ export function getChatActionColor(action: ChatAction): ChatActionState {
  */
 export function getChatStatusColor(status: string): string {
   const normalized = status?.toLowerCase() || "";
-  if (normalized.includes(ChatStatus.RESOLVED.toLowerCase())) {
-    return "success.main";
+
+  switch (true) {
+    case normalized.includes(ChatStatus.RESOLVED.toLowerCase()):
+      return "success.main";
+    case normalized.includes(ChatStatus.STILL_OPEN.toLowerCase()):
+      return "info.main";
+    case normalized.includes(ChatStatus.ABANDONED.toLowerCase()):
+      return "error.main";
+    default:
+      return "secondary.main";
   }
-  if (normalized.includes(ChatStatus.STILL_OPEN.toLowerCase())) {
-    return "info.main";
-  }
-  if (normalized.includes(ChatStatus.ABANDONED.toLowerCase())) {
-    return "error.main";
-  }
-  return "secondary.main";
 }
 
 /**
@@ -281,13 +295,22 @@ export function getStatusIcon(
   statusLabel?: string,
 ): ComponentType<{ size?: number }> {
   const normalized = statusLabel?.toLowerCase() || "";
-  if (normalized.includes("open")) return CircleAlert;
-  if (normalized.includes("progress")) return Clock;
-  if (normalized.includes("awaiting")) return MessageCircle;
-  if (normalized.includes("waiting")) return CircleQuestionMark;
-  if (normalized.includes("resolved") || normalized.includes("closed"))
-    return CircleCheck;
-  return CircleAlert;
+
+  switch (true) {
+    case normalized.includes("open"):
+      return CircleAlert;
+    case normalized.includes("progress"):
+      return Clock;
+    case normalized.includes("awaiting"):
+      return MessageCircle;
+    case normalized.includes("waiting"):
+      return CircleQuestionMark;
+    case normalized.includes("resolved"):
+    case normalized.includes("closed"):
+      return CircleCheck;
+    default:
+      return CircleAlert;
+  }
 }
 
 /**
@@ -380,7 +403,10 @@ export function replaceInlineImageSources(
     /<img([^>]*?)\s+src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))([^>]*)>/gi,
     (_match, before, doubleSrc, singleSrc, bareSrc, after) => {
       const src = (doubleSrc ?? singleSrc ?? bareSrc ?? "") as string;
-      const refId = src.replace(/^\//, "").replace(/\.iix$/i, "").trim();
+      const refId = src
+        .replace(/^\//, "")
+        .replace(/\.iix$/i, "")
+        .trim();
       const attachment = inlineAttachments.find(
         (a) =>
           a.id === refId ||
@@ -388,9 +414,9 @@ export function replaceInlineImageSources(
           (a?.id && src.includes(a.id)) ||
           (a?.sys_id && src.includes(a.sys_id)),
       );
-      const newSrc =
-        attachment?.downloadUrl ?? attachment?.url ?? src;
-      const quote = doubleSrc !== undefined ? '"' : singleSrc !== undefined ? "'" : '"';
+      const newSrc = attachment?.downloadUrl ?? attachment?.url ?? src;
+      const quote =
+        doubleSrc !== undefined ? '"' : singleSrc !== undefined ? "'" : '"';
       return `<img${before} src=${quote}${newSrc}${quote}${after}>`;
     },
   );
@@ -429,4 +455,47 @@ export function formatCommentDate(date: string | null | undefined): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+/**
+ * Strips HTML tags from a string.
+ *
+ * @param html - HTML content string.
+ * @returns {string} Plain text without HTML tags.
+ */
+export function stripHtml(html: string | null | undefined): string {
+  if (!html || typeof html !== "string") return "";
+  return html.replace(/<[^>]+>/g, "").trim();
+}
+
+/**
+ * Returns the list of available action button labels based on the case status.
+ *
+ * @param status - Current status of the case.
+ * @returns {string[]} Array of action button labels to display.
+ */
+export function getAvailableCaseActions(
+  status: string | null | undefined,
+): string[] {
+  const normalized = status?.toLowerCase() || "";
+
+  switch (normalized) {
+    case CaseStatus.CLOSED.toLowerCase():
+      return ["Open Related Case"];
+
+    case CaseStatus.SOLUTION_PROPOSED.toLowerCase():
+      return [
+        "Closed",
+        "Waiting on WSO2",
+        "Accept Solution",
+        "Reject Solution",
+      ];
+
+    case CaseStatus.AWAITING_INFO.toLowerCase():
+      return ["Closed", "Waiting on WSO2"];
+
+    default:
+      // Covers Open, Work in Progress, Waiting on WSO2, Reopened.
+      return ["Closed"];
+  }
 }

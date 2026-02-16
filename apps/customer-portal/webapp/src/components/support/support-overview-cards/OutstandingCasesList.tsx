@@ -29,7 +29,11 @@ import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
 import OutstandingCasesSkeleton from "./OutstandingCasesSkeleton";
 import { getStatusColor, getSeverityColor } from "@utils/casesTable";
-import { formatRelativeTime, resolveColorFromTheme } from "@utils/support";
+import {
+  formatRelativeTime,
+  resolveColorFromTheme,
+  stripHtml,
+} from "@utils/support";
 
 export interface OutstandingCasesListProps {
   cases: CaseListItem[];
@@ -123,7 +127,7 @@ export default function OutstandingCasesList({
                     WebkitBoxOrient: "vertical",
                   }}
                 >
-                  {c.title}
+                  {stripHtml(c.title)}
                 </Typography>
               </Box>
             </Form.CardContent>

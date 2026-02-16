@@ -52,10 +52,10 @@ describe("BasicInformationSection", () => {
     expect(screen.getByDisplayValue("Test Project")).toBeInTheDocument();
   });
 
-  it("should render Deployment Type and Product & Version labels", () => {
+  it("should render Deployment Type and Product Version labels", () => {
     renderSection();
     expect(screen.getByText("Deployment Type")).toBeInTheDocument();
-    expect(screen.getByText("Product & Version")).toBeInTheDocument();
+    expect(screen.getByText("Product Version")).toBeInTheDocument();
   });
 
   it("should render edit button with accessible label", () => {
@@ -77,7 +77,7 @@ describe("BasicInformationSection", () => {
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("should enable editing when edit button is clicked", () => {
+  it("should show Save and Cancel when edit button is clicked", () => {
     renderSection({
       metadata: { deploymentTypes: ["Production"], products: [] },
     });
@@ -85,6 +85,11 @@ describe("BasicInformationSection", () => {
       name: /edit basic information/i,
     });
     fireEvent.click(editButton);
-    expect(editButton).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /save basic information/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cancel editing basic information/i }),
+    ).toBeInTheDocument();
   });
 });

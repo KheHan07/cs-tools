@@ -15,9 +15,9 @@
 // under the License.
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
 import CaseDetailsHeader from "@case-details/CaseDetailsHeader";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@utils/casesTable", () => ({
   getSeverityColor: vi.fn(() => "text.secondary"),
@@ -63,20 +63,5 @@ describe("CaseDetailsHeader", () => {
     expect(skeletons.length).toBeGreaterThan(0);
     expect(screen.queryByText("CUPRSUB-101")).not.toBeInTheDocument();
     expect(screen.queryByText("Test case title")).not.toBeInTheDocument();
-  });
-
-  it("should render error indicator in value fields only when isError is true", () => {
-    render(
-      <ThemeProvider theme={createTheme()}>
-        <CaseDetailsHeader
-          {...defaultProps}
-          caseNumber={undefined}
-          title={undefined}
-          isError={true}
-        />
-      </ThemeProvider>,
-    );
-    const errorIndicators = screen.getAllByText("case details");
-    expect(errorIndicators.length).toBeGreaterThanOrEqual(1);
   });
 });

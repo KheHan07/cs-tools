@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Paper, alpha, useTheme } from "@wso2/oxygen-ui";
+import { Box, Paper, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
@@ -24,6 +24,7 @@ import {
   getStatusIconElement,
   getInitials,
 } from "@utils/support";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CaseDetailsBackButton from "@case-details/CaseDetailsBackButton";
 import CaseDetailsHeader from "@case-details/CaseDetailsHeader";
 import CaseDetailsActionRow from "@case-details/CaseDetailsActionRow";
@@ -123,26 +124,48 @@ export default function CaseDetailsContent({
       >
         <CaseDetailsBackButton onClick={onBack} />
 
-        {!focusMode && (
-          <>
-            <CaseDetailsHeader
-              caseNumber={data?.number}
-              title={data?.title}
-              severityLabel={severityLabel}
-              statusLabel={statusLabel}
-              statusChipIcon={statusChipIcon}
-              statusChipSx={statusChipSx}
-              isError={isError}
-              isLoading={isLoading}
-            />
+        {isError ? (
+          <Box
+            sx={{
+              mt: 2,
+              mb: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              py: 2,
+            }}
+          >
+            <ErrorIndicator entityName="case details" size="medium" />
+            <Box>
+              <Typography variant="body1" color="error" fontWeight={500}>
+                Failed to load case details
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Something went wrong while fetching the information.
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          !focusMode && (
+            <>
+              <CaseDetailsHeader
+                caseNumber={data?.number}
+                title={data?.title}
+                severityLabel={severityLabel}
+                statusLabel={statusLabel}
+                statusChipIcon={statusChipIcon}
+                statusChipSx={statusChipSx}
+                isLoading={isLoading}
+              />
 
-            <CaseDetailsActionRow
-              assignedEngineer={assignedEngineer}
-              engineerInitials={engineerInitials}
-              isError={isError}
-              isLoading={isLoading}
-            />
-          </>
+              <CaseDetailsActionRow
+                assignedEngineer={assignedEngineer}
+                engineerInitials={engineerInitials}
+                statusLabel={statusLabel}
+                isLoading={isLoading}
+              />
+            </>
+          )
         )}
 
         <CaseDetailsTabs
