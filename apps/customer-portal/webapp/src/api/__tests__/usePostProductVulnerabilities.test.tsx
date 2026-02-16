@@ -25,11 +25,11 @@ const mockLogger = {
   debug: vi.fn(),
   error: vi.fn(),
 };
-vi.mock("@hooks/useLogger", () => ({
+vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@constants/apiConstants", async (importOriginal) => {
+vi.mock("@/constants/apiConstants", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
@@ -49,15 +49,16 @@ vi.mock("@asgardeo/react", () => ({
 }));
 
 let mockIsMockEnabled = true;
-vi.mock("@providers/MockConfigProvider", () => ({
+vi.mock("@/providers/MockConfigProvider", () => ({
   useMockConfig: () => ({
     isMockEnabled: mockIsMockEnabled,
   }),
 }));
 
-const mockFetchFn = vi.fn();
-vi.mock("@context/AuthApiContext", () => ({
-  useAuthApiClient: () => mockFetchFn,
+// Use global fetch so tests can stub it (same pattern as usePostCaseClassifications, usePostAttachments).
+vi.mock("@/context/AuthApiContext", () => ({
+  useAuthApiClient: () => (url: string, init?: RequestInit) => fetch(url, init),
+  AuthApiProvider: ({ children }: { children: unknown }) => children,
 }));
 
 describe("usePostProductVulnerabilities", () => {
@@ -134,12 +135,13 @@ describe("usePostProductVulnerabilities", () => {
       limit: 10,
     };
 
-    mockFetchFn.mockResolvedValue({
+    const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),
       status: 200,
     } as Response);
 
+    vi.stubGlobal("fetch", mockFetch);
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
@@ -150,7 +152,7 @@ describe("usePostProductVulnerabilities", () => {
 
     const data = await result.current.mutateAsync(requestBody);
 
-    expect(mockFetchFn).toHaveBeenCalledWith(
+    expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("/products/vulnerabilities/search"),
       expect.objectContaining({
         method: "POST",
@@ -175,13 +177,14 @@ describe("usePostProductVulnerabilities", () => {
 
   it("throws when API response is not ok", async () => {
     mockIsMockEnabled = false;
-    mockFetchFn.mockResolvedValue({
+    const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       statusText: "Internal Server Error",
       status: 500,
       text: () => Promise.resolve(""),
     } as Response);
 
+    vi.stubGlobal("fetch", mockFetch);
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;

@@ -92,7 +92,6 @@ export function usePostProductVulnerabilities(): UseMutationResult<
 
         const response = await fetchFn(requestUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
         });
 
