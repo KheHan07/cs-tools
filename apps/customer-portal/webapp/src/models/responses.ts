@@ -434,7 +434,29 @@ export interface CaseClassificationResponse {
   };
 }
 
-// Response for creating a support case (POST /cases). Used to navigate to case details.
+// Response for creating a support case. Used to navigate to case details.
 export interface CreateCaseResponse {
   id: string;
+}
+
+// Product vulnerability item from search response.
+export interface ProductVulnerability {
+  id: string;
+  cveId: string;
+  vulnerabilityId: string;
+  severity: { id: number; label: string };
+  componentName: string;
+  version: string;
+  type: string;
+  useCase: string;
+  justification: string;
+  resolution: string;
+}
+
+// Response for product vulnerabilities search.
+export interface ProductVulnerabilitiesSearchResponse {
+  productVulnerabilities: ProductVulnerability[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
 }
