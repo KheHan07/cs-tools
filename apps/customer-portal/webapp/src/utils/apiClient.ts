@@ -16,24 +16,54 @@
 
 import { addApiHeaders } from "@utils/apiUtils";
 
-/** Callbacks for token refresh and sign-out. */
+// TODO: Remove redundant code by researching and creating test projects.
+
 export interface ApiClientCallbacks {
   getToken: () => Promise<string>;
   signOut: () => Promise<void>;
+  signInSilently?: () => Promise<unknown>;
 }
 
 let isRefreshing = false;
 let refreshPromise: Promise<string> | null = null;
+let isSilentSignInRunning = false;
+let silentSignInPromise: Promise<string> | null = null;
+const NOT_AUTHENTICATED_CODE = "SPA-AUTH_CLIENT-VM-IV02";
+
+/**
+ * Returns true if the error indicates the user is no longer authenticated.
+ *
+ * @param {unknown} error - Caught error from getToken().
+ * @returns {boolean} True if error means "user must be authenticated first".
+ */
+function isNotAuthenticatedError(error: unknown): boolean {
+  if (error && typeof error === "object") {
+    const e = error as { code?: string; message?: string; name?: string };
+    if (e.code === NOT_AUTHENTICATED_CODE) return true;
+    if (
+      typeof e.message === "string" &&
+      e.message.toLowerCase().includes("must be authenticated")
+    )
+      return true;
+    if (
+      typeof e.name === "string" &&
+      e.name.toLowerCase().includes("not authenticated")
+    )
+      return true;
+  }
+  return false;
+}
 
 /**
  * Performs an authenticated fetch with 401 retry.
+ * On getToken() "user not authenticated": tries signInSilently to restore session,
+ * then retries getToken. If recovery fails, signs out and throws.
  * On 401: refreshes the token (via getToken), retries once with the new token.
- * If refresh or retry fails, calls signOut and throws.
- * Deduplicates refresh when multiple requests get 401 at once.
+ * Deduplicates recovery when multiple requests hit "user not authenticated" at once.
  *
  * @param {string} url - Request URL.
  * @param {RequestInit} init - Fetch options (method, body, etc.).
- * @param {ApiClientCallbacks} callbacks - getToken and signOut callbacks.
+ * @param {ApiClientCallbacks} callbacks - getToken, signOut, optional signInSilently.
  * @returns {Promise<Response>} The fetch response.
  */
 export async function authenticatedFetch(
@@ -41,7 +71,7 @@ export async function authenticatedFetch(
   init: RequestInit,
   callbacks: ApiClientCallbacks,
 ): Promise<Response> {
-  const { getToken, signOut } = callbacks;
+  const { getToken, signOut, signInSilently } = callbacks;
 
   const doFetch = async (token: string): Promise<Response> => {
     const headers = new Headers(init.headers);
@@ -50,7 +80,55 @@ export async function authenticatedFetch(
     return fetch(url, { ...init, headers });
   };
 
-  const token = await getToken();
+  const tryRecoverSession = async (): Promise<string> => {
+    if (!signInSilently) {
+      await signOut();
+      throw new Error("Session expired");
+    }
+    const restored = await signInSilently();
+    if (!restored) {
+      await signOut();
+      throw new Error("Session expired");
+    }
+    try {
+      return await getToken();
+    } catch {
+      await signOut();
+      throw new Error("Session expired");
+    }
+  };
+
+  let token: string;
+  try {
+    token = await getToken();
+  } catch (error) {
+    if (isNotAuthenticatedError(error) && signInSilently) {
+      if (!isSilentSignInRunning) {
+        isSilentSignInRunning = true;
+        silentSignInPromise = tryRecoverSession()
+          .then((t) => {
+            isSilentSignInRunning = false;
+            silentSignInPromise = null;
+            return t;
+          })
+          .catch((err) => {
+            isSilentSignInRunning = false;
+            silentSignInPromise = null;
+            throw err;
+          });
+      }
+      try {
+        token = await silentSignInPromise!;
+      } catch {
+        throw error;
+      }
+    } else if (isNotAuthenticatedError(error)) {
+      await signOut();
+      throw error;
+    } else {
+      throw error;
+    }
+  }
   let response = await doFetch(token);
 
   if (response.status === 401) {
