@@ -57,35 +57,32 @@ export function FilterSlotBuilder({ tabs, searchPlaceholder }: FilterSlotBuilder
         scrollButtons={false}
         variant="scrollable"
         onChange={(_, value) => updateParams({ [filterParamName]: value })}
-        sx={(theme) => ({
-          minHeight: "unset",
-
+        sx={{
           "& .MuiTabs-flexContainer": {
             gap: 1.2,
           },
-          "& .MuiButtonBase-root": {
-            minHeight: "unset",
-            minWidth: "unset",
-            p: "4px 12px",
-            fontSize: theme.typography.subtitle1,
-            color: "text.tertiary",
-            fontWeight: "medium",
-            textTransform: "revert",
+
+          "& .MuiTab-root": {
+            minHeight: 0,
+            minWidth: 0,
+            padding: "6px 12px",
             borderRadius: 999,
-            backgroundColor: "background.default",
+            textTransform: "none",
+            fontWeight: "medium",
+            color: "text.secondary",
+            backgroundColor: "background.paper",
           },
 
           "& .MuiTab-root.Mui-selected": {
-            color: theme.palette.primary.contrastText,
-            backgroundColor: theme.palette.primary.main,
-            fontSize: theme.typography.body1,
+            color: "primary.contrastText",
+            backgroundColor: "primary.main",
             fontWeight: "bold",
           },
 
           "& .MuiTabs-indicator": {
             display: "none",
           },
-        })}
+        }}
       >
         <Tab label="All" value="all" disableRipple />
         {tabs.map((tab, index) => (

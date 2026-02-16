@@ -31,8 +31,10 @@ export function NotificationsListItem({
       gap={2}
       p={1}
       sx={{
-        borderLeft: "5px solid",
-        borderColor: unread ? "primary.main" : "transparent",
+        border: 1,
+        borderColor: "divider",
+        borderLeft: unread ? 5 : 1,
+        borderLeftColor: unread ? "primary.main" : "divider",
         bgcolor: "background.paper",
       }}
     >
