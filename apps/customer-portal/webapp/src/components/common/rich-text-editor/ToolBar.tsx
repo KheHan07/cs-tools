@@ -15,8 +15,10 @@
 // under the License.
 
 import {
+  $createRangeSelection,
   $getSelection,
   $isRangeSelection,
+  $setSelection,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   type ElementFormatType,
@@ -279,6 +281,16 @@ const Toolbar = ({
         if ($isRangeSelection(selection)) {
           if (linkText && linkText !== selection.getTextContent()) {
             selection.insertText(linkText);
+            const afterInsert = $getSelection();
+            if ($isRangeSelection(afterInsert)) {
+              const endKey = afterInsert.anchor.key;
+              const endOffset = afterInsert.anchor.offset;
+              const startOffset = Math.max(0, endOffset - linkText.length);
+              const rangeSelection = $createRangeSelection();
+              rangeSelection.anchor.set(endKey, startOffset, "text");
+              rangeSelection.focus.set(endKey, endOffset, "text");
+              $setSelection(rangeSelection);
+            }
           }
           editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
         }
@@ -324,7 +336,6 @@ const Toolbar = ({
       sx={{
         position: "relative",
         opacity: disabled ? 0.5 : 1,
-        pointerEvents: disabled ? "none" : "auto",
         transition: "opacity 0.2s",
         width: "100%",
         display: "flex",
@@ -375,6 +386,7 @@ const Toolbar = ({
             flexWrap: "nowrap",
             gap: 0.25,
             width: "max-content",
+            ...(disabled && { pointerEvents: "none" }),
           }}
         >
           <Tooltip title="Undo">
