@@ -26,6 +26,7 @@ import {
   Typography,
   TextField,
   IconButton,
+  Tooltip,
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
@@ -91,12 +92,19 @@ export function BasicInformationSection({
         }}
       >
         <Typography variant="h6">Basic Information</Typography>
-        <IconButton
-          onClick={() => setIsEditing(true)}
-          aria-label="Edit basic information"
+        <Tooltip
+          title="Click here to modify basic information"
+          placement="top"
+          arrow
         >
-          <PencilLine size={18} />
-        </IconButton>
+          <IconButton
+            onClick={() => setIsEditing(true)}
+            aria-label="Edit basic information"
+            disabled={isEditing}
+          >
+            <PencilLine size={18} />
+          </IconButton>
+        </Tooltip>
       </Box>
 
       {/* project card grid layout */}
@@ -106,13 +114,6 @@ export function BasicInformationSection({
           {/* project field label container */}
           <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="caption">Project</Typography>
-            <Chip
-              label="Auto detected"
-              size="small"
-              variant="outlined"
-              icon={<Sparkles size={10} />}
-              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-            />
           </Box>
           <TextField fullWidth size="small" disabled value={project} />
         </Grid>
@@ -138,11 +139,7 @@ export function BasicInformationSection({
           {isDeploymentLoading ? (
             <Skeleton variant="rounded" height={40} sx={{ maxWidth: "100%" }} />
           ) : (
-            <FormControl
-              fullWidth
-              size="small"
-              disabled={!isEditing}
-            >
+            <FormControl fullWidth size="small" disabled={!isEditing}>
               <Select
                 value={deployment}
                 onChange={(e) => setDeployment(e.target.value)}
@@ -169,7 +166,7 @@ export function BasicInformationSection({
           {/* product field label container */}
           <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="caption">
-              Product & Version{" "}
+              Product Version{" "}
               <Box component="span" sx={{ color: "warning.main" }}>
                 *
               </Box>
@@ -198,14 +195,14 @@ export function BasicInformationSection({
                   value === ""
                     ? isProductDropdownDisabled
                       ? "Select deployment first"
-                      : "Select Product & Version..."
+                      : "Select Product Version..."
                     : value
                 }
               >
                 <MenuItem value="" disabled>
                   {isProductDropdownDisabled
                     ? "Select deployment first"
-                    : "Select Product & Version..."}
+                    : "Select Product Version..."}
                 </MenuItem>
                 {productOptions.map((p) => (
                   <MenuItem key={p} value={p}>
