@@ -21,7 +21,11 @@ import {
   Clock,
   MessageCircle,
 } from "@wso2/oxygen-ui-icons-react";
-import { ChatAction, ChatStatus } from "@constants/supportConstants";
+import {
+  ChatAction,
+  ChatStatus,
+  CaseStatus,
+} from "@constants/supportConstants";
 import type { CaseComment } from "@models/responses";
 import type { Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
@@ -115,8 +119,13 @@ export function formatFileSize(
  */
 export function getChatStatusAction(status: string): ChatAction {
   const normalized = status?.toLowerCase() || "";
-  if (normalized.includes("open")) return ChatAction.RESUME;
-  return ChatAction.VIEW;
+
+  switch (true) {
+    case normalized.includes("open"):
+      return ChatAction.RESUME;
+    default:
+      return ChatAction.VIEW;
+  }
 }
 
 /**
@@ -126,10 +135,12 @@ export function getChatStatusAction(status: string): ChatAction {
  * @returns {ChatActionState} Palette color path.
  */
 export function getChatActionColor(action: ChatAction): ChatActionState {
-  if (action === ChatAction.RESUME) {
-    return "info";
+  switch (action) {
+    case ChatAction.RESUME:
+      return "info";
+    default:
+      return "primary";
   }
-  return "primary";
 }
 
 /**
@@ -140,16 +151,17 @@ export function getChatActionColor(action: ChatAction): ChatActionState {
  */
 export function getChatStatusColor(status: string): string {
   const normalized = status?.toLowerCase() || "";
-  if (normalized.includes(ChatStatus.RESOLVED.toLowerCase())) {
-    return "success.main";
+
+  switch (true) {
+    case normalized.includes(ChatStatus.RESOLVED.toLowerCase()):
+      return "success.main";
+    case normalized.includes(ChatStatus.STILL_OPEN.toLowerCase()):
+      return "info.main";
+    case normalized.includes(ChatStatus.ABANDONED.toLowerCase()):
+      return "error.main";
+    default:
+      return "secondary.main";
   }
-  if (normalized.includes(ChatStatus.STILL_OPEN.toLowerCase())) {
-    return "info.main";
-  }
-  if (normalized.includes(ChatStatus.ABANDONED.toLowerCase())) {
-    return "error.main";
-  }
-  return "secondary.main";
 }
 
 /**
@@ -283,13 +295,22 @@ export function getStatusIcon(
   statusLabel?: string,
 ): ComponentType<{ size?: number }> {
   const normalized = statusLabel?.toLowerCase() || "";
-  if (normalized.includes("open")) return CircleAlert;
-  if (normalized.includes("progress")) return Clock;
-  if (normalized.includes("awaiting")) return MessageCircle;
-  if (normalized.includes("waiting")) return CircleQuestionMark;
-  if (normalized.includes("resolved") || normalized.includes("closed"))
-    return CircleCheck;
-  return CircleAlert;
+
+  switch (true) {
+    case normalized.includes("open"):
+      return CircleAlert;
+    case normalized.includes("progress"):
+      return Clock;
+    case normalized.includes("awaiting"):
+      return MessageCircle;
+    case normalized.includes("waiting"):
+      return CircleQuestionMark;
+    case normalized.includes("resolved"):
+    case normalized.includes("closed"):
+      return CircleCheck;
+    default:
+      return CircleAlert;
+  }
 }
 
 /**
@@ -445,4 +466,36 @@ export function formatCommentDate(date: string | null | undefined): string {
 export function stripHtml(html: string | null | undefined): string {
   if (!html || typeof html !== "string") return "";
   return html.replace(/<[^>]+>/g, "").trim();
+}
+
+/**
+ * Returns the list of available action button labels based on the case status.
+ *
+ * @param status - Current status of the case.
+ * @returns {string[]} Array of action button labels to display.
+ */
+export function getAvailableCaseActions(
+  status: string | null | undefined,
+): string[] {
+  const normalized = status?.toLowerCase() || "";
+
+  switch (normalized) {
+    case CaseStatus.CLOSED.toLowerCase():
+      return [];
+
+    case CaseStatus.SOLUTION_PROPOSED.toLowerCase():
+      return [
+        "Closed",
+        "Waiting on WSO2",
+        "Accept Solution",
+        "Reject Solution",
+      ];
+
+    case CaseStatus.AWAITING_INFO.toLowerCase():
+      return ["Closed", "Waiting on WSO2"];
+
+    default:
+      // Covers Open, Work in Progress, Waiting on WSO2, Reopened.
+      return ["Closed"];
+  }
 }
