@@ -31,6 +31,7 @@ import {
   formatRelativeTime,
   resolveColorFromTheme,
   getStatusIcon,
+  stripHtml,
 } from "@utils/support";
 import AllCasesListSkeleton from "@components/support/all-cases/AllCasesListSkeleton";
 
@@ -178,7 +179,7 @@ export default function AllCasesList({
                   overflow: "hidden",
                 }}
               >
-                {caseItem.description || "--"}
+                {stripHtml(caseItem.description) || "--"}
               </Typography>
             </Form.CardContent>
 
