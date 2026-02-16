@@ -69,7 +69,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
     },
     {
       id: "issueTypes",
-      label: "Case Type",
+      label: "Category",
       type: "select",
       options:
         filtersMetadata?.issueTypes?.map((t) => ({
