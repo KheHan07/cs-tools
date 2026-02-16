@@ -16,10 +16,11 @@
 
 import { Avatar, Stack, Typography, colors } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
+import type { AssignedEngineerValue } from "@utils/support";
 import { formatValue, getInitials } from "@utils/support";
 
 export interface AssignedEngineerDisplayProps {
-  assignedEngineer: string | null | undefined;
+  assignedEngineer: AssignedEngineerValue;
 }
 
 /**

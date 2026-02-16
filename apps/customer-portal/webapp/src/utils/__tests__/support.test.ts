@@ -158,6 +158,20 @@ describe("support utils", () => {
     it("should return string for number", () => {
       expect(formatValue(42)).toBe("42");
     });
+
+    it("should return label for { id, label } object (assigned engineer)", () => {
+      expect(formatValue({ id: "eng-1", label: "Agzaiyenth Ganaraj" })).toBe(
+        "Agzaiyenth Ganaraj",
+      );
+      expect(formatValue({ id: "12", label: "" })).toBe("--");
+    });
+
+    it("should return name for { id, name } object (case details API)", () => {
+      expect(formatValue({ id: "eng-1", name: "John Doe" })).toBe(
+        "John Doe",
+      );
+      expect(formatValue({ id: "12", name: "" })).toBe("--");
+    });
   });
 
   describe("formatRelativeTime", () => {
@@ -412,6 +426,19 @@ describe("support utils", () => {
     it("should derive initials from name", () => {
       expect(getInitials("John Doe")).toBe("JD");
       expect(getInitials("Alice")).toBe("A");
+    });
+
+    it("should derive initials from { id, label } object (assigned engineer)", () => {
+      expect(getInitials({ id: "eng-1", label: "Agzaiyenth Ganaraj" })).toBe(
+        "AG",
+      );
+      expect(getInitials({ id: "eng-2", label: "Sarah Chen" })).toBe("SC");
+    });
+
+    it("should derive initials from { id, name } object (case details API)", () => {
+      expect(getInitials({ id: "eng-1", name: "John Doe" })).toBe(
+        "JD",
+      );
     });
 
     it("should return -- for null, undefined, empty", () => {

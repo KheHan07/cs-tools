@@ -140,8 +140,8 @@ export interface CaseListItem {
   createdOn: string;
   title: string;
   description: string;
-  /** API may return string or { id, label } object. */
-  assignedEngineer: string | { id: string; label: string } | null;
+  /** API may return string or { id, label? } or { id, name? } object. */
+  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
   project: {
     id: string;
     label: string;
@@ -209,7 +209,8 @@ export interface CaseDetails {
   product: string | null;
   account: CaseDetailsAccount | null;
   csManager: string | null;
-  assignedEngineer: string | null;
+  /** API may return string or { id, label? } or { id, name? } object. */
+  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
   project: CaseDetailsProject | null;
   deployment: { id: string; label: string } | null;
   deployedProduct: string | null;

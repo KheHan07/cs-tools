@@ -31,6 +31,7 @@ import OutstandingCasesSkeleton from "./OutstandingCasesSkeleton";
 import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatRelativeTime,
+  getAssignedEngineerLabel,
   resolveColorFromTheme,
   stripHtml,
 } from "@utils/support";
@@ -157,13 +158,7 @@ export default function OutstandingCasesList({
               />
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 {(() => {
-                  const raw = c.assignedEngineer;
-                  const label =
-                    raw == null
-                      ? ""
-                      : typeof raw === "object" && "label" in raw
-                        ? raw.label
-                        : String(raw);
+                  const label = getAssignedEngineerLabel(c.assignedEngineer);
                   return label ? (
                     <Tooltip title={`Assigned to ${label}`}>
                       <Typography variant="caption" color="text.secondary">

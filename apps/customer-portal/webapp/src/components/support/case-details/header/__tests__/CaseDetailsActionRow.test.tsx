@@ -43,12 +43,27 @@ describe("CaseDetailsActionRow", () => {
     expect(screen.getByText("Closed")).toBeInTheDocument();
   });
 
-  it("should show skeletons for avatar and engineer but keep play icon, Manage case status, and action buttons when isLoading", () => {
-    const { container } = render(
+  it("should hide engineer section when assignedEngineer is null/undefined", () => {
+    render(
       <ThemeProvider theme={createTheme()}>
         <CaseDetailsActionRow
           assignedEngineer={undefined}
           engineerInitials="--"
+          statusLabel="Open"
+        />
+      </ThemeProvider>,
+    );
+    expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
+    expect(screen.getByText("Manage case status")).toBeInTheDocument();
+    expect(screen.getByText("Closed")).toBeInTheDocument();
+  });
+
+  it("should show skeletons for avatar and engineer but keep play icon, Manage case status when isLoading with engineer", () => {
+    const { container } = render(
+      <ThemeProvider theme={createTheme()}>
+        <CaseDetailsActionRow
+          assignedEngineer="Jane Doe"
+          engineerInitials="JD"
           statusLabel="Open"
           isLoading={true}
         />

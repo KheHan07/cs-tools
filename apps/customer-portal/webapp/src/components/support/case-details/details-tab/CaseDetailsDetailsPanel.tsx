@@ -32,6 +32,7 @@ import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatValue,
   formatSlaResponseTime,
+  getAssignedEngineerLabel,
   resolveColorFromTheme,
   getStatusIconElement,
 } from "@utils/support";
@@ -194,10 +195,12 @@ export default function CaseDetailsDetailsPanel({
               {formatSlaResponseTime(data?.slaResponseTime)}
             </Typography>
           </Box>
-          <Box>
-            <Typography {...labelSx}>Assigned Engineer</Typography>
-            <AssignedEngineerDisplay assignedEngineer={assignedEngineer} />
-          </Box>
+          {getAssignedEngineerLabel(assignedEngineer) && (
+            <Box>
+              <Typography {...labelSx}>Assigned Engineer</Typography>
+              <AssignedEngineerDisplay assignedEngineer={assignedEngineer} />
+            </Box>
+          )}
         </Box>
       </CaseDetailsCard>
 
@@ -258,10 +261,12 @@ export default function CaseDetailsDetailsPanel({
               {formatValue(data?.project?.name)}
             </Typography>
           </Box>
-          <Box>
-            <Typography {...labelSx}>Assigned Engineer</Typography>
-            <AssignedEngineerDisplay assignedEngineer={assignedEngineer} />
-          </Box>
+          {getAssignedEngineerLabel(assignedEngineer) && (
+            <Box>
+              <Typography {...labelSx}>Assigned Engineer</Typography>
+              <AssignedEngineerDisplay assignedEngineer={assignedEngineer} />
+            </Box>
+          )}
           <Box>
             <Typography {...labelSx}>CS Manager</Typography>
             <Typography {...valueSx}>{formatValue(data?.csManager)}</Typography>

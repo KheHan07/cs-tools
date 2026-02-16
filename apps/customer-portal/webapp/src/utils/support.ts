@@ -38,26 +38,72 @@ export type ChatActionState =
   | "warning"
   | "error";
 
+/** Assigned engineer from API: string or { id, label?, name? } object. */
+export type AssignedEngineerValue =
+  | string
+  | { id: string; label?: string; name?: string }
+  | null
+  | undefined;
+
+/** Extracts display string from assigned engineer object (label or name). */
+function getAssignedEngineerDisplayValue(
+  obj: { id: string; label?: string; name?: string },
+): string {
+  return obj.label ?? obj.name ?? "";
+}
+
+/**
+ * Extracts display label from assigned engineer (string or { id, label?, name? } object).
+ *
+ * @param value - Assigned engineer from API.
+ * @returns {string} Display label or empty string if null/undefined.
+ */
+export function getAssignedEngineerLabel(value: AssignedEngineerValue): string {
+  if (value == null || value === "") return "";
+  if (typeof value === "object") return getAssignedEngineerDisplayValue(value);
+  return typeof value === "string" ? value : "";
+}
+
 /**
  * Formats a value for display in case details; null/undefined/empty become "--".
+ * Handles assigned engineer object: { id, label? } or { id, name? } -> display value.
  *
  * @param value - Raw value from API or state.
  * @returns {string} Display string.
  */
-export function formatValue(value: string | number | null | undefined): string {
+export function formatValue(
+  value:
+    | string
+    | number
+    | { id: string; label?: string; name?: string }
+    | null
+    | undefined,
+): string {
   if (value == null || value === "") return "--";
+  if (typeof value === "object")
+    return getAssignedEngineerDisplayValue(value) || "--";
   return String(value);
 }
 
 /**
- * Derives initials from a name string (e.g. "John Doe" -> "JD").
+ * Derives initials from a name string or assigned engineer object (e.g. "John Doe" -> "JD").
  *
- * @param name - Full name string.
+ * @param name - Full name string or { id, label?, name? } object from API.
  * @returns {string} Up to 2 uppercase initials, or "--" if empty/invalid.
  */
-export function getInitials(name: string | null | undefined): string {
-  if (!name || typeof name !== "string") return "--";
-  const initials = name
+export function getInitials(
+  name:
+    | string
+    | { id: string; label?: string; name?: string }
+    | null
+    | undefined,
+): string {
+  const label =
+    typeof name === "object" && name
+      ? getAssignedEngineerDisplayValue(name)
+      : name;
+  if (!label || typeof label !== "string") return "--";
+  const initials = label
     .trim()
     .split(/\s+/)
     .filter(Boolean)

@@ -29,9 +29,9 @@ import {
 describe("richTextEditor utils", () => {
   describe("deriveAltFromFilename", () => {
     it("derives alt from absolute URL path", () => {
-      expect(deriveAltFromFilename("https://example.com/images/photo.jpg")).toBe(
-        "photo",
-      );
+      expect(
+        deriveAltFromFilename("https://example.com/images/photo.jpg"),
+      ).toBe("photo");
     });
 
     it("derives alt from relative path", () => {

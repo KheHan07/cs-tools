@@ -29,6 +29,7 @@ import type { CaseListItem } from "@models/responses";
 import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatRelativeTime,
+  getAssignedEngineerLabel,
   resolveColorFromTheme,
   getStatusIcon,
   stripHtml,
@@ -217,13 +218,8 @@ export default function AllCasesList({
                   </Typography>
                 </Box>
                 {(() => {
-                  const raw = caseItem.assignedEngineer;
                   const assignedLabel =
-                    raw == null
-                      ? ""
-                      : typeof raw === "object" && "label" in raw
-                        ? (raw as { id: string; label: string }).label
-                        : String(raw);
+                    getAssignedEngineerLabel(caseItem.assignedEngineer);
                   return assignedLabel ? (
                     <Box
                       sx={{

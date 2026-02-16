@@ -33,7 +33,12 @@ import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
 } from "@constants/supportConstants";
-import { formatValue, getAvailableCaseActions } from "@utils/support";
+import type { AssignedEngineerValue } from "@utils/support";
+import {
+  formatValue,
+  getAssignedEngineerLabel,
+  getAvailableCaseActions,
+} from "@utils/support";
 
 const ACTION_BUTTON_ICON_SIZE = 12;
 
@@ -59,7 +64,7 @@ function getActionButtonSx(
 }
 
 export interface CaseDetailsActionRowProps {
-  assignedEngineer: string | null | undefined;
+  assignedEngineer: AssignedEngineerValue;
   engineerInitials: string;
   statusLabel?: string | null;
   isLoading?: boolean;
@@ -78,6 +83,7 @@ export default function CaseDetailsActionRow({
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
+  const hasEngineer = !!getAssignedEngineerLabel(assignedEngineer);
 
   return (
     <Paper
@@ -97,42 +103,51 @@ export default function CaseDetailsActionRow({
       }}
     >
       <Stack direction="row" spacing={1.5} alignItems="center">
-        {isLoading ? (
-          <Skeleton variant="circular" width={18} height={18} />
-        ) : (
-          <Avatar
-            sx={{
-              width: 18,
-              height: 18,
-              bgcolor: "primary.light",
-              color: "primary.contrastText",
-              fontSize: "0.6rem",
-            }}
-          >
-            {engineerInitials}
-          </Avatar>
+        {hasEngineer && (
+          <>
+            {isLoading ? (
+              <Skeleton variant="circular" width={18} height={18} />
+            ) : (
+              <Avatar
+                sx={{
+                  width: 18,
+                  height: 18,
+                  bgcolor: "primary.light",
+                  color: "primary.contrastText",
+                  fontSize: "0.6rem",
+                }}
+              >
+                {engineerInitials}
+              </Avatar>
+            )}
+            <Box>
+              {isLoading ? (
+                <Skeleton
+                  variant="text"
+                  width={90}
+                  height={14}
+                  sx={{ mb: 0.25 }}
+                />
+              ) : (
+                <Typography
+                  variant="caption"
+                  color="text.primary"
+                  sx={{ lineHeight: 1.2 }}
+                >
+                  {formatValue(assignedEngineer)}
+                </Typography>
+              )}
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontSize: "0.7rem", lineHeight: 1.2, display: "block" }}
+              >
+                Support Engineer
+              </Typography>
+            </Box>
+            <Divider orientation="vertical" flexItem />
+          </>
         )}
-        <Box>
-          {isLoading ? (
-            <Skeleton variant="text" width={90} height={14} sx={{ mb: 0.25 }} />
-          ) : (
-            <Typography
-              variant="caption"
-              color="text.primary"
-              sx={{ lineHeight: 1.2 }}
-            >
-              {formatValue(assignedEngineer)}
-            </Typography>
-          )}
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontSize: "0.7rem", lineHeight: 1.2, display: "block" }}
-          >
-            Support Engineer
-          </Typography>
-        </Box>
-        <Divider orientation="vertical" flexItem />
         <Stack direction="row" spacing={1.5} alignItems="center">
           <CirclePlay size={12} color={theme.palette.primary.main} />
           <Typography
