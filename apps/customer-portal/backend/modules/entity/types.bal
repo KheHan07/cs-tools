@@ -119,19 +119,19 @@ public type Subscription record {|
 # Payload for creating a case.
 public type CaseCreatePayload record {|
     # Project ID
-    @constraint:String {minLength: 1}
+    @constraint:String {length: 32}
     string projectId;
     # Deployment ID
-    @constraint:String {minLength: 1}
+    @constraint:String {length: 32}
     string deploymentId;
     # Product ID
-    @constraint:String {minLength: 1}
+    @constraint:String {length: 32}
     string productId;
     # Case title
     @constraint:String {minLength: 1, maxLength: 500}
     string title;
     # Case description
-    @constraint:String {minLength: 1, maxLength: 65000}
+    @constraint:String {minLength: 1}
     string description;
     # Issue type ID
     int issueTypeKey;
@@ -161,6 +161,8 @@ public type CreatedCase record {|
     string createdOn;
     # Status
     ChoiceListItem state;
+    # Case type information (eg: incident, query, etc.)
+    ReferenceTableItem 'type;
 |};
 
 # Base case.
@@ -279,7 +281,7 @@ public type CaseResponse record {|
 # Sort configuration.
 public type SortBy record {|
     # Field to sort by
-    string 'field;
+    CaseSortField 'field;
     # Sort order
     SortOrder 'order;
 |};
@@ -416,6 +418,8 @@ public type CommentsResponse record {|
 public type ReferenceSearchPayload record {|
     # Reference ID to filter related resources(query ID, incident ID, service request ID, etc.)
     string referenceId;
+    # Reference type
+    ReferenceType referenceType;
     # Pagination details
     Pagination pagination?;
     # Filter criteria
@@ -505,6 +509,14 @@ public type DeploymentsResponse record {|
     Deployment[] deployments;
 |};
 
+# Valid case sort field values.
+public enum CaseSortField {
+    CREATED_ON = "createdOn",
+    UPDATED_ON = "updatedOn",
+    SEVERITY = "severity",
+    STATE = "state"
+}
+
 # Valid reference type values.
 public enum ReferenceType {
     CASE = "case",
@@ -520,6 +532,7 @@ public enum CommentType {
 # Payload for creating a comment.
 public type CommentCreatePayload record {|
     # Reference ID (case or change request ID)
+    @constraint:String {length: 32}
     string referenceId;
     # Reference type
     ReferenceType referenceType;
@@ -585,6 +598,7 @@ public type CreatedAttachment record {|
 # Payload for creating an attachment.
 public type AttachmentPayload record {|
     # Reference ID to which the attachment is associated (e.g., query ID, incident ID, etc)
+    @constraint:String {length: 32}
     string referenceId;
     # Reference type
     ReferenceType referenceType;

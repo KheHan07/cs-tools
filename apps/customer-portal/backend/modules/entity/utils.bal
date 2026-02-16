@@ -32,6 +32,7 @@ public isolated function getComments(string idToken, string id, int? 'limit, int
 
     ReferenceSearchPayload payload = {
         referenceId: id,
+        referenceType: CASE,
         pagination: {
             'limit: 'limit ?: DEFAULT_LIMIT,
             offset: offset ?: DEFAULT_OFFSET
@@ -52,6 +53,7 @@ public isolated function getAttachments(string idToken, string id, int? 'limit, 
 
     ReferenceSearchPayload payload = {
         referenceId: id,
+        referenceType: CASE,
         pagination: {
             'limit: 'limit ?: DEFAULT_LIMIT,
             offset: offset ?: DEFAULT_OFFSET

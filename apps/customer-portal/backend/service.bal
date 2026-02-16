@@ -732,7 +732,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
         return <http:Created>{
-            body: createdCaseResponse.case
+            body: mapCreatedCase(createdCaseResponse.case)
         };
     }
 
@@ -1047,7 +1047,7 @@ service http:InterceptableService / on new http:Listener(9090) {
                     referenceId: id,
                     referenceType: entity:CASE,
                     content: payload.content,
-                    'type: entity:COMMENT
+                    'type: payload.'type
                 });
         if createdCaseResponse is error {
             if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
@@ -1108,7 +1108,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:AttachmentCreateResponse|error createdAttachmentResponse = entity:createAttachment(userInfo.idToken,
                 {
                     referenceId: id,
-                    referenceType: payload.referenceType,
+                    referenceType: entity:CASE,
                     name: payload.name,
                     'type: payload.'type,
                     file: payload.content

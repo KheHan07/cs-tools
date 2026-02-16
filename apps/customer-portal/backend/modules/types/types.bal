@@ -201,6 +201,24 @@ public type ProjectStatsResponse record {|
     RecentActivity recentActivity;
 |};
 
+# Created case details.
+public type CreatedCase record {|
+    # System ID of the created case
+    string id;
+    # WSO2 internal ID of the case
+    string internalId;
+    # Case number
+    string number;
+    # User who created the case
+    string createdBy;
+    # Created date and time
+    string createdOn;
+    # Status
+    ReferenceItem state;
+    # Case type information (eg: incident, query, etc.)
+    ReferenceItem 'type;
+|};
+
 # Comment information.
 public type Comment record {|
     # ID
@@ -312,12 +330,12 @@ public type CommentCreatePayload record {|
     # Comment content
     @constraint:String {minLength: 1} // TODO: Remove max length until the byte array support is added
     string content;
+    # Comment type (eg: case, cahnge request, etc.)
+    entity:CommentType 'type;
 |};
 
 # Payload for creating an attachment.
 public type AttachmentPayload record {|
-    # Reference type
-    entity:ReferenceType referenceType;
     # File name
     string name;
     # MIME type of the file

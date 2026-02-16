@@ -230,3 +230,19 @@ public isolated function mapDeployedProducts(entity:DeployedProductsResponse res
             deployment: deployment != () ? {id: deployment.id, label: deployment.name} : ()
         };
 }
+
+# Map created case response to the desired structure.
+#
+# + createdCase - Created case response from the entity service
+# + return - Mapped created case response
+public isolated function mapCreatedCase(entity:CreatedCase createdCase) returns types:CreatedCase {
+    return {
+        id: createdCase.id,
+        internalId: createdCase.internalId,
+        number: createdCase.number,
+        createdBy: createdCase.createdBy,
+        createdOn: createdCase.createdOn,
+        state: {id: createdCase.state.id.toString(), label: createdCase.state.label},
+        'type: {id: createdCase.'type.id.toString(), label: createdCase.'type.name}
+    };
+}
