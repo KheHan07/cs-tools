@@ -33,6 +33,7 @@ import { ExternalLink, MoreVertical } from "@wso2/oxygen-ui-icons-react";
 import { type JSX, type ChangeEvent } from "react";
 import type { CaseSearchResponse, CaseListItem } from "@models/responses";
 import { getSeverityColor, getStatusColor } from "@utils/casesTable";
+import { formatValue, getInitials } from "@utils/support";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CasesTableSkeleton from "@components/dashboard/cases-table/CasesTableSkeleton";
 
@@ -172,18 +173,10 @@ const CasesList = ({
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <Avatar sx={{ width: 24, height: 24, fontSize: 12 }}>
-                        {typeof row.assignedEngineer === "string"
-                          ? row.assignedEngineer
-                              .split("-")
-                              .map((s) => s[0].toUpperCase())
-                              .slice(0, 2)
-                              .join("")
-                          : "?"}
+                        {getInitials(row.assignedEngineer)}
                       </Avatar>
                       <Typography variant="body2" color="text.primary">
-                        {typeof row.assignedEngineer === "string"
-                          ? row.assignedEngineer
-                          : "--"}
+                        {formatValue(row.assignedEngineer)}
                       </Typography>
                     </Box>
                   </TableCell>
