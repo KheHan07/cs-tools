@@ -33,6 +33,10 @@ public enum SortOrder {
     DESC = "desc"
 }
 
+# Common ID string type with length constraint.
+@constraint:String {length: 32}
+public type IdString string;
+
 # Pagination information.
 public type Pagination record {|
     # Offset for pagination
@@ -119,14 +123,11 @@ public type Subscription record {|
 # Payload for creating a case.
 public type CaseCreatePayload record {|
     # Project ID
-    @constraint:String {length: 32}
-    string projectId;
+    IdString projectId;
     # Deployment ID
-    @constraint:String {length: 32}
-    string deploymentId;
+    IdString deploymentId;
     # Product ID
-    @constraint:String {length: 32}
-    string productId;
+    IdString productId;
     # Case title
     @constraint:String {minLength: 1, maxLength: 500}
     string title;
@@ -509,8 +510,7 @@ public type Deployment record {|
 # Payload for creating a deployment.
 public type DeploymentCreatePayload record {|
     # Project ID
-    @constraint:String {length: 32}
-    string projectId;
+    IdString projectId;
     # Name
     string name;
     # Type key
@@ -568,8 +568,7 @@ public enum CommentType {
 # Payload for creating a comment.
 public type CommentCreatePayload record {|
     # Reference ID (case or change request ID)
-    @constraint:String {length: 32}
-    string referenceId;
+    IdString referenceId;
     # Reference type
     ReferenceType referenceType;
     # Comment content
@@ -634,8 +633,7 @@ public type CreatedAttachment record {|
 # Payload for creating an attachment.
 public type AttachmentPayload record {|
     # Reference ID to which the attachment is associated (e.g., query ID, incident ID, etc)
-    @constraint:String {length: 32}
-    string referenceId;
+    IdString referenceId;
     # Reference type
     ReferenceType referenceType;
     # File name
