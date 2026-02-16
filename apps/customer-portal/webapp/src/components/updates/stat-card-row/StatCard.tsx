@@ -27,11 +27,12 @@ import { Info } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { type StatCardColor } from "@constants/dashboardConstants";
+import { NULL_PLACEHOLDER } from "@utils/updates";
 
 //Props for the StatCard component.
 interface StatCardProps {
   label: string;
-  value: string | number;
+  value?: string | number;
   icon: JSX.Element;
   iconColor: StatCardColor;
   tooltipText: string;
@@ -108,7 +109,7 @@ export const StatCard = ({
             ) : isError ? (
               <ErrorIndicator entityName={label.toLowerCase()} />
             ) : (
-              (value ?? "N/A")
+              (value ?? NULL_PLACEHOLDER)
             )}
           </Typography>
         </Box>

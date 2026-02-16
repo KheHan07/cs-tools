@@ -16,14 +16,17 @@
 
 import { Badge, Box, Grid, Skeleton, Typography } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
-import { StatCard } from "@components/updates/stat-card-row/StatCard";
 import { UPDATES_STATS } from "@constants/updatesConstants";
 import type {
   RecommendedUpdateLevelItem,
   UpdatesStats,
 } from "@models/responses";
-
-const NULL_PLACEHOLDER = "--";
+import {
+  aggregateUpdateStats,
+  getStatTooltipText,
+  getStatValue,
+} from "@utils/updates";
+import { StatCard } from "@components/updates/stat-card-row/StatCard";
 
 export interface UpdatesStatsGridProps {
   data: RecommendedUpdateLevelItem[] | undefined;
@@ -42,75 +45,7 @@ export function UpdatesStatsGrid({
   isLoading,
   isError,
 }: UpdatesStatsGridProps): JSX.Element {
-  const aggregatedData: UpdatesStats | undefined = data
-    ? {
-        productsTracked: data.length,
-        totalUpdatesInstalled: data.reduce(
-          (acc, item) =>
-            acc +
-            (item.installedUpdatesCount + item.installedSecurityUpdatesCount),
-          0,
-        ),
-        totalUpdatesInstalledBreakdown: {
-          regular: data.reduce(
-            (acc, item) => acc + item.installedUpdatesCount,
-            0,
-          ),
-          security: data.reduce(
-            (acc, item) => acc + item.installedSecurityUpdatesCount,
-            0,
-          ),
-        },
-        totalUpdatesPending: data.reduce(
-          (acc, item) =>
-            acc +
-            (item.availableUpdatesCount + item.availableSecurityUpdatesCount),
-          0,
-        ),
-        totalUpdatesPendingBreakdown: {
-          regular: data.reduce(
-            (acc, item) => acc + item.availableUpdatesCount,
-            0,
-          ),
-          security: data.reduce(
-            (acc, item) => acc + item.availableSecurityUpdatesCount,
-            0,
-          ),
-        },
-        securityUpdatesPending: data.reduce(
-          (acc, item) => acc + item.availableSecurityUpdatesCount,
-          0,
-        ),
-      }
-    : undefined;
-
-  const getValue = (id: keyof UpdatesStats): string | number => {
-    if (!aggregatedData) return NULL_PLACEHOLDER;
-    const val = aggregatedData[id];
-    if (val === null || val === undefined) return NULL_PLACEHOLDER;
-    if (typeof val === "object") return NULL_PLACEHOLDER;
-    return val as string | number;
-  };
-
-  const getTooltipText = (stat: (typeof UPDATES_STATS)[number]): string => {
-    if (!aggregatedData) return stat.tooltipText;
-    if (
-      stat.id === "totalUpdatesInstalled" &&
-      aggregatedData.totalUpdatesInstalledBreakdown
-    ) {
-      const { regular, security } =
-        aggregatedData.totalUpdatesInstalledBreakdown;
-      return `${stat.tooltipText} (${regular} Regular • ${security} Security)`;
-    }
-    if (
-      stat.id === "totalUpdatesPending" &&
-      aggregatedData.totalUpdatesPendingBreakdown
-    ) {
-      const { regular, security } = aggregatedData.totalUpdatesPendingBreakdown;
-      return `${stat.tooltipText} (${regular} Regular • ${security} Security)`;
-    }
-    return stat.tooltipText;
-  };
+  const aggregatedData = aggregateUpdateStats(data);
 
   const renderCountWithSkeleton = (
     count: number | undefined,
@@ -215,7 +150,10 @@ export function UpdatesStatsGrid({
       <Grid container spacing={2}>
         {UPDATES_STATS.map((stat) => {
           const Icon = stat.icon;
-          const value = getValue(stat.id as keyof UpdatesStats);
+          const value = getStatValue(
+            aggregatedData,
+            stat.id as keyof UpdatesStats,
+          );
 
           return (
             <Grid key={stat.id} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -224,7 +162,7 @@ export function UpdatesStatsGrid({
                 value={value}
                 icon={<Icon size={20} />}
                 iconColor={stat.iconColor}
-                tooltipText={getTooltipText(stat)}
+                tooltipText={getStatTooltipText(stat, aggregatedData)}
                 isLoading={isEffectiveLoading}
                 isError={isError}
                 extraContent={renderExtraContent(stat)}
