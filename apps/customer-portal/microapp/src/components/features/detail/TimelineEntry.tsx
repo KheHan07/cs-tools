@@ -1,5 +1,5 @@
-import { Box, Card, Stack, Typography, useTheme, pxToRem } from "@wso2/oxygen-ui";
-import { Circle, CircleCheck, CircleDot, Clock4, Paperclip } from "@wso2/oxygen-ui-icons-react";
+import { Box, Card, Stack, Typography, useTheme, pxToRem, colors, Divider } from "@wso2/oxygen-ui";
+import { ArrowUpRight, Circle, CircleCheck, CircleDot, Clock4, Paperclip } from "@wso2/oxygen-ui-icons-react";
 import { TimelineConnector, TimelineContent, TimelineItem, TimelineSeparator } from "@mui/lab";
 
 interface TimelineEntryBaseProps {
@@ -141,14 +141,20 @@ function Comment({ children, attachment }: { children: string; attachment?: stri
     <Card sx={{ p: 1.5, bgcolor: "action.hover" }}>
       <Typography variant="body2">{children}</Typography>
       {attachment && (
-        <Stack direction="row" alignItems="center" pt={1} gap={1}>
-          <Box color="text.secondary">
-            <Paperclip size={pxToRem(14)} />
-          </Box>
-          <Typography variant="body2" color="text.secondary">
-            {attachment}
-          </Typography>
-        </Stack>
+        <>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
+            <Stack direction="row" alignItems="center" pt={1} gap={1}>
+              <Box color="text.secondary">
+                <Paperclip size={pxToRem(14)} />
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                {attachment}
+              </Typography>
+            </Stack>
+            <ArrowUpRight size={pxToRem(17)} color={colors.grey[500]} />
+          </Stack>
+          <Divider />
+        </>
       )}
     </Card>
   );
