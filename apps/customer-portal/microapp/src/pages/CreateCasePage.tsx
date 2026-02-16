@@ -84,10 +84,11 @@ export default function CreateCasePage() {
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack pb={5} gap={5}>
-        <Stack gap={4}>
+        <Stack gap={2}>
           <SelectField
             name="project"
             label="Project"
+            aiLabel="Auto Detected"
             options={projects}
             value={formik.values.project}
             onChange={formik.handleChange}
@@ -96,47 +97,65 @@ export default function CreateCasePage() {
                 <Folder size={pxToRem(20)} />
               </InputAdornment>
             }
+            required
           />
           <SelectField
             name="product"
             label="Product & Version"
+            aiLabel="Auto Detected"
             options={products}
             value={formik.values.product}
             onChange={formik.handleChange}
+            required
           />
           <SelectField
             name="deployment"
             label="Deployment Type"
+            aiLabel="Auto Detected"
             options={deploymentTypes}
             value={formik.values.deployment}
             onChange={formik.handleChange}
+            required
           />
         </Stack>
-        <Stack gap={4}>
+        <Stack gap={2}>
           <Typography variant="body1" fontWeight="medium">
             Case Details
           </Typography>
-          <TextField name="title" label="Issue Title" value={formik.values.title} onChange={formik.handleChange} />
+          <TextField
+            name="title"
+            label="Issue Title"
+            aiLabel="Generated from Chat"
+            value={formik.values.title}
+            onChange={formik.handleChange}
+            required
+          />
           <TextField
             multiline
             name="description"
             label="Case Description"
+            aiLabel="From Coversation"
             value={formik.values.description}
             onChange={formik.handleChange}
+            required
           />
           <SelectField
             name="type"
             label="Issue Type"
+            aiLabel="AI Classified"
             options={issueTypes}
             value={formik.values.type}
             onChange={formik.handleChange}
+            required
           />
           <SelectField
             name="severity"
             label="Severity Levels"
+            aiLabel="AI Accessed"
             options={severityLevels}
             value={formik.values.severity}
             onChange={formik.handleChange}
+            required
           />
         </Stack>
         <ConversationSummary messages={messages} />
