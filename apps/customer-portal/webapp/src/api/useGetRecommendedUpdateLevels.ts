@@ -29,23 +29,20 @@ import type { RecommendedUpdateLevelItem } from "@models/responses";
  * @param {string} projectId - The ID of the project.
  * @returns {UseQueryResult<RecommendedUpdateLevelItem[], Error>} The query result object.
  */
-export function useGetRecommendedUpdateLevels(
-  projectId: string,
-): UseQueryResult<RecommendedUpdateLevelItem[], Error> {
+export function useGetRecommendedUpdateLevels(): UseQueryResult<
+  RecommendedUpdateLevelItem[],
+  Error
+> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useQuery<RecommendedUpdateLevelItem[], Error>({
-    queryKey: [
-      ApiQueryKeys.RECOMMENDED_UPDATE_LEVELS,
-      projectId,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.RECOMMENDED_UPDATE_LEVELS, isMockEnabled],
     queryFn: async (): Promise<RecommendedUpdateLevelItem[]> => {
       logger.debug(
-        `Fetching recommended update levels for project ID: ${projectId}, mock: ${isMockEnabled}`,
+        `Fetching recommended update levels, mock: ${isMockEnabled}`,
       );
 
       if (isMockEnabled) {
@@ -55,7 +52,7 @@ export function useGetRecommendedUpdateLevels(
           getMockRecommendedUpdateLevels();
 
         logger.debug(
-          `Recommended update levels fetched successfully for project ID: ${projectId} (mock)`,
+          "Recommended update levels fetched successfully (mock)",
           data,
         );
 
@@ -79,7 +76,7 @@ export function useGetRecommendedUpdateLevels(
 
         if (!response.ok) {
           throw new Error(
-            `Error fetching updates stats: ${response.statusText}`,
+            `Error fetching recommended update levels: ${response.statusText}`,
           );
         }
 
@@ -91,7 +88,7 @@ export function useGetRecommendedUpdateLevels(
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
     staleTime: 5 * 60 * 1000,
   });
 }

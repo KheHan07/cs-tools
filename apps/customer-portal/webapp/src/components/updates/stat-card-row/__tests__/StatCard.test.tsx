@@ -18,6 +18,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { StatCard } from "@components/updates/stat-card-row/StatCard";
 import { Activity } from "@wso2/oxygen-ui-icons-react";
+import { NULL_PLACEHOLDER } from "@utils/updates";
 
 describe("StatCard", () => {
   const defaultProps = {
@@ -37,10 +38,6 @@ describe("StatCard", () => {
 
   it("renders a skeleton when loading", () => {
     render(<StatCard {...defaultProps} isLoading={true} />);
-
-    // Typography shows skeleton when isLoading is true
-    // In our implementation, we use Oxygen UI Skeleton
-    // We can check if the value 100 is NOT present
     expect(screen.queryByText("100")).toBeNull();
   });
 
@@ -62,5 +59,12 @@ describe("StatCard", () => {
 
     expect(screen.getByTestId("extra")).toBeDefined();
     expect(screen.getByText("Extra Info")).toBeDefined();
+  });
+
+  it("renders the NULL_PLACEHOLDER when value is not provided", () => {
+    const { value, ...propsWithoutValue } = defaultProps;
+    render(<StatCard {...propsWithoutValue} />);
+
+    expect(screen.getByText(NULL_PLACEHOLDER)).toBeDefined();
   });
 });
