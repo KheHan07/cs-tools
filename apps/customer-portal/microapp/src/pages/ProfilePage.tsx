@@ -15,7 +15,7 @@
 // under the License.
 
 import { useLayoutEffect, type ReactNode } from "react";
-import { Box, Button, Card, Divider, Stack, Switch, Typography, colors, pxToRem } from "@wso2/oxygen-ui";
+import { Button, Card, Divider, Stack, Switch, Typography, colors, pxToRem } from "@wso2/oxygen-ui";
 import { Bell, BookOpen, Bot, Clock4, Lock, LogOut, Mail, Phone, User } from "@wso2/oxygen-ui-icons-react";
 import { useLayout } from "@context/layout";
 import { SettingListItem } from "@components/features/settings";
@@ -49,27 +49,9 @@ export default function ProfilePage() {
   return (
     <Stack gap={2.5}>
       <SectionCard title="Account Information">
-        <SettingListItem
-          name="Email"
-          value="user@example.com"
-          iconColor={colors.yellow[800]}
-          iconBackgroundColor={colors.yellow[100]}
-          icon={Mail}
-        />
-        <SettingListItem
-          name="Phone"
-          value="+1 (555) 123-4567"
-          iconColor={colors.blue[800]}
-          iconBackgroundColor={colors.blue[100]}
-          icon={Phone}
-        />
-        <SettingListItem
-          name="Timezone"
-          value="Eastern Time (ET) - UTC-5"
-          iconColor={colors.purple[800]}
-          iconBackgroundColor={colors.purple[100]}
-          icon={Clock4}
-        />
+        <SettingListItem name="Email" value="user@example.com" icon={Mail} />
+        <SettingListItem name="Phone" value="+1 (555) 123-4567" icon={Phone} />
+        <SettingListItem name="Timezone" value="Eastern Time (ET) - UTC-5" icon={Clock4} />
       </SectionCard>
 
       <SectionCard title="Settings">
@@ -98,22 +80,12 @@ export default function ProfilePage() {
         />
       </SectionCard>
 
-      <Button
-        sx={{
-          direction: "row",
-          alignItems: "center",
-          bgcolor: "background.paper",
-          color: "error.main",
-          textTransform: "initial",
-          fontWeight: "medium",
-          gap: 1.5,
-        }}
-      >
-        <Box color="error.main">
-          <LogOut size={pxToRem(18)} />
-        </Box>
+      <Button variant="outlined" color="error" startIcon={<LogOut size={pxToRem(18)} />}>
         Log Out
       </Button>
+      <Typography variant="caption" color="text.secondary" textAlign="center" sx={{ py: 1 }}>
+        Version 1.0.0
+      </Typography>
     </Stack>
   );
 }
