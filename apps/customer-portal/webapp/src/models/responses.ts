@@ -403,6 +403,21 @@ export interface UpdatesStats {
   securityUpdatesPending: number | null;
 }
 
+// Single product recommended update level item.
+export interface RecommendedUpdateLevelItem {
+  productName: string;
+  productBaseVersion: string;
+  channel: string;
+  startingUpdateLevel: number;
+  endingUpdateLevel: number;
+  installedUpdatesCount: number;
+  installedSecurityUpdatesCount: number;
+  timestamp: number;
+  recommendedUpdateLevel: number;
+  availableUpdatesCount: number;
+  availableSecurityUpdatesCount: number;
+}
+
 // Product update levels.
 export interface ProductUpdateLevelEntry {
   "product-base-version": string;
