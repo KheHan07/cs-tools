@@ -18,7 +18,7 @@ import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CreateCaseRequest } from "@models/requests";
 import type { CreateCaseResponse } from "@models/responses";
 
@@ -35,8 +35,9 @@ export function usePostCase(): UseMutationResult<
   CreateCaseRequest
 > {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { isMockEnabled } = useMockConfig();
+  const fetchFn = useAuthApiClient();
 
   return useMutation<CreateCaseResponse, Error, CreateCaseRequest>({
     mutationFn: async (
@@ -65,12 +66,10 @@ export function usePostCase(): UseMutationResult<
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const idToken = await getIdToken();
         const requestUrl = `${baseUrl}/cases`;
 
-        const response = await fetch(requestUrl, {
+        const response = await fetchFn(requestUrl, {
           method: "POST",
-          headers: addApiHeaders(idToken),
           body: JSON.stringify(body),
         });
 

@@ -20,7 +20,7 @@ import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { mockCaseMetadata } from "@models/mockData";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseMetadataResponse } from "@models/responses";
 
 /**
@@ -33,7 +33,8 @@ export default function useGetCasesFilters(
   projectId: string,
 ): UseQueryResult<CaseMetadataResponse, Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useQuery<CaseMetadataResponse, Error>({
@@ -53,7 +54,6 @@ export default function useGetCasesFilters(
       }
 
       try {
-        const idToken = await getIdToken();
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
@@ -62,10 +62,7 @@ export default function useGetCasesFilters(
 
         const requestUrl = `${baseUrl}/projects/${projectId}/cases/filters`;
 
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         if (!response.ok) {
           throw new Error(

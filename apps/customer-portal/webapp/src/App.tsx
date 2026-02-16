@@ -27,6 +27,7 @@ import CaseDetailsPage from "@pages/CaseDetailsPage";
 import NoveraChatPage from "@pages/NoveraChatPage";
 import CreateCasePage from "@pages/CreateCasePage";
 import AppLayout from "@layouts/AppLayout";
+import { AuthApiProvider } from "@context/AuthApiContext";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
 import { SuccessBannerProvider } from "@context/success-banner/SuccessBannerContext";
 import { LoaderProvider } from "@context/linear-loader/LoaderContext";
@@ -36,10 +37,11 @@ import AuthGuard from "./AuthGuard";
 export default function App(): JSX.Element {
   return (
     <BrowserRouter>
-      <LoaderProvider>
-        <ErrorBannerProvider>
-          <SuccessBannerProvider>
-          <Routes>
+      <AuthApiProvider>
+        <LoaderProvider>
+          <ErrorBannerProvider>
+            <SuccessBannerProvider>
+            <Routes>
           {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
 
@@ -111,6 +113,7 @@ export default function App(): JSX.Element {
           </SuccessBannerProvider>
         </ErrorBannerProvider>
       </LoaderProvider>
+      </AuthApiProvider>
     </BrowserRouter>
   );
 }

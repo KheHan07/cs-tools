@@ -16,15 +16,17 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
 import { getMockDeploymentProducts } from "@models/mockFunctions";
 import type { DeploymentProductItem } from "@models/responses";
 
+export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
+
 export interface FetchDeploymentProductsOptions {
-  getIdToken: () => Promise<string>;
+  fetchFn: FetchFn;
   isMockEnabled: boolean;
 }
 
@@ -33,21 +35,20 @@ export interface FetchDeploymentProductsOptions {
  * useQueries when fetching products for multiple deployments.
  *
  * @param {string} deploymentId - The deployment ID.
- * @param {FetchDeploymentProductsOptions} options - getIdToken and isMockEnabled.
+ * @param {FetchDeploymentProductsOptions} options - fetchFn and isMockEnabled.
  * @returns {Promise<DeploymentProductItem[]>} Deployment products array.
  */
 export async function fetchDeploymentProducts(
   deploymentId: string,
   options: FetchDeploymentProductsOptions,
 ): Promise<DeploymentProductItem[]> {
-  const { getIdToken, isMockEnabled } = options;
+  const { fetchFn, isMockEnabled } = options;
 
   if (isMockEnabled) {
     await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
     return getMockDeploymentProducts(deploymentId);
   }
 
-  const idToken = await getIdToken();
   const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
   if (!baseUrl) {
@@ -56,10 +57,7 @@ export async function fetchDeploymentProducts(
 
   const requestUrl = `${baseUrl}/deployments/${deploymentId}/products`;
 
-  const response = await fetch(requestUrl, {
-    method: "GET",
-    headers: addApiHeaders(idToken),
-  });
+  const response = await fetchFn(requestUrl, { method: "GET" });
 
   if (!response.ok) {
     throw new Error(
@@ -83,8 +81,9 @@ export function useGetDeploymentsProducts(
   deploymentId: string,
 ): UseQueryResult<DeploymentProductItem[], Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { isMockEnabled } = useMockConfig();
+  const fetchFn = useAuthApiClient();
 
   return useQuery<DeploymentProductItem[], Error>({
     queryKey: [ApiQueryKeys.DEPLOYMENT_PRODUCTS, deploymentId, isMockEnabled],
@@ -93,7 +92,7 @@ export function useGetDeploymentsProducts(
         `Fetching deployment products for deployment ID: ${deploymentId}, mock: ${isMockEnabled}`,
       );
       const data = await fetchDeploymentProducts(deploymentId, {
-        getIdToken,
+        fetchFn,
         isMockEnabled,
       });
       logger.debug(

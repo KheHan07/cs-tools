@@ -21,7 +21,7 @@ import { getMockProjectStats } from "@models/mockFunctions";
 import { mockProjects } from "@models/mockData";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectStatsResponse } from "@models/responses";
 
 /**
@@ -34,7 +34,8 @@ export function useGetProjectStat(
   projectId: string,
 ): UseQueryResult<ProjectStatsResponse, Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProjectStatsResponse, Error>({
@@ -66,7 +67,6 @@ export function useGetProjectStat(
       }
 
       try {
-        const idToken = await getIdToken();
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
@@ -75,10 +75,7 @@ export function useGetProjectStat(
 
         const requestUrl = `${baseUrl}/projects/${projectId}/stats`;
 
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(
           `[useGetProjectStat] Response status for ${projectId}: ${response.status}`,

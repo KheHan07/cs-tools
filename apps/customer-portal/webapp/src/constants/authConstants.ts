@@ -14,14 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { vi } from "vitest";
-import "@testing-library/jest-dom";
+// Idle timeout in ms (default 15 minutes).
+export const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
-// Mock useAuthApiClient for API hooks that use authenticated fetch
-vi.mock("@context/AuthApiContext", () => ({
-  useAuthApiClient: () =>
-    vi.fn().mockImplementation(() =>
-      Promise.resolve(new Response(JSON.stringify({}), { status: 200 })),
-    ),
-  AuthApiProvider: ({ children }: { children: unknown }) => children,
-}));
+// Show "Are you still there?" this many ms before idle timeout.
+export const IDLE_PROMPT_BEFORE_MS = 4_000;
+
+// Throttle for idle timer updates (ms).
+export const IDLE_THROTTLE_MS = 500;

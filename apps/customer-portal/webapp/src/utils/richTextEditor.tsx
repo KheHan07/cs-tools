@@ -50,9 +50,9 @@ export function deriveAltFromFilename(src: string): string {
  */
 export function htmlToPlainText(html: string): string {
   if (!html || typeof html !== "string") return "";
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return (div.textContent || div.innerText || "").trim();
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  const body = parsed.body ?? parsed.documentElement;
+  return (body?.textContent ?? "").trim();
 }
 
 /**

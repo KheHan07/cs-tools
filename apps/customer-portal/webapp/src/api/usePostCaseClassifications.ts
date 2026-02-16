@@ -19,7 +19,7 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import { getMockCaseClassification } from "@models/mockFunctions";
 import type { CaseClassificationRequest } from "@models/requests";
 import type { CaseClassificationResponse } from "@models/responses";
@@ -35,7 +35,8 @@ export function usePostCaseClassifications(): UseMutationResult<
   CaseClassificationRequest
 > {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useMutation<
@@ -77,12 +78,10 @@ export function usePostCaseClassifications(): UseMutationResult<
           );
         }
 
-        const idToken = await getIdToken();
         const requestUrl = `${baseUrl}/cases/classify`;
 
-        const response = await fetch(requestUrl, {
+        const response = await fetchFn(requestUrl, {
           method: "POST",
-          headers: addApiHeaders(idToken),
           body: JSON.stringify(requestBody),
         });
 

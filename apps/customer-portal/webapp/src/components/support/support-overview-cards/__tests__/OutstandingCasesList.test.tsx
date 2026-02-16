@@ -32,7 +32,7 @@ const mockCases: CaseListItem[] = [
     createdOn: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     title: "API Gateway timeout issues",
     description: "",
-    assignedEngineer: "Sarah Chen",
+    assignedEngineer: { id: "eng-1", label: "Sarah Chen" },
     project: { id: "p1", label: "Project 1" },
     issueType: null,
     deployedProduct: null,

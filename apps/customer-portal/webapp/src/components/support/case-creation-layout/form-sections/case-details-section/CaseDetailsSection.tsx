@@ -29,7 +29,7 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
-import { useState, type JSX } from "react";
+import { useState, useRef, type JSX } from "react";
 import type { CaseMetadataResponse } from "@models/responses";
 import { getSeverityColor } from "@utils/casesTable";
 import Editor from "@components/common/rich-text-editor/Editor";
@@ -78,6 +78,29 @@ export function CaseDetailsSection({
   onAttachmentRemove,
 }: CaseDetailsSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
+  const originalDetailsRef = useRef<{
+    title: string;
+    description: string;
+    issueType: string;
+    severity: string;
+  } | null>(null);
+
+  const handleEditStart = () => {
+    originalDetailsRef.current = { title, description, issueType, severity };
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    const orig = originalDetailsRef.current;
+    if (orig) {
+      setTitle(orig.title);
+      setDescription(orig.description);
+      setIssueType(orig.issueType);
+      setSeverity(orig.severity);
+      originalDetailsRef.current = null;
+    }
+    setIsEditing(false);
+  };
 
   const meta = metadata as
     | {
@@ -130,7 +153,7 @@ export function CaseDetailsSection({
             <Button
               variant="outlined"
               size="small"
-              onClick={() => setIsEditing(false)}
+              onClick={handleCancel}
               aria-label="Cancel editing case details"
             >
               Cancel
@@ -142,7 +165,7 @@ export function CaseDetailsSection({
               arrow
             >
               <IconButton
-                onClick={() => setIsEditing(true)}
+                onClick={handleEditStart}
                 aria-label="Edit case details"
                 disabled={isEditing}
               >

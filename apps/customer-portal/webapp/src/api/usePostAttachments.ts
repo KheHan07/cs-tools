@@ -18,7 +18,7 @@ import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/r
 import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
 import type { PostCaseAttachmentRequest } from "@models/requests";
 
@@ -41,8 +41,9 @@ export function usePostAttachments(): UseMutationResult<
 > {
   const logger = useLogger();
   const queryClient = useQueryClient();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { isMockEnabled } = useMockConfig();
+  const fetchFn = useAuthApiClient();
 
   return useMutation<void, Error, PostAttachmentsVariables>({
     mutationFn: async ({
@@ -72,11 +73,9 @@ export function usePostAttachments(): UseMutationResult<
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const idToken = await getIdToken();
         const requestUrl = `${baseUrl}/cases/${caseId}/attachments`;
-        const response = await fetch(requestUrl, {
+        const response = await fetchFn(requestUrl, {
           method: "POST",
-          headers: addApiHeaders(idToken),
           body: JSON.stringify(body),
         });
 

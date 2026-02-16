@@ -20,7 +20,7 @@ import { useMockConfig } from "@providers/MockConfigProvider";
 import { mockUserDetails } from "@models/mockData";
 import { type UserDetails } from "@models/responses";
 import { useLogger } from "@hooks/useLogger";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 
 /**
  * Hook to get user details.
@@ -28,9 +28,10 @@ import { addApiHeaders } from "@utils/apiUtils";
  * @returns {UseQueryResult<UserDetails, Error>} The user details.
  */
 const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { isMockEnabled } = useMockConfig();
   const logger = useLogger();
+  const fetchFn = useAuthApiClient();
 
   return useQuery({
     queryKey: ["userDetails", isMockEnabled],
@@ -43,7 +44,6 @@ const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
       }
 
       try {
-        const idToken = await getIdToken();
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
@@ -53,10 +53,7 @@ const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
 
         logger.debug(`[useGetUserDetails] URL: ${requestUrl}`);
 
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(`[useGetUserDetails] Response status: ${response.status}`);
 

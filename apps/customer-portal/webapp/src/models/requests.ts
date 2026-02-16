@@ -60,7 +60,21 @@ export interface CreateCaseRequest {
   title: string;
 }
 
-// Request body for posting a case attachment (POST /cases/:caseId/attachments).
+// Request body for product vulnerabilities search.
+export interface ProductVulnerabilitiesSearchRequest {
+  filters?: {
+    searchQuery?: string;
+    severityId?: number;
+    statusId?: number;
+  };
+  pagination?: PaginationRequest;
+  sortBy?: {
+    field: string;
+    order: "asc" | "desc";
+  };
+}
+
+// Request body for posting a case attachment.
 export interface PostCaseAttachmentRequest {
   referenceType: "case";
   name: string;

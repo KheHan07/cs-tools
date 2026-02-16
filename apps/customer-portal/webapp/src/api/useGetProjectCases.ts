@@ -24,7 +24,7 @@ import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { mockCases } from "@models/mockData";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseSearchRequest } from "@models/requests";
 import type { CaseSearchResponse } from "@models/responses";
 
@@ -41,7 +41,8 @@ export default function useGetProjectCases(
 ): UseInfiniteQueryResult<InfiniteData<CaseSearchResponse>, Error> {
   const logger = useLogger();
 
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useInfiniteQuery<CaseSearchResponse, Error>({
@@ -90,7 +91,6 @@ export default function useGetProjectCases(
       }
 
       try {
-        const idToken = await getIdToken();
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
@@ -99,9 +99,8 @@ export default function useGetProjectCases(
 
         const requestUrl = `${baseUrl}/projects/${projectId}/cases/search`;
 
-        const response = await fetch(requestUrl, {
+        const response = await fetchFn(requestUrl, {
           method: "POST",
-          headers: addApiHeaders(idToken),
           body: JSON.stringify(requestBody),
         });
 

@@ -140,8 +140,8 @@ export interface CaseListItem {
   createdOn: string;
   title: string;
   description: string;
-  /** API may return string or { id, label } object. */
-  assignedEngineer: string | { id: string; label: string } | null;
+  /** API may return string or { id, label? } or { id, name? } object. */
+  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
   project: {
     id: string;
     label: string;
@@ -209,7 +209,8 @@ export interface CaseDetails {
   product: string | null;
   account: CaseDetailsAccount | null;
   csManager: string | null;
-  assignedEngineer: string | null;
+  /** API may return string or { id, label? } or { id, name? } object. */
+  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
   project: CaseDetailsProject | null;
   deployment: { id: string; label: string } | null;
   deployedProduct: string | null;
@@ -433,7 +434,31 @@ export interface CaseClassificationResponse {
   };
 }
 
-// Response for creating a support case (POST /cases). Used to navigate to case details.
+// Response for creating a support case. Used to navigate to case details.
 export interface CreateCaseResponse {
   id: string;
+}
+
+// Product vulnerability item from search response.
+export interface ProductVulnerability {
+  id: string;
+  cveId: string;
+  vulnerabilityId: string;
+  severity: { id: number; label: string };
+  componentName: string;
+  version: string;
+  type: string;
+  useCase: string;
+  justification: string;
+  resolution: string;
+  componentType?: string;
+  updateLevel?: string;
+}
+
+// Response for product vulnerabilities search.
+export interface ProductVulnerabilitiesSearchResponse {
+  productVulnerabilities: ProductVulnerability[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
 }

@@ -20,7 +20,7 @@ import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { mockCaseComments } from "@models/mockData";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseCommentsResponse } from "@models/responses";
 
 export interface UseGetCaseCommentsOptions {
@@ -42,7 +42,8 @@ export default function useGetCaseComments(
   options?: UseGetCaseCommentsOptions,
 ): UseQueryResult<CaseCommentsResponse, Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
   const { offset = 0, limit = 20 } = options ?? {};
 
@@ -77,16 +78,12 @@ export default function useGetCaseComments(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const idToken = await getIdToken();
         const params = new URLSearchParams();
         if (offset !== undefined) params.set("offset", String(offset));
         if (limit !== undefined) params.set("limit", String(limit));
         const query = params.toString();
         const requestUrl = `${baseUrl}/cases/${caseId}/comments${query ? `?${query}` : ""}`;
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         if (!response.ok) {
           throw new Error(

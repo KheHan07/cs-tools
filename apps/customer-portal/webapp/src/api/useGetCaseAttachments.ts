@@ -20,7 +20,7 @@ import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { mockCaseAttachments } from "@models/mockData";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseAttachmentsResponse } from "@models/responses";
 
 export interface UseGetCaseAttachmentsOptions {
@@ -41,7 +41,8 @@ export default function useGetCaseAttachments(
   options?: UseGetCaseAttachmentsOptions,
 ): UseQueryResult<CaseAttachmentsResponse, Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
   const { limit = 50, offset = 0, enabled: optionsEnabled = true } = options ?? {};
 
@@ -75,15 +76,11 @@ export default function useGetCaseAttachments(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const idToken = await getIdToken();
         const params = new URLSearchParams();
         params.set("limit", String(limit));
         params.set("offset", String(offset));
         const requestUrl = `${baseUrl}/cases/${caseId}/attachments?${params.toString()}`;
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         if (!response.ok) {
           throw new Error(

@@ -18,65 +18,77 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockCaseDetails } from "@models/mockData";
+import { mockProductVulnerabilityDetail } from "@models/mockData";
 import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
-import type { CaseDetails } from "@models/responses";
+import type { ProductVulnerability } from "@models/responses";
 
 /**
- * Fetches a single case by id for a project.
+ * Fetches a single product vulnerability by vulnerabilityId (GET /products/vulnerabilities/:vulnerabilityId).
+ * When mock is enabled, returns mock data.
  *
- * @param {string} projectId - The project id.
- * @param {string} caseId - The case id.
- * @returns {UseQueryResult<CaseDetails, Error>} Query result with case details.
+ * @param {string} vulnerabilityId - The vulnerability id (e.g. XRAY-999003).
+ * @returns {UseQueryResult<ProductVulnerability, Error>} Query result with product vulnerability detail.
  */
-export default function useGetCaseDetails(
-  projectId: string,
-  caseId: string,
-): UseQueryResult<CaseDetails, Error> {
+export function useGetProductVulnerabilities(
+  vulnerabilityId: string,
+): UseQueryResult<ProductVulnerability, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
-  return useQuery<CaseDetails, Error>({
-    queryKey: [ApiQueryKeys.CASE_DETAILS, projectId, caseId, isMockEnabled],
-    queryFn: async (): Promise<CaseDetails> => {
+  return useQuery<ProductVulnerability, Error>({
+    queryKey: [
+      ApiQueryKeys.PRODUCT_VULNERABILITY,
+      vulnerabilityId,
+      isMockEnabled,
+    ],
+    queryFn: async (): Promise<ProductVulnerability> => {
       logger.debug(
-        `Fetching case details: projectId=${projectId}, caseId=${caseId}, mock=${isMockEnabled}`,
+        `Fetching product vulnerability: vulnerabilityId=${vulnerabilityId}, mock=${isMockEnabled}`,
       );
 
       if (isMockEnabled) {
         await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        return { ...mockCaseDetails, id: caseId };
+        logger.debug(
+          "[useGetProductVulnerabilities] Mock response:",
+          mockProductVulnerabilityDetail,
+        );
+        return mockProductVulnerabilityDetail;
       }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
         if (!baseUrl) {
-          throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
-        }
-
-        const requestUrl = `${baseUrl}/cases/${caseId}`;
-        const response = await fetchFn(requestUrl, { method: "GET" });
-
-        if (!response.ok) {
           throw new Error(
-            `Error fetching case details: ${response.status} ${response.statusText}`,
+            "CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured",
           );
         }
 
-        const data: CaseDetails = await response.json();
-        logger.debug("[useGetCaseDetails] Data received:", data);
+        const requestUrl = `${baseUrl}/products/vulnerabilities/${encodeURIComponent(vulnerabilityId)}`;
+        const response = await fetchFn(requestUrl, { method: "GET" });
+
+        logger.debug(
+          `[useGetProductVulnerabilities] Response status: ${response.status}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Error fetching product vulnerability: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        const data: ProductVulnerability = await response.json();
+        logger.debug("[useGetProductVulnerabilities] Data received:", data);
         return data;
       } catch (error) {
-        logger.error("[useGetCaseDetails] Error:", error);
+        logger.error("[useGetProductVulnerabilities] Error:", error);
         throw error;
       }
     },
     enabled:
-      !!projectId &&
-      !!caseId &&
+      !!vulnerabilityId &&
       (isMockEnabled || (isSignedIn && !isAuthLoading)),
     staleTime: 5 * 60 * 1000,
   });

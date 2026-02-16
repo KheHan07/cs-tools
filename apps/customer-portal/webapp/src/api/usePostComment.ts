@@ -22,7 +22,7 @@ import {
 import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
 
 export interface PostCommentRequest {
@@ -47,7 +47,8 @@ export function usePostComment(): UseMutationResult<
 > {
   const logger = useLogger();
   const queryClient = useQueryClient();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useMutation<void, Error, PostCommentVariables>({
@@ -72,11 +73,9 @@ export function usePostComment(): UseMutationResult<
         throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
       }
 
-      const idToken = await getIdToken();
       const requestUrl = `${baseUrl}/cases/${caseId}/comments`;
-      const response = await fetch(requestUrl, {
+      const response = await fetchFn(requestUrl, {
         method: "POST",
-        headers: addApiHeaders(idToken),
         body: JSON.stringify({ content: body.content }),
       });
 

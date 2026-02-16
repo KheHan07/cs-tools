@@ -19,12 +19,11 @@ import { AppShell, Box, useAppShell, LinearProgress } from "@wso2/oxygen-ui";
 import { type JSX, type ReactNode, useRef, useEffect } from "react";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useLocation, Outlet } from "react-router";
+import IdleTimeoutProvider from "@providers/IdleTimeoutProvider";
 import GlobalNotificationBanner from "@components/common/notification-banner/GlobalNotificationBanner";
 import Footer from "@components/common/footer/Footer";
 import Header from "@components/common/header/Header";
 import SideBar from "@components/common/side-nav-bar/SideBar";
-import { BackgroundTokenRefresh } from "@providers/BackgroundTokenRefresh";
-
 /**
  * AppLayout component.
  *
@@ -56,8 +55,7 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
   );
 
   return (
-    <>
-      <BackgroundTokenRefresh />
+    <IdleTimeoutProvider>
       <GlobalNotificationBanner visible={notificationBannerConfig.visible} />
       <AppShell>
         {/* Header component. */}
@@ -134,6 +132,6 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
           <Footer />
         </AppShell.Footer>
       </AppShell>
-    </>
+    </IdleTimeoutProvider>
   );
 }

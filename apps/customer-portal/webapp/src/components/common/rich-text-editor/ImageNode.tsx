@@ -24,7 +24,7 @@ import {
   type Spread,
 } from "lexical";
 import type { JSX } from "react";
-import { deriveAltFromFilename } from "@utils/richTextEditor";
+import { deriveAltFromFilename, sanitizeUrl } from "@utils/richTextEditor";
 
 export type SerializedImageNode = Spread<
   {
@@ -49,7 +49,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   // 1. How Lexical turns JSON back into a Class
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
     const { src, altText } = serializedNode;
-    return $createImageNode(src, altText);
+    return $createImageNode(sanitizeUrl(src), altText);
   }
 
   constructor(src: string, altText: string, key?: NodeKey) {
@@ -79,7 +79,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportDOM(editor: LexicalEditor): { element: HTMLElement | null } {
     void editor;
     const img = document.createElement("img");
-    img.setAttribute("src", this.__src);
+    img.setAttribute("src", sanitizeUrl(this.__src));
     img.setAttribute("alt", this.__altText);
     img.style.maxWidth = "100%";
     img.style.borderRadius = "8px";
@@ -91,9 +91,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return {
       img: () => ({
         conversion: (element: HTMLElement) => {
-          const src = element.getAttribute("src") ?? "";
+          const raw = element.getAttribute("src") ?? "";
+          const src = sanitizeUrl(raw);
           const alt =
-            element.getAttribute("alt") ?? deriveAltFromFilename(src);
+            element.getAttribute("alt") ?? deriveAltFromFilename(raw);
           if (!src) return null;
           return { node: $createImageNode(src, alt) };
         },
@@ -105,7 +106,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   decorate(): JSX.Element {
     return (
       <img
-        src={this.__src}
+        src={sanitizeUrl(this.__src)}
         alt={this.__altText}
         style={{ maxWidth: "100%", borderRadius: "8px", display: "block" }}
       />
@@ -114,5 +115,5 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 }
 
 export function $createImageNode(src: string, altText: string): ImageNode {
-  return new ImageNode(src, altText);
+  return new ImageNode(sanitizeUrl(src), altText);
 }

@@ -19,7 +19,7 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { API_MOCK_DELAY } from "@constants/apiConstants";
-import { addApiHeaders } from "@utils/apiUtils";
+import { useAuthApiClient } from "@context/AuthApiContext";
 import { getMockProjectDeployments } from "@models/mockFunctions";
 import type { ProjectDeploymentItem } from "@models/responses";
 
@@ -34,7 +34,8 @@ export function useGetProjectDeployments(
   projectId: string,
 ): UseQueryResult<ProjectDeploymentItem[], Error> {
   const logger = useLogger();
-  const { getIdToken, isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
   const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProjectDeploymentItem[], Error>({
@@ -55,7 +56,6 @@ export function useGetProjectDeployments(
       }
 
       try {
-        const idToken = await getIdToken();
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
 
         if (!baseUrl) {
@@ -64,10 +64,7 @@ export function useGetProjectDeployments(
 
         const requestUrl = `${baseUrl}/projects/${projectId}/deployments`;
 
-        const response = await fetch(requestUrl, {
-          method: "GET",
-          headers: addApiHeaders(idToken),
-        });
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(
           `[useGetProjectDeployments] Response status: ${response.status}`,
