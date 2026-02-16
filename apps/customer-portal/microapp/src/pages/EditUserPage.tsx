@@ -1,57 +1,44 @@
 import { useState, type ReactNode } from "react";
-import { Avatar, Button, Card, pxToRem, Stack, TextField, Typography, useTheme } from "@wso2/oxygen-ui";
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Chip,
+  colors,
+  FormControlLabel,
+  pxToRem,
+  Radio,
+  RadioGroup,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
+} from "@wso2/oxygen-ui";
 import { Link, useLocation } from "react-router-dom";
 import { InvitationSummaryContent, RoleSelector, type RoleName } from "@components/features/users";
 import { useProject } from "@context/project";
 
 import { MOCK_PROJECTS } from "@src/mocks/data/projects";
-import { Clock4, Mail } from "@wso2/oxygen-ui-icons-react";
-import { stringAvatar } from "../utils/others";
+import { Clock4, Info, Mail, Trash2 } from "@wso2/oxygen-ui-icons-react";
+import { stringAvatar } from "@utils/others";
 
 export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "edit" }) {
-  const theme = useTheme();
   const location = useLocation();
   const state = location.state as { email?: string; role?: string; name?: string };
 
   const [role, setRole] = useState<RoleName>(state?.role ?? "Admin");
   const [email, setEmail] = useState(state?.email ?? "");
   const [name, setName] = useState(state?.name ?? "");
+  const [userStatus, setUserStatus] = useState("active");
 
   const { projectId } = useProject();
   const project = MOCK_PROJECTS.find((project) => project.id === projectId);
 
   return (
     <Stack gap={2}>
-      {mode === "edit" && (
-        <Card component={Stack} textAlign="center" alignItems="center" gap={2} p={3}>
-          <Avatar
-            sx={(theme) => ({
-              width: 65,
-              height: 65,
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
-              fontSize: theme.typography.h3,
-              fontWeight: "medium",
-            })}
-          >
-            {stringAvatar(name)}
-          </Avatar>
-          <Stack textAlign="center" gap={0.5}>
-            <Typography variant="h5" fontWeight="medium">
-              {name}
-            </Typography>
-            <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
-              <Mail size={pxToRem(18)} color={theme.palette.text.secondary} />
-              <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
-                {email}
-              </Typography>
-            </Stack>
-            <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
-              Last Active: 2 hours ago
-            </Typography>
-          </Stack>
-        </Card>
-      )}
+      {mode === "edit" && <UserSummaryCard name={name} email={email} />}
+      {mode === "invite" && <InvitationNotice />}
       <SectionCard title="User Details">
         <Stack gap={2}>
           <TextField
@@ -59,8 +46,21 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
             label="Email Address"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            helperText={mode === "edit" ? "Email cannot be edited" : undefined}
+            slotProps={{
+              htmlInput: { readOnly: mode === "edit" },
+            }}
           />
-          <TextField size="small" label="Full Name" value={name} onChange={(event) => setName(event.target.value)} />
+          <TextField
+            size="small"
+            label="Full Name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            helperText={mode === "edit" ? "Name cannot be edited" : undefined}
+            slotProps={{
+              htmlInput: { readOnly: mode === "edit" },
+            }}
+          />
         </Stack>
       </SectionCard>
 
@@ -68,14 +68,40 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
         <RoleSelector value={role} onChange={setRole} />
       </SectionCard>
 
-      <SectionCard title="Invitation Summary">
-        <InvitationSummaryContent projectName={project?.name} email={email} name={name} role={role} />
-      </SectionCard>
+      {mode === "edit" && (
+        <SectionCard title="User Status">
+          <UserStatusSelector value={userStatus} onChange={setUserStatus} />
+        </SectionCard>
+      )}
 
-      <ExpirationNotice />
+      {mode === "invite" && (
+        <>
+          <SectionCard title="Invitation Summary">
+            <InvitationSummaryContent projectName={project?.name} email={email} name={name} role={role} />
+          </SectionCard>
+          <ExpirationNotice />
+        </>
+      )}
 
-      <SendButton />
-      <CancelButton />
+      {mode === "edit" && (
+        <>
+          <PermissionDetails />
+          <DangerZone />
+        </>
+      )}
+
+      <Button variant="contained" component={Link} to="/users" sx={{ textTransform: "initial" }}>
+        {mode === "invite" ? "Send Invitation" : "Save Changes"}
+      </Button>
+
+      <Button
+        variant="outlined"
+        component={Link}
+        sx={{ textTransform: "initial", bgcolor: "background.paper" }}
+        to="/users"
+      >
+        Cancel
+      </Button>
     </Stack>
   );
 }
@@ -91,19 +117,22 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-function SendButton() {
+function InvitationNotice() {
   return (
-    <Button variant="contained" component={Link} to="/users" sx={{ textTransform: "initial" }}>
-      Send Invitation
-    </Button>
-  );
-}
-
-function CancelButton() {
-  return (
-    <Button component={Link} sx={{ textTransform: "initial", bgcolor: "background.paper" }} to="/users">
-      Cancel
-    </Button>
+    <Card component={Stack} direction="row" gap={2} sx={{ bgcolor: colors.blue[50], p: 1.5 }}>
+      <Box color={colors.indigo[500]}>
+        <Info size={pxToRem(18)} />
+      </Box>
+      <Stack>
+        <Typography variant="body2" fontWeight="medium" color={colors.indigo[500]}>
+          Direct User Invitation
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary">
+          Send an email invitation directly to a user to join this project. The invitation link will be valid for 7
+          days.
+        </Typography>
+      </Stack>
+    </Card>
   );
 }
 
@@ -129,5 +158,122 @@ function ExpirationNotice() {
         </Typography>
       </Typography>
     </Card>
+  );
+}
+
+function PermissionDetails() {
+  return (
+    <Card component={Stack} sx={{ bgcolor: colors.blue[50], p: 1.5 }}>
+      <Typography variant="body2" fontWeight="medium" color={colors.indigo[500]}>
+        Permission Details
+      </Typography>
+      <ul style={{ margin: 0, marginTop: 3, paddingLeft: 20 }}>
+        <li>
+          <Typography variant="subtitle2" color="text.secondary">
+            Create and manage own cases
+          </Typography>
+        </li>
+        <li>
+          <Typography variant="subtitle2" color="text.secondary">
+            Participate in chats
+          </Typography>
+        </li>
+        <li>
+          <Typography variant="subtitle2" color="text.secondary">
+            Submit service requests
+          </Typography>
+        </li>
+        <li>
+          <Typography variant="subtitle2" color="text.secondary">
+            View project analytics
+          </Typography>
+        </li>
+      </ul>
+    </Card>
+  );
+}
+
+function UserSummaryCard({ name, email }: { name: string; email: string }) {
+  const theme = useTheme();
+
+  return (
+    <Card component={Stack} textAlign="center" alignItems="center" gap={2} p={3}>
+      <Avatar
+        sx={(theme) => ({
+          width: 65,
+          height: 65,
+          bgcolor: "primary.main",
+          fontSize: theme.typography.h3,
+          fontWeight: "medium",
+        })}
+      >
+        {stringAvatar(name)}
+      </Avatar>
+      <Stack textAlign="center" gap={0.5}>
+        <Typography variant="h5" fontWeight="medium">
+          {name}
+        </Typography>
+        <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
+          <Mail size={pxToRem(16)} color={theme.palette.text.secondary} />
+          <Typography variant="body2" fontWeight="regular" color="text.secondary">
+            {email}
+          </Typography>
+        </Stack>
+        <Typography variant="caption" fontWeight="regular" color="text.secondary">
+          Last Active: 2 hours ago
+        </Typography>
+      </Stack>
+    </Card>
+  );
+}
+
+function DangerZone() {
+  return (
+    <Card component={Stack} sx={{ bgcolor: colors.red[50], p: 1.5 }}>
+      <Typography variant="body2" fontWeight="medium" color="error">
+        Danger Zone
+      </Typography>
+      <Typography variant="subtitle2" color="text.secondary">
+        Send an email invitation directly to a user to join this project. The invitation link will be valid for 7 days.
+      </Typography>
+      <Button variant="contained" color="error" startIcon={<Trash2 />} sx={{ mt: 3 }}>
+        Remove User from Project
+      </Button>
+    </Card>
+  );
+}
+
+function UserStatusSelector({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <RadioGroup value={value} onChange={(event) => onChange(event.target.value)}>
+      <FormControlLabel
+        value="active"
+        control={<Radio />}
+        labelPlacement="start"
+        sx={{
+          m: 0,
+          justifyContent: "space-between",
+        }}
+        label={
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Chip size="small" label="Active" color={value === "active" ? "primary" : "default"} />
+          </Stack>
+        }
+      ></FormControlLabel>
+      <FormControlLabel
+        value="inactive"
+        control={<Radio />}
+        labelPlacement="start"
+        sx={{
+          m: 0,
+          justifyContent: "space-between",
+        }}
+        label={
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Chip size="small" label="Inactive" color={value === "inactive" ? "primary" : "default"} />
+          </Stack>
+        }
+      ></FormControlLabel>
+    </RadioGroup>
   );
 }
