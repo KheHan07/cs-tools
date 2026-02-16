@@ -33,14 +33,16 @@ describe("updates utilities", () => {
     it("should correctly aggregate stats for a 20-product dataset", () => {
       const stats = aggregateUpdateStats(mockRecommendedUpdateLevels);
       expect(stats).toBeDefined();
-      expect(stats?.productsTracked).toBe(20);
-      expect(stats?.totalUpdatesInstalled).toBe(4458);
-      expect(stats?.totalUpdatesPending).toBe(1534);
-      expect(stats?.securityUpdatesPending).toBe(429);
-      expect(stats?.totalUpdatesInstalledBreakdown!.regular).toBe(3667);
-      expect(stats?.totalUpdatesInstalledBreakdown!.security).toBe(791);
-      expect(stats?.totalUpdatesPendingBreakdown!.regular).toBe(1105);
-      expect(stats?.totalUpdatesPendingBreakdown!.security).toBe(429);
+      if (!stats) return;
+
+      expect(stats.productsTracked).toBe(20);
+      expect(stats.totalUpdatesInstalled).toBe(4458);
+      expect(stats.totalUpdatesPending).toBe(1534);
+      expect(stats.securityUpdatesPending).toBe(429);
+      expect(stats.totalUpdatesInstalledBreakdown!.regular).toBe(3667);
+      expect(stats.totalUpdatesInstalledBreakdown!.security).toBe(791);
+      expect(stats.totalUpdatesPendingBreakdown!.regular).toBe(1105);
+      expect(stats.totalUpdatesPendingBreakdown!.security).toBe(429);
     });
   });
 

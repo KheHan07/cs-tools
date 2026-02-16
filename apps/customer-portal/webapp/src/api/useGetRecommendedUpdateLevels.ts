@@ -26,7 +26,6 @@ import type { RecommendedUpdateLevelItem } from "@models/responses";
 /**
  * Custom hook to fetch recommended update levels.
  *
- * @param {string} projectId - The ID of the project.
  * @returns {UseQueryResult<RecommendedUpdateLevelItem[], Error>} The query result object.
  */
 export function useGetRecommendedUpdateLevels(): UseQueryResult<

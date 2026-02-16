@@ -46,6 +46,7 @@ export function UpdatesStatsGrid({
   isError,
 }: UpdatesStatsGridProps): JSX.Element {
   const aggregatedData = aggregateUpdateStats(data);
+  const isEffectiveLoading = isLoading || (!data && !isError);
 
   const renderCountWithSkeleton = (
     count: number | undefined,
@@ -139,8 +140,6 @@ export function UpdatesStatsGrid({
 
     return undefined;
   };
-
-  const isEffectiveLoading = isLoading || (!data && !isError);
 
   return (
     <Box>
