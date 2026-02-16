@@ -110,7 +110,7 @@ public isolated function searchCases(string idToken, CaseSearchPayload payload) 
 #
 # + idToken - ID token for authorization
 # + projectId - Unique ID of the project
-# + return - Case metadata response or error
+# + return - Project metadata response or error
 public isolated function getProjectMetadata(string idToken, string projectId) returns ProjectMetadataResponse|error {
     return csEntityClient->/projects/[projectId]/meta\-data.get(generateHeaders(idToken));
 }

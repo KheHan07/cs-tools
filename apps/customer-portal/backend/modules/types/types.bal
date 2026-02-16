@@ -333,7 +333,7 @@ public type CommentCreatePayload record {|
     # Comment content
     @constraint:String {minLength: 1} // TODO: Remove max length until the byte array support is added
     string content;
-    # Comment type (eg: case, cahnge request, etc.)
+    # Comment type (eg: case, change request, etc.)
     entity:CommentType 'type;
 |};
 
