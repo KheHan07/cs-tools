@@ -29,7 +29,6 @@ import {
 } from "@wso2/oxygen-ui";
 import { CirclePlay } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
@@ -62,7 +61,6 @@ function getActionButtonSx(
 export interface CaseDetailsActionRowProps {
   assignedEngineer: string | null | undefined;
   engineerInitials: string;
-  isError: boolean;
   isLoading?: boolean;
 }
 
@@ -75,7 +73,6 @@ export interface CaseDetailsActionRowProps {
 export default function CaseDetailsActionRow({
   assignedEngineer,
   engineerInitials,
-  isError,
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
@@ -114,9 +111,7 @@ export default function CaseDetailsActionRow({
           </Avatar>
         )}
         <Box>
-          {isError ? (
-            <ErrorIndicator entityName="case details" size="small" />
-          ) : isLoading ? (
+          {isLoading ? (
             <Skeleton variant="text" width={90} height={14} sx={{ mb: 0.25 }} />
           ) : (
             <Typography
