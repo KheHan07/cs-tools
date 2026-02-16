@@ -18,8 +18,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import AssignedEngineerDisplay from "@case-details-details/AssignedEngineerDisplay";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+import type { AssignedEngineerValue } from "@utils/support";
 
-function renderAssignedEngineer(assignedEngineer: string | null | undefined) {
+function renderAssignedEngineer(assignedEngineer: AssignedEngineerValue) {
   return render(
     <ThemeProvider theme={createTheme()}>
       <AssignedEngineerDisplay assignedEngineer={assignedEngineer} />
@@ -28,8 +29,20 @@ function renderAssignedEngineer(assignedEngineer: string | null | undefined) {
 }
 
 describe("AssignedEngineerDisplay", () => {
-  it("should render engineer name and initials in avatar", () => {
+  it("should render engineer name and initials when string", () => {
     renderAssignedEngineer("John Doe");
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
+    expect(screen.getByText("JD")).toBeInTheDocument();
+  });
+
+  it("should render engineer label and initials when object { id, label }", () => {
+    renderAssignedEngineer({ id: "eng-1", label: "Agzaiyenth Ganaraj" });
+    expect(screen.getByText("Agzaiyenth Ganaraj")).toBeInTheDocument();
+    expect(screen.getByText("AG")).toBeInTheDocument();
+  });
+
+  it("should render engineer name and initials when object { id, name }", () => {
+    renderAssignedEngineer({ id: "eng-1", name: "John Doe" });
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("JD")).toBeInTheDocument();
   });
