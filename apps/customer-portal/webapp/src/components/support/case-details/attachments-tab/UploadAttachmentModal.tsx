@@ -69,11 +69,11 @@ export default function UploadAttachmentModal({
   const fileTooLarge = file ? file.size > MAX_ATTACHMENT_SIZE_BYTES : false;
   const displayName = name.trim() || (file?.name ?? "");
   const canUpload =
-    !isMockEnabled &&
     !!file &&
     !fileTooLarge &&
     !!displayName &&
-    (!!onSelect || (!postAttachments.isPending && !!caseId));
+    (!!onSelect ||
+      (!isMockEnabled && !postAttachments.isPending && !!caseId));
 
   const reset = useCallback(() => {
     setFile(null);
@@ -134,7 +134,7 @@ export default function UploadAttachmentModal({
   );
 
   const handleUpload = useCallback(() => {
-    if (!file || fileTooLarge || isMockEnabled) return;
+    if (!file || fileTooLarge) return;
     const attachmentName = (name.trim() || file.name).trim();
     if (!attachmentName) return;
 
@@ -144,7 +144,7 @@ export default function UploadAttachmentModal({
       return;
     }
 
-    if (!caseId) return;
+    if (!caseId || isMockEnabled) return;
 
     const reader = new FileReader();
     reader.onload = () => {

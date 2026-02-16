@@ -18,6 +18,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { render } from "@testing-library/react";
 import { createTheme } from "@wso2/oxygen-ui";
 import {
+  deriveAltFromFilename,
   escapeHtml,
   sanitizeUrl,
   getFileIcon,
@@ -26,6 +27,30 @@ import {
 } from "@utils/richTextEditor";
 
 describe("richTextEditor utils", () => {
+  describe("deriveAltFromFilename", () => {
+    it("derives alt from absolute URL path", () => {
+      expect(deriveAltFromFilename("https://example.com/images/photo.jpg")).toBe(
+        "photo",
+      );
+    });
+
+    it("derives alt from relative path", () => {
+      expect(deriveAltFromFilename("/assets/image.png")).toBe("image");
+    });
+
+    it("derives alt from plain filename", () => {
+      expect(deriveAltFromFilename("image.png")).toBe("image");
+    });
+
+    it("returns Image when path has no extension", () => {
+      expect(deriveAltFromFilename("https://example.com/photo")).toBe("photo");
+    });
+
+    it("strips query and hash when URL parsing fails", () => {
+      expect(deriveAltFromFilename("file.png?q=1#hash")).toBe("file");
+    });
+  });
+
   describe("escapeHtml", () => {
     it("escapes ampersand", () => {
       expect(escapeHtml("a & b")).toBe("a &amp; b");

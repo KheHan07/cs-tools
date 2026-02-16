@@ -26,7 +26,8 @@ import {
 import { createCommand, type LexicalCommand } from "lexical";
 
 /**
- * Derives alt text from a URL or filename (e.g. "image.png" -> "image").
+ * Derives alt text from a URL or filename (e.g. "image.png" -> "image", "/path/to/photo.jpg" -> "photo").
+ * Handles absolute URLs, relative paths, and plain filenames.
  */
 export function deriveAltFromFilename(src: string): string {
   try {
@@ -37,7 +38,10 @@ export function deriveAltFromFilename(src: string): string {
     const base = name.replace(/\.[^.]+$/, "");
     return base ? base : "Image";
   } catch {
-    return "Image";
+    const pathOnly = src.split("?")[0].split("#")[0].trim();
+    const lastSegment = pathOnly.replace(/\/+$/, "").split("/").pop() || "";
+    const base = lastSegment.replace(/\.[^.]+$/, "");
+    return base ? base : "Image";
   }
 }
 
