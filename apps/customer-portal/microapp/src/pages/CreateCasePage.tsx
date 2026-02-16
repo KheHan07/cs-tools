@@ -15,8 +15,8 @@
 // under the License.
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Folder } from "@wso2/oxygen-ui-icons-react";
-import { Button, Stack, Typography, InputAdornment, pxToRem } from "@wso2/oxygen-ui";
+import { Circle, Folder } from "@wso2/oxygen-ui-icons-react";
+import { Button, Stack, Typography, InputAdornment, pxToRem, colors } from "@wso2/oxygen-ui";
 import { SelectField, TextField, ConversationSummary } from "@components/features/create";
 import { useFormik } from "formik";
 
@@ -59,9 +59,33 @@ export default function CreateCasePage() {
   ];
 
   const severityLevels = [
-    { value: 0, label: "S1 Critical" },
-    { value: 1, label: "S2 Medium" },
-    { value: 2, label: "S3 Low" },
+    {
+      value: 0,
+      label: (
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Circle fill={colors.red[500]} color={colors.red[500]} size={pxToRem(12)} />
+          S1 Critical
+        </Stack>
+      ),
+    },
+    {
+      value: 1,
+      label: (
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Circle fill={colors.orange[500]} color={colors.orange[500]} size={pxToRem(12)} />
+          S2 Medium
+        </Stack>
+      ),
+    },
+    {
+      value: 2,
+      label: (
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Circle fill={colors.blue[500]} color={colors.blue[500]} size={pxToRem(12)} />
+          S3 Low
+        </Stack>
+      ),
+    },
   ];
 
   const formik = useFormik<CreateCaseFormValues>({

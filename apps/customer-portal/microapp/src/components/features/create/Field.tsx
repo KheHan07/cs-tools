@@ -11,10 +11,11 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { Sparkle } from "@wso2/oxygen-ui-icons-react";
+import type { ReactNode } from "react";
 
 interface SelectFieldProps {
   name: string;
-  label: string;
+  label: string | ReactNode;
   options: { value: number; label: string }[];
   value?: number;
   required?: boolean;
