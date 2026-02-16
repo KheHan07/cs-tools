@@ -39,10 +39,9 @@ public isolated function processRecommendedUpdateLevels(string email) returns ty
 
 # Process list updates based on the provided parameters.
 #
-# + idToken - ID token for authentication
 # + payload - Payload for listing updates
 # + return - List of updates, or an error if the operation fails
-public isolated function processListUpdates(string idToken, types:ListUpdatePayload payload)
+public isolated function processListUpdates(types:ListUpdatePayload payload)
     returns types:UpdateResponse|error {
 
     ListUpdatePayload requestPayload = {
@@ -54,7 +53,7 @@ public isolated function processListUpdates(string idToken, types:ListUpdatePayl
         hot\-fixes: payload.hotFixes
     };
 
-    UpdateResponse response = check listUpdates(idToken, requestPayload);
+    UpdateResponse response = check listUpdates(requestPayload);
     types:BasicFileInfo[] addedFiles = from BasicFileInfo info in response.file\-changes.added\-files
         select {
             filePath: info.file\-path,

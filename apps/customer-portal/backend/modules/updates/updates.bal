@@ -24,10 +24,9 @@ public isolated function getRecommendedUpdateLevels(string email) returns Recomm
 
 # List updates based on the provided parameters.
 #
-# + idToken - ID token for authentication
 # + payload - Payload for listing updates
 # + return - List of updates, or an error if the operation fails
-public isolated function listUpdates(string idToken, ListUpdatePayload payload) returns UpdateResponse|error {
+public isolated function listUpdates(ListUpdatePayload payload) returns UpdateResponse|error {
     return updatesClient->/updates/list\-updates.post(payload, readOnly = true);
 }
 

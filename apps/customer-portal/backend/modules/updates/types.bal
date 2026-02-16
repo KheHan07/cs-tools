@@ -144,7 +144,7 @@ public type ListUpdatePayload record {|
     # Product name
     @constraint:String {minLength: 1}
     string product\-name;
-    # Product base version
+    # Product version
     @constraint:String {minLength: 1}
     string product\-version;
     # Channel
