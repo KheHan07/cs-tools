@@ -16,6 +16,7 @@
 
 import {
   Box,
+  Button,
   Chip,
   FormControl,
   Grid,
@@ -124,19 +125,32 @@ export function CaseDetailsSection({
         }}
       >
         <Typography variant="h6">Case Details</Typography>
-        <Tooltip
-          title="Click here to modify case details"
-          placement="top"
-          arrow
-        >
-          <IconButton
-            onClick={() => setIsEditing(true)}
-            aria-label="Edit case details"
-            disabled={isEditing}
-          >
-            <PencilLine size={18} />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {isEditing ? (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setIsEditing(false)}
+              aria-label="Cancel editing case details"
+            >
+              Cancel
+            </Button>
+          ) : (
+            <Tooltip
+              title="Click here to modify case details"
+              placement="top"
+              arrow
+            >
+              <IconButton
+                onClick={() => setIsEditing(true)}
+                aria-label="Edit case details"
+                disabled={isEditing}
+              >
+                <PencilLine size={18} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
       </Box>
 
       {/* main form fields container */}
