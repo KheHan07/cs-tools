@@ -131,14 +131,16 @@ public type UpdatedUser record {|
     string timeZone?;
 |};
 
-# Case filter options.
-public type CaseFilterOptions record {|
+# Project filter options.
+public type ProjectFilterOptions record {|
     # List of case statuses
     ReferenceItem[] statuses;
     # List of case severities
     ReferenceItem[] severities;
     # List of issue types
     ReferenceItem[] issueTypes;
+    # List of deployment types
+    ReferenceItem[] deploymentTypes;
 |};
 
 # Case statistics for a project.
@@ -199,6 +201,25 @@ public type ProjectStatsResponse record {|
     ProjectStats projectStats;
     # Recent activity details
     RecentActivity recentActivity;
+|};
+
+# Created case details.
+public type CreatedCase record {|
+    # System ID of the created case
+    string id;
+    # WSO2 internal ID of the case
+    string internalId;
+    # Case number
+    string number;
+    # User who created the case
+    string createdBy;
+    # Created date and time
+    string createdOn;
+    # Status
+    ReferenceItem state;
+    # Case type information (eg: incident, query, etc.)
+    ReferenceItem 'type;
+    json...;
 |};
 
 # Comment information.
@@ -312,12 +333,12 @@ public type CommentCreatePayload record {|
     # Comment content
     @constraint:String {minLength: 1} // TODO: Remove max length until the byte array support is added
     string content;
+    # Comment type (eg: case, change request, etc.)
+    entity:CommentType 'type;
 |};
 
 # Payload for creating an attachment.
 public type AttachmentPayload record {|
-    # Reference type
-    entity:ReferenceType referenceType;
     # File name
     string name;
     # MIME type of the file
@@ -556,4 +577,15 @@ public type UpdateLevel record {|
     string channel;
     # Update level
     int[] updateLevels;
+|};
+
+# Payload for creating a deployment.
+public type DeploymentCreatePayload record {|
+    # Name
+    string name;
+    # Type key
+    int deploymentTypeKey;
+    # Description
+    string description;
+    json...;
 |};

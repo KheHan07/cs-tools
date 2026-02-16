@@ -33,6 +33,13 @@ public enum SortOrder {
     DESC = "desc"
 }
 
+# Common ID string type with length constraint.
+@constraint:String {
+    length: 32,
+    pattern: re `^[A-Za-z0-9]{32}$`
+}
+public type IdString string;
+
 # Pagination information.
 public type Pagination record {|
     # Offset for pagination
@@ -119,19 +126,16 @@ public type Subscription record {|
 # Payload for creating a case.
 public type CaseCreatePayload record {|
     # Project ID
-    @constraint:String {minLength: 1}
-    string projectId;
+    IdString projectId;
     # Deployment ID
-    @constraint:String {minLength: 1}
-    string deploymentId;
+    IdString deploymentId;
     # Product ID
-    @constraint:String {minLength: 1}
-    string productId;
+    IdString productId;
     # Case title
     @constraint:String {minLength: 1, maxLength: 500}
     string title;
     # Case description
-    @constraint:String {minLength: 1, maxLength: 65000}
+    @constraint:String {minLength: 1}
     string description;
     # Issue type ID
     int issueTypeKey;
@@ -161,6 +165,9 @@ public type CreatedCase record {|
     string createdOn;
     # Status
     ChoiceListItem state;
+    # Case type information (eg: incident, query, etc.)
+    ReferenceTableItem 'type;
+    json...;
 |};
 
 # Base case.
@@ -279,19 +286,21 @@ public type CaseResponse record {|
 # Sort configuration.
 public type SortBy record {|
     # Field to sort by
-    string 'field;
+    CaseSortField 'field;
     # Sort order
     SortOrder 'order;
 |};
 
-# Case metadata response.
-public type CaseMetadataResponse record {|
+# Project metadata response.
+public type ProjectMetadataResponse record {|
     # List of available case states (eg: Open, Closed, etc.)
     ChoiceListItem[] states;
     # List of available case severities (eg: S0, S1, etc.)
     ChoiceListItem[] severities;
     # List of available issue types (eg: Error, Total Outage, etc.)
     ChoiceListItem[] issueTypes;
+    # List of available deployment types (eg: Development, QA, etc.)
+    ChoiceListItem[] deploymentTypes;
     json...;
 |};
 
@@ -416,6 +425,8 @@ public type CommentsResponse record {|
 public type ReferenceSearchPayload record {|
     # Reference ID to filter related resources(query ID, incident ID, service request ID, etc.)
     string referenceId;
+    # Reference type
+    ReferenceType referenceType;
     # Pagination details
     Pagination pagination?;
     # Filter criteria
@@ -499,11 +510,51 @@ public type Deployment record {|
     json...;
 |};
 
+# Payload for creating a deployment.
+public type DeploymentCreatePayload record {|
+    # Project ID
+    IdString projectId;
+    # Name
+    string name;
+    # Type key
+    int typeKey;
+    # Description
+    string description;
+    json...;
+|};
+
+# Response from creating a deployment.
+public type DeploymentCreateResponse record {|
+    # Success message
+    string message;
+    # Created deployment details
+    CreatedDeployment deployment;
+|};
+
+# Created deployment details.
+public type CreatedDeployment record {|
+    # ID of the created deployment
+    string id;
+    # Created date and time
+    string createdOn;
+    # User who created the deployment
+    string createdBy;
+    json...;
+|};
+
 # Deployments response.
 public type DeploymentsResponse record {|
     # List of deployments
     Deployment[] deployments;
 |};
+
+# Valid case sort field values.
+public enum CaseSortField {
+    CREATED_ON = "createdOn",
+    UPDATED_ON = "updatedOn",
+    SEVERITY = "severity",
+    STATE = "state"
+}
 
 # Valid reference type values.
 public enum ReferenceType {
@@ -520,7 +571,7 @@ public enum CommentType {
 # Payload for creating a comment.
 public type CommentCreatePayload record {|
     # Reference ID (case or change request ID)
-    string referenceId;
+    IdString referenceId;
     # Reference type
     ReferenceType referenceType;
     # Comment content
@@ -585,7 +636,7 @@ public type CreatedAttachment record {|
 # Payload for creating an attachment.
 public type AttachmentPayload record {|
     # Reference ID to which the attachment is associated (e.g., query ID, incident ID, etc)
-    string referenceId;
+    IdString referenceId;
     # Reference type
     ReferenceType referenceType;
     # File name

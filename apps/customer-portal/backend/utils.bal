@@ -74,31 +74,29 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
     };
 }
 
-# Get case filters for a given project.
+# Get project filters for a given project.
 #
-# + caseMetadata - Case metadata response
-# + return - Case filters or error
-public isolated function getCaseFilters(entity:CaseMetadataResponse caseMetadata) returns types:CaseFilterOptions {
-    types:ReferenceItem[] statuses = from entity:ChoiceListItem item in caseMetadata.states
+# + projectMetadata - Project metadata response
+# + return - Project filters or error
+public isolated function getProjectFilters(entity:ProjectMetadataResponse projectMetadata)
+    returns types:ProjectFilterOptions {
+
+    types:ReferenceItem[] statuses = from entity:ChoiceListItem item in projectMetadata.states
         select {id: item.id.toString(), label: item.label};
-    types:ReferenceItem[] severities = from entity:ChoiceListItem item in caseMetadata.severities
+    types:ReferenceItem[] severities = from entity:ChoiceListItem item in projectMetadata.severities
         select {id: item.id.toString(), label: item.label};
-    types:ReferenceItem[] issueTypes = from entity:ChoiceListItem item in caseMetadata.issueTypes
+    types:ReferenceItem[] issueTypes = from entity:ChoiceListItem item in projectMetadata.issueTypes
+        select {id: item.id.toString(), label: item.label};
+    types:ReferenceItem[] deploymentTypes = from entity:ChoiceListItem item in projectMetadata.deploymentTypes
         select {id: item.id.toString(), label: item.label};
 
-    // TODO: Other project specific filters will be added later
     return {
         statuses,
         severities,
-        issueTypes
+        issueTypes,
+        deploymentTypes
     };
 }
-
-# Check if the given ID is empty or whitespace.
-#
-# + id - ID to validate
-# + return - True if empty/whitespace, else false
-public isolated function isEmptyId(string id) returns boolean => id.trim().length() == 0;
 
 # Get HTTP status code from the given error.
 #
@@ -229,4 +227,20 @@ public isolated function mapDeployedProducts(entity:DeployedProductsResponse res
             product: associatedProduct != () ? {id: associatedProduct.id, label: associatedProduct.name} : (),
             deployment: deployment != () ? {id: deployment.id, label: deployment.name} : ()
         };
+}
+
+# Map created case response to the desired structure.
+#
+# + createdCase - Created case response from the entity service
+# + return - Mapped created case response
+public isolated function mapCreatedCase(entity:CreatedCase createdCase) returns types:CreatedCase {
+    return {
+        id: createdCase.id,
+        internalId: createdCase.internalId,
+        number: createdCase.number,
+        createdBy: createdCase.createdBy,
+        createdOn: createdCase.createdOn,
+        state: {id: createdCase.state.id.toString(), label: createdCase.state.label},
+        'type: {id: createdCase.'type.id.toString(), label: createdCase.'type.name}
+    };
 }

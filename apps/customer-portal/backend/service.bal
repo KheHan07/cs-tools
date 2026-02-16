@@ -268,14 +268,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
-                }
-            };
-        }
-
         entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
             if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
@@ -323,14 +315,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
-                }
-            };
-        }
-
         entity:DeploymentsResponse|error deploymentsResponse = entity:getDeployments(userInfo.idToken, id);
         if deploymentsResponse is error {
             if getStatusCode(deploymentsResponse) == http:STATUS_FORBIDDEN {
@@ -353,6 +337,61 @@ service http:InterceptableService / on new http:Listener(9090) {
         return mapDeployments(deploymentsResponse);
     }
 
+    # Create a new deployment for a project.
+    #
+    # + id - ID of the project
+    # + payload - Deployment creation payload
+    # + return - Created deployment or error response
+    resource function post projects/[string id]/deployments(http:RequestContext ctx,
+            types:DeploymentCreatePayload payload)
+        returns entity:CreatedDeployment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:DeploymentCreateResponse|error deploymentResponse = entity:createDeployment(userInfo.idToken,
+                {
+                    projectId: id,
+                    name: payload.name,
+                    description: payload.description,
+                    typeKey: payload.deploymentTypeKey
+                });
+        if deploymentResponse is error {
+            if getStatusCode(deploymentResponse) == http:STATUS_FORBIDDEN {
+                logForbiddenProjectAccess(id, userInfo.userId);
+                return <http:Forbidden>{
+                    body: {
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                    }
+                };
+            }
+
+            if getStatusCode(deploymentResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            string customError = "Failed to create deployment for the project.";
+            log:printError(customError, deploymentResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return deploymentResponse.deployment;
+    }
+
     # Get overall project statistics by ID.
     #
     # + id - ID of the project
@@ -365,14 +404,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -487,14 +518,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
-                }
-            };
-        }
-
         // Verify project access
         entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
         if projectResponse is error {
@@ -557,14 +580,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -642,14 +657,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_CASE_ID_EMPTY
                 }
             };
         }
@@ -732,7 +739,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
         return <http:Created>{
-            body: createdCaseResponse.case
+            body: mapCreatedCase(createdCaseResponse.case)
         };
     }
 
@@ -749,14 +756,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
                 }
             };
         }
@@ -790,8 +789,8 @@ service http:InterceptableService / on new http:Listener(9090) {
     #
     # + id - ID of the project
     # + return - Case filters or error
-    resource function get projects/[string id]/cases/filters(http:RequestContext ctx)
-        returns types:CaseFilterOptions|http:BadRequest|http:Unauthorized|http:InternalServerError {
+    resource function get projects/[string id]/filters(http:RequestContext ctx)
+        returns types:ProjectFilterOptions|http:BadRequest|http:Unauthorized|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -802,17 +801,9 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_PROJECT_ID_EMPTY
-                }
-            };
-        }
-
-        entity:CaseMetadataResponse|error caseMetadata = entity:getCaseMetadata(userInfo.idToken);
-        if caseMetadata is error {
-            if getStatusCode(caseMetadata) == http:STATUS_UNAUTHORIZED {
+        entity:ProjectMetadataResponse|error projectMetadata = entity:getProjectMetadata(userInfo.idToken, id);
+        if projectMetadata is error {
+            if getStatusCode(projectMetadata) == http:STATUS_UNAUTHORIZED {
                 log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
                 return <http:Unauthorized>{
                     body: {
@@ -822,7 +813,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
 
             string customError = "Failed to retrieve case filters.";
-            log:printError(customError, caseMetadata);
+            log:printError(customError, projectMetadata);
             return <http:InternalServerError>{
                 body: {
                     message: customError
@@ -830,7 +821,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        return getCaseFilters(caseMetadata);
+        return getProjectFilters(projectMetadata);
     }
 
     # Classify the case using AI chat agent.
@@ -885,14 +876,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_CASE_ID_EMPTY
                 }
             };
         }
@@ -966,14 +949,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_CASE_ID_EMPTY
-                }
-            };
-        }
-
         if isInvalidLimitOffset('limit, offset) {
             return <http:BadRequest>{
                 body: {
@@ -1034,20 +1009,12 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_CASE_ID_EMPTY
-                }
-            };
-        }
-
         entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
                 {
                     referenceId: id,
                     referenceType: entity:CASE,
                     content: payload.content,
-                    'type: entity:COMMENT
+                    'type: payload.'type
                 });
         if createdCaseResponse is error {
             if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
@@ -1097,18 +1064,10 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: ERR_MSG_CASE_ID_EMPTY
-                }
-            };
-        }
-
         entity:AttachmentCreateResponse|error createdAttachmentResponse = entity:createAttachment(userInfo.idToken,
                 {
                     referenceId: id,
-                    referenceType: payload.referenceType,
+                    referenceType: entity:CASE,
                     name: payload.name,
                     'type: payload.'type,
                     file: payload.content
@@ -1163,14 +1122,6 @@ service http:InterceptableService / on new http:Listener(9090) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        if isEmptyId(id) {
-            return <http:BadRequest>{
-                body: {
-                    message: "Deployment ID cannot be empty!"
                 }
             };
         }

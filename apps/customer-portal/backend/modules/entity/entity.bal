@@ -106,12 +106,13 @@ public isolated function searchCases(string idToken, CaseSearchPayload payload) 
     return csEntityClient->/cases/search.post(payload, generateHeaders(idToken));
 }
 
-# Get case metadata.
+# Get project metadata.
 #
 # + idToken - ID token for authorization
-# + return - Case metadata response or error
-public isolated function getCaseMetadata(string idToken) returns CaseMetadataResponse|error {
-    return csEntityClient->/cases/meta.get(generateHeaders(idToken));
+# + projectId - Unique ID of the project
+# + return - Project metadata response or error
+public isolated function getProjectMetadata(string idToken, string projectId) returns ProjectMetadataResponse|error {
+    return csEntityClient->/projects/[projectId]/meta\-data.get(generateHeaders(idToken));
 }
 
 # Search comments.
@@ -163,6 +164,17 @@ public isolated function getDeployedProducts(string idToken, string deploymentId
 # + return - Deployments response or error
 public isolated function getDeployments(string idToken, string projectId) returns DeploymentsResponse|error {
     return csEntityClient->/deployments/search.post({filters: {projectIds: [projectId]}}, generateHeaders(idToken));
+}
+
+# Create a deployment.
+# 
+# + idToken - ID token for authorization
+# + payload - Deployment creation payload
+# + return - Deployment creation response or error
+public isolated function createDeployment(string idToken, DeploymentCreatePayload payload)
+    returns DeploymentCreateResponse|error {
+
+    return csEntityClient->/deployments.post(payload, generateHeaders(idToken));
 }
 
 # Create a comment for a case.
