@@ -1863,3 +1863,20 @@ export const mockProductVulnerabilitiesSearchResponse: ProductVulnerabilitiesSea
     offset: 0,
     limit: 10,
   };
+
+// Mock response for single vulnerability detail.
+export const mockProductVulnerabilityDetail: ProductVulnerability = {
+  componentType: "library",
+  updateLevel: "2.6.1",
+  id: "abcdef1234567890fedcba0987654321",
+  cveId: "CVE-2099-3333",
+  vulnerabilityId: "XRAY-999003",
+  severity: { id: 2, label: "Low" },
+  componentName: "com.example.templating.engine",
+  version: "2.6.0",
+  type: "maven",
+  useCase: "Batch for Patching",
+  justification:
+    "Template engine is used with controlled inputs and no direct user input exposure.",
+  resolution: "We will proactively upgrade to the latest secure version.",
+};
