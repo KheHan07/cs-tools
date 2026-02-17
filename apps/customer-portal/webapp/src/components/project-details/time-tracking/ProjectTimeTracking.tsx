@@ -22,6 +22,7 @@ import TimeTrackingStatCards from "@time-tracking/TimeTrackingStatCards";
 import TimeTrackingCard from "@time-tracking/TimeTrackingCard";
 import TimeTrackingCardSkeleton from "@time-tracking/TimeTrackingCardSkeleton";
 import TimeTrackingErrorState from "@time-tracking/TimeTrackingErrorState";
+import EmptyState from "@components/common/empty-state/EmptyState";
 
 interface ProjectTimeTrackingProps {
   projectId: string;
@@ -63,17 +64,23 @@ export default function ProjectTimeTracking({
         <TimeTrackingErrorState />
       ) : (
         <Grid container spacing={3}>
-          {isDetailsLoading
-            ? Array.from({ length: 7 }).map((_, index) => (
-                <Grid key={`skeleton-${index}`} size={12}>
-                  <TimeTrackingCardSkeleton />
-                </Grid>
-              ))
-            : timeLogs.map((log) => (
-                <Grid key={log.id} size={12}>
-                  <TimeTrackingCard log={log} />
-                </Grid>
-              ))}
+          {isDetailsLoading ? (
+            Array.from({ length: 7 }).map((_, index) => (
+              <Grid key={`skeleton-${index}`} size={12}>
+                <TimeTrackingCardSkeleton />
+              </Grid>
+            ))
+          ) : timeLogs.length === 0 ? (
+            <Grid size={12}>
+              <EmptyState description="No time logs available." />
+            </Grid>
+          ) : (
+            timeLogs.map((log) => (
+              <Grid key={log.id} size={12}>
+                <TimeTrackingCard log={log} />
+              </Grid>
+            ))
+          )}
         </Grid>
       )}
     </Box>

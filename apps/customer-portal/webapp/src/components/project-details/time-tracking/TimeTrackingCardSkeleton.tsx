@@ -27,10 +27,6 @@ export default function TimeTrackingCardSkeleton(): JSX.Element {
     <Card
       sx={{
         p: "20px",
-        borderRadius: "12px",
-        border: 1,
-        borderColor: "divider",
-        boxShadow: "none",
         display: "flex",
         flexDirection: "column",
         gap: "24px",

@@ -30,7 +30,7 @@ interface MockConfigProviderProps {
 }
 
 /**
- * Stub provider for mock config. Renders children only; mock mode is disabled.
+ * Provider for mock config. Enables mock mode by default.
  *
  * @param props - children.
  * @returns {JSX.Element}
