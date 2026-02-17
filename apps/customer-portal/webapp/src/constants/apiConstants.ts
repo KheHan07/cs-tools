@@ -38,4 +38,5 @@ export const ApiQueryKeys = {
   PRODUCT_UPDATE_LEVELS: "product-update-levels",
   PRODUCT_VULNERABILITY: "product-vulnerability",
   PROJECT_USERS: "project-users",
+  CASE_CALL_REQUESTS: "case-call-requests",
 } as const;
