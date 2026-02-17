@@ -17,8 +17,28 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import CaseDetailsDetailsPanel from "@case-details-details/CaseDetailsDetailsPanel";
-import { mockCaseDetails } from "@models/mockData";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+
+const mockCaseDetails = {
+  id: "case-001",
+  internalId: "INT-1",
+  number: "CS0001001",
+  createdOn: "2026-01-31 10:45:12",
+  updatedOn: "2026-02-10 23:47:57",
+  title: "Test case",
+  description: "Desc",
+  slaResponseTime: "129671000",
+  product: null,
+  account: { type: null, id: "acc-1", name: "Account" },
+  csManager: null,
+  assignedEngineer: null,
+  project: { id: "p1", name: "Project" },
+  deployment: { id: "d1", label: "Production" },
+  deployedProduct: null,
+  issueType: null,
+  state: { id: 1, label: "Open" },
+  severity: { id: 60, label: "S0" },
+};
 
 vi.mock("@utils/casesTable", () => ({
   getStatusColor: () => "warning.main",
