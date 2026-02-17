@@ -215,7 +215,7 @@ export default function AllCasesList({
                     color="text.secondary"
                     sx={{ lineHeight: 1 }}
                   >
-                    Created {formatRelativeTime(caseItem.createdOn) || "--"}
+                    Created {formatDateTime(caseItem.createdOn) || "--"}
                   </Typography>
                 </Box>
                 {(() => {
