@@ -99,26 +99,28 @@ export default function RegistryTokensTab({
 
   const {
     data: fetchedTokens,
-    isFetching,
+    isLoading,
     error,
   } = useGetRegistryTokens(projectId);
 
   const isAdmin = userRole === USER_ROLES.ADMIN;
   const columns = isAdmin ? ADMIN_COLUMNS : USER_COLUMNS;
 
-  // Reset local state when projectId changes
-  useEffect(() => {
+  // Track previous projectId to reset state when it changes
+  const [prevProjectId, setPrevProjectId] = useState<string>(projectId);
+  if (projectId !== prevProjectId) {
+    setPrevProjectId(projectId);
     setLocalTokens([]);
     setInitialized(false);
-  }, [projectId]);
+  }
 
   // Sync fetched data to local state
   useEffect(() => {
-    if (fetchedTokens && !initialized) {
+    if (fetchedTokens && !initialized && !isLoading) {
       setLocalTokens(fetchedTokens);
       setInitialized(true);
     }
-  }, [fetchedTokens, initialized]);
+  }, [fetchedTokens, initialized, isLoading]);
 
   const tokens = initialized ? localTokens : (fetchedTokens ?? []);
 
@@ -308,7 +310,7 @@ export default function RegistryTokensTab({
             </TableRow>
           </TableHead>
           <TableBody>
-            {isFetching ? (
+            {isLoading ? (
               renderTableSkeleton()
             ) : error ? (
               <TableRow>
