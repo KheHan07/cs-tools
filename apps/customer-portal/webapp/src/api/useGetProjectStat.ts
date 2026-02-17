@@ -16,11 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { getMockProjectStats } from "@models/mockFunctions";
-import { mockProjects } from "@models/mockData";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectStatsResponse } from "@models/responses";
 
@@ -36,35 +33,11 @@ export function useGetProjectStat(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProjectStatsResponse, Error>({
-    queryKey: [ApiQueryKeys.PROJECT_STATS, projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.PROJECT_STATS, projectId],
     queryFn: async (): Promise<ProjectStatsResponse> => {
-      logger.debug(
-        `Fetching project stats for project ID: ${projectId}, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        // Mock behavior: simulate network latency.
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        // Validate project ID (using mock data for validation)
-        const projectExists = mockProjects.some((p) => p.id === projectId);
-        if (!projectExists) {
-          logger.error(`Project stats not found for ID: ${projectId}`);
-          throw new Error(`Project stats not found for ID: ${projectId}`);
-        }
-
-        const stats: ProjectStatsResponse = getMockProjectStats();
-
-        logger.debug(
-          `Project stats fetched successfully for project ID: ${projectId} (mock)`,
-          stats,
-        );
-
-        return stats;
-      }
+      logger.debug(`Fetching project stats for project ID: ${projectId}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -95,7 +68,7 @@ export function useGetProjectStat(
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }
