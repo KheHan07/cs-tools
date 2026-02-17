@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockCaseMetadata } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseMetadataResponse } from "@models/responses";
 
@@ -35,23 +33,11 @@ export default function useGetCasesFilters(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<CaseMetadataResponse, Error>({
-    queryKey: [ApiQueryKeys.PROJECT_CASES, "filters", projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.PROJECT_CASES, "filters", projectId],
     queryFn: async (): Promise<CaseMetadataResponse> => {
-      logger.debug(
-        `Fetching case filters for project: ${projectId} mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        logger.debug(
-          "Case filters fetched successfully (mock)",
-          mockCaseMetadata,
-        );
-        return mockCaseMetadata;
-      }
+      logger.debug(`Fetching case filters for project: ${projectId}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -78,7 +64,7 @@ export default function useGetCasesFilters(
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 10 * 60 * 1000, // Filters don't change often, keep for 10 mins
   });
 }
