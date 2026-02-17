@@ -57,72 +57,72 @@ vi.mock("@wso2/oxygen-ui", async (importOriginal) => {
     ...actual,
     Box: ({ children }: any) => <div data-testid="box">{children}</div>,
     Stack: ({ children, spacing }: any) => (
-    <div data-testid="stack" data-spacing={spacing}>
-      {children}
-    </div>
-  ),
-  Grid: ({ children, container, spacing, size, sx }: any) => (
-    <div
-      data-testid={container ? "grid-container" : "grid-item"}
-      data-spacing={spacing}
-      data-size={JSON.stringify(size)}
-      style={sx}
-    >
-      {children}
-    </div>
-  ),
-  Typography: ({ children, variant }: any) => (
-    <div data-testid={`typography-${variant}`}>{children}</div>
-  ),
-  colors: {
-    red: { 500: "#F44336" },
-    blue: { 500: "#2196F3", 700: "#1D4ED8" },
-    green: { 500: "#4CAF50" },
-    purple: { 500: "#9C27B0", 400: "#A78BFA" },
-    orange: { 600: "#FB8C00" },
-  },
-  Divider: () => <hr />,
-  Button: ({ children }: any) => <button>{children}</button>,
-  Card: ({ children, sx }: any) => <div style={sx}>{children}</div>,
-  CardContent: ({ children, sx }: any) => <div style={sx}>{children}</div>,
-  StatCard: ({ label, value, icon }: any) => {
-    const ValueSkeleton =
-      value && typeof value === "object" && "Skeleton" in value
-        ? (value as any).Skeleton
-        : null;
-
-    return (
-      <div data-testid="oxygen-stat-card">
-        <div data-testid="stat-card-icon">{icon}</div>
-        <span>{label}</span>
-        <div data-testid="stat-card-value">
-          {ValueSkeleton ? <ValueSkeleton variant="text" /> : value}
-        </div>
+      <div data-testid="stack" data-spacing={spacing}>
+        {children}
       </div>
-    );
-  },
-  Skeleton: ({ children, variant, width, height }: any) => (
-    <div
-      data-testid="skeleton"
-      data-variant={variant}
-      style={{ width, height }}
-    >
-      {children}
-    </div>
-  ),
-  Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
-  useTheme: () => ({
-    palette: {
-      primary: { main: "#0070F3" },
-      secondary: { main: "#71717A" },
-      error: { main: "#EF4444" },
-      warning: { main: "#F59E0B" },
-      info: { main: "#3B82F6" },
-      success: { main: "#10B981" },
-      text: { primary: "#000000", secondary: "#6B7280" },
-      grey: { 300: "#D1D5DB" },
+    ),
+    Grid: ({ children, container, spacing, size, sx }: any) => (
+      <div
+        data-testid={container ? "grid-container" : "grid-item"}
+        data-spacing={spacing}
+        data-size={JSON.stringify(size)}
+        style={sx}
+      >
+        {children}
+      </div>
+    ),
+    Typography: ({ children, variant }: any) => (
+      <div data-testid={`typography-${variant}`}>{children}</div>
+    ),
+    colors: {
+      red: { 500: "#F44336" },
+      blue: { 500: "#2196F3", 700: "#1D4ED8" },
+      green: { 500: "#4CAF50" },
+      purple: { 500: "#9C27B0", 400: "#A78BFA" },
+      orange: { 600: "#FB8C00" },
     },
-  }),
+    Divider: () => <hr />,
+    Button: ({ children }: any) => <button>{children}</button>,
+    Card: ({ children, sx }: any) => <div style={sx}>{children}</div>,
+    CardContent: ({ children, sx }: any) => <div style={sx}>{children}</div>,
+    StatCard: ({ label, value, icon }: any) => {
+      const ValueSkeleton =
+        value && typeof value === "object" && "Skeleton" in value
+          ? (value as any).Skeleton
+          : null;
+
+      return (
+        <div data-testid="oxygen-stat-card">
+          <div data-testid="stat-card-icon">{icon}</div>
+          <span>{label}</span>
+          <div data-testid="stat-card-value">
+            {ValueSkeleton ? <ValueSkeleton variant="text" /> : value}
+          </div>
+        </div>
+      );
+    },
+    Skeleton: ({ children, variant, width, height }: any) => (
+      <div
+        data-testid="skeleton"
+        data-variant={variant}
+        style={{ width, height }}
+      >
+        {children}
+      </div>
+    ),
+    Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
+    useTheme: () => ({
+      palette: {
+        primary: { main: "#0070F3" },
+        secondary: { main: "#71717A" },
+        error: { main: "#EF4444" },
+        warning: { main: "#F59E0B" },
+        info: { main: "#3B82F6" },
+        success: { main: "#10B981" },
+        text: { primary: "#000000", secondary: "#6B7280" },
+        grey: { 300: "#D1D5DB" },
+      },
+    }),
   };
 });
 
@@ -182,13 +182,15 @@ vi.mock(
     default: ({
       title,
       children,
+      isError,
     }: {
       title: string;
       children: ReactElement;
+      isError?: boolean;
     }) => (
       <div data-testid="support-overview-card">
         <span>{title}</span>
-        {children}
+        {isError ? <div data-testid="error-indicator">Error</div> : children}
       </div>
     ),
   }),
@@ -203,6 +205,10 @@ vi.mock(
 vi.mock("@components/support/support-overview-cards/ChatHistoryList", () => ({
   __esModule: true,
   default: () => <div data-testid="chat-history-list">Chat list</div>,
+}));
+vi.mock("@components/common/error-indicator/ErrorIndicator", () => ({
+  __esModule: true,
+  default: () => <div data-testid="error-indicator">Error</div>,
 }));
 
 beforeEach(() => {
@@ -224,14 +230,16 @@ describe("SupportPage", () => {
 
     const skeletons = screen.getAllByTestId("skeleton");
     expect(skeletons).toHaveLength(4);
-    expect(screen.getAllByTestId("icon-file-text").length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByTestId("icon-file-text").length,
+    ).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByTestId("icon-bot").length).toBeGreaterThanOrEqual(1);
     expect(mockLogger.debug).not.toHaveBeenCalled();
   });
 
   it("should render error state correctly and log the error", () => {
     mockUseGetProjectSupportStats.mockReturnValue({
-      isLoading: false,
+      isFetching: false,
       isError: true,
       data: null,
     });
@@ -242,10 +250,13 @@ describe("SupportPage", () => {
       </MemoryRouter>,
     );
 
+    // Should still render the statistics cards with error indicators
+    const errorIndicators = screen.getAllByTestId("error-indicator");
+    expect(errorIndicators.length).toBeGreaterThan(0);
+
+    // Should still render other components
     expect(
-      screen.getByText(
-        "Error loading support statistics. Please try again later.",
-      ),
+      screen.getByText("Need help with something new?"),
     ).toBeInTheDocument();
     expect(mockLogger.error).toHaveBeenCalledWith(
       "Failed to load support stats for project: project-1",
