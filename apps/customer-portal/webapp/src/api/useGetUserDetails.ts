@@ -16,8 +16,6 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { mockUserDetails } from "@models/mockData";
 import { type UserDetails } from "@models/responses";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
@@ -29,19 +27,13 @@ import { useAuthApiClient } from "@context/AuthApiContext";
  */
 const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const logger = useLogger();
   const fetchFn = useAuthApiClient();
 
   return useQuery({
-    queryKey: ["userDetails", isMockEnabled],
+    queryKey: ["userDetails"],
     queryFn: async (): Promise<UserDetails> => {
       logger.debug("[useGetUserDetails] Fetching user details...");
-
-      if (isMockEnabled) {
-        logger.debug("[useGetUserDetails] Mock enabled, returning mock data.");
-        return Promise.resolve(mockUserDetails);
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -71,7 +63,7 @@ const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
         throw error;
       }
     },
-    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
+    enabled: isSignedIn && !isAuthLoading,
   });
 };
 

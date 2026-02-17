@@ -20,7 +20,6 @@ import {
   type UseMutationResult,
 } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
@@ -41,7 +40,6 @@ export function usePostCallRequest(
   const logger = useLogger();
   const queryClient = useQueryClient();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
 
   return useMutation<CreateCallResponse, Error, CreateCallRequest>({
@@ -49,12 +47,6 @@ export function usePostCallRequest(
       body: CreateCallRequest,
     ): Promise<CreateCallResponse> => {
       logger.debug("[usePostCallRequest] Request payload:", body);
-
-      if (isMockEnabled) {
-        throw new Error(
-          "Creating a call request is not available when mock is enabled. Disable mock to create a call request.",
-        );
-      }
 
       try {
         if (!isSignedIn || isAuthLoading) {
