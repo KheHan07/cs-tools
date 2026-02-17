@@ -22,9 +22,9 @@ import useGetCaseAttachments from "@api/useGetCaseAttachments";
 import type { CaseAttachment } from "@models/responses";
 
 const mockCaseAttachments: CaseAttachment[] = [
-  { id: "a1", name: "screenshot-error.png", type: "image/png", size: 240 * 1024, downloadUrl: "/a1", createdOn: "2026-02-01", createdBy: "para-admin@wso2.com" },
-  { id: "a2", name: "logs-debug.txt", type: "text/plain", size: 1024, downloadUrl: "/a2", createdOn: "2026-02-01", createdBy: "para-admin@wso2.com" },
-  { id: "a3", name: "config-backup.zip", type: "application/zip", size: 512, downloadUrl: "/a3", createdOn: "2026-02-01", createdBy: "para-admin@wso2.com" },
+  { id: "a1", name: "screenshot-error.png", type: "image/png", size: 240 * 1024, downloadUrl: "/a1", createdOn: "2026-02-01", createdBy: "admin@test.com" },
+  { id: "a2", name: "logs-debug.txt", type: "text/plain", size: 1024, downloadUrl: "/a2", createdOn: "2026-02-01", createdBy: "admin@test.com" },
+  { id: "a3", name: "config-backup.zip", type: "application/zip", size: 512, downloadUrl: "/a3", createdOn: "2026-02-01", createdBy: "admin@test.com" },
 ];
 
 vi.mock("../UploadAttachmentModal", () => ({
@@ -80,7 +80,7 @@ describe("CaseDetailsAttachmentsPanel", () => {
     renderPanel();
     expect(screen.getByText(/240 KB/)).toBeInTheDocument();
     expect(
-      screen.getAllByText(/Uploaded by para-admin@wso2.com/).length,
+      screen.getAllByText(/Uploaded by admin@test.com/).length,
     ).toBeGreaterThan(0);
   });
 

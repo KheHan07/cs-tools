@@ -1606,7 +1606,7 @@ export const mockCaseAttachments: CaseAttachment[] = [
     sizeBytes: "245760",
     downloadUrl: "https://example.com/files/att-001",
     createdOn: "2025-12-23 14:49:58",
-    createdBy: "para-admin@wso2.com",
+    createdBy: "admin@test.com",
   },
   {
     id: "att-002",
@@ -1616,7 +1616,7 @@ export const mockCaseAttachments: CaseAttachment[] = [
     sizeBytes: "10240",
     downloadUrl: "https://example.com/files/att-002",
     createdOn: "2025-12-23 14:43:36",
-    createdBy: "para-admin@wso2.com",
+    createdBy: "admin@test.com",
   },
   {
     id: "att-003",
@@ -1626,7 +1626,7 @@ export const mockCaseAttachments: CaseAttachment[] = [
     sizeBytes: "524288",
     downloadUrl: "https://example.com/files/att-003",
     createdOn: "2025-12-23 14:42:46",
-    createdBy: "para-admin@wso2.com",
+    createdBy: "admin@test.com",
   },
 ];
 
