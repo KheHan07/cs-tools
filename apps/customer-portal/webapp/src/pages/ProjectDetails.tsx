@@ -32,7 +32,7 @@ import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import RegistryTokensTab from "@components/project-details/registry-tokens/RegistryTokensTab";
-import { USER_ROLES,IS_ADMIN_USER } from "@constants/projectDetailsConstants";
+import { USER_ROLES, IS_ADMIN_USER } from "@constants/projectDetailsConstants";
 
 /**
  * ProjectDetails component.

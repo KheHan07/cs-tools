@@ -216,7 +216,7 @@ export default function RegistryTokensTab({
                 label={product}
                 size="small"
                 variant="outlined"
-                sx={{ font: "caption" }}
+                sx={{ typography: "caption" }}
               />
             ))}
           </Box>
@@ -228,7 +228,7 @@ export default function RegistryTokensTab({
             size="small"
             variant="outlined"
             color={token.tokenType === "Service" ? "info" : "default"}
-            sx={{ font: "caption" }}
+            sx={{ typography: "caption" }}
           />
         );
       case "createdFor":
@@ -244,7 +244,7 @@ export default function RegistryTokensTab({
             size="small"
             variant="outlined"
             color={getTokenStatusColor(token.status)}
-            sx={{ font: "caption" }}
+            sx={{ typography: "caption" }}
           />
         );
       case "actions":
