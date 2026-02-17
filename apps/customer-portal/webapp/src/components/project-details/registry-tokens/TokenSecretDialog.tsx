@@ -55,9 +55,13 @@ export default function TokenSecretDialog({
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleCopy = async (value: string, field: string): Promise<void> => {
-    await navigator.clipboard.writeText(value);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+    }
   };
 
   const handleClose = (): void => {
