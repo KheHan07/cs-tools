@@ -1369,11 +1369,11 @@ service http:InterceptableService / on new http:Listener(9090) {
         user_management:Contact[]|error response = user_management:getProjectContacts(id);
         if response is error {
             if getStatusCode(response) == http:STATUS_FORBIDDEN {
-                log:printWarn(string `Access to project contacts information is forbidden for user: ${
+                log:printWarn(string `Access to project contacts are forbidden for user: ${
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to project contacts information is forbidden for the user!"
+                        message: "Access to project contacts is forbidden for the user!"
                     }
                 };
             }

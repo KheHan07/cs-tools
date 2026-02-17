@@ -46,6 +46,7 @@ public type Contact record {|
     string? membershipStatus?;
     # Account information
     Account? account?;
+    json...;
 |};
 
 # Account details record
@@ -58,6 +59,7 @@ public type Account record {|
     string? classification = "";
     # Whether the account is a partner or not
     boolean? isPartner?;
+    json...;
 |};
 
 # The request payload to be validated.
@@ -86,6 +88,7 @@ public type Membership record {|
     boolean? isSecurityContact;
     # Contact details
     ContactMinimal contact?;
+    json...;
 |};
 
 # ContactMinimal Details.
@@ -94,6 +97,7 @@ public type ContactMinimal record {|
     string? id;
     # Email of the contact
     string? email;
+    json...;
 |};
 
 # Payload for updating membership security flag.
