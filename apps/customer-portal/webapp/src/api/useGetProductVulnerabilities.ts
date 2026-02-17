@@ -16,16 +16,13 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockProductVulnerabilityDetail } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProductVulnerability } from "@models/responses";
 
 /**
  * Fetches a single product vulnerability by vulnerabilityId (GET /products/vulnerabilities/:vulnerabilityId).
- * When mock is enabled, returns mock data.
  *
  * @param {string} vulnerabilityId - The vulnerability id (e.g. XRAY-999003).
  * @returns {UseQueryResult<ProductVulnerability, Error>} Query result with product vulnerability detail.
@@ -36,27 +33,13 @@ export function useGetProductVulnerabilities(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProductVulnerability, Error>({
-    queryKey: [
-      ApiQueryKeys.PRODUCT_VULNERABILITY,
-      vulnerabilityId,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.PRODUCT_VULNERABILITY, vulnerabilityId],
     queryFn: async (): Promise<ProductVulnerability> => {
       logger.debug(
-        `Fetching product vulnerability: vulnerabilityId=${vulnerabilityId}, mock=${isMockEnabled}`,
+        `Fetching product vulnerability: vulnerabilityId=${vulnerabilityId}`,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        logger.debug(
-          "[useGetProductVulnerabilities] Mock response:",
-          mockProductVulnerabilityDetail,
-        );
-        return mockProductVulnerabilityDetail;
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -88,8 +71,7 @@ export function useGetProductVulnerabilities(
       }
     },
     enabled:
-      !!vulnerabilityId &&
-      (isMockEnabled || (isSignedIn && !isAuthLoading)),
+      !!vulnerabilityId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

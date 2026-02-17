@@ -20,10 +20,8 @@ import {
   type InfiniteData,
 } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockCases } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseSearchRequest } from "@models/requests";
 import type { CaseSearchResponse } from "@models/responses";
@@ -43,15 +41,9 @@ export default function useGetProjectCases(
 
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useInfiniteQuery<CaseSearchResponse, Error>({
-    queryKey: [
-      ApiQueryKeys.PROJECT_CASES,
-      projectId,
-      baseRequest,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.PROJECT_CASES, projectId, baseRequest],
     queryFn: async ({ pageParam = 0 }): Promise<CaseSearchResponse> => {
       const requestBody: CaseSearchRequest = {
         ...baseRequest,
@@ -64,31 +56,7 @@ export default function useGetProjectCases(
       logger.debug(
         `Fetching cases for project: ${projectId} with params:`,
         requestBody,
-        `mock: ${isMockEnabled}`,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const { offset = 0, limit = 10 } = requestBody.pagination;
-        const filteredCases = mockCases.filter(
-          (cases) => cases.project.id === projectId || projectId === "all",
-        );
-
-        // slice for pagination
-        const pagedCases = filteredCases.slice(offset, offset + limit);
-
-        const response: CaseSearchResponse = {
-          cases: pagedCases.length > 0 ? pagedCases : mockCases.slice(0, limit),
-          totalRecords:
-            filteredCases.length > 0 ? filteredCases.length : mockCases.length,
-          offset,
-          limit,
-        };
-
-        logger.debug("Cases fetched successfully (mock)", response);
-        return response;
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -127,7 +95,7 @@ export default function useGetProjectCases(
       const nextOffset = lastPage.offset + lastPage.limit;
       return nextOffset < lastPage.totalRecords ? nextOffset : undefined;
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

@@ -16,16 +16,13 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { getMockProductUpdateLevels } from "@models/mockFunctions";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProductUpdateLevelsResponse } from "@models/responses";
 
 /**
  * Fetches product update levels from GET /updates/product-update-levels.
- * Returns mock data when mock is enabled.
  *
  * @returns {UseQueryResult<ProductUpdateLevelsResponse, Error>} The query result.
  */
@@ -36,22 +33,11 @@ export function useGetProductUpdateLevels(): UseQueryResult<
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProductUpdateLevelsResponse, Error>({
-    queryKey: [ApiQueryKeys.PRODUCT_UPDATE_LEVELS, isMockEnabled],
+    queryKey: [ApiQueryKeys.PRODUCT_UPDATE_LEVELS],
     queryFn: async (): Promise<ProductUpdateLevelsResponse> => {
-      logger.debug(`Fetching product update levels, mock: ${isMockEnabled}`);
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const data = getMockProductUpdateLevels();
-
-        logger.debug("Product update levels fetched successfully (mock)", data);
-
-        return data;
-      }
+      logger.debug("Fetching product update levels");
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -82,7 +68,7 @@ export function useGetProductUpdateLevels(): UseQueryResult<
         throw error;
       }
     },
-    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
+    enabled: isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }
