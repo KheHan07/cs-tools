@@ -440,22 +440,20 @@ export function getCallRequestStatusColor(status?: string): string {
  * @returns {string} The Oxygen UI color path.
  */
 export function getSeverityColor(label?: string): string {
-  if (label === CaseSeverity.CATASTROPHIC) {
-    return "error.main";
+  switch (label) {
+    case CaseSeverity.CATASTROPHIC:
+      return "error.main";
+    case CaseSeverity.CRITICAL:
+      return "warning.main";
+    case CaseSeverity.HIGH:
+      return "info.main";
+    case CaseSeverity.MEDIUM:
+      return "secondary.main";
+    case CaseSeverity.LOW:
+      return "success.main";
+    default:
+      return "text.primary";
   }
-  if (label === CaseSeverity.CRITICAL) {
-    return "warning.main";
-  }
-  if (label === CaseSeverity.HIGH) {
-    return "info.main";
-  }
-  if (label === CaseSeverity.MEDIUM) {
-    return "secondary.main";
-  }
-  if (label === CaseSeverity.LOW) {
-    return "success.main";
-  }
-  return "text.primary";
 }
 
 /**
@@ -465,28 +463,24 @@ export function getSeverityColor(label?: string): string {
  * @returns {string} The Oxygen UI color path.
  */
 export function getStatusColor(label?: string): string {
-  if (label === CaseStatus.OPEN) {
-    return "info.main";
+  switch (label) {
+    case CaseStatus.OPEN:
+      return "info.main";
+    case CaseStatus.WORK_IN_PROGRESS:
+      return "warning.main";
+    case CaseStatus.AWAITING_INFO:
+      return "text.secondary";
+    case CaseStatus.WAITING_ON_WSO2:
+      return "success.main";
+    case CaseStatus.SOLUTION_PROPOSED:
+      return "text.disabled";
+    case CaseStatus.CLOSED:
+      return "error.main";
+    case CaseStatus.REOPENED:
+      return "secondary.main";
+    default:
+      return "text.secondary";
   }
-  if (label === CaseStatus.WORK_IN_PROGRESS) {
-    return "warning.main";
-  }
-  if (label === CaseStatus.AWAITING_INFO) {
-    return "text.secondary";
-  }
-  if (label === CaseStatus.WAITING_ON_WSO2) {
-    return "success.main";
-  }
-  if (label === CaseStatus.SOLUTION_PROPOSED) {
-    return "text.disabled";
-  }
-  if (label === CaseStatus.CLOSED) {
-    return "error.main";
-  }
-  if (label === CaseStatus.REOPENED) {
-    return "secondary.main";
-  }
-  return "text.secondary";
 }
 
 /**
