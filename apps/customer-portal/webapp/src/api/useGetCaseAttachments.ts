@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockCaseAttachments } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseAttachmentsResponse } from "@models/responses";
 
@@ -43,32 +41,14 @@ export default function useGetCaseAttachments(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
   const { limit = 50, offset = 0, enabled: optionsEnabled = true } = options ?? {};
 
   return useQuery<CaseAttachmentsResponse, Error>({
-    queryKey: [
-      ApiQueryKeys.CASE_ATTACHMENTS,
-      caseId,
-      limit,
-      offset,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.CASE_ATTACHMENTS, caseId, limit, offset],
     queryFn: async (): Promise<CaseAttachmentsResponse> => {
       logger.debug(
-        `Fetching case attachments: caseId=${caseId}, limit=${limit}, offset=${offset}, mock=${isMockEnabled}`,
+        `Fetching case attachments: caseId=${caseId}, limit=${limit}, offset=${offset}`,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        const sliced = mockCaseAttachments.slice(offset, offset + limit);
-        return {
-          attachments: sliced.length > 0 ? sliced : mockCaseAttachments,
-          totalRecords: mockCaseAttachments.length,
-          limit,
-          offset,
-        };
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -96,10 +76,7 @@ export default function useGetCaseAttachments(
         throw error;
       }
     },
-    enabled:
-      optionsEnabled &&
-      !!caseId &&
-      (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: optionsEnabled && !!caseId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

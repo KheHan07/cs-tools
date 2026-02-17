@@ -29,36 +29,19 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockAuthFetch = vi.fn();
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
+}));
 
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 let mockIsSignedIn = true;
 let mockIsAuthLoading = false;
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: mockIsSignedIn,
     isLoading: mockIsAuthLoading,
   }),
-}));
-
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
-}));
-
-// Use global fetch so tests can stub it (same pattern as usePostCaseClassifications, usePostAttachments).
-vi.mock("@/context/AuthApiContext", () => ({
-  useAuthApiClient: () => (url: string, init?: RequestInit) => fetch(url, init),
-  AuthApiProvider: ({ children }: { children: unknown }) => children,
 }));
 
 describe("usePostProductVulnerabilities", () => {
@@ -87,7 +70,6 @@ describe("usePostProductVulnerabilities", () => {
         },
       },
     });
-    mockIsMockEnabled = true;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -98,23 +80,7 @@ describe("usePostProductVulnerabilities", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns mock data when isMockEnabled is true", async () => {
-    const { result } = renderHook(() => usePostProductVulnerabilities(), {
-      wrapper,
-    });
-
-    const data = await result.current.mutateAsync(requestBody);
-
-    expect(data.productVulnerabilities).toHaveLength(3);
-    expect(data.totalRecords).toBe(3);
-    expect(data.offset).toBe(0);
-    expect(data.limit).toBe(10);
-    expect(data.productVulnerabilities[0].cveId).toBe("CVE-2099-5555");
-    expect(data.productVulnerabilities[0].severity.label).toBe("High");
-  });
-
-  it("posts to API when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
+  it("posts to API and returns search response", async () => {
     const mockResponse = {
       productVulnerabilities: [
         {
@@ -135,13 +101,11 @@ describe("usePostProductVulnerabilities", () => {
       limit: 10,
     };
 
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockResponse),
       status: 200,
     } as Response);
-
-    vi.stubGlobal("fetch", mockFetch);
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
@@ -152,7 +116,7 @@ describe("usePostProductVulnerabilities", () => {
 
     const data = await result.current.mutateAsync(requestBody);
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       expect.stringContaining("/products/vulnerabilities/search"),
       expect.objectContaining({
         method: "POST",
@@ -163,7 +127,6 @@ describe("usePostProductVulnerabilities", () => {
   });
 
   it("throws when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
-    mockIsMockEnabled = false;
     window.config = {} as typeof window.config;
 
     const { result } = renderHook(() => usePostProductVulnerabilities(), {
@@ -176,15 +139,12 @@ describe("usePostProductVulnerabilities", () => {
   });
 
   it("throws when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Internal Server Error",
       status: 500,
       text: () => Promise.resolve(""),
     } as Response);
-
-    vi.stubGlobal("fetch", mockFetch);
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
@@ -199,7 +159,6 @@ describe("usePostProductVulnerabilities", () => {
   });
 
   it("throws when user is not signed in", async () => {
-    mockIsMockEnabled = false;
     mockIsSignedIn = false;
 
     window.config = {
