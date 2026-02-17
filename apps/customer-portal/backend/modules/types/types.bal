@@ -515,16 +515,10 @@ public type ChangeType record {|
 public type UpdateResponse record {|
     # File changes
     FileChanges fileChanges;
-    # JWT token
-    string jwt;
-    # Platform name
-    string platformName;
-    # Platform version
-    string platformVersion;
     # Product name
     string productName;
-    # Product base version
-    string productBaseVersion;
+    # Product version
+    string productVersion;
     # Starting update level
     string startingUpdateLevel;
     # Ending update level
@@ -540,7 +534,8 @@ public type UpdateResponse record {|
     # Total security updates
     int totalSecurityUpdates;
     # Applied update numbers
-    int[] appliedUpdateNumbers;
+    int[] appliedUpdatesNumbers;
+    json...;
 |};
 
 # Update payload for listing updates.

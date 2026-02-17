@@ -51,6 +51,7 @@ public type RecommendedUpdateLevel record {|
     int available\-updates\-count;
     # Available security updates count
     int available\-security\-updates\-count;
+    json...;
 |};
 
 # File changes.
@@ -111,16 +112,10 @@ public type ChangeType record {|
 public type UpdateResponse record {|
     # File changes
     FileChanges file\-changes;
-    # JWT token
-    string jwt;
-    # Platform name
-    string platform\-name;
-    # Platform version
-    string platform\-version;
     # Product name
     string product\-name;
-    # Product base version
-    string product\-base\-version;
+    # Product version
+    string product\-version;
     # Starting update level
     string starting\-update\-level;
     # Ending update level
@@ -136,7 +131,7 @@ public type UpdateResponse record {|
     # Total security updates
     int total\-security\-updates;
     # Applied update numbers
-    int[] applied\-update\-numbers;
+    int[] applied\-updates\-numbers;
 |};
 
 # Update payload for listing updates.
@@ -166,6 +161,7 @@ public type ProductUpdateLevel record {|
     string product\-name;
     # Product update levels
     UpdateLevel[] product\-update\-levels;
+    json...;
 |};
 
 # Update level.
@@ -176,4 +172,5 @@ public type UpdateLevel record {|
     string channel;
     # Update level
     int[] update\-levels;
+    json...;
 |};
