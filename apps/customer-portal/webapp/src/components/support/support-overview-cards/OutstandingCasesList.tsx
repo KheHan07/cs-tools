@@ -28,12 +28,13 @@ import { Clock } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
 import OutstandingCasesSkeleton from "./OutstandingCasesSkeleton";
-import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatRelativeTime,
   getAssignedEngineerLabel,
   resolveColorFromTheme,
   stripHtml,
+  getSeverityColor,
+  getStatusColor,
 } from "@utils/support";
 
 export interface OutstandingCasesListProps {

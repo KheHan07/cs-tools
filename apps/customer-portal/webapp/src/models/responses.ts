@@ -283,6 +283,11 @@ export interface CaseMetadataResponse {
   severities?: MetadataItem[];
   issueTypes?: MetadataItem[];
   deploymentTypes?: MetadataItem[];
+  callRequestStates?: MetadataItem[];
+  changeRequestStates?: MetadataItem[];
+  changeRequestImpacts?: MetadataItem[];
+  caseTypes?: MetadataItem[];
+  severityBasedAllocationTime?: Record<string, number>;
 }
 
 // Chat history list item (support chat session summary).

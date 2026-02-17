@@ -18,7 +18,6 @@ import { Link, Sidebar } from "@wso2/oxygen-ui";
 import { Settings } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 import { useLocation, useParams, Link as NavigateLink } from "react-router";
-import SubscriptionWidget from "@components/common/side-nav-bar/SubscriptionWidget";
 import { APP_SHELL_NAV_ITEMS } from "@constants/appLayoutConstants";
 
 // Props for the SideBar component.

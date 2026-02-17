@@ -20,6 +20,7 @@ import {
   CircleAlert,
   CircleCheck,
   CircleQuestionMark,
+  CircleX,
   Clock,
   MessageCircle,
 } from "@wso2/oxygen-ui-icons-react";
@@ -167,9 +168,7 @@ describe("support utils", () => {
     });
 
     it("should return name for { id, name } object (case details API)", () => {
-      expect(formatValue({ id: "eng-1", name: "John Doe" })).toBe(
-        "John Doe",
-      );
+      expect(formatValue({ id: "eng-1", name: "John Doe" })).toBe("John Doe");
       expect(formatValue({ id: "12", name: "" })).toBe("--");
     });
   });
@@ -298,9 +297,12 @@ describe("support utils", () => {
       expect(getStatusIcon("Waiting for WSO2")).toBe(CircleQuestionMark);
     });
 
-    it("should return CircleCheck for Resolved or Closed", () => {
+    it("should return CircleCheck for Resolved", () => {
       expect(getStatusIcon("Resolved")).toBe(CircleCheck);
-      expect(getStatusIcon("Closed")).toBe(CircleCheck);
+    });
+
+    it("should return CircleX for Closed", () => {
+      expect(getStatusIcon("Closed")).toBe(CircleX);
     });
   });
 
@@ -436,9 +438,7 @@ describe("support utils", () => {
     });
 
     it("should derive initials from { id, name } object (case details API)", () => {
-      expect(getInitials({ id: "eng-1", name: "John Doe" })).toBe(
-        "JD",
-      );
+      expect(getInitials({ id: "eng-1", name: "John Doe" })).toBe("JD");
     });
 
     it("should return -- for null, undefined, empty", () => {

@@ -32,8 +32,12 @@ import {
 import { ExternalLink, MoreVertical } from "@wso2/oxygen-ui-icons-react";
 import { type JSX, type ChangeEvent } from "react";
 import type { CaseSearchResponse, CaseListItem } from "@models/responses";
-import { getSeverityColor, getStatusColor } from "@utils/casesTable";
-import { formatValue, getInitials } from "@utils/support";
+import {
+  formatValue,
+  getInitials,
+  getSeverityColor,
+  getStatusColor,
+} from "@utils/support";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CasesTableSkeleton from "@components/dashboard/cases-table/CasesTableSkeleton";
 
@@ -131,10 +135,7 @@ const CasesList = ({
                         onKeyDown={
                           onCaseClick
                             ? (e) => {
-                                if (
-                                  e.key === "Enter" ||
-                                  e.key === " "
-                                ) {
+                                if (e.key === "Enter" || e.key === " ") {
                                   e.preventDefault();
                                   onCaseClick(row);
                                 }
@@ -142,9 +143,7 @@ const CasesList = ({
                             : undefined
                         }
                         onClick={
-                          onCaseClick
-                            ? () => onCaseClick(row)
-                            : undefined
+                          onCaseClick ? () => onCaseClick(row) : undefined
                         }
                         sx={{
                           display: "inline-flex",

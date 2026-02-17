@@ -15,15 +15,12 @@
 // under the License.
 
 import {
-  Briefcase,
-  FileText,
   FolderOpen,
   Headset,
   Home,
   Megaphone,
   RefreshCw,
   Shield,
-  Users,
 } from "@wso2/oxygen-ui-icons-react";
 import type { ComponentType } from "react";
 

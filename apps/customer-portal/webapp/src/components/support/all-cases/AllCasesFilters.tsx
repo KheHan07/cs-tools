@@ -57,10 +57,13 @@ export default function AllCasesFilters({
     <Grid container spacing={2} sx={{ mt: 1 }}>
       {ALL_CASES_FILTER_DEFINITIONS.map((def) => {
         const { label, allLabel } = deriveFilterLabels(def.id);
-        const options = filterMetadata?.[def.metadataKey]?.map((item) => ({
-          label: item.label,
-          value: def.useLabelAsValue ? item.label : item.id,
-        }));
+        const metadataOptions = filterMetadata?.[def.metadataKey];
+        const options = Array.isArray(metadataOptions)
+          ? metadataOptions.map((item: { label: string; id: string }) => ({
+              label: item.label,
+              value: def.useLabelAsValue ? item.label : item.id,
+            }))
+          : [];
 
         return (
           <Grid key={def.id} size={{ xs: 12, sm: 6, md: 3 }}>

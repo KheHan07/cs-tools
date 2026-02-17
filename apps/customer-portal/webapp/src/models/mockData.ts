@@ -39,6 +39,7 @@ import {
   SUPPORT_TIER,
   CASE_STATUS,
 } from "@constants/projectDetailsConstants";
+import { CaseSeverity } from "@constants/supportConstants";
 
 // Interface for case creation metadata.
 export interface CaseCreationMetadata {
@@ -244,11 +245,19 @@ export const mockCaseCreationMetadata: CaseCreationMetadata = {
     "Total Outage",
   ],
   severityLevels: [
-    { id: "60", label: "S0", description: "Business critical system down" },
-    { id: "61", label: "S1", description: "Important features affected" },
-    { id: "62", label: "S2", description: "Moderate impact" },
-    { id: "63", label: "S3", description: "Minor issue" },
-    { id: "64", label: "S4", description: "General question" },
+    {
+      id: "14",
+      label: CaseSeverity.CATASTROPHIC,
+      description: "Business critical system down",
+    },
+    {
+      id: "10",
+      label: CaseSeverity.CRITICAL,
+      description: "Important features affected",
+    },
+    { id: "11", label: CaseSeverity.HIGH, description: "Moderate impact" },
+    { id: "12", label: CaseSeverity.MEDIUM, description: "Minor issue" },
+    { id: "13", label: CaseSeverity.LOW, description: "General question" },
   ],
   conversationSummary: {
     messagesExchanged: 8,
@@ -269,11 +278,11 @@ export const mockCaseMetadata: CaseMetadataResponse = {
     { id: "1006", label: "Reopened" },
   ],
   severities: [
-    { id: "60", label: "S0" },
-    { id: "61", label: "S1" },
-    { id: "62", label: "S2" },
-    { id: "63", label: "S3" },
-    { id: "64", label: "S4" },
+    { id: "13", label: "Low (P4)" },
+    { id: "12", label: "Medium (P3)" },
+    { id: "11", label: "High (P2)" },
+    { id: "10", label: "Critical (P1)" },
+    { id: "14", label: "Catastrophic (P0)" },
   ],
   issueTypes: [
     { id: "6", label: "Error" },
@@ -285,9 +294,76 @@ export const mockCaseMetadata: CaseMetadataResponse = {
   ],
   deploymentTypes: [
     { id: "1", label: "Development" },
-    { id: "2", label: "Production" },
-    { id: "3", label: "Non-Production" },
+    { id: "2", label: "QA" },
+    { id: "3", label: "Staging" },
+    { id: "4", label: "Stress" },
+    { id: "5", label: "UAT" },
+    { id: "6", label: "Primary Production" },
   ],
+  callRequestStates: [
+    { id: "1", label: "Pending on Customer" },
+    { id: "2", label: "Pending on WSO2" },
+    { id: "3", label: "Scheduled" },
+    { id: "4", label: "Customer Rejected" },
+    { id: "5", label: "WSO2 Rejected" },
+    { id: "6", label: "Canceled" },
+    { id: "7", label: "Notes Pending" },
+    { id: "8", label: "Concluded" },
+  ],
+  changeRequestStates: [
+    { id: "-5", label: "New" },
+    { id: "-4", label: "Assess" },
+    { id: "-3", label: "Authorize" },
+    { id: "5", label: "Customer Approval" },
+    { id: "-2", label: "Scheduled" },
+    { id: "-1", label: "Implement" },
+    { id: "0", label: "Review" },
+    { id: "1", label: "Customer Review" },
+    { id: "2", label: "Rollback" },
+    { id: "3", label: "Closed" },
+    { id: "4", label: "Canceled" },
+  ],
+  changeRequestImpacts: [
+    { id: "1", label: "1 - High" },
+    { id: "2", label: "2 - Medium" },
+    { id: "3", label: "3 - Low" },
+  ],
+  caseTypes: [
+    { id: "3f5b47bd1b18f010cb6898aebd4bcbc2", label: "Admin Task" },
+    { id: "3b8b43311b58f010cb6898aebd4bcb8f", label: "Announcement" },
+    { id: "25db43311b58f010cb6898aebd4bcb09", label: "Bug" },
+    { id: "4b41cbf81bbcb410cb6898aebd4bcb84", label: "Change Requests" },
+    { id: "83ed57221b7df0106a67caa1604bcb18", label: "Cloud Incident" },
+    { id: "b9bc97ee1b3df0106a67caa1604bcb7f", label: "Cloud Query" },
+    { id: "8f8fc2c41b0bd550d64e64a2604bcb38", label: "Engagement" },
+    { id: "bfa1473c1bbcb410cb6898aebd4bcb52", label: "Hosting" },
+    { id: "80810ff81bbcb410cb6898aebd4bcb3c", label: "Hosting Query" },
+    { id: "f46103f81bbcb410cb6898aebd4bcb27", label: "Hosting Task" },
+    { id: "b0f6ef1047f6e910a0a29cd3846d43f8", label: "Incident" },
+    { id: "e0eb43fd1b18f010cb6898aebd4bcb3c", label: "Improvement" },
+    { id: "8d4b87bd1b18f010cb6898aebd4bcb59", label: "Incident" },
+    { id: "42fb4b311b58f010cb6898aebd4bcb94", label: "New Feature" },
+    { id: "a0f93b2a1bfdf0106a67caa1604bcbc9", label: "NFR" },
+    { id: "0d5b8fbd1b18f010cb6898aebd4bcba5", label: "Query" },
+    {
+      id: "ab36479047ccf510a0a29cd3846d43ee",
+      label: "Security Report Analysis",
+    },
+    { id: "5aeff1201b74c210264c997a234bcb54", label: "Service Request" },
+    { id: "42e93b6a1bfdf0106a67caa1604bcb3a", label: "Story" },
+    { id: "262c4e2d1bd9b010d64e64a2604bcb56", label: "Sub-Task" },
+    { id: "c10c0ffd1b18f010cb6898aebd4bcb0f", label: "Task" },
+    { id: "e30dbe1b1b319950d64e64a2604bcb75", label: "Test" },
+    { id: "5ada4a8c1bc7d550d64e64a2604bcb3a", label: "TestN" },
+  ],
+  severityBasedAllocationTime: {
+    "0": 300,
+    "10": 30,
+    "11": 60,
+    "12": 90,
+    "13": 120,
+    "14": 15,
+  },
 };
 
 // Mock cases for the cases table.
@@ -315,8 +391,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "60",
-      label: "S0",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -345,8 +421,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "10",
@@ -372,8 +448,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -399,8 +475,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -430,8 +506,8 @@ export const mockCases: CaseListItem[] = [
       label: "Non-Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -457,8 +533,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -487,8 +563,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -514,8 +590,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -541,8 +617,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "1",
@@ -571,8 +647,8 @@ export const mockCases: CaseListItem[] = [
       label: "Non-Production",
     },
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -598,8 +674,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -625,8 +701,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "10",
@@ -652,8 +728,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -682,8 +758,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "60",
-      label: "S0",
+      id: "14",
+      label: CaseSeverity.CATASTROPHIC,
     },
     status: {
       id: "1",
@@ -709,8 +785,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -736,8 +812,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -763,8 +839,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "6",
@@ -793,8 +869,8 @@ export const mockCases: CaseListItem[] = [
       label: "Non-Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -820,8 +896,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "1",
@@ -850,8 +926,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -877,8 +953,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "3",
@@ -907,8 +983,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -934,8 +1010,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "1",
@@ -961,8 +1037,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "10",
@@ -988,8 +1064,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "60",
-      label: "S0",
+      id: "14",
+      label: CaseSeverity.CATASTROPHIC,
     },
     status: {
       id: "1",
@@ -1015,8 +1091,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -1045,8 +1121,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -1072,8 +1148,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "10",
@@ -1099,8 +1175,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "1",
@@ -1129,8 +1205,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "60",
-      label: "S0",
+      id: "14",
+      label: CaseSeverity.CATASTROPHIC,
     },
     status: {
       id: "1",
@@ -1156,8 +1232,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -1186,8 +1262,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "10",
@@ -1213,8 +1289,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -1240,8 +1316,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -1267,8 +1343,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -1297,8 +1373,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "1",
@@ -1324,8 +1400,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",
@@ -1351,8 +1427,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "61",
-      label: "S1",
+      id: "10",
+      label: CaseSeverity.CRITICAL,
     },
     status: {
       id: "10",
@@ -1381,8 +1457,8 @@ export const mockCases: CaseListItem[] = [
       label: "Production",
     },
     severity: {
-      id: "60",
-      label: "S0",
+      id: "14",
+      label: CaseSeverity.CATASTROPHIC,
     },
     status: {
       id: "1",
@@ -1408,8 +1484,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "63",
-      label: "S3",
+      id: "12",
+      label: CaseSeverity.MEDIUM,
     },
     status: {
       id: "3",
@@ -1435,8 +1511,8 @@ export const mockCases: CaseListItem[] = [
     deployedProduct: null,
     deployment: null,
     severity: {
-      id: "62",
-      label: "S2",
+      id: "11",
+      label: CaseSeverity.HIGH,
     },
     status: {
       id: "1",

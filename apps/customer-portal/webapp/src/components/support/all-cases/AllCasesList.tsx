@@ -26,9 +26,10 @@ import {
 import { Calendar, FileText, User } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
-import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
-  formatRelativeTime,
+  formatDateTime,
+  getSeverityColor,
+  getStatusColor,
   getAssignedEngineerLabel,
   resolveColorFromTheme,
   getStatusIcon,
@@ -214,7 +215,7 @@ export default function AllCasesList({
                     color="text.secondary"
                     sx={{ lineHeight: 1 }}
                   >
-                    Created {formatRelativeTime(caseItem.createdOn) || "--"}
+                    Created {formatDateTime(caseItem.createdOn) || "--"}
                   </Typography>
                 </Box>
                 {(() => {
