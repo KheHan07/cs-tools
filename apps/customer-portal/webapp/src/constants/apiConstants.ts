@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Global mock delay for API hooks to simulate network latency.
-export const API_MOCK_DELAY = 800;
-
 // Constants for API-related query keys.
 export const ApiQueryKeys = {
   PROJECTS: "projects",
