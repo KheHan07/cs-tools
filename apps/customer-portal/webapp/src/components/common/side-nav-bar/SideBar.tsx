@@ -80,7 +80,7 @@ export default function SideBar({
 
       {/* sidebar footer items */}
       <Sidebar.Footer>
-        <SubscriptionWidget collapsed={collapsed} />
+        {/* <SubscriptionWidget collapsed={collapsed} /> */}
         <Sidebar.Category>
           <Link
             component={NavigateLink}

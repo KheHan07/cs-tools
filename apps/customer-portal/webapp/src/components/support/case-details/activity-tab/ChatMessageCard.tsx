@@ -56,9 +56,6 @@ export default function ChatMessageCard({
         p: 1.5,
         maxWidth: "100%",
         bgcolor: isCurrentUser ? primaryBg : "background.paper",
-        border: "none",
-        borderRadius: 0,
-        boxShadow: "none",
       }}
     >
       <Box

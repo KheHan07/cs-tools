@@ -51,7 +51,7 @@ export const APP_SHELL_NAV_ITEMS: AppShellNavItem[] = [
     path: "security-center",
     icon: Shield,
   },
-  {
+  /* {
     id: "engagements",
     label: "Engagements",
     path: "engagements",
@@ -63,7 +63,7 @@ export const APP_SHELL_NAV_ITEMS: AppShellNavItem[] = [
     path: "legal-contracts",
     icon: FileText,
   },
-  { id: "community", label: "Community", path: "community", icon: Users },
+  { id: "community", label: "Community", path: "community", icon: Users }, */
   {
     id: "announcements",
     label: "Announcements",
