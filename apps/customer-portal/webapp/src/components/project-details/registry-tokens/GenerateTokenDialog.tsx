@@ -91,9 +91,7 @@ export default function GenerateTokenDialog({
       return;
     }
 
-    if (isAdmin && isServiceToken && !serviceUser) {
-      return;
-    }
+    if (isAdmin && isServiceToken && !serviceUser) return;
 
     onGenerate({
       tokenName: tokenName.trim(),
