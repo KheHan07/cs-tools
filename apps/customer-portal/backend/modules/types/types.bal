@@ -371,6 +371,13 @@ public type CaseClassificationPayload record {|
     string tier;
 |};
 
+# Product vulnerability metadata response.
+public type ProductVulnerabilityMetaResponse record {|
+    # List of vulnerability severities
+    ReferenceItem[] severities;
+    json...;
+|};
+
 # Product vulnerability search filters.
 public type ProductVulnerabilitySearchFilters record {|
     # Search query for CVE ID, Vulnerability ID, Component Name and etc.
@@ -381,47 +388,38 @@ public type ProductVulnerabilitySearchFilters record {|
     int severityId?;
 |};
 
-# Payload for product vulnerability search.
-public type ProductVulnerabilitySearchPayload record {|
-    # Filter criteria
-    ProductVulnerabilitySearchFilters filters?;
-    # Sort configuration
-    entity:SortBy sortBy?;
-    # Pagination details
-    entity:Pagination pagination?;
-|};
-
 # Base product vulnerability.
 public type ProductVulnerability record {|
-    # ID of the vulnerability
+    # ID
     string id;
     # CVE identifier
     string cveId;
     # Vulnerability identifier
     string vulnerabilityId;
-    # Severity level of the vulnerability
-    entity:ChoiceListItem severity;
+    # Severity level
+    ReferenceItem severity;
     # Name of the component
     string componentName;
     # Version of the component
     string version;
-    # Type of the vulnerability
+    # Type
     string 'type;
     # Use case description
-    string useCase;
-    # Justification for the vulnerability
-    string justification;
-    # Resolution details for the vulnerability
-    string resolution;
+    string? useCase;
+    # Justification
+    string? justification;
+    # Resolution details
+    string? resolution;
+    json...;
 |};
 
 # Product vulnerability information.
 public type ProductVulnerabilityResponse record {|
     *ProductVulnerability;
     # Type of the component
-    string componentType;
+    string componentType?;
     # Update level for the vulnerability
-    string updateLevel;
+    string updateLevel?;
 |};
 
 # Product vulnerabilities response with pagination.

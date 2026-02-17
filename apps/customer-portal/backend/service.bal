@@ -1252,19 +1252,41 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + payload - Product vulnerability search payload containing filters
     # + return - List of product vulnerabilities or an error
     resource function post products/vulnerabilities/search(http:RequestContext ctx,
-            types:ProductVulnerabilitySearchPayload payload) returns http:Ok|http:InternalServerError {
+            entity:ProductVulnerabilitySearchPayload payload) returns http:Ok|http:Forbidden|http:InternalServerError {
 
-        // TODO: Add authorization and validation similar to other endpoints
-        // TODO: Implement actual search logic based on filters in the payload. For now, returning mock data.
-        types:ProductVulnerabilitySearchResponse response = {
-            productVulnerabilities: MOCK_PRODUCT_VULNERABILITIES,
-            totalRecords: MOCK_PRODUCT_VULNERABILITIES.length(),
-            'limit: 10,
-            offset: 0
-        };
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProductVulnerabilitySearchResponse|error response =
+            entity:searchProductVulnerabilities(userInfo.idToken, payload);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to product vulnerabilities information is forbidden for user: ${
+                        userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to product vulnerabilities information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to search product vulnerabilities.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
 
         return <http:Ok>{
-            body: response
+            body: mapProductVulnerabilitySearchResponse(response)
         };
     }
 
@@ -1273,10 +1295,76 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + id - ID of the product vulnerability
     # + return - Product vulnerability details or error
     resource function get products/vulnerabilities/[string id](http:RequestContext ctx)
-            returns types:ProductVulnerabilityResponse|http:InternalServerError {
+            returns types:ProductVulnerabilityResponse|http:Forbidden|http:InternalServerError {
 
-        // TODO: Add authorization and validation similar to other endpoints
-        // TODO: Implement retrieval logic based on id in the path. For now, returning mock data.
-        return MOCK_PRODUCT_VULNERABILITY;
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProductVulnerabilityResponse|error response = entity:getProductVulnerability(userInfo.idToken, id);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to product vulnerability information is forbidden for user: ${
+                        userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to product vulnerability information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve product vulnerability details.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapProductVulnerabilityResponse(response);
+    }
+
+    # Get product vulnerability metadata.
+    #
+    # + return - Product vulnerability metadata or error
+    resource function get products/vulnerabilities/meta(http:RequestContext ctx)
+        returns types:ProductVulnerabilityMetaResponse|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:VulnerabilityMetaResponse|error response = entity:getProductVulnerabilityMetaData(userInfo.idToken);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to product vulnerability information is forbidden for user: ${
+                        userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to product vulnerability information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve product vulnerability metadata.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return mapProductVulnerabilityMetadataResponse(response);
     }
 }

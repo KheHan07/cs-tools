@@ -167,7 +167,7 @@ public isolated function getDeployments(string idToken, string projectId) return
 }
 
 # Create a deployment.
-# 
+#
 # + idToken - ID token for authorization
 # + payload - Deployment creation payload
 # + return - Deployment creation response or error
@@ -186,4 +186,34 @@ public isolated function createComment(string idToken, CommentCreatePayload payl
     returns CommentCreateResponse|error {
 
     return csEntityClient->/comments.post(payload, generateHeaders(idToken));
+}
+
+# Search product vulnerabilities.
+#
+# + idToken - ID token for authorization
+# + payload - Product vulnerability search payload
+# + return - Product vulnerability search response or error
+public isolated function searchProductVulnerabilities(string idToken, ProductVulnerabilitySearchPayload payload)
+    returns ProductVulnerabilitySearchResponse|error {
+
+    return csEntityClient->/products/vulnerabilities/search.post(payload, generateHeaders(idToken));
+}
+
+# Get product vulnerability by ID.
+#
+# + idToken - ID token for authorization
+# + vulnerabilityId - Unique ID of the vulnerability
+# + return - Product vulnerability details or error
+public isolated function getProductVulnerability(string idToken, string vulnerabilityId)
+    returns ProductVulnerabilityResponse|error {
+
+    return csEntityClient->/products/vulnerabilities/[vulnerabilityId].get(generateHeaders(idToken));
+}
+
+# Get product vulnerability metadata.
+#
+# + idToken - ID token for authorization
+# + return - Product vulnerability metadata or error
+public isolated function getProductVulnerabilityMetaData(string idToken) returns VulnerabilityMetaResponse|error {
+    return csEntityClient->/products/vulnerabilities/meta.get(generateHeaders(idToken));
 }

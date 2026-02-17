@@ -672,3 +672,72 @@ public type InlineAttachment record {|
     # User who created
     string createdBy;
 |};
+
+# Payload for searching product vulnerabilities.
+public type ProductVulnerabilitySearchPayload record {|
+    # Filter criteria
+    record {
+        # Search query for CVE ID, Vulnerability ID, Component Name, etc.
+        string searchQuery?;
+        # Status ID
+        int statusId?;
+        # Severity ID
+        int severityId?;
+    } filters?;
+    # Sort configuration
+    SortBy sortBy?; // TODO: Check the correct sort by fields for vulnerabilities
+    # Pagination details
+    Pagination pagination?;
+|};
+
+# Product vulnerability.
+public type ProductVulnerability record {|
+    # ID
+    string id;
+    # CVE identifier
+    string cveId;
+    # Vulnerability identifier
+    string vulnerabilityId;
+    # Severity level
+    ChoiceListItem severity;
+    # Name of the component
+    string componentName;
+    # Version of the component
+    string version;
+    # Type
+    string 'type;
+    # Use case description
+    string? useCase;
+    # Justification for the vulnerability
+    string? justification;
+    # Resolution details for the vulnerability
+    string? resolution;
+    json...;
+|};
+
+# Product vulnerability information.
+public type ProductVulnerabilityResponse record {|
+    *ProductVulnerability;
+    # Type of the component
+    string componentType?;
+    # Update level for the vulnerability
+    string updateLevel;
+    json...;
+|};
+
+# Product vulnerabilities response with pagination.
+public type ProductVulnerabilitySearchResponse record {|
+    # List of product vulnerabilities
+    ProductVulnerability[] productVulnerabilities;
+    # Total records count
+    int totalRecords;
+    *Pagination;
+    json...;
+|};
+
+# Vulnerability metadata response.
+public type VulnerabilityMetaResponse record {|
+    # List of vulnerability severities
+    ChoiceListItem[] severities;
+    json...;
+|};
