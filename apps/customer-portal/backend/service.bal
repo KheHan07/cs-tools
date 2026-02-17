@@ -813,9 +813,9 @@ service http:InterceptableService / on new http:Listener(9090) {
             }
 
             if getStatusCode(projectMetadata) == http:STATUS_FORBIDDEN {
-                log:printWarn(string `User: ${userInfo.userId} is forbidden to access project metadata for project: ${
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access project filters for project: ${
                     id}`);
-                return <http:Unauthorized>{
+                return <http:Forbidden>{
                     body: {
                         message: "You're not authorized to access the filters for the selected project."
                     }
