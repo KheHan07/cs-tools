@@ -790,7 +790,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + id - ID of the project
     # + return - Case filters or error
     resource function get projects/[string id]/filters(http:RequestContext ctx)
-        returns types:ProjectFilterOptions|http:BadRequest|http:Unauthorized|http:InternalServerError {
+        returns types:ProjectFilterOptions|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -812,7 +812,17 @@ service http:InterceptableService / on new http:Listener(9090) {
                 };
             }
 
-            string customError = "Failed to retrieve case filters.";
+            if getStatusCode(projectMetadata) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access project filters for project: ${
+                    id}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the filters for the selected project."
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve project filters.";
             log:printError(customError, projectMetadata);
             return <http:InternalServerError>{
                 body: {

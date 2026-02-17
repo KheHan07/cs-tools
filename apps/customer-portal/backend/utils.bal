@@ -81,7 +81,7 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
 public isolated function getProjectFilters(entity:ProjectMetadataResponse projectMetadata)
     returns types:ProjectFilterOptions {
 
-    types:ReferenceItem[] statuses = from entity:ChoiceListItem item in projectMetadata.states
+    types:ReferenceItem[] caseStates = from entity:ChoiceListItem item in projectMetadata.caseStates
         select {id: item.id.toString(), label: item.label};
     types:ReferenceItem[] severities = from entity:ChoiceListItem item in projectMetadata.severities
         select {id: item.id.toString(), label: item.label};
@@ -89,12 +89,25 @@ public isolated function getProjectFilters(entity:ProjectMetadataResponse projec
         select {id: item.id.toString(), label: item.label};
     types:ReferenceItem[] deploymentTypes = from entity:ChoiceListItem item in projectMetadata.deploymentTypes
         select {id: item.id.toString(), label: item.label};
+    types:ReferenceItem[] callRequestStates = from entity:ChoiceListItem item in projectMetadata.callRequestStates
+        select {id: item.id.toString(), label: item.label};
+    types:ReferenceItem[] changeRequestStates = from entity:ChoiceListItem item in projectMetadata.changeRequestStates
+        select {id: item.id.toString(), label: item.label};
+    types:ReferenceItem[] changeRequestImpacts = from entity:ChoiceListItem item in projectMetadata.changeRequestImpacts
+        select {id: item.id.toString(), label: item.label};
+    types:ReferenceItem[] caseTypes = from entity:ReferenceTableItem item in projectMetadata.caseTypes
+        select {id: item.id, label: item.name};
 
     return {
-        statuses,
+        caseStates,
         severities,
         issueTypes,
-        deploymentTypes
+        deploymentTypes,
+        callRequestStates,
+        changeRequestStates,
+        changeRequestImpacts,
+        caseTypes,
+        severityBasedAllocationTime: projectMetadata.severityBasedAllocationTime
     };
 }
 

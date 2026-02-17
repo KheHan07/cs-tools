@@ -294,13 +294,23 @@ public type SortBy record {|
 # Project metadata response.
 public type ProjectMetadataResponse record {|
     # List of available case states (eg: Open, Closed, etc.)
-    ChoiceListItem[] states;
+    ChoiceListItem[] caseStates;
     # List of available case severities (eg: S0, S1, etc.)
     ChoiceListItem[] severities;
     # List of available issue types (eg: Error, Total Outage, etc.)
     ChoiceListItem[] issueTypes;
     # List of available deployment types (eg: Development, QA, etc.)
     ChoiceListItem[] deploymentTypes;
+    # List of available call request states
+    ChoiceListItem[] callRequestStates;
+    # List of available change request states
+    ChoiceListItem[] changeRequestStates;
+    # List of available change request impacts
+    ChoiceListItem[] changeRequestImpacts;
+    # List of available case types
+    ReferenceTableItem[] caseTypes;
+    # Severity based allocation time mapping (severity ID to allocation time in minutes)
+    map<int> severityBasedAllocationTime;
     json...;
 |};
 
