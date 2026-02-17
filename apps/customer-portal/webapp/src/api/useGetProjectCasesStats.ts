@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { getMockProjectCasesStats } from "@models/mockFunctions";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectCasesStats } from "@models/responses";
 
@@ -35,28 +33,11 @@ export function useGetProjectCasesStats(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProjectCasesStats, Error>({
-    queryKey: [ApiQueryKeys.CASES_STATS, id, isMockEnabled],
+    queryKey: [ApiQueryKeys.CASES_STATS, id],
     queryFn: async (): Promise<ProjectCasesStats> => {
-      logger.debug(
-        `Fetching case stats for project ID: ${id}, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        // Mock behavior: simulate network latency for the in-memory mock data.
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const stats: ProjectCasesStats = getMockProjectCasesStats();
-
-        logger.debug(
-          `Case stats fetched successfully for project ID: ${id} (mock)`,
-          stats,
-        );
-
-        return stats;
-      }
+      logger.debug(`Fetching case stats for project ID: ${id}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -85,7 +66,7 @@ export function useGetProjectCasesStats(
         throw error;
       }
     },
-    enabled: !!id && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!id && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }
