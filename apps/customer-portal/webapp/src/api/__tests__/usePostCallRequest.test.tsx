@@ -101,12 +101,34 @@ describe("usePostCallRequest", () => {
 
     expect(data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.test/projects/${projectId}/cases/${caseId}/call`,
+      `https://api.test/projects/${projectId}/cases/${caseId}/call-requests`,
       {
         method: "POST",
         body: JSON.stringify(requestBody),
       },
     );
+  });
+
+  it("should invalidate CASE_CALL_REQUESTS query on successful mutation", async () => {
+    const mockResponse = { id: "call-123" };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      json: () => Promise.resolve(mockResponse),
+    } as Response);
+    vi.stubGlobal("fetch", mockFetch);
+
+    const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(() => usePostCallRequest(projectId, caseId), {
+      wrapper,
+    });
+
+    await result.current.mutateAsync(requestBody);
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+      queryKey: ["case-call-requests", projectId, caseId],
+    });
   });
 
   it("should throw error when mock is enabled", async () => {

@@ -66,7 +66,7 @@ export function usePostCallRequest(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}/call`;
+        const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}/call-requests`;
 
         const response = await fetchFn(requestUrl, {
           method: "POST",
