@@ -73,6 +73,18 @@ export const CaseStatus = {
 
 export type CaseStatus = (typeof CaseStatus)[keyof typeof CaseStatus];
 
+// Call request status types.
+export const CallRequestStatus = {
+  CANCELLED: "Cancelled",
+  COMPLETED: "Completed",
+  PENDING: "Pending",
+  REJECTED: "Rejected",
+  SCHEDULED: "Scheduled",
+} as const;
+
+export type CallRequestStatus =
+  (typeof CallRequestStatus)[keyof typeof CallRequestStatus];
+
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
 
