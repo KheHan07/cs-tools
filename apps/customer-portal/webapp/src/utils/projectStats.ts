@@ -22,6 +22,7 @@ import {
   PROJECT_TYPE,
   SYSTEM_HEALTH,
   PROJECT_USER_STATUSES,
+  TOKEN_STATUSES,
 } from "@constants/projectDetailsConstants";
 
 /**
@@ -233,6 +234,32 @@ export const getUserStatusColor = (
   }
 
   if (normalizedStatus === PROJECT_USER_STATUSES.INVITED.toLowerCase()) {
+    return "warning";
+  }
+
+  return "default";
+};
+
+/**
+ * Get the color for a registry token status chip based on the status string.
+ *
+ * @param {string} status - The token status.
+ * @returns {"primary" | "info" | "default" | "success" | "warning" | "error"} The color for the Chip component.
+ */
+export const getTokenStatusColor = (
+  status: string,
+): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+  const normalizedStatus = status?.toLowerCase();
+
+  if (normalizedStatus === TOKEN_STATUSES.ACTIVE.toLowerCase()) {
+    return "success";
+  }
+
+  if (normalizedStatus === TOKEN_STATUSES.EXPIRED.toLowerCase()) {
+    return "error";
+  }
+
+  if (normalizedStatus === TOKEN_STATUSES.REVOKED.toLowerCase()) {
     return "warning";
   }
 
