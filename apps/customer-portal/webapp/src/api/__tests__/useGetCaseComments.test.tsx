@@ -16,7 +16,7 @@
 
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import useGetCaseComments from "@api/useGetCaseComments";
 
 const mockCommentsResponse = {
@@ -36,12 +36,10 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
+const mockAuthFetch = vi.fn();
+
 vi.mock("@context/AuthApiContext", () => ({
-  useAuthApiClient: () =>
-    vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockCommentsResponse),
-    }),
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 vi.mock("@hooks/useLogger", () => ({
@@ -60,9 +58,17 @@ describe("useGetCaseComments", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockCommentsResponse),
+    });
     (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     };
+  });
+
+  afterEach(() => {
+    mockAuthFetch.mockReset();
   });
 
   it("should return comments from API", async () => {
