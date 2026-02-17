@@ -39,4 +39,6 @@ export const ApiQueryKeys = {
   PRODUCT_VULNERABILITY: "product-vulnerability",
   PROJECT_USERS: "project-users",
   CASE_CALL_REQUESTS: "case-call-requests",
+  REGISTRY_TOKENS: "registryTokens",
+  SERVICE_USERS: "serviceUsers",
 } as const;
