@@ -67,8 +67,8 @@ export const CaseStatus = {
   OPEN: "Open",
   REOPENED: "Reopened",
   SOLUTION_PROPOSED: "Solution Proposed",
-  WAITING_ON_WSO2: "Waiting on WSO2",
-  WORK_IN_PROGRESS: "Work in Progress",
+  WAITING_ON_WSO2: "Waiting On WSO2",
+  WORK_IN_PROGRESS: "Work In Progress",
 } as const;
 
 export type CaseStatus = (typeof CaseStatus)[keyof typeof CaseStatus];
@@ -84,6 +84,17 @@ export const CallRequestStatus = {
 
 export type CallRequestStatus =
   (typeof CallRequestStatus)[keyof typeof CallRequestStatus];
+
+// Case severity types matching API labels.
+export const CaseSeverity = {
+  CATASTROPHIC: "Catastrophic (P0)",
+  CRITICAL: "Critical (P1)",
+  HIGH: "High (P2)",
+  LOW: "Low (P4)",
+  MEDIUM: "Medium (P3)",
+} as const;
+
+export type CaseSeverity = (typeof CaseSeverity)[keyof typeof CaseSeverity];
 
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
