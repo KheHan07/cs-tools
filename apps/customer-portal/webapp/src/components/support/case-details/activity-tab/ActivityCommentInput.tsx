@@ -28,8 +28,8 @@ export interface ActivityCommentInputProps {
 }
 
 /**
- * Input row with text field and send button.
- * Posts comment via usePostComment; on success invalidates and refetches comments.
+ * Input row with rich-text editor and send button.
+ * Uses the shared Editor component and posts comments via usePostComment; on success invalidates and refetches comments.
  *
  * @param {ActivityCommentInputProps} props - caseId for POST.
  * @returns {JSX.Element} The comment input component.
@@ -55,6 +55,9 @@ export default function ActivityCommentInput({
       { caseId, body: { content: trimmedValue } },
       {
         onSuccess: () => {
+          // Immediately reset the local value state for UI responsiveness.
+          // ResetPlugin will eventually clear the Lexical editor, which triggers
+          // OnChangeHTMLPlugin to repopulate this value with an empty paragraph ("<p><br></p>").
           setValue("");
           setResetTrigger((prev) => prev + 1);
         },
