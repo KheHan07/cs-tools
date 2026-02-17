@@ -81,3 +81,10 @@ export interface PostCaseAttachmentRequest {
   type: string;
   content: string;
 }
+
+// Request body for creating a deployment.
+export interface CreateDeploymentRequest {
+  deploymentTypeKey: number;
+  description: string;
+  name: string;
+}

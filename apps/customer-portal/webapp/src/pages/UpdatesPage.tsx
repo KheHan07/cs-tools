@@ -18,8 +18,8 @@ import { Box, Typography } from "@wso2/oxygen-ui";
 import { useParams } from "react-router";
 import { useState, useEffect, useRef, type JSX } from "react";
 import TabBar from "@components/common/tab-bar/TabBar";
-import { UpdatesStatsGrid } from "@components/updates/UpdatesStatsGrid";
-import { useGetProductUpdatesStats } from "@api/useGetProductUpdatesStats";
+import { UpdatesStatsGrid } from "@components/updates/stat-card-row/UpdatesStatsGrid";
+import { useGetRecommendedUpdateLevels } from "@api/useGetRecommendedUpdateLevels";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useLogger } from "@hooks/useLogger";
@@ -42,9 +42,7 @@ export default function UpdatesPage(): JSX.Element {
   const { showError } = useErrorBanner();
   const hasShownErrorRef = useRef(false);
 
-  const { data, isLoading, isError } = useGetProductUpdatesStats(
-    projectId || "",
-  );
+  const { data, isLoading, isError } = useGetRecommendedUpdateLevels();
 
   const isUpdatesLoading = isLoading || (!data && !isError);
 
@@ -64,8 +62,10 @@ export default function UpdatesPage(): JSX.Element {
   useEffect(() => {
     if (isError && !hasShownErrorRef.current) {
       hasShownErrorRef.current = true;
-      showError("Could not load updates statistics.");
-      logger.error(`Failed to load updates stats for project ID: ${projectId}`);
+      showError("Could not load recommended update levels.");
+      logger.error(
+        `Failed to load recommended update levels for project ID: ${projectId}`,
+      );
     }
     if (!isError) {
       hasShownErrorRef.current = false;

@@ -282,7 +282,7 @@ export interface CaseMetadataResponse {
   statuses?: MetadataItem[];
   severities?: MetadataItem[];
   issueTypes?: MetadataItem[];
-  deployments?: MetadataItem[];
+  deploymentTypes?: MetadataItem[];
 }
 
 // Chat history list item (support chat session summary).
@@ -403,6 +403,21 @@ export interface UpdatesStats {
   securityUpdatesPending: number | null;
 }
 
+// Single product recommended update level item.
+export interface RecommendedUpdateLevelItem {
+  productName: string;
+  productBaseVersion: string;
+  channel: string;
+  startingUpdateLevel: number;
+  endingUpdateLevel: number;
+  installedUpdatesCount: number;
+  installedSecurityUpdatesCount: number;
+  timestamp: number;
+  recommendedUpdateLevel: number;
+  availableUpdatesCount: number;
+  availableSecurityUpdatesCount: number;
+}
+
 // Product update levels.
 export interface ProductUpdateLevelEntry {
   "product-base-version": string;
@@ -461,4 +476,11 @@ export interface ProductVulnerabilitiesSearchResponse {
   totalRecords: number;
   offset: number;
   limit: number;
+}
+
+// Response for creating a deployment.
+export interface CreateDeploymentResponse {
+  createdBy: string;
+  createdOn: string;
+  id: string;
 }

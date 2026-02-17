@@ -156,7 +156,7 @@ vi.mock("@api/useGetCasesFilters", () => ({
         { id: "61", label: "S1", description: "S1 desc" },
       ],
       issueTypes: [{ id: "6", label: "Error" }],
-      deployments: [{ id: "1", label: "Production" }],
+      deploymentTypes: [{ id: "1", label: "Production" }],
     },
     isLoading: false,
     isError: false,
@@ -250,5 +250,4 @@ describe("CreateCasePage", () => {
       screen.getByRole("button", { name: /Create Support Case/i }),
     ).toBeInTheDocument();
   });
-
 });
