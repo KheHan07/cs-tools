@@ -20,6 +20,7 @@ import CaseDetailsTabPanels from "@case-details/CaseDetailsTabPanels";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
 import LoggerProvider from "@context/logger/LoggerProvider";
+import type { CaseDetails } from "@models/responses";
 
 const mockCaseDetails = {
   id: "case-001",
@@ -117,7 +118,7 @@ vi.mock("@asgardeo/react", () => ({
 function renderTabPanels(
   activeTab: number,
   caseId = "case-1",
-  options?: { data?: typeof mockCaseDetails; isError?: boolean },
+  options?: { data?: CaseDetails; isError?: boolean },
 ) {
   return render(
     <ThemeProvider theme={createTheme()}>
@@ -126,7 +127,7 @@ function renderTabPanels(
           <CaseDetailsTabPanels
             activeTab={activeTab}
             caseId={caseId}
-            data={options?.data ?? mockCaseDetails}
+            data={options?.data ?? (mockCaseDetails as CaseDetails)}
             isError={options?.isError ?? false}
           />
         </ErrorBannerProvider>
@@ -147,7 +148,7 @@ describe("CaseDetailsTabPanels", () => {
 
   it("should show Activity placeholder when projectId is missing", () => {
     renderTabPanels(0, "case-1", {
-      data: { ...mockCaseDetails, project: null },
+      data: { ...mockCaseDetails, project: null } as CaseDetails,
     });
     expect(
       screen.getByText("Activity timeline will appear here."),
