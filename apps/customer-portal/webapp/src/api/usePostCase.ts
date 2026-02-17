@@ -16,16 +16,13 @@
 
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CreateCaseRequest } from "@models/requests";
 import type { CreateCaseResponse } from "@models/responses";
 
 /**
- * Posts a new support case to the backend. When mock is enabled, the mutation
- * throws without calling the API; the create-case page should disable the
- * submit button when mock is enabled.
+ * Posts a new support case to the backend.
  *
  * @returns {UseMutationResult<CreateCaseResponse, Error, CreateCaseRequest>} Mutation result.
  */
@@ -36,7 +33,6 @@ export function usePostCase(): UseMutationResult<
 > {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
 
   return useMutation<CreateCaseResponse, Error, CreateCaseRequest>({
@@ -49,12 +45,6 @@ export function usePostCase(): UseMutationResult<
           ? `${body.description.slice(0, 80)}...`
           : "",
       });
-
-      if (isMockEnabled) {
-        throw new Error(
-          "Create case is not available when mock is enabled. Disable mock to create a case.",
-        );
-      }
 
       try {
         if (!isSignedIn || isAuthLoading) {
