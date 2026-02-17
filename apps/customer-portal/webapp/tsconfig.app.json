@@ -15,12 +15,28 @@
       "@components/*": ["src/components/*"],
       "@case-details": ["src/components/support/case-details/header"],
       "@case-details/*": ["src/components/support/case-details/header/*"],
-      "@case-details-attachments": ["src/components/support/case-details/attachments-tab"],
-      "@case-details-attachments/*": ["src/components/support/case-details/attachments-tab/*"],
-      "@case-details-details": ["src/components/support/case-details/details-tab"],
-      "@case-details-details/*": ["src/components/support/case-details/details-tab/*"],
-      "@case-details-activity": ["src/components/support/case-details/activity-tab"],
-      "@case-details-activity/*": ["src/components/support/case-details/activity-tab/*"],
+      "@case-details-attachments": [
+        "src/components/support/case-details/attachments-tab"
+      ],
+      "@case-details-attachments/*": [
+        "src/components/support/case-details/attachments-tab/*"
+      ],
+      "@case-details-details": [
+        "src/components/support/case-details/details-tab"
+      ],
+      "@case-details-details/*": [
+        "src/components/support/case-details/details-tab/*"
+      ],
+      "@case-details-activity": [
+        "src/components/support/case-details/activity-tab"
+      ],
+      "@case-details-activity/*": [
+        "src/components/support/case-details/activity-tab/*"
+      ],
+      "@case-details-calls": ["src/components/support/case-details/calls-tab"],
+      "@case-details-calls/*": [
+        "src/components/support/case-details/calls-tab/*"
+      ],
       "@config/*": ["src/config/*"],
       "@constants/*": ["src/constants/*"],
       "@context/*": ["src/context/*"],
