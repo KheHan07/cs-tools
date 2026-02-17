@@ -19,8 +19,10 @@ import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
 import { useGetCallRequests } from "@api/useGetCallRequests";
-import { getStatusColor } from "@utils/casesTable";
 import {
+  formatValue,
+  getSeverityColor,
+  getStatusColor,
   resolveColorFromTheme,
   getStatusIconElement,
   getInitials,
