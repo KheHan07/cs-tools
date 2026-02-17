@@ -14,17 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { ReactNode } from "react";
 import { usePostCreateDeployment } from "@api/usePostCreateDeployment";
 
-// Mock providers and hooks
+const mockLogger = {
+  debug: vi.fn(),
+  error: vi.fn(),
+};
+vi.mock("@/hooks/useLogger", () => ({
+  useLogger: () => mockLogger,
+}));
+
+const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
+let mockIsSignedIn = true;
+let mockIsAuthLoading = false;
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: vi.fn().mockResolvedValue("mock-token"),
-    isSignedIn: true,
-    isLoading: false,
+    getIdToken: mockGetIdToken,
+    isSignedIn: mockIsSignedIn,
+    isLoading: mockIsAuthLoading,
   }),
 }));
 
@@ -33,34 +44,22 @@ vi.mock("@context/AuthApiContext", () => ({
     vi.fn().mockImplementation((url, init) => fetch(url, init)),
 }));
 
-const mockUseMockConfig = vi.fn().mockReturnValue({
-  isMockEnabled: false,
-});
-
+let mockIsMockEnabled = false;
 vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
-}));
-
-vi.mock("@/hooks/useLogger", () => ({
-  useLogger: () => ({
-    debug: vi.fn(),
-    error: vi.fn(),
+  useMockConfig: () => ({
+    isMockEnabled: mockIsMockEnabled,
   }),
 }));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
-
 describe("usePostCreateDeployment", () => {
+  let queryClient: QueryClient;
+  const originalConfig = window.config;
   const projectId = "proj-123";
+
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
   const requestBody = {
     deploymentTypeKey: 4,
     description: "test description",
@@ -68,14 +67,24 @@ describe("usePostCreateDeployment", () => {
   };
 
   beforeEach(() => {
-    queryClient.clear();
+    queryClient = new QueryClient({
+      defaultOptions: {
+        mutations: {
+          retry: false,
+        },
+      },
+    });
+    mockIsMockEnabled = false;
+    mockIsSignedIn = true;
+    mockIsAuthLoading = false;
     vi.clearAllMocks();
     vi.stubGlobal("config", {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.example.com",
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     });
   });
 
   afterEach(() => {
+    window.config = originalConfig;
     vi.unstubAllGlobals();
   });
 
@@ -89,20 +98,19 @@ describe("usePostCreateDeployment", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 201,
-      json: vi.fn().mockResolvedValue(mockResponse),
-    });
+      json: () => Promise.resolve(mockResponse),
+    } as Response);
     vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCreateDeployment(projectId), {
       wrapper,
     });
 
-    result.current.mutate(requestBody);
+    const data = await result.current.mutateAsync(requestBody);
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual(mockResponse);
+    expect(data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(`/projects/${projectId}/deployments`),
+      "https://api.test/projects/proj-123/deployments",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify(requestBody),
@@ -115,32 +123,52 @@ describe("usePostCreateDeployment", () => {
       ok: false,
       status: 500,
       statusText: "Internal Server Error",
-      text: vi.fn().mockResolvedValue("Error message"),
-    });
+      text: () => Promise.resolve("Error message"),
+    } as Response);
     vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCreateDeployment(projectId), {
       wrapper,
     });
 
-    result.current.mutate(requestBody);
-
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error?.message).toContain("Internal Server Error");
+    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
+      "Error creating deployment: 500 Internal Server Error - Error message",
+    );
   });
 
   it("should throw error when mock is enabled", async () => {
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: true });
+    mockIsMockEnabled = true;
 
     const { result } = renderHook(() => usePostCreateDeployment(projectId), {
       wrapper,
     });
 
-    result.current.mutate(requestBody);
+    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
+      "Creating a deployment is not available when mock is enabled. Disable mock to create a deployment.",
+    );
+  });
 
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error?.message).toContain(
-      "Creating a deployment is not available when mock is enabled.",
+  it("should throw when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
+    vi.stubGlobal("config", {});
+
+    const { result } = renderHook(() => usePostCreateDeployment(projectId), {
+      wrapper,
+    });
+
+    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
+      "CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured",
+    );
+  });
+
+  it("should throw when user is not signed in", async () => {
+    mockIsSignedIn = false;
+
+    const { result } = renderHook(() => usePostCreateDeployment(projectId), {
+      wrapper,
+    });
+
+    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
+      "User must be signed in to create a deployment",
     );
   });
 });

@@ -14,7 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useMutation, type UseMutationResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  type UseMutationResult,
+} from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
@@ -32,6 +36,7 @@ export function usePostCreateDeployment(
   projectId: string,
 ): UseMutationResult<CreateDeploymentResponse, Error, CreateDeploymentRequest> {
   const logger = useLogger();
+  const queryClient = useQueryClient();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
@@ -44,7 +49,7 @@ export function usePostCreateDeployment(
 
       if (isMockEnabled) {
         throw new Error(
-          "Creating a deployment is not available when mock is enabled.",
+          "Creating a deployment is not available when mock is enabled. Disable mock to create a deployment.",
         );
       }
 
@@ -83,6 +88,11 @@ export function usePostCreateDeployment(
         logger.error("[usePostCreateDeployment] Error:", error);
         throw error;
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["project-deployments", projectId],
+      });
     },
   });
 }
