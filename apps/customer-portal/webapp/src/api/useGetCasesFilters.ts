@@ -60,7 +60,7 @@ export default function useGetCasesFilters(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/projects/${projectId}/cases/filters`;
+        const requestUrl = `${baseUrl}/projects/${projectId}/filters`;
 
         const response = await fetchFn(requestUrl, { method: "GET" });
 

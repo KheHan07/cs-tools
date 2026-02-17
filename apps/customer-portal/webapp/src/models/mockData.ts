@@ -282,7 +282,7 @@ export const mockCaseMetadata: CaseMetadataResponse = {
     { id: "5", label: "Security or Compliance" },
     { id: "1", label: "Total Outage" },
   ],
-  deployments: [
+  deploymentTypes: [
     { id: "1", label: "Development" },
     { id: "2", label: "Production" },
     { id: "3", label: "Non-Production" },

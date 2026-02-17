@@ -282,7 +282,7 @@ export interface CaseMetadataResponse {
   statuses?: MetadataItem[];
   severities?: MetadataItem[];
   issueTypes?: MetadataItem[];
-  deployments?: MetadataItem[];
+  deploymentTypes?: MetadataItem[];
 }
 
 // Chat history list item (support chat session summary).
@@ -476,4 +476,11 @@ export interface ProductVulnerabilitiesSearchResponse {
   totalRecords: number;
   offset: number;
   limit: number;
+}
+
+// Response for creating a deployment.
+export interface CreateDeploymentResponse {
+  createdBy: string;
+  createdOn: string;
+  id: string;
 }

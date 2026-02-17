@@ -29,6 +29,11 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockImplementation((url, init) => fetch(url, init)),
+}));
+
 const mockUseMockConfig = vi.fn().mockReturnValue({
   isMockEnabled: true,
 });
@@ -79,6 +84,7 @@ describe("useGetCasesFilters", () => {
       statuses: [{ id: "1", label: "Open" }],
       severities: [{ id: "2", label: "High" }],
       issueTypes: [{ id: "3", label: "Incident" }],
+      deploymentTypes: [{ id: "4", label: "Production" }],
     };
 
     const mockFetch = vi.fn().mockResolvedValue({
@@ -92,7 +98,7 @@ describe("useGetCasesFilters", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("/projects/123/cases/filters"),
+      expect.stringContaining("/projects/123/filters"),
       expect.any(Object),
     );
   });
