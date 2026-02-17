@@ -14,12 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { CaseDetailsSection } from "@components/support/case-creation-layout/form-sections/case-details-section/CaseDetailsSection";
+import LoggerProvider from "@context/logger/LoggerProvider";
+import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
 
-vi.mock("@utils/casesTable", () => ({
+vi.mock("@components/common/rich-text-editor/Editor", () => ({
+  __esModule: true,
+  default: vi.fn(({ value, onChange, disabled }: any) => (
+    <textarea
+      data-testid="case-description-editor"
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
+      disabled={disabled}
+    />
+  )),
+}));
+
+vi.mock("@utils/support", () => ({
   getSeverityColor: () => "error.main",
 }));
 
@@ -36,18 +50,22 @@ function renderSection(
 ) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <CaseDetailsSection
-        title=""
-        setTitle={vi.fn()}
-        description=""
-        setDescription={vi.fn()}
-        issueType=""
-        setIssueType={vi.fn()}
-        severity=""
-        setSeverity={vi.fn()}
-        filters={defaultFilters}
-        {...props}
-      />
+      <LoggerProvider>
+        <ErrorBannerProvider>
+          <CaseDetailsSection
+            title=""
+            setTitle={vi.fn()}
+            description=""
+            setDescription={vi.fn()}
+            issueType=""
+            setIssueType={vi.fn()}
+            severity=""
+            setSeverity={vi.fn()}
+            filters={defaultFilters}
+            {...props}
+          />
+        </ErrorBannerProvider>
+      </LoggerProvider>
     </ThemeProvider>,
   );
 }
@@ -79,12 +97,33 @@ describe("CaseDetailsSection", () => {
   it("should render Novera reference text", () => {
     renderSection();
     expect(
-      screen.getByText(/This includes all the information you shared with Novera/i),
+      screen.getByText(
+        /This includes all the information you shared with Novera/i,
+      ),
     ).toBeInTheDocument();
   });
 
   it("should render edit button with accessible label", () => {
     renderSection();
+    expect(
+      screen.getByRole("button", { name: /edit case details/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("should toggle editing mode and update accessible label", () => {
+    renderSection();
+    const editButton = screen.getByRole("button", {
+      name: /edit case details/i,
+    });
+
+    // Toggle ON
+    fireEvent.click(editButton);
+    expect(
+      screen.getByRole("button", { name: /stop editing case details/i }),
+    ).toBeInTheDocument();
+
+    // Toggle OFF
+    fireEvent.click(editButton);
     expect(
       screen.getByRole("button", { name: /edit case details/i }),
     ).toBeInTheDocument();
@@ -101,9 +140,7 @@ describe("CaseDetailsSection", () => {
 
   it("should render description textarea with test id", () => {
     renderSection();
-    expect(
-      screen.getByTestId("case-description-editor"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("case-description-editor")).toBeInTheDocument();
   });
 
   it("should render issue type and severity section with AI chips", () => {
