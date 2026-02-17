@@ -40,7 +40,7 @@ describe("UpdateProductCard", () => {
     expect(screen.getByText("Version 6.1.0")).toBeDefined();
   });
 
-  it("displays correct level levels", () => {
+  it("displays correct update levels", () => {
     render(<UpdateProductCard item={mockItem} />);
     expect(screen.getByText("U10")).toBeDefined();
     expect(screen.getByText("U15")).toBeDefined();

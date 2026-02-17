@@ -67,7 +67,10 @@ export function UpdateProductGrid({
       ) : (
         <Grid container spacing={2}>
           {data.map((item) => (
-            <Grid key={item.productName} size={{ xs: 12, md: 6 }}>
+            <Grid
+              key={`${item.productName}-${item.productBaseVersion}`}
+              size={{ xs: 12, md: 6 }}
+            >
               <UpdateProductCard item={item} />
             </Grid>
           ))}
