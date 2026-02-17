@@ -1541,7 +1541,7 @@ export const mockCaseDetails: CaseDetails = {
   csManager: null,
   assignedEngineer: {
     id: "a4663745738734884988",
-    name: "dileepapp@wso2.com",
+    name: "user1@example.com",
   },
   project: {
     id: "project-001",
@@ -2147,30 +2147,30 @@ export interface MockProjectUser {
 export const mockProjectUsers: MockProjectUser[] = [
   {
     id: "1",
-    firstName: "Nisal",
-    lastName: "Perera",
-    email: "nisal@example.com",
+    firstName: "user",
+    lastName: "one",
+    email: "user1@example.com",
     status: "Registered",
   },
   {
     id: "2",
-    firstName: "Kalindu",
-    lastName: "anaka",
-    email: "kalindu@example.com",
+    firstName: "user",
+    lastName: "two",
+    email: "user2@example.com",
     status: "Invited",
   },
   {
     id: "3",
-    firstName: "Uditha",
-    lastName: "Lokuge",
-    email: "uditha@example.com",
+    firstName: "user",
+    lastName: "three",
+    email: "user3@example.com",
     status: "Registered",
   },
   {
     id: "4",
-    firstName: "Thamindu",
-    lastName: "Peiris",
-    email: "thamindu@example.com",
+    firstName: "user",
+    lastName: "four",
+    email: "user4@example.com",
     status: "Invited",
   },
 ];
