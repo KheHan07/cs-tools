@@ -16,17 +16,13 @@
 
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { API_MOCK_DELAY } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
-import { mockProductVulnerabilitiesSearchResponse } from "@models/mockData";
 import type { ProductVulnerabilitiesSearchRequest } from "@models/requests";
 import type { ProductVulnerabilitiesSearchResponse } from "@models/responses";
 
 /**
  * Searches product vulnerabilities (POST /products/vulnerabilities/search).
- * When mock is enabled, returns mock data.
  *
  * @returns {UseMutationResult<ProductVulnerabilitiesSearchResponse, Error, ProductVulnerabilitiesSearchRequest>} Mutation result.
  */
@@ -38,7 +34,6 @@ export function usePostProductVulnerabilities(): UseMutationResult<
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useMutation<
     ProductVulnerabilitiesSearchResponse,
@@ -52,27 +47,6 @@ export function usePostProductVulnerabilities(): UseMutationResult<
         "[usePostProductVulnerabilities] Request payload:",
         requestBody,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        const pagination = requestBody.pagination ?? {};
-        const offset = pagination.offset ?? 0;
-        const limit = pagination.limit ?? 10;
-        const vulnerabilities =
-          mockProductVulnerabilitiesSearchResponse.productVulnerabilities;
-        const paged = vulnerabilities.slice(offset, offset + limit);
-        const response: ProductVulnerabilitiesSearchResponse = {
-          productVulnerabilities: paged,
-          totalRecords: vulnerabilities.length,
-          offset,
-          limit,
-        };
-        logger.debug(
-          "[usePostProductVulnerabilities] Mock response:",
-          response,
-        );
-        return response;
-      }
 
       try {
         if (!isSignedIn || isAuthLoading) {

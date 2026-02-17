@@ -23,7 +23,6 @@ import { AsgardeoProvider } from "@asgardeo/react";
 import { themeConfig } from "@config/themeConfig";
 import { loggerConfig } from "@config/loggerConfig";
 import LoggerProvider from "@context/logger/LoggerProvider";
-import { MockConfigProvider } from "@providers/MockConfigProvider";
 import { authConfig } from "@config/authConfig";
 
 const queryClient: QueryClient = new QueryClient();
@@ -38,16 +37,14 @@ export default function AppWithConfig(): JSX.Element {
       scopes={["openid", "email", "groups"]}
       storage="localStorage"
     >
-      <MockConfigProvider>
-        <LoggerProvider config={loggerConfig}>
-          <OxygenUIThemeProvider theme={themeConfig}>
-            <QueryClientProvider client={queryClient}>
-              <App />
-              <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-          </OxygenUIThemeProvider>
-        </LoggerProvider>
-      </MockConfigProvider>
+      <LoggerProvider config={loggerConfig}>
+        <OxygenUIThemeProvider theme={themeConfig}>
+          <QueryClientProvider client={queryClient}>
+            <App />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </OxygenUIThemeProvider>
+      </LoggerProvider>
     </AsgardeoProvider>
   );
 }
