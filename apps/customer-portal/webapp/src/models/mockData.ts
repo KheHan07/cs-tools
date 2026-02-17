@@ -32,6 +32,7 @@ import type {
   UpdatesStats,
   RecommendedUpdateLevelItem,
   ProductUpdateLevelsResponse,
+  CallRequestsResponse,
 } from "@models/responses";
 import {
   PROJECT_TYPE,
@@ -2164,4 +2165,38 @@ export const mockProductVulnerabilityDetail: ProductVulnerability = {
   justification:
     "Template engine is used with controlled inputs and no direct user input exposure.",
   resolution: "We will proactively upgrade to the latest secure version.",
+};
+
+// Mock response for case call requests.
+export const mockCallRequests: CallRequestsResponse = {
+  callRequests: [
+    {
+      id: "call-1",
+      type: "CALL_REQUEST",
+      status: "SCHEDULED",
+      requestedOn: "2024-10-29T10:00:00Z",
+      preferredTime: {
+        start: "14:00",
+        end: "16:00",
+        timezone: "EST",
+      },
+      scheduledFor: "2024-11-05T14:00:00Z",
+      durationInMinutes: 60,
+      notes: "Discuss configuration changes and implementation plan",
+    },
+    {
+      id: "call-2",
+      type: "CALL_REQUEST",
+      status: "PENDING",
+      requestedOn: "2024-11-01T09:30:00Z",
+      preferredTime: {
+        start: "10:00",
+        end: "11:00",
+        timezone: "EST",
+      },
+      scheduledFor: "2024-11-06T10:00:00Z",
+      durationInMinutes: 30,
+      notes: "Follow up on recent deployment issues",
+    },
+  ],
 };
