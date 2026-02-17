@@ -450,6 +450,16 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
+        if !caseStats.stateCount.hasKey(STATE_OPEN) {
+            string customError = ERR_MSG_OPEN_CASES_MISSING;
+            log:printError(customError);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
         // Fetch chat stats
         entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
         if chatStats is error {
@@ -553,6 +563,16 @@ service http:InterceptableService / on new http:Listener(9090) {
         if caseStats is error {
             string customError = "Failed to retrieve project case statistics.";
             log:printError(customError, caseStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        if !caseStats.stateCount.hasKey(STATE_OPEN) {
+            string customError = ERR_MSG_OPEN_CASES_MISSING;
+            log:printError(customError);
             return <http:InternalServerError>{
                 body: {
                     message: customError

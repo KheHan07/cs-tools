@@ -25,6 +25,7 @@ const ERR_MSG_CASE_ID_EMPTY = "Case ID cannot be empty!";
 const ERR_LIMIT_OFFSET_INVALID = "Limit must be between 1 and 50. Offset must be a non-negative integer!";
 const ERR_MSG_UNAUTHORIZED_ACCESS = "You're not authorized to access this service. Please sign in again. " +
     "If the issue continues, contact support.";
+const ERR_MSG_OPEN_CASES_MISSING = "Failed to retrieve open cases count from project case statistics.";
 
 // Default Pagination Values
 public const int DEFAULT_OFFSET = 0;
