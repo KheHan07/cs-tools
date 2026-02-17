@@ -99,7 +99,7 @@ describe("useGetCallRequests", () => {
     expect(result.current.data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
       `https://api.test/projects/${projectId}/cases/${caseId}/call-requests`,
-      undefined,
+      { method: "GET" },
     );
   });
 
@@ -114,6 +114,18 @@ describe("useGetCallRequests", () => {
       timeout: 2000,
     });
     expect(result.current.data).toEqual(mockCallRequests);
+  });
+
+  it("should have correct query options", () => {
+    renderHook(() => useGetCallRequests(projectId, caseId), { wrapper });
+
+    const query = queryClient.getQueryCache().findAll({
+      queryKey: ["case-call-requests", projectId, caseId, false],
+    })[0];
+
+    expect((query?.options as { staleTime?: number }).staleTime).toBe(
+      5 * 60 * 1000,
+    );
   });
 
   it("should handle API errors", async () => {
@@ -133,6 +145,22 @@ describe("useGetCallRequests", () => {
     expect(result.current.error?.message).toContain(
       "Error fetching call requests: 500 Internal Server Error - Error message",
     );
+  });
+
+  it("should error when CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured", async () => {
+    vi.stubGlobal("config", {});
+    const mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+
+    const { result } = renderHook(() => useGetCallRequests(projectId, caseId), {
+      wrapper,
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.message).toBe(
+      "CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured",
+    );
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   it("should not fetch when user is not signed in and mock is disabled", async () => {

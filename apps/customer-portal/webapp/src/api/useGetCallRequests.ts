@@ -40,10 +40,15 @@ export function useGetCallRequests(
   const fetchFn = useAuthApiClient();
 
   return useQuery<CallRequestsResponse, Error>({
-    queryKey: [ApiQueryKeys.CASE_CALL_REQUESTS, projectId, caseId],
+    queryKey: [
+      ApiQueryKeys.CASE_CALL_REQUESTS,
+      projectId,
+      caseId,
+      isMockEnabled,
+    ],
     queryFn: async (): Promise<CallRequestsResponse> => {
       logger.debug(
-        `[useGetCallRequests] Fetching call requests for case: ${caseId} in project: ${projectId}`,
+        `[useGetCallRequests] Fetching call requests for case: ${caseId} in project: ${projectId}, mock: ${isMockEnabled}`,
       );
 
       if (isMockEnabled) {
@@ -64,7 +69,7 @@ export function useGetCallRequests(
 
         const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}/call-requests`;
 
-        const response = await fetchFn(requestUrl);
+        const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(
           `[useGetCallRequests] Response status: ${response.status}`,
@@ -89,5 +94,6 @@ export function useGetCallRequests(
       !!caseId &&
       !isAuthLoading &&
       (isSignedIn || isMockEnabled),
+    staleTime: 5 * 60 * 1000,
   });
 }
