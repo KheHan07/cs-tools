@@ -88,3 +88,13 @@ export interface CreateDeploymentRequest {
   description: string;
   name: string;
 }
+
+// Request body for creating a call request.
+export interface CreateCallRequest {
+  preferredTime: {
+    startTime: string;
+    endTime: string;
+  };
+  timezone: string;
+  notes: string;
+}
