@@ -505,3 +505,8 @@ export interface CallRequest {
 export interface CallRequestsResponse {
   callRequests: CallRequest[];
 }
+
+// Response for creating a call request.
+export interface CreateCallResponse {
+  id: string;
+}
