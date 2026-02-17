@@ -335,6 +335,6 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
   {
     filterKey: "deploymentId",
     id: "deployment",
-    metadataKey: "deployments",
+    metadataKey: "deploymentTypes",
   },
 ];
