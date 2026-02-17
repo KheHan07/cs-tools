@@ -20,6 +20,7 @@ import {
   Info,
   Rocket,
   Server,
+  Key,
 } from "@wso2/oxygen-ui-icons-react";
 import { User, Shield } from "@wso2/oxygen-ui-icons-react";
 import type { ElementType } from "react";
@@ -62,6 +63,11 @@ export const PROJECT_DETAILS_TABS: TabOption[] = [
     id: "users",
     label: "Users",
     icon: User,
+  },
+  {
+    id: "registry-tokens",
+    label: "Registry Tokens",
+    icon: Key,
   },
 ];
 
@@ -205,3 +211,21 @@ export const PROJECT_USER_STATUSES = {
   INVITED: "invited",
   REGISTERED: "registered",
 } as const;
+
+export const TOKEN_TYPES = {
+  USER: "User",
+  SERVICE: "Service",
+} as const;
+
+export const TOKEN_STATUSES = {
+  ACTIVE: "Active",
+  EXPIRED: "Expired",
+  REVOKED: "Revoked",
+} as const;
+
+export const USER_ROLES = {
+  ADMIN: "admin",
+  USER: "user",
+} as const;
+
+export const IS_ADMIN_USER: boolean = true;
