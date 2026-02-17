@@ -43,13 +43,6 @@ vi.mock("@context/AuthApiContext", () => ({
     vi.fn().mockImplementation((url, init) => fetch(url, init)),
 }));
 
-let mockIsMockEnabled = false;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
-}));
-
 describe("usePostCallRequest", () => {
   let queryClient: QueryClient;
   const originalConfig = window.config;
@@ -70,7 +63,6 @@ describe("usePostCallRequest", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    mockIsMockEnabled = false;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -129,18 +121,6 @@ describe("usePostCallRequest", () => {
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({
       queryKey: ["case-call-requests", projectId, caseId],
     });
-  });
-
-  it("should throw error when mock is enabled", async () => {
-    mockIsMockEnabled = true;
-
-    const { result } = renderHook(() => usePostCallRequest(projectId, caseId), {
-      wrapper,
-    });
-
-    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
-      "Creating a call request is not available when mock is enabled. Disable mock to create a call request.",
-    );
   });
 
   it("should handle API errors", async () => {
