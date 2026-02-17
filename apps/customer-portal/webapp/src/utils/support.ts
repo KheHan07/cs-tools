@@ -25,6 +25,7 @@ import {
   ChatAction,
   ChatStatus,
   CaseStatus,
+  CallRequestStatus,
 } from "@constants/supportConstants";
 import type { CaseComment } from "@models/responses";
 import type { Theme } from "@wso2/oxygen-ui";
@@ -356,6 +357,30 @@ export function getStatusIcon(
       return CircleCheck;
     default:
       return CircleAlert;
+  }
+}
+
+/**
+ * Returns the Oxygen UI color path for a given call request status label.
+ *
+ * @param status - The call request status (e.g., "SCHEDULED", "PENDING").
+ * @returns {string} The Oxygen UI color path.
+ */
+export function getCallRequestStatusColor(status?: string): string {
+  const normalized = status?.toLowerCase() || "";
+
+  switch (true) {
+    case normalized.includes(CallRequestStatus.SCHEDULED.toLowerCase()):
+      return "info.main";
+    case normalized.includes(CallRequestStatus.PENDING.toLowerCase()):
+      return "warning.main";
+    case normalized.includes(CallRequestStatus.COMPLETED.toLowerCase()):
+      return "success.main";
+    case normalized.includes(CallRequestStatus.CANCELLED.toLowerCase()):
+    case normalized.includes(CallRequestStatus.REJECTED.toLowerCase()):
+      return "error.main";
+    default:
+      return "text.secondary";
   }
 }
 
