@@ -20,8 +20,6 @@ import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
 import { useGetCallRequests } from "@api/useGetCallRequests";
 import {
-  formatValue,
-  getSeverityColor,
   getStatusColor,
   resolveColorFromTheme,
   getStatusIconElement,
