@@ -322,7 +322,3 @@ public isolated function mapProductVulnerabilityMetadataResponse(entity:Vulnerab
         select {id: item.id.toString(), label: item.label};
     return {severities};
 }
-
-public isolated function mapCaseStats(entity:ProjectCaseStatsResponse caseStats) {
-    
-}
