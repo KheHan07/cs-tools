@@ -433,19 +433,6 @@ public type ProductVulnerabilitySearchResponse record {|
     *entity:Pagination;
 |};
 
-# Basic product information.
-public type BasicProductInfo record {|
-    # Product name
-    @constraint:String {minLength: 1}
-    string productName;
-    # Product base version
-    @constraint:String {minLength: 1}
-    string productBaseVersion;
-    # Channel
-    @constraint:String {minLength: 1}
-    string channel;
-|};
-
 # Recommended update level.
 public type RecommendedUpdateLevel record {|
     # Product name
@@ -560,7 +547,15 @@ public type UpdateResponse record {|
 
 # Update payload for listing updates.
 public type ListUpdatePayload record {|
-    *BasicProductInfo;
+    # Product name
+    @constraint:String {minLength: 1}
+    string productName;
+    # Product version
+    @constraint:String {minLength: 1}
+    string productVersion;
+    # Channel
+    @constraint:String {minLength: 1}
+    string channel;
     # Starting update level
     @constraint:String {minLength: 1}
     string startUpdateLevel;

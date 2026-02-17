@@ -15,12 +15,6 @@
 // under the License.
 import customer_portal.types;
 
-# Generate authorization headers.
-#
-# + token - ID token for authorization
-# + return - Map of headers with authorization
-isolated function generateHeaders(string token) returns map<string|string[]> => {"x-jwt-assertion": token};
-
 # Process recommended update levels for a user.
 #
 # + email - Email of the user
@@ -45,22 +39,21 @@ public isolated function processRecommendedUpdateLevels(string email) returns ty
 
 # Process list updates based on the provided parameters.
 #
-# + idToken - ID token for authentication
 # + payload - Payload for listing updates
 # + return - List of updates, or an error if the operation fails
-public isolated function processListUpdates(string idToken, types:ListUpdatePayload payload)
+public isolated function processListUpdates(types:ListUpdatePayload payload)
     returns types:UpdateResponse|error {
 
     ListUpdatePayload requestPayload = {
         product\-name: payload.productName,
-        product\-base\-version: payload.productBaseVersion,
+        product\-version: payload.productVersion,
         channel: payload.channel,
         start\-update\-level: payload.startUpdateLevel,
         end\-update\-level: payload.endUpdateLevel,
         hot\-fixes: payload.hotFixes
     };
 
-    UpdateResponse response = check listUpdates(idToken, requestPayload);
+    UpdateResponse response = check listUpdates(requestPayload);
     types:BasicFileInfo[] addedFiles = from BasicFileInfo info in response.file\-changes.added\-files
         select {
             filePath: info.file\-path,
@@ -123,10 +116,9 @@ public isolated function processListUpdates(string idToken, types:ListUpdatePayl
 
 # Process product update levels based on the provided parameters.
 #
-# + idToken - ID token for authentication
 # + return - List of product update levels, or an error if the operation fails
-public isolated function processProductUpdateLevels(string idToken) returns types:ProductUpdateLevel[]|error {
-    ProductUpdateLevel[] productUpdateLevels = check getProductUpdateLevels(idToken);
+public isolated function processProductUpdateLevels() returns types:ProductUpdateLevel[]|error {
+    ProductUpdateLevel[] productUpdateLevels = check getProductUpdateLevels();
     return from ProductUpdateLevel level in productUpdateLevels
         select {
             productName: level.product\-name,

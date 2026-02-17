@@ -1205,7 +1205,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        types:UpdateResponse|error updateResponse = updates:processListUpdates(userInfo.idToken, payload);
+        types:UpdateResponse|error updateResponse = updates:processListUpdates(payload);
         if updateResponse is error {
             string customError = "Failed to search updates.";
             log:printError(customError, updateResponse);
@@ -1233,7 +1233,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        types:ProductUpdateLevel[]|error productUpdateLevels = updates:processProductUpdateLevels(userInfo.idToken);
+        types:ProductUpdateLevel[]|error productUpdateLevels = updates:processProductUpdateLevels();
         if productUpdateLevels is error {
             string customError = "Failed to get product update levels.";
             log:printError(customError, productUpdateLevels);

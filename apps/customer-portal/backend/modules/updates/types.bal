@@ -27,19 +27,6 @@ type ClientCredentialsOauth2Config record {|
     string[] scopes = [];
 |};
 
-# Basic product information.
-public type BasicProductInfo record {|
-    # Product name
-    @constraint:String {minLength: 1}
-    string product\-name;
-    # Product base version
-    @constraint:String {minLength: 1}
-    string product\-base\-version;
-    # Channel
-    @constraint:String {minLength: 1}
-    string channel;
-|};
-
 # Recommended update level.
 public type RecommendedUpdateLevel record {|
     # Product name
@@ -154,7 +141,15 @@ public type UpdateResponse record {|
 
 # Update payload for listing updates.
 public type ListUpdatePayload record {|
-    *BasicProductInfo;
+    # Product name
+    @constraint:String {minLength: 1}
+    string product\-name;
+    # Product version
+    @constraint:String {minLength: 1}
+    string product\-version;
+    # Channel
+    @constraint:String {minLength: 1}
+    string channel;
     # Starting update level
     @constraint:String {minLength: 1}
     string start\-update\-level;
