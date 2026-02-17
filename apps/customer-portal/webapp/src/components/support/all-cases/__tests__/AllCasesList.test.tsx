@@ -17,8 +17,36 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import AllCasesList from "@components/support/all-cases/AllCasesList";
-import { mockCases } from "@models/mockData";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+
+const mockCases = [
+  {
+    id: "case-1",
+    internalId: "INT-1",
+    number: "CS001",
+    createdOn: "2026-01-01",
+    title: "Case One",
+    description: "Desc",
+    assignedEngineer: null,
+    project: { id: "p1", label: "Project A" },
+    issueType: { id: "1", label: "Bug" },
+    state: { id: 1, label: "Open" },
+    severity: { id: 1, label: "High" },
+  },
+  {
+    id: "case-2",
+    internalId: "INT-2",
+    number: "CS002",
+    createdOn: "2026-01-02",
+    title: "Case Two",
+    description: "Desc",
+    assignedEngineer: null,
+    project: { id: "p1", label: "Project A" },
+    issueType: { id: "1", label: "Bug" },
+    state: { id: 1, label: "Open" },
+    severity: { id: 1, label: "High" },
+  },
+];
 
 // Mock the table utils
 vi.mock("@utils/casesTable", () => ({
