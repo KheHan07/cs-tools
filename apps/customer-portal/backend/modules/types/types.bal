@@ -171,7 +171,7 @@ public type ProjectCaseStats record {|
     map<entity:CountItem> severityCount;
     # Outstanding cases count by severity
     map<entity:CountItem> outstandingSeverityCount;
-    # Cases trend by quarter and week
+    # Cases trend by quarter and quarter
     map<map<entity:CountItem>> casesTrend;
 |};
 

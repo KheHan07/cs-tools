@@ -387,7 +387,7 @@ public type ProjectCaseStatsResponse record {|
     map<CountItem> severityCount;
     # Outstanding cases count by severity
     map<CountItem> outstandingSeverityCount;
-    # Cases trend by quarter and week
+    # Cases trend by quarter and quarter
     map<map<CountItem>> casesTrend;
     json...;
 |};
