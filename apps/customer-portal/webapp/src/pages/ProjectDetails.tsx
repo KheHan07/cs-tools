@@ -31,6 +31,8 @@ import { useGetProjectStat } from "@api/useGetProjectStat";
 import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
+import RegistryTokensTab from "@components/project-details/registry-tokens/RegistryTokensTab";
+import { USER_ROLES,IS_ADMIN_USER } from "@constants/projectDetailsConstants";
 
 /**
  * ProjectDetails component.
@@ -161,6 +163,13 @@ export default function ProjectDetails(): JSX.Element {
         );
       case "users":
         return <ProjectUsersTab projectId={projectId ?? ""} />;
+      case "registry-tokens":
+        return (
+          <RegistryTokensTab
+            projectId={projectId ?? ""}
+            userRole={IS_ADMIN_USER ? USER_ROLES.ADMIN : USER_ROLES.USER} // TODO: Replace with actual user role
+          />
+        );
       default:
         return null;
     }

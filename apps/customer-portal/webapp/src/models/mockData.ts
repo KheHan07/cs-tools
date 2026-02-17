@@ -2200,3 +2200,72 @@ export const mockCallRequests: CallRequestsResponse = {
     },
   ],
 };
+
+// Mock response for registry tokens.
+export interface MockRegistryToken {
+  id: string;
+  tokenName: string;
+  subscriptionEndDate: string;
+  products: string[];
+  tokenType: "User" | "Service";
+  createdFor: string;
+  createdByEmail: string;
+  createdOn: string;
+  status: "Active" | "Expired" | "Revoked";
+}
+
+// Mock response for registry tokens list.
+export const mockRegistryTokens: MockRegistryToken[] = [
+  {
+    id: "token-001",
+    tokenName: "Production API Token",
+    subscriptionEndDate: "2027-01-15",
+    products: ["API Manager", "Identity Server"],
+    tokenType: "Service",
+    createdFor: "service-account@company.com",
+    createdByEmail: "admin@company.com",
+    createdOn: "2026-01-10",
+    status: "Active",
+  },
+  {
+    id: "token-002",
+    tokenName: "Development Token",
+    subscriptionEndDate: "2026-12-31",
+    products: ["Choreo"],
+    tokenType: "User",
+    createdFor: "dev@company.com",
+    createdByEmail: "dev@company.com",
+    createdOn: "2026-02-01",
+    status: "Active",
+  },
+  {
+    id: "token-003",
+    tokenName: "CI/CD Pipeline Token",
+    subscriptionEndDate: "2026-06-30",
+    products: ["API Manager"],
+    tokenType: "Service",
+    createdFor: "ci-bot@company.com",
+    createdByEmail: "devops@company.com",
+    createdOn: "2025-12-15",
+    status: "Expired",
+  },
+  {
+    id: "token-004",
+    tokenName: "Test Environment Token",
+    subscriptionEndDate: "2027-03-01",
+    products: ["Identity Server", "Choreo"],
+    tokenType: "User",
+    createdFor: "tester@company.com",
+    createdByEmail: "tester@company.com",
+    createdOn: "2026-01-20",
+    status: "Active",
+  },
+];
+
+//Mock response for service users.
+export const mockServiceUsers: string[] = [
+  "service-account@company.com",
+  "ci-bot@company.com",
+  "automation@company.com",
+  "deploy-bot@company.com",
+];
