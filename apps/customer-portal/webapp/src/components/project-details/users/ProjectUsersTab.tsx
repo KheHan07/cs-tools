@@ -33,7 +33,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { Plus, Trash } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import { getUserStatusColor } from "@utils/projectStats";
+import { getUserStatusColor } from "@utils/projectDetails";
 import type { ProjectUser } from "@models/responses";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import useGetProjectUsers from "@api/useGetProjectUsers";
