@@ -29,30 +29,27 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockSupportStatsResponse = {
+  totalCases: 47,
+  activeChats: 3,
+  sessionChats: 10,
+  resolvedChats: 34,
+};
 
-// Mock @asgardeo/react
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: true,
     isLoading: false,
   }),
 }));
 
-// Mock MockConfigProvider
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockSupportStatsResponse),
+});
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("useGetProjectSupportStats", () => {
@@ -60,15 +57,17 @@ describe("useGetProjectSupportStats", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
     mockLogger.debug.mockClear();
     mockLogger.error.mockClear();
-    mockIsMockEnabled = true;
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockSupportStatsResponse),
+    });
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -87,24 +86,16 @@ describe("useGetProjectSupportStats", () => {
     expect(result.current.isLoading).toBe(true);
   });
 
-  it("should return mock data when mock is enabled", async () => {
-    mockIsMockEnabled = true;
+  it("should return data from API", async () => {
     const { result } = renderHook(
       () => useGetProjectSupportStats("project-1"),
-      {
-        wrapper,
-      },
+      { wrapper },
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toBeDefined();
-    expect(result.current.data?.totalCases).toBeGreaterThanOrEqual(0);
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "Fetching support stats for project ID: project-1, mock: true",
-      ),
-    );
+    expect(result.current.data?.totalCases).toBe(47);
   });
 
   it("should have correct query options", () => {
@@ -113,73 +104,23 @@ describe("useGetProjectSupportStats", () => {
     });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["support-stats", "project-1", true],
+      queryKey: ["support-stats", "project-1"],
     })[0];
 
     expect((query?.options as any).staleTime).toBe(5 * 60 * 1000);
     expect((query?.options as any).refetchOnWindowFocus).toBeUndefined();
   });
 
-  it("should fetch real data when mock is disabled", async () => {
-    mockIsMockEnabled = false;
-    const mockResponse = {
-      totalCases: 47,
-      activeChats: 0,
-      sessionChats: 0,
-      resolvedChats: 0,
-    };
-
-    const originalConfig = (window as any).config;
-    (window as any).config = { CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test" };
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockResponse),
-        status: 200,
-      } as Response),
-    );
+  it("should handle API error", async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: false,
+      statusText: "Internal Server Error",
+      status: 500,
+    } as Response);
 
     const { result } = renderHook(
       () => useGetProjectSupportStats("project-1"),
-      {
-        wrapper,
-      },
-    );
-
-    try {
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      expect(result.current.data).toEqual(mockResponse);
-      expect(mockGetIdToken).toHaveBeenCalled();
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Fetching support stats for project ID: project-1, mock: false",
-        ),
-      );
-    } finally {
-      (window as any).config = originalConfig;
-    }
-  });
-
-  it("should handle API error when mock is disabled", async () => {
-    mockIsMockEnabled = false;
-    const originalConfig = (window as any).config;
-    (window as any).config = { CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test" };
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: false,
-        statusText: "Internal Server Error",
-        status: 500,
-      } as Response),
-    );
-
-    const { result } = renderHook(
-      () => useGetProjectSupportStats("project-1"),
-      {
-        wrapper,
-      },
+      { wrapper },
     );
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -187,7 +128,6 @@ describe("useGetProjectSupportStats", () => {
       "Error fetching support stats: Internal Server Error",
     );
     expect(mockLogger.error).toHaveBeenCalled();
-    (window as any).config = originalConfig;
   });
 
   it("should not fetch if id is missing", () => {
