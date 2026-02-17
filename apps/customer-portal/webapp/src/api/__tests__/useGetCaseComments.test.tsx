@@ -18,16 +18,15 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import useGetCaseComments from "@api/useGetCaseComments";
-import { mockCaseComments } from "@models/mockData";
 
-vi.mock("@constants/apiConstants", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@constants/apiConstants")>();
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockCommentsResponse = {
+  comments: [
+    { id: "c1", content: "Comment one", type: "comments", createdOn: "", createdBy: "", isEscalated: false },
+  ],
+  totalRecords: 1,
+  offset: 0,
+  limit: 20,
+};
 
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
@@ -37,10 +36,12 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-const mockUseMockConfig = vi.fn().mockReturnValue({ isMockEnabled: true });
-
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockCommentsResponse),
+    }),
 }));
 
 vi.mock("@hooks/useLogger", () => ({
@@ -59,10 +60,12 @@ describe("useGetCaseComments", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: true });
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
-  it("should return mock comments when isMockEnabled is true", async () => {
+  it("should return comments from API", async () => {
     const { result } = renderHook(
       () => useGetCaseComments("project-1", "case-001"),
       { wrapper },
@@ -72,8 +75,8 @@ describe("useGetCaseComments", () => {
 
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.comments).toBeDefined();
-    expect(result.current.data?.comments.length).toBe(mockCaseComments.length);
-    expect(result.current.data?.totalRecords).toBe(mockCaseComments.length);
+    expect(result.current.data?.comments.length).toBe(mockCommentsResponse.comments.length);
+    expect(result.current.data?.totalRecords).toBe(mockCommentsResponse.totalRecords);
     expect(result.current.data?.offset).toBe(0);
     expect(result.current.data?.limit).toBe(20);
   });
@@ -95,7 +98,7 @@ describe("useGetCaseComments", () => {
   it("should use correct query key", () => {
     renderHook(() => useGetCaseComments("project-1", "case-001"), { wrapper });
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["case-comments", "project-1", "case-001", 0, 20, true],
+      queryKey: ["case-comments", "project-1", "case-001", 0, 20],
     })[0];
     expect(query).toBeDefined();
   });

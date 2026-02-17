@@ -19,7 +19,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { ReactNode } from "react";
 import { useGetCallRequests } from "@api/useGetCallRequests";
-import { mockCallRequests } from "@models/mockData";
+
+const mockCallRequestsResponse = { callRequests: [] };
 
 const mockLogger = {
   debug: vi.fn(),
@@ -43,13 +44,6 @@ vi.mock("@context/AuthApiContext", () => ({
     vi.fn().mockImplementation((url, init) => fetch(url, init)),
 }));
 
-let mockIsMockEnabled = false;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
-}));
-
 describe("useGetCallRequests", () => {
   let queryClient: QueryClient;
   const originalConfig = window.config;
@@ -68,7 +62,6 @@ describe("useGetCallRequests", () => {
         },
       },
     });
-    mockIsMockEnabled = false;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -83,7 +76,7 @@ describe("useGetCallRequests", () => {
   });
 
   it("should fetch call requests from API successfully", async () => {
-    const mockResponse = mockCallRequests;
+    const mockResponse = mockCallRequestsResponse;
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -103,24 +96,11 @@ describe("useGetCallRequests", () => {
     );
   });
 
-  it("should return mock data when isMockEnabled is true", async () => {
-    mockIsMockEnabled = true;
-
-    const { result } = renderHook(() => useGetCallRequests(projectId, caseId), {
-      wrapper,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true), {
-      timeout: 2000,
-    });
-    expect(result.current.data).toEqual(mockCallRequests);
-  });
-
   it("should have correct query options", () => {
     renderHook(() => useGetCallRequests(projectId, caseId), { wrapper });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["case-call-requests", projectId, caseId, false],
+      queryKey: ["case-call-requests", projectId, caseId],
     })[0];
 
     expect((query?.options as { staleTime?: number }).staleTime).toBe(
@@ -163,7 +143,7 @@ describe("useGetCallRequests", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("should not fetch when user is not signed in and mock is disabled", async () => {
+  it("should not fetch when user is not signed in", async () => {
     mockIsSignedIn = false;
 
     const { result } = renderHook(() => useGetCallRequests(projectId, caseId), {
