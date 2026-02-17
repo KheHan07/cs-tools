@@ -477,3 +477,10 @@ export interface ProductVulnerabilitiesSearchResponse {
   offset: number;
   limit: number;
 }
+
+// Response for creating a deployment.
+export interface CreateDeploymentResponse {
+  createdBy: string;
+  createdOn: string;
+  id: string;
+}
