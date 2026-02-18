@@ -19,6 +19,7 @@ import { Circle, Folder } from "@wso2/oxygen-ui-icons-react";
 import { Button, Stack, Typography, InputAdornment, pxToRem, colors } from "@wso2/oxygen-ui";
 import { SelectField, TextField, ConversationSummary } from "@components/features/create";
 import { useFormik } from "formik";
+import { useEffect } from "react";
 
 type CreateCaseFormValues = {
   project: number;
@@ -93,17 +94,25 @@ export default function CreateCasePage() {
       project: 0,
       product: 0,
       deployment: 0,
-      title: "API Gateway timeout issues in production",
-      description:
-        "Novera: Hi! I'm Novera, your AI-powered support assistant. How can I help you today? Please describe the issue you're experiencing. Customer: fadfad Novera: Thanks for those details. Based on what you've shared, here are a few things to check:",
+      title: "",
+      description: "",
       type: 0,
       severity: 0,
     },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: () => {
       navigate("/support");
     },
   });
+
+  // TODO: Remove this temporary auto-fill once backend integration is completed.
+  useEffect(() => {
+    formik.setFieldValue("title", "API Gateway timeout issues in production");
+    formik.setFieldValue(
+      "description",
+      "Novera: Hi! I'm Novera, your AI-powered support assistant. How can I help you today? Please describe the issue you're experiencing. Customer: fadfad Novera: Thanks for those details. Based on what you've shared, here are a few things to check:",
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <form onSubmit={formik.handleSubmit}>

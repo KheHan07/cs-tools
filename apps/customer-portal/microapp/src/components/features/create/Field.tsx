@@ -16,7 +16,7 @@ import type { ReactNode } from "react";
 interface SelectFieldProps {
   name: string;
   label: string | ReactNode;
-  options: { value: number; label: string }[];
+  options: { value: number; label: string | ReactNode }[];
   value?: number;
   required?: boolean;
   aiLabel?: string;
