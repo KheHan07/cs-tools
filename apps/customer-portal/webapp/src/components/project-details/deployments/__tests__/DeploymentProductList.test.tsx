@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import DeploymentProductList from "@components/project-details/deployments/DeploymentProductList";
 import type { DeploymentProduct } from "@models/responses";
@@ -48,7 +48,9 @@ const mockProducts: DeploymentProduct[] = [
 
 describe("DeploymentProductList", () => {
   it("should render products count and 'Add Product' button", () => {
-    render(<DeploymentProductList products={mockProducts} />);
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
 
     expect(screen.getByText("WSO2 Products (2)")).toBeInTheDocument();
     expect(
@@ -57,7 +59,9 @@ describe("DeploymentProductList", () => {
   });
 
   it("should render product details (name, version, support status)", () => {
-    render(<DeploymentProductList products={mockProducts} />);
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
 
     expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
     expect(screen.getByText("4.2.0")).toBeInTheDocument();
@@ -70,7 +74,9 @@ describe("DeploymentProductList", () => {
   });
 
   it("should display technical specs (cores, TPS, release date, EOL date)", () => {
-    render(<DeploymentProductList products={mockProducts} />);
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
 
     expect(screen.getByText("8 cores")).toBeInTheDocument();
     expect(screen.getByText("5,000 TPS")).toBeInTheDocument();
@@ -85,21 +91,25 @@ describe("DeploymentProductList", () => {
   });
 
   it("should display 'No products added yet' when products array is empty", () => {
-    render(<DeploymentProductList products={[]} />);
+    render(<DeploymentProductList products={[]} deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
   it("should render update level chip for each product", () => {
-    render(<DeploymentProductList products={mockProducts} />);
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
 
     expect(screen.getByText("Update Level: U22")).toBeInTheDocument();
     expect(screen.getByText("Update Level: U15")).toBeInTheDocument();
   });
 
   it("should render product descriptions", () => {
-    render(<DeploymentProductList products={mockProducts} />);
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
 
     expect(
       screen.getByText("API Gateway and Management Platform"),
@@ -111,7 +121,7 @@ describe("DeploymentProductList", () => {
 
   it("should render checkboxes for each product", () => {
     const { container } = render(
-      <DeploymentProductList products={mockProducts} />,
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
     );
 
     const checkboxes = container.querySelectorAll('input[type="checkbox"]');
@@ -120,10 +130,24 @@ describe("DeploymentProductList", () => {
 
   it("should handle single product correctly", () => {
     const singleProduct: DeploymentProduct[] = [mockProducts[0]];
-    render(<DeploymentProductList products={singleProduct} />);
+    render(
+      <DeploymentProductList products={singleProduct} deploymentId="dep-123" />,
+    );
 
     expect(screen.getByText("WSO2 Products (1)")).toBeInTheDocument();
     expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
     expect(screen.queryByText("WSO2 Identity Server")).not.toBeInTheDocument();
+  });
+
+  it("should open Add Product modal when button is clicked", () => {
+    render(
+      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
+    );
+
+    const addButton = screen.getByRole("button", { name: /Add Product/i });
+    fireEvent.click(addButton);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("Add WSO2 Product")).toBeInTheDocument();
   });
 });
