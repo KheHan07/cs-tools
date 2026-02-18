@@ -224,4 +224,15 @@ describe("ProjectDeployments", () => {
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("success-banner")).not.toBeInTheDocument();
   });
+
+  it("should dismiss ErrorBanner when close is clicked", () => {
+    render(<ProjectDeployments projectId="project-123" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Trigger Error" }));
+    expect(screen.getByTestId("error-banner")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByTestId("error-banner")).not.toBeInTheDocument();
+  });
 });

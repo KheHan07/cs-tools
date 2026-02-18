@@ -24,7 +24,7 @@ import DeploymentCard from "@components/project-details/deployments/DeploymentCa
 import DeploymentCardSkeleton from "@components/project-details/deployments/DeploymentCardSkeleton";
 import DeploymentHeader from "@components/project-details/deployments/DeploymentHeader";
 import { Box, Grid, Typography } from "@wso2/oxygen-ui";
-import { useState, type JSX } from "react";
+import { useCallback, useState, type JSX } from "react";
 
 export interface ProjectDeploymentsProps {
   projectId: string;
@@ -50,9 +50,14 @@ export default function ProjectDeployments({
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-  const handleSuccess = () =>
-    setSuccessMessage("Deployment created successfully.");
-  const handleError = (message: string) => setErrorMessage(message);
+  const handleSuccess = useCallback(
+    () => setSuccessMessage("Deployment created successfully."),
+    [],
+  );
+  const handleError = useCallback(
+    (message: string) => setErrorMessage(message),
+    [],
+  );
 
   if (!projectId) {
     return (
@@ -79,76 +84,68 @@ export default function ProjectDeployments({
     </>
   );
 
-  if (isLoading) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          <DeploymentHeader count={0} onAddClick={handleOpenModal} />
+          <Grid container spacing={3}>
+            {[1, 2, 3].map((i) => (
+              <Grid key={i} size={12}>
+                <DeploymentCardSkeleton />
+              </Grid>
+            ))}
+          </Grid>
+        </>
+      );
+    }
+
+    if (isError) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            p: 5,
+          }}
+        >
+          <ErrorStateIcon style={{ width: 200, height: "auto" }} />
+        </Box>
+      );
+    }
+
+    if (deployments.length === 0) {
+      return (
+        <>
+          <DeploymentHeader count={0} onAddClick={handleOpenModal} />
+          <EmptyState description="It seems there are no deployments associated with this project." />
+        </>
+      );
+    }
+
     return (
-      <Box>
-        {banners}
-        <DeploymentHeader count={0} onAddClick={handleOpenModal} />
+      <>
+        <DeploymentHeader
+          count={deployments.length}
+          onAddClick={handleOpenModal}
+        />
         <Grid container spacing={3}>
-          {[1, 2, 3].map((i) => (
-            <Grid key={i} size={12}>
-              <DeploymentCardSkeleton />
+          {deployments.map((deployment) => (
+            <Grid key={deployment.id} size={12}>
+              <DeploymentCard deployment={deployment} />
             </Grid>
           ))}
         </Grid>
-        <AddDeploymentModal
-          open={isModalOpen}
-          projectId={projectId}
-          onClose={handleCloseModal}
-          onSuccess={handleSuccess}
-          onError={handleError}
-        />
-      </Box>
+      </>
     );
-  }
-
-  if (isError) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          p: 5,
-        }}
-      >
-        <ErrorStateIcon style={{ width: 200, height: "auto" }} />
-      </Box>
-    );
-  }
-
-  if (deployments.length === 0) {
-    return (
-      <Box>
-        {banners}
-        <DeploymentHeader count={0} onAddClick={handleOpenModal} />
-        <EmptyState description="It seems there are no deployments associated with this project." />
-        <AddDeploymentModal
-          open={isModalOpen}
-          projectId={projectId}
-          onClose={handleCloseModal}
-          onSuccess={handleSuccess}
-          onError={handleError}
-        />
-      </Box>
-    );
-  }
+  };
 
   return (
     <Box>
       {banners}
-      <DeploymentHeader
-        count={deployments.length}
-        onAddClick={handleOpenModal}
-      />
-      <Grid container spacing={3}>
-        {deployments.map((deployment) => (
-          <Grid key={deployment.id} size={12}>
-            <DeploymentCard deployment={deployment} />
-          </Grid>
-        ))}
-      </Grid>
+      {renderContent()}
       <AddDeploymentModal
         open={isModalOpen}
         projectId={projectId}

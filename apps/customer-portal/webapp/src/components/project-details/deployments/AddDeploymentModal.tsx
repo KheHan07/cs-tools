@@ -32,7 +32,13 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
-import { useCallback, useState, type JSX, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useState,
+  useEffect,
+  type JSX,
+  type ChangeEvent,
+} from "react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
 import { usePostCreateDeployment } from "@api/usePostCreateDeployment";
 import useGetCasesFilters from "@api/useGetCasesFilters";
@@ -78,6 +84,12 @@ export default function AddDeploymentModal({
 
   const [form, setForm] = useState(INITIAL_FORM);
   const [filtersErrorBanner, setFiltersErrorBanner] = useState(false);
+
+  useEffect(() => {
+    if (isFiltersError) {
+      setFiltersErrorBanner(true);
+    }
+  }, [isFiltersError]);
 
   const isValid =
     form.name.trim() !== "" &&

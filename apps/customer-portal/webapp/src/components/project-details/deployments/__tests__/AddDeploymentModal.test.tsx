@@ -23,7 +23,8 @@ import useGetCasesFilters from "@api/useGetCasesFilters";
 vi.mock("@api/usePostCreateDeployment");
 vi.mock("@api/useGetCasesFilters");
 
-const mockMutate = vi.fn();
+let mockMutate: any;
+let defaultModalProps: any;
 
 const mockFiltersData = {
   deploymentTypes: [
@@ -34,16 +35,28 @@ const mockFiltersData = {
   ],
 };
 
-const defaultModalProps = {
-  open: true,
-  projectId: "project-123",
-  onClose: vi.fn(),
-  onSuccess: vi.fn(),
-  onError: vi.fn(),
-};
+vi.mock("@components/common/error-banner/ErrorBanner", () => ({
+  default: ({ message, onClose }: { message: string; onClose: () => void }) => (
+    <div data-testid="error-banner">
+      {message}
+      <button onClick={onClose}>Dismiss Banner</button>
+    </div>
+  ),
+}));
 
 describe("AddDeploymentModal", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockMutate = vi.fn();
+    defaultModalProps = {
+      open: true,
+      projectId: "project-123",
+      onClose: vi.fn(),
+      onSuccess: vi.fn(),
+      onError: vi.fn(),
+    };
+
     vi.mocked(usePostCreateDeployment).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
@@ -91,7 +104,7 @@ describe("AddDeploymentModal", () => {
     expect(screen.queryByLabelText(/Deployment Type/i)).not.toBeInTheDocument();
   });
 
-  it("should show ErrorIndicator when deployment types fail to load", () => {
+  it("should show ErrorIndicator inside modal when deployment types fail to load", () => {
     vi.mocked(useGetCasesFilters).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -101,6 +114,39 @@ describe("AddDeploymentModal", () => {
     render(<AddDeploymentModal {...defaultModalProps} />);
 
     expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
+  });
+
+  it("should show ErrorBanner outside modal when deployment types fail to load", () => {
+    vi.mocked(useGetCasesFilters).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as unknown as ReturnType<typeof useGetCasesFilters>);
+
+    render(<AddDeploymentModal {...defaultModalProps} />);
+
+    expect(screen.getByTestId("error-banner")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Failed to load deployment types. Please close and try again.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("should dismiss ErrorBanner when dismiss button is clicked", () => {
+    vi.mocked(useGetCasesFilters).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as unknown as ReturnType<typeof useGetCasesFilters>);
+
+    render(<AddDeploymentModal {...defaultModalProps} />);
+
+    expect(screen.getByTestId("error-banner")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Dismiss Banner"));
+
+    expect(screen.queryByTestId("error-banner")).not.toBeInTheDocument();
   });
 
   it("should disable Add Deployment button when form is incomplete", () => {
@@ -124,21 +170,19 @@ describe("AddDeploymentModal", () => {
   });
 
   it("should call onClose when Cancel button is clicked", () => {
-    const onClose = vi.fn();
-    render(<AddDeploymentModal {...defaultModalProps} onClose={onClose} />);
+    render(<AddDeploymentModal {...defaultModalProps} />);
 
     fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(defaultModalProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it("should call onClose when X icon button is clicked", () => {
-    const onClose = vi.fn();
-    render(<AddDeploymentModal {...defaultModalProps} onClose={onClose} />);
+    render(<AddDeploymentModal {...defaultModalProps} />);
 
     fireEvent.click(screen.getByRole("button", { name: /close/i }));
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(defaultModalProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   it("should show loading state when mutation is pending", () => {
@@ -169,5 +213,35 @@ describe("AddDeploymentModal", () => {
 
     const addButton = screen.getByRole("button", { name: /Add Deployment/i });
     expect(addButton).toBeDisabled();
+  });
+
+  it("should submit form with correct data when all fields are valid", () => {
+    render(<AddDeploymentModal {...defaultModalProps} />);
+
+    fireEvent.change(screen.getByLabelText(/Deployment Name/i), {
+      target: { value: "Production West" },
+    });
+
+    fireEvent.mouseDown(screen.getByLabelText(/Deployment Type/i));
+    fireEvent.click(screen.getByRole("option", { name: "Development" }));
+    fireEvent.change(screen.getByLabelText(/Description/i), {
+      target: { value: "Primary dev env" },
+    });
+
+    const addButton = screen.getByRole("button", { name: /Add Deployment/i });
+    expect(addButton).not.toBeDisabled();
+    fireEvent.click(addButton);
+    expect(mockMutate).toHaveBeenCalledTimes(1);
+    expect(mockMutate).toHaveBeenCalledWith(
+      {
+        name: "Production West",
+        deploymentTypeKey: 1,
+        description: "Primary dev env",
+      },
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+        onError: expect.any(Function),
+      }),
+    );
   });
 });
