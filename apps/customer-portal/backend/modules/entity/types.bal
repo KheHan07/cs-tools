@@ -508,6 +508,18 @@ public type DeployedProduct record {|
     ReferenceTableItem? deployment;
     # Product information
     ReferenceTableItem? product;
+    # Product version
+    ReferenceTableItem? version;
+    # Cores allocated for the product
+    int? cores;
+    # TPS allocated for the product
+    int? tps;
+    # Release date of the product
+    string? releasedOn;
+    # End of life date of the product
+    string? endOfLifeOn;
+    # Update level of the product
+    string? updateLevel;
     json...;
 |};
 
