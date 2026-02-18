@@ -55,11 +55,18 @@ service class ErrorInterceptor {
     }
 }
 
+// TODO: Remove after the ballerina header configs setting through choreo issue is fixed
+http:ListenerConfiguration listenerConf = {
+    requestLimits: {
+        maxHeaderSize: 16384
+    }
+};
+
 @display {
     label: "Customer Portal",
     id: "cs/customer-portal"
 }
-service http:InterceptableService / on new http:Listener(9090) {
+service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     public function createInterceptors() returns http:Interceptor[] =>
         [new authorization:JwtInterceptor(), new ErrorInterceptor()];
 
