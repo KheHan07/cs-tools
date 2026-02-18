@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Typography } from "@wso2/oxygen-ui";
+import { Box, Stack, Typography } from "@wso2/oxygen-ui";
 import { useParams } from "react-router";
 import { useState, useEffect, useRef, type JSX } from "react";
 import TabBar from "@components/common/tab-bar/TabBar";
 import { UpdatesStatsGrid } from "@components/updates/stat-card-row/UpdatesStatsGrid";
+import { UpdateProductGrid } from "@update-cards/UpdateProductGrid";
 import { useGetRecommendedUpdateLevels } from "@api/useGetRecommendedUpdateLevels";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
@@ -75,7 +76,18 @@ export default function UpdatesPage(): JSX.Element {
   const renderContent = (): JSX.Element => {
     if (activeTab === "my-updates") {
       return (
-        <UpdatesStatsGrid data={data} isLoading={isLoading} isError={isError} />
+        <Stack spacing={2}>
+          <UpdatesStatsGrid
+            data={data}
+            isLoading={isLoading}
+            isError={isError}
+          />
+          <UpdateProductGrid
+            data={data}
+            isLoading={isLoading}
+            isError={isError}
+          />
+        </Stack>
       );
     }
     return (

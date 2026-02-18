@@ -16,14 +16,13 @@
 
 import { useAsgardeo } from "@asgardeo/react";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { getMockDashboardStats } from "@models/mockFunctions";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import type { DashboardMockStats } from "@models/responses";
 
 /**
- * Custom hook to fetch dashboard mock statistics.
+ * Custom hook to fetch dashboard statistics.
+ * Real API for dashboard stats (trend) is not implemented yet; throws so UI can show error state.
  *
  * @param {string} projectId - The ID of the project.
  * @returns {UseQueryResult<DashboardMockStats, Error>} The query result object.
@@ -33,34 +32,18 @@ export function useGetDashboardMockStats(
 ): UseQueryResult<DashboardMockStats, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<DashboardMockStats, Error>({
-    queryKey: [ApiQueryKeys.DASHBOARD_STATS, projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.DASHBOARD_STATS, projectId],
     queryFn: async (): Promise<DashboardMockStats> => {
       logger.debug(
-        `Fetching dashboard mock stats for project ID: ${projectId}, mock: ${isMockEnabled}`,
+        `Fetching dashboard stats for project ID: ${projectId}`,
       );
-
-      if (!isMockEnabled) {
-        throw new Error(
-          "Real API for dashboard stats (trend) is not implemented yet.",
-        );
-      }
-
-      // Mock behavior: simulate network latency.
-      await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-      const stats: DashboardMockStats = getMockDashboardStats();
-
-      logger.debug(
-        `Dashboard mock stats fetched successfully for project ID: ${projectId}`,
-        stats,
+      throw new Error(
+        "Dashboard stats API is not implemented yet.",
       );
-
-      return stats;
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

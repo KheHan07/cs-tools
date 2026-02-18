@@ -57,7 +57,7 @@ export function UpdatesStatsGrid({
         <Skeleton
           variant="text"
           width={width}
-          height={16}
+          height={20}
           sx={{ display: "inline-block", verticalAlign: "middle", mx: 0.5 }}
         />
       );

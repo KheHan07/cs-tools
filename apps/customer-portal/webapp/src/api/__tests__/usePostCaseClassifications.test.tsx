@@ -29,13 +29,10 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockAuthFetch = vi.fn();
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
+}));
 
 const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 let mockIsSignedIn = true;
@@ -45,13 +42,6 @@ vi.mock("@asgardeo/react", () => ({
     getIdToken: mockGetIdToken,
     isSignedIn: mockIsSignedIn,
     isLoading: mockIsAuthLoading,
-  }),
-}));
-
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
   }),
 }));
 
@@ -79,7 +69,6 @@ describe("usePostCaseClassifications", () => {
         },
       },
     });
-    mockIsMockEnabled = true;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -90,21 +79,7 @@ describe("usePostCaseClassifications", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns mock data when isMockEnabled is true", async () => {
-    const { result } = renderHook(() => usePostCaseClassifications(), {
-      wrapper,
-    });
-
-    const data = await result.current.mutateAsync(requestBody);
-
-    expect(data.issueType).toBe("Question");
-    expect(data.severityLevel).toBe("S4");
-    expect(data.case_info.productName).toBe("WSO2 Identity Server");
-    expect(data.case_info.productVersion).toBe("v6.1.0");
-  });
-
-  it("posts to API when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
+  it("posts to API and returns classification", async () => {
     const mockResponse = {
       issueType: "Question",
       severityLevel: "S4",
@@ -118,7 +93,7 @@ describe("usePostCaseClassifications", () => {
         region: "",
       },
     };
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockResponse),
       status: 200,
@@ -127,7 +102,6 @@ describe("usePostCaseClassifications", () => {
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCaseClassifications(), {
       wrapper,
@@ -135,18 +109,14 @@ describe("usePostCaseClassifications", () => {
 
     const data = await result.current.mutateAsync(requestBody);
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       expect.stringContaining("/cases/classify"),
-      expect.objectContaining({
-        method: "POST",
-        headers: expect.any(Object),
-      }),
+      expect.objectContaining({ method: "POST" }),
     );
     expect(data).toEqual(mockResponse);
   });
 
   it("throws when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
-    mockIsMockEnabled = false;
     window.config = {} as typeof window.config;
 
     const { result } = renderHook(() => usePostCaseClassifications(), {
@@ -159,17 +129,14 @@ describe("usePostCaseClassifications", () => {
   });
 
   it("throws when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Internal Server Error",
       status: 500,
     } as Response);
-
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCaseClassifications(), {
       wrapper,
@@ -181,7 +148,6 @@ describe("usePostCaseClassifications", () => {
   });
 
   it("throws when user is not signed in", async () => {
-    mockIsMockEnabled = false;
     mockIsSignedIn = false;
 
     window.config = {

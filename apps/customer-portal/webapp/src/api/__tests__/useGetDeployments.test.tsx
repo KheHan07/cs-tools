@@ -19,7 +19,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGetDeployments } from "@api/useGetDeployments";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { mockDeployments } from "@models/mockData";
+
+const mockDeploymentsResponse = {
+  deployments: [
+    {
+      id: "dep-1",
+      name: "Production",
+      status: "Healthy",
+      url: "https://example.com",
+      version: "1.0",
+      products: [],
+      documents: [],
+    },
+  ],
+};
+
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockDeploymentsResponse),
+  status: 200,
+} as Response);
 
 const mockLogger = {
   debug: vi.fn(),
@@ -29,28 +48,16 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
-
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: true,
     isLoading: false,
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("useGetDeployments", () => {
@@ -58,13 +65,16 @@ describe("useGetDeployments", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
-    mockIsMockEnabled = true;
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockDeploymentsResponse),
+      status: 200,
+    } as Response);
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -76,8 +86,8 @@ describe("useGetDeployments", () => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
-  it("should return mock data when isMockEnabled is true", async () => {
-    const { result } = renderHook(() => useGetDeployments("project-1"), {
+  it("should return deployments from API", async () => {
+    const { result } = renderHook(() => useGetDeployments("project-123"), {
       wrapper,
     });
 
@@ -86,57 +96,20 @@ describe("useGetDeployments", () => {
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.deployments).toBeDefined();
     expect(Array.isArray(result.current.data?.deployments)).toBe(true);
-    expect(result.current.data?.deployments).toHaveLength(
-      mockDeployments.length,
-    );
+    expect(result.current.data?.deployments).toHaveLength(1);
     expect(result.current.data?.deployments[0]).toMatchObject({
-      id: expect.any(String),
-      name: expect.any(String),
-      status: expect.stringMatching(/^(Healthy|Warning)$/),
-      url: expect.any(String),
-      version: expect.any(String),
-      products: expect.any(Array),
-      documents: expect.any(Array),
+      id: "dep-1",
+      name: "Production",
+      status: "Healthy",
     });
-  });
-
-  it("should fetch from API when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
-    const mockResponse = { deployments: mockDeployments };
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-      status: 200,
-    } as Response);
-
-    const originalConfig = window.config;
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
-
-    const { result } = renderHook(() => useGetDeployments("project-123"), {
-      wrapper,
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       expect.stringContaining("/projects/project-123/deployments"),
-      expect.objectContaining({
-        method: "GET",
-        headers: expect.any(Object),
-      }),
+      expect.objectContaining({ method: "GET" }),
     );
-    expect(result.current.data).toEqual(mockResponse);
-
-    window.config = originalConfig;
   });
 
   it("should throw error when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
-    mockIsMockEnabled = false;
-    const originalConfig = window.config;
-    window.config = {} as typeof window.config;
+    (window as unknown as { config?: unknown }).config = {};
 
     const { result } = renderHook(() => useGetDeployments("project-123"), {
       wrapper,
@@ -146,23 +119,14 @@ describe("useGetDeployments", () => {
     expect(result.current.error?.message).toBe(
       "CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured",
     );
-
-    window.config = originalConfig;
   });
 
   it("should throw error when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Internal Server Error",
       status: 500,
     } as Response);
-
-    const originalConfig = window.config;
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => useGetDeployments("project-123"), {
       wrapper,
@@ -172,8 +136,6 @@ describe("useGetDeployments", () => {
     expect(result.current.error?.message).toBe(
       "Error fetching deployments: Internal Server Error",
     );
-
-    window.config = originalConfig;
   });
 
   it("should not be enabled when projectId is empty", () => {

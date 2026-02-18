@@ -18,18 +18,22 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useGetProjectDetails from "@api/useGetProjectDetails";
-import { mockProjectDetails } from "@models/mockData";
 import type { ReactNode } from "react";
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockProjectDetail = {
+  id: "1890347890",
+  name: "WSO2 Con App",
+  key: "CON2026",
+  description: "Official conference management app",
+  createdOn: "2025-07-17 09:06:14",
+  type: "FREE",
+  subscription: {
+    startDate: "2025-07-01",
+    endDate: "2026-07-01",
+    supportTier: "ENTERPRISE",
+  },
+};
 
-// Mock @asgardeo/react
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
     getIdToken: vi.fn(),
@@ -38,14 +42,23 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-// Mock MockConfigProvider
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
-  }),
+const mockAuthFetch = vi.fn().mockImplementation((url: string) => {
+  if (url.includes("invalid-id")) {
+    return Promise.resolve({
+      ok: false,
+      status: 404,
+      statusText: "Project with ID invalid-id not found",
+    } as Response);
+  }
+  return Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(mockProjectDetail),
+  } as Response);
+});
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
-// Mock useLogger
 vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => ({
     debug: vi.fn(),
@@ -71,10 +84,13 @@ const createWrapper = () => {
 describe("useGetProjectDetails", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
   it("should return project details for a valid project ID", async () => {
-    const validProjectId = mockProjectDetails[0].id;
+    const validProjectId = mockProjectDetail.id;
 
     const { result } = renderHook(() => useGetProjectDetails(validProjectId), {
       wrapper: createWrapper(),
@@ -85,7 +101,7 @@ describe("useGetProjectDetails", () => {
     const response = result.current.data;
     expect(response).toBeDefined();
     expect(response?.id).toBe(validProjectId);
-    expect(response?.name).toBe(mockProjectDetails[0].name);
+    expect(response?.name).toBe(mockProjectDetail.name);
   });
 
   it("should error for an invalid project ID", async () => {

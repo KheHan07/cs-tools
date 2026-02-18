@@ -19,7 +19,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGetProductVulnerabilities } from "@api/useGetProductVulnerabilities";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { mockProductVulnerabilityDetail } from "@models/mockData";
+
+const mockVulnerabilityResponse = {
+  vulnerabilityId: "XRAY-999003",
+  cveId: "CVE-2099-3333",
+  componentType: "library",
+  updateLevel: "2.6.1",
+  severity: { id: 1, label: "Low" },
+};
+
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockVulnerabilityResponse),
+  status: 200,
+} as Response);
 
 const mockLogger = {
   debug: vi.fn(),
@@ -29,33 +42,16 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
-
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: true,
     isLoading: false,
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
-}));
-
 vi.mock("@/context/AuthApiContext", () => ({
-  useAuthApiClient: () => (url: string, init?: RequestInit) => fetch(url, init),
-  AuthApiProvider: ({ children }: { children: unknown }) => children,
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("useGetProductVulnerabilities", () => {
@@ -68,13 +64,16 @@ describe("useGetProductVulnerabilities", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
-    mockIsMockEnabled = true;
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockVulnerabilityResponse),
+      status: 200,
+    } as Response);
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -83,7 +82,7 @@ describe("useGetProductVulnerabilities", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns mock data when isMockEnabled is true", async () => {
+  it("returns vulnerability from API", async () => {
     const { result } = renderHook(
       () => useGetProductVulnerabilities("XRAY-999003"),
       { wrapper },
@@ -92,45 +91,20 @@ describe("useGetProductVulnerabilities", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toBeDefined();
-    expect(result.current.data).toEqual(mockProductVulnerabilityDetail);
+    expect(result.current.data).toEqual(mockVulnerabilityResponse);
     expect(result.current.data?.vulnerabilityId).toBe("XRAY-999003");
     expect(result.current.data?.cveId).toBe("CVE-2099-3333");
     expect(result.current.data?.componentType).toBe("library");
     expect(result.current.data?.updateLevel).toBe("2.6.1");
     expect(result.current.data?.severity.label).toBe("Low");
-  });
-
-  it("fetches from API when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
-    const mockResponse = { ...mockProductVulnerabilityDetail };
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-      status: 200,
-    } as Response);
-
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
-
-    const { result } = renderHook(
-      () => useGetProductVulnerabilities("XRAY-999003"),
-      { wrapper },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       expect.stringContaining("/products/vulnerabilities/XRAY-999003"),
       expect.objectContaining({ method: "GET" }),
     );
-    expect(result.current.data).toEqual(mockResponse);
   });
 
   it("throws when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
-    mockIsMockEnabled = false;
-    window.config = {} as typeof window.config;
+    (window as unknown as { config?: unknown }).config = {};
 
     const { result } = renderHook(
       () => useGetProductVulnerabilities("XRAY-999003"),
@@ -144,17 +118,11 @@ describe("useGetProductVulnerabilities", () => {
   });
 
   it("throws when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Not Found",
       status: 404,
     } as Response);
-
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(
       () => useGetProductVulnerabilities("XRAY-999003"),
@@ -182,7 +150,7 @@ describe("useGetProductVulnerabilities", () => {
       wrapper,
     });
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["product-vulnerability", "XRAY-999003", true],
+      queryKey: ["product-vulnerability", "XRAY-999003"],
     })[0];
     expect(query).toBeDefined();
   });

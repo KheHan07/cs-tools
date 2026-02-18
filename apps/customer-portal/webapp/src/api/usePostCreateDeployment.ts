@@ -20,7 +20,6 @@ import {
   type UseMutationResult,
 } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CreateDeploymentRequest } from "@models/requests";
@@ -38,7 +37,6 @@ export function usePostCreateDeployment(
   const logger = useLogger();
   const queryClient = useQueryClient();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
 
   return useMutation<CreateDeploymentResponse, Error, CreateDeploymentRequest>({
@@ -46,12 +44,6 @@ export function usePostCreateDeployment(
       body: CreateDeploymentRequest,
     ): Promise<CreateDeploymentResponse> => {
       logger.debug("[usePostCreateDeployment] Request payload:", body);
-
-      if (isMockEnabled) {
-        throw new Error(
-          "Creating a deployment is not available when mock is enabled. Disable mock to create a deployment.",
-        );
-      }
 
       try {
         if (!isSignedIn || isAuthLoading) {

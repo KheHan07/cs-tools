@@ -29,11 +29,18 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-// Mock MockConfigProvider
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          cases: [],
+          totalRecords: 0,
+          offset: 0,
+          limit: 20,
+        }),
+    }),
 }));
 
 // Mock logger
@@ -58,15 +65,14 @@ describe("useGetProjectCases", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
     wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -77,7 +83,7 @@ describe("useGetProjectCases", () => {
     });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["project-cases", "project-1", requestBody, true],
+      queryKey: ["project-cases", "project-1", requestBody],
     })[0];
 
     expect((query?.options as any).staleTime).toBe(5 * 60 * 1000);

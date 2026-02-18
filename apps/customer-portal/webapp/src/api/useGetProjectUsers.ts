@@ -16,32 +16,40 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryResult } from "@tanstack/react-query";
-import { mockProjectUsers } from "@models/mockData";
-import type { MockProjectUser } from "@models/mockData";
-import { useMockConfig } from "@providers/MockConfigProvider";
+import { useAsgardeo } from "@asgardeo/react";
 import { ApiQueryKeys } from "@constants/apiConstants";
+import { useAuthApiClient } from "@context/AuthApiContext";
+import type { ProjectUser } from "@models/responses";
 
 /**
  * Custom hook to fetch project users.
  *
  * @param {string} projectId - The project ID.
- * @returns {UseQueryResult<MockProjectUser[]>} The query result containing project users.
+ * @returns {UseQueryResult<ProjectUser[]>} The query result containing project users.
  */
 export default function useGetProjectUsers(
-    projectId: string,
-): UseQueryResult<MockProjectUser[]> {
-    const { isMockEnabled } = useMockConfig();
+  projectId: string,
+): UseQueryResult<ProjectUser[]> {
+  const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
+  const fetchFn = useAuthApiClient();
 
-    return useQuery<MockProjectUser[]>({
-        queryKey: [ApiQueryKeys.PROJECT_USERS, projectId],
-        queryFn: async () => {
-            if (isMockEnabled) {
-                return mockProjectUsers;
-            }
-
-            // TODO: Implement API call when endpoint is available
-            return [];
-        },
-        enabled: !!projectId,
-    });
+  return useQuery<ProjectUser[]>({
+    queryKey: [ApiQueryKeys.PROJECT_USERS, projectId],
+    queryFn: async (): Promise<ProjectUser[]> => {
+      const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
+      if (!baseUrl) {
+        throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
+      }
+      const requestUrl = `${baseUrl}/projects/${projectId}/users`;
+      const response = await fetchFn(requestUrl, { method: "GET" });
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching project users: ${response.status} ${response.statusText}`,
+        );
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : data.users ?? [];
+    },
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
+  });
 }

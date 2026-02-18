@@ -2,8 +2,7 @@
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
+// in compliance with the License. You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -20,6 +19,25 @@ import { useGetChatHistory } from "@api/useGetChatHistory";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
+const mockChatResponse = {
+  chatHistory: [
+    {
+      chatId: "1",
+      title: "Test chat",
+      startedTime: "1 hour ago",
+      messages: 3,
+      kbArticles: 1,
+      status: "Resolved",
+    },
+  ],
+};
+
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockChatResponse),
+  status: 200,
+} as Response);
+
 const mockLogger = {
   debug: vi.fn(),
   error: vi.fn(),
@@ -28,28 +46,16 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
-
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: true,
     isLoading: false,
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("useGetChatHistory", () => {
@@ -57,15 +63,18 @@ describe("useGetChatHistory", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
     mockLogger.debug.mockClear();
     mockLogger.error.mockClear();
-    mockIsMockEnabled = true;
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockChatResponse),
+      status: 200,
+    } as Response);
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -82,8 +91,7 @@ describe("useGetChatHistory", () => {
     expect(result.current.isLoading).toBe(true);
   });
 
-  it("should return mock data when mock is enabled", async () => {
-    mockIsMockEnabled = true;
+  it("should return data from API", async () => {
     const { result } = renderHook(
       () => useGetChatHistory("project-1"),
       { wrapper },
@@ -103,18 +111,13 @@ describe("useGetChatHistory", () => {
       kbArticles: expect.any(Number),
       status: expect.any(String),
     });
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "Fetching chat history for project ID: project-1, mock: true",
-      ),
-    );
   });
 
   it("should have correct query options", () => {
     renderHook(() => useGetChatHistory("project-1"), { wrapper });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["chat-history", "project-1", true],
+      queryKey: ["chat-history", "project-1"],
     })[0];
 
     expect((query?.options as { staleTime?: number }).staleTime).toBe(
@@ -122,69 +125,12 @@ describe("useGetChatHistory", () => {
     );
   });
 
-  it("should fetch real data when mock is disabled", async () => {
-    mockIsMockEnabled = false;
-    const mockResponse = {
-      chatHistory: [
-        {
-          chatId: "1",
-          title: "Test chat",
-          startedTime: "1 hour ago",
-          messages: 3,
-          kbArticles: 1,
-          status: "Resolved",
-        },
-      ],
-    };
-
-    const originalConfig = window.config;
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockResponse),
-        status: 200,
-      } as Response),
-    );
-
-    const { result } = renderHook(
-      () => useGetChatHistory("project-1"),
-      { wrapper },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(result.current.data).toEqual(mockResponse);
-    expect(mockGetIdToken).toHaveBeenCalled();
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "Fetching chat history for project ID: project-1, mock: false",
-      ),
-    );
-
-    window.config = originalConfig;
-  });
-
-  it("should handle API error when mock is disabled", async () => {
-    mockIsMockEnabled = false;
-
-    const originalConfig = window.config;
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: false,
-        statusText: "Internal Server Error",
-        status: 500,
-      } as Response),
-    );
+  it("should handle API error", async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: false,
+      statusText: "Internal Server Error",
+      status: 500,
+    } as Response);
 
     const { result } = renderHook(
       () => useGetChatHistory("project-1"),
@@ -196,8 +142,6 @@ describe("useGetChatHistory", () => {
       "Error fetching chat history: Internal Server Error",
     );
     expect(mockLogger.error).toHaveBeenCalled();
-
-    window.config = originalConfig;
   });
 
   it("should not fetch if projectId is missing", () => {

@@ -21,8 +21,25 @@ import {
   getStatTooltipText,
   NULL_PLACEHOLDER,
 } from "@utils/updates";
-import { mockRecommendedUpdateLevels } from "@models/mockData";
 import { UPDATES_STATS } from "@constants/updatesConstants";
+import type { RecommendedUpdateLevelItem } from "@models/responses";
+
+const createUpdateLevelItem = (
+  overrides: Partial<RecommendedUpdateLevelItem> = {},
+): RecommendedUpdateLevelItem => ({
+  productName: "product",
+  productBaseVersion: "1.0",
+  channel: "full",
+  startingUpdateLevel: 0,
+  endingUpdateLevel: 10,
+  installedUpdatesCount: 100,
+  installedSecurityUpdatesCount: 20,
+  timestamp: 0,
+  recommendedUpdateLevel: 10,
+  availableUpdatesCount: 50,
+  availableSecurityUpdatesCount: 10,
+  ...overrides,
+});
 
 describe("updates utilities", () => {
   describe("aggregateUpdateStats", () => {
@@ -30,8 +47,24 @@ describe("updates utilities", () => {
       expect(aggregateUpdateStats(undefined)).toBeUndefined();
     });
 
-    it("should correctly aggregate stats for a 20-product dataset", () => {
-      const stats = aggregateUpdateStats(mockRecommendedUpdateLevels);
+    it("should correctly aggregate stats for a multi-product dataset", () => {
+      const data: RecommendedUpdateLevelItem[] = [
+        createUpdateLevelItem({
+          installedUpdatesCount: 200,
+          installedSecurityUpdatesCount: 40,
+          availableUpdatesCount: 60,
+          availableSecurityUpdatesCount: 30,
+        }),
+        ...Array(19).fill(null).map(() =>
+          createUpdateLevelItem({
+            installedUpdatesCount: 183,
+            installedSecurityUpdatesCount: 39,
+            availableUpdatesCount: 55,
+            availableSecurityUpdatesCount: 21,
+          }),
+        ),
+      ];
+      const stats = aggregateUpdateStats(data);
       expect(stats).toBeDefined();
       if (!stats) return;
 

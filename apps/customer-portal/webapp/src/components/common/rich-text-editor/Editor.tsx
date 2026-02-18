@@ -111,6 +111,24 @@ const OnChangeHTMLPlugin = ({
   );
 };
 
+/**
+ * Internal component to handle resetting the editor.
+ */
+const ResetPlugin = ({ resetTrigger }: { resetTrigger?: number }) => {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (resetTrigger !== undefined && resetTrigger > 0) {
+      editor.update(() => {
+        const root = $getRoot();
+        root.clear();
+      });
+    }
+  }, [editor, resetTrigger]);
+
+  return null;
+};
+
 /** Static editor config (namespace, nodes, theme). */
 const DEFAULT_EDITOR_CONFIG = {
   namespace: "MyEditor",
@@ -147,6 +165,9 @@ const Editor = ({
   disabled = false,
   value,
   onChange,
+  resetTrigger,
+  minHeight = 150,
+  showToolbar = true,
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -154,6 +175,10 @@ const Editor = ({
   disabled?: boolean;
   value?: string;
   onChange?: (html: string) => void;
+  resetTrigger?: number;
+  minHeight?: number | string;
+  showToolbar?: boolean;
+  placeholder?: string;
 }): JSX.Element => {
   const oxygenTheme = useTheme();
   const logger = useLogger();
@@ -220,15 +245,23 @@ const Editor = ({
         }}
       >
         <EditableStatePlugin disabled={disabled} />
-        <Toolbar onAttachmentClick={onAttachmentClick} disabled={disabled} />
-        <Divider sx={{ my: 1 }} />
+        {showToolbar && (
+          <>
+            <Toolbar
+              onAttachmentClick={onAttachmentClick}
+              disabled={disabled}
+            />
+            <Divider sx={{ my: 1 }} />
+          </>
+        )}
         <Box
           sx={{
             position: "relative",
-            minHeight: 150,
+            minHeight,
             "& .editor-input": {
               outline: "none",
-              minHeight: "150px",
+              minHeight:
+                typeof minHeight === "number" ? `${minHeight}px` : minHeight,
               fontSize: oxygenTheme.typography.body2.fontSize,
               color: "text.primary",
               typography: "body2",
@@ -296,6 +329,7 @@ const Editor = ({
           <ClickableLinkPlugin />
           <InitialValuePlugin initialHtml={value} />
           <OnChangeHTMLPlugin onChange={onChange} />
+          <ResetPlugin resetTrigger={resetTrigger} />
         </Box>
         {attachments.length > 0 && (
           <>

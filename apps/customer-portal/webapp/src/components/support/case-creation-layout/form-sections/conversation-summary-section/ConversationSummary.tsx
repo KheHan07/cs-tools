@@ -24,7 +24,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { Bot, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import type { CaseCreationMetadata } from "@models/mockData";
+import type { CaseCreationMetadata } from "@models/responses";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 export interface ConversationSummaryProps {

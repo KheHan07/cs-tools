@@ -40,11 +40,9 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+const mockAuthFetch = vi.fn();
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("usePostAttachments", () => {
@@ -73,7 +71,6 @@ describe("usePostAttachments", () => {
         },
       },
     });
-    mockIsMockEnabled = true;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -84,42 +81,26 @@ describe("usePostAttachments", () => {
     vi.unstubAllGlobals();
   });
 
-  it("throws when isMockEnabled is true", async () => {
-    const { result } = renderHook(() => usePostAttachments(), { wrapper });
-
-    await expect(result.current.mutateAsync(variables)).rejects.toThrow(
-      "Upload attachment is not available when mock is enabled. Disable mock to upload.",
-    );
-  });
-
-  it("posts to API with correct URL, headers and body when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-    } as Response);
-
+  it("posts to API with correct URL and body", async () => {
+    mockAuthFetch.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostAttachments(), { wrapper });
 
     await result.current.mutateAsync(variables);
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       "https://api.test/cases/case-123/attachments",
       expect.objectContaining({
         method: "POST",
-        headers: expect.any(Object),
         body: JSON.stringify(variables.body),
       }),
     );
   });
 
   it("throws when CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured", async () => {
-    mockIsMockEnabled = false;
     window.config = {} as typeof window.config;
 
     const { result } = renderHook(() => usePostAttachments(), { wrapper });
@@ -130,18 +111,15 @@ describe("usePostAttachments", () => {
   });
 
   it("throws when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Bad Request",
       status: 400,
       text: () => Promise.resolve("Invalid payload"),
     } as Response);
-
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostAttachments(), { wrapper });
 
@@ -151,7 +129,6 @@ describe("usePostAttachments", () => {
   });
 
   it("throws when user is not signed in", async () => {
-    mockIsMockEnabled = false;
     mockIsSignedIn = false;
 
     window.config = {
@@ -166,17 +143,11 @@ describe("usePostAttachments", () => {
   });
 
   it("invalidates case-attachments query on success", async () => {
-    mockIsMockEnabled = false;
+    mockAuthFetch.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
     const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-    } as Response);
-
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostAttachments(), { wrapper });
 

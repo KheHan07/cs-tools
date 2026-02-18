@@ -16,8 +16,7 @@
 
 import { Box, Chip, Stack, Typography } from "@wso2/oxygen-ui";
 import { type ReactElement, type ReactNode, type JSX } from "react";
-import { getSeverityColor } from "@utils/casesTable";
-import { formatValue } from "@utils/support";
+import { formatValue, getSeverityColor } from "@utils/support";
 import { CaseDetailsHeaderSkeleton } from "@case-details/CaseDetailsSkeleton";
 
 export interface CaseDetailsHeaderProps {

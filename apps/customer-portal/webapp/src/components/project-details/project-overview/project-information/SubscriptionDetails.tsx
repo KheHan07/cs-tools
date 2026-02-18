@@ -26,7 +26,7 @@ import {
   getSubscriptionStatus,
   getSubscriptionColor,
   calculateProgress,
-} from "@utils/projectStats";
+} from "@utils/projectDetails";
 import { SUBSCRIPTION_STATUS } from "@constants/projectDetailsConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 

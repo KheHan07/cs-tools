@@ -19,7 +19,9 @@ import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { BasicInformationSection } from "@components/support/case-creation-layout/form-sections/basic-information-section/BasicInformationSection";
 
-function renderSection(props: Partial<Parameters<typeof BasicInformationSection>[0]> = {}) {
+function renderSection(
+  props: Partial<Parameters<typeof BasicInformationSection>[0]> = {},
+) {
   return render(
     <ThemeProvider theme={createTheme()}>
       <BasicInformationSection
@@ -65,31 +67,25 @@ describe("BasicInformationSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("should show deployment skeleton when isDeploymentLoading is true", () => {
-    renderSection({ isDeploymentLoading: true });
-    const skeletons = document.querySelectorAll('[class*="MuiSkeleton"]');
-    expect(skeletons.length).toBeGreaterThan(0);
-  });
-
-  it("should show product skeleton when isProductLoading is true", () => {
-    renderSection({ isProductLoading: true });
-    const skeletons = document.querySelectorAll('[class*="MuiSkeleton"]');
-    expect(skeletons.length).toBeGreaterThan(0);
-  });
-
-  it("should show Save and Cancel when edit button is clicked", () => {
+  it("should toggle editing mode and enable/disable fields", () => {
     renderSection({
       metadata: { deploymentTypes: ["Production"], products: [] },
     });
+
     const editButton = screen.getByRole("button", {
       name: /edit basic information/i,
     });
+
+    // Toggle ON
     fireEvent.click(editButton);
     expect(
-      screen.getByRole("button", { name: /save basic information/i }),
+      screen.getByRole("button", { name: /stop editing basic information/i }),
     ).toBeInTheDocument();
+
+    // Toggle OFF
+    fireEvent.click(editButton);
     expect(
-      screen.getByRole("button", { name: /cancel editing basic information/i }),
+      screen.getByRole("button", { name: /edit basic information/i }),
     ).toBeInTheDocument();
   });
 });

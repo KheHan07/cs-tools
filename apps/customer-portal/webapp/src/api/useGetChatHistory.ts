@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { getMockChatHistory } from "@models/mockFunctions";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ChatHistoryResponse } from "@models/responses";
 
@@ -35,24 +33,11 @@ export function useGetChatHistory(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ChatHistoryResponse, Error>({
-    queryKey: [ApiQueryKeys.CHAT_HISTORY, projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.CHAT_HISTORY, projectId],
     queryFn: async (): Promise<ChatHistoryResponse> => {
-      logger.debug(
-        `Fetching chat history for project ID: ${projectId}, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        const data = getMockChatHistory();
-        logger.debug(
-          `Chat history fetched successfully for project ID: ${projectId} (mock)`,
-          data,
-        );
-        return data;
-      }
+      logger.debug(`Fetching chat history for project ID: ${projectId}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -83,7 +68,7 @@ export function useGetChatHistory(
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

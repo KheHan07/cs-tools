@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { getMockProjectTimeTrackingStats } from "@models/mockFunctions";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectTimeTrackingStats } from "@models/responses";
 
@@ -35,27 +33,11 @@ export default function useGetProjectTimeTrackingStat(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<ProjectTimeTrackingStats, Error>({
-    queryKey: [ApiQueryKeys.TIME_TRACKING_STATS, projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.TIME_TRACKING_STATS, projectId],
     queryFn: async (): Promise<ProjectTimeTrackingStats> => {
-      logger.debug(
-        `Fetching time tracking stats for project ID: ${projectId}, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const stats = getMockProjectTimeTrackingStats();
-
-        logger.debug(
-          `Time tracking stats fetched successfully for project ID: ${projectId} (mock)`,
-          stats,
-        );
-
-        return stats;
-      }
+      logger.debug(`Fetching time tracking stats for project ID: ${projectId}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -86,8 +68,7 @@ export default function useGetProjectTimeTrackingStat(
         throw error;
       }
     },
-    enabled:
-      !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

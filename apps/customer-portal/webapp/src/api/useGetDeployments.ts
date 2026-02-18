@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { getMockDeployments } from "@models/mockFunctions";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { DeploymentsResponse } from "@models/responses";
 
@@ -35,24 +33,11 @@ export function useGetDeployments(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<DeploymentsResponse, Error>({
-    queryKey: [ApiQueryKeys.DEPLOYMENTS, projectId, isMockEnabled],
+    queryKey: [ApiQueryKeys.DEPLOYMENTS, projectId],
     queryFn: async (): Promise<DeploymentsResponse> => {
-      logger.debug(
-        `Fetching deployments for project ID: ${projectId}, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        const data = getMockDeployments(projectId);
-        logger.debug(
-          `Deployments fetched successfully for project ID: ${projectId} (mock)`,
-          data,
-        );
-        return data;
-      }
+      logger.debug(`Fetching deployments for project ID: ${projectId}`);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -79,7 +64,7 @@ export function useGetDeployments(
         throw error;
       }
     },
-    enabled: !!projectId && (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

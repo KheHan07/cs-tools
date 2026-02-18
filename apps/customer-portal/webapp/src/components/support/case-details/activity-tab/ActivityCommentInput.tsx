@@ -14,17 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  TextField,
-} from "@wso2/oxygen-ui";
+import { Box, CircularProgress, IconButton } from "@wso2/oxygen-ui";
 import { Send } from "@wso2/oxygen-ui-icons-react";
 import { useState } from "react";
 import { usePostComment } from "@api/usePostComment";
 import { useAsgardeo } from "@asgardeo/react";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import { stripHtml } from "@utils/support";
+import Editor from "@components/common/rich-text-editor/Editor";
 import type { JSX } from "react";
 
 export interface ActivityCommentInputProps {
@@ -32,8 +29,8 @@ export interface ActivityCommentInputProps {
 }
 
 /**
- * Fixed (non-scrollable) input row with text field and send button.
- * Posts comment via usePostComment; on success invalidates and refetches comments.
+ * Input row with rich-text editor and send button.
+ * Uses the shared Editor component and posts comments via usePostComment; on success invalidates and refetches comments.
  *
  * @param {ActivityCommentInputProps} props - caseId for POST.
  * @returns {JSX.Element} The comment input component.
@@ -42,6 +39,7 @@ export default function ActivityCommentInput({
   caseId,
 }: ActivityCommentInputProps): JSX.Element {
   const [value, setValue] = useState("");
+  const [resetTrigger, setResetTrigger] = useState(0);
   const postComment = usePostComment();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const { showError } = useErrorBanner();
@@ -49,12 +47,15 @@ export default function ActivityCommentInput({
   const isDisabled = !isSignedIn || isAuthLoading || postComment.isPending;
 
   const handleSend = () => {
-    if (!value.trim() || isDisabled) return;
-    const content = value.trim();
+    if (stripHtml(value).length === 0 || isDisabled) return;
+
     postComment.mutate(
-      { caseId, body: { content } },
+      { caseId, body: { content: value.trim() } },
       {
-        onSuccess: () => setValue(""),
+        onSuccess: () => {
+          setValue("");
+          setResetTrigger((prev) => prev + 1);
+        },
         onError: (error: unknown) => {
           const message =
             error instanceof Error && error.message
@@ -70,38 +71,54 @@ export default function ActivityCommentInput({
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
         gap: 1,
         px: 2,
         py: 1.5,
         flexShrink: 0,
       }}
     >
-      <TextField
-        fullWidth
-        placeholder="Add a comment..."
-        size="small"
-        value={value}
-        disabled={isDisabled}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-          }
-        }}
-      />
-      <IconButton
-        disabled={!value.trim() || isDisabled}
-        onClick={handleSend}
-        color="warning"
-        aria-label="Send comment"
-      >
-        {postComment.isPending ? (
-          <CircularProgress color="inherit" size={18} />
-        ) : (
-          <Send size={18} />
-        )}
-      </IconButton>
+      <Box sx={{ flex: 1, position: "relative" }}>
+        <Editor
+          value={value}
+          onChange={setValue}
+          disabled={isDisabled}
+          resetTrigger={resetTrigger}
+          minHeight={40}
+          showToolbar={true}
+          placeholder="Write a comment..."
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 8,
+            right: 8,
+            zIndex: 1,
+            display: "flex",
+            gap: 1,
+          }}
+        >
+          <IconButton
+            disabled={stripHtml(value).length === 0 || isDisabled}
+            onClick={handleSend}
+            color="warning"
+            aria-label="Send comment"
+            sx={{
+              bgcolor: "background.paper",
+              "&:hover": { bgcolor: "action.hover" },
+              boxShadow: 1,
+              width: 32,
+              height: 32,
+            }}
+          >
+            {postComment.isPending ? (
+              <CircularProgress color="inherit" size={18} />
+            ) : (
+              <Send size={18} />
+            )}
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   );
 }

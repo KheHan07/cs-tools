@@ -18,18 +18,27 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGetProjectStat } from "@api/useGetProjectStat";
-import { mockProjects } from "@models/mockData";
 import type { ReactNode } from "react";
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
+const mockProjectStatResponse = {
+  projectStats: { slaStatus: "Good", openCases: 5, activeChats: 2 },
+  recentActivity: [],
+};
+
+const mockAuthFetch = vi.fn().mockImplementation((url: string) => {
+  if (url.includes("invalid-id")) {
+    return Promise.resolve({
+      ok: false,
+      status: 404,
+      statusText: "Project stats not found for ID: invalid-id",
+    } as Response);
+  }
+  return Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(mockProjectStatResponse),
+  } as Response);
 });
 
-// Mock @asgardeo/react
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
     getIdToken: vi.fn(),
@@ -38,14 +47,10 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-// Mock MockConfigProvider
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
-// Mock useLogger
 vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => ({
     debug: vi.fn(),
@@ -71,10 +76,13 @@ const createWrapper = () => {
 describe("useGetProjectStat", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
   it("should return project stats for a valid project ID", async () => {
-    const validProjectId = mockProjects[0].id;
+    const validProjectId = "1890347890";
 
     const { result } = renderHook(() => useGetProjectStat(validProjectId), {
       wrapper: createWrapper(),

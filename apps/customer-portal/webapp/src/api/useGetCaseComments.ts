@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockCaseComments } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseCommentsResponse } from "@models/responses";
 
@@ -44,33 +42,14 @@ export default function useGetCaseComments(
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
   const { offset = 0, limit = 20 } = options ?? {};
 
   return useQuery<CaseCommentsResponse, Error>({
-    queryKey: [
-      ApiQueryKeys.CASE_COMMENTS,
-      projectId,
-      caseId,
-      offset,
-      limit,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.CASE_COMMENTS, projectId, caseId, offset, limit],
     queryFn: async (): Promise<CaseCommentsResponse> => {
       logger.debug(
-        `Fetching case comments: projectId=${projectId}, caseId=${caseId}, mock=${isMockEnabled}`,
+        `Fetching case comments: projectId=${projectId}, caseId=${caseId}`,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        const sliced = mockCaseComments.slice(offset, offset + limit);
-        return {
-          comments: sliced.length > 0 ? sliced : mockCaseComments,
-          totalRecords: mockCaseComments.length,
-          offset,
-          limit,
-        };
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -99,10 +78,7 @@ export default function useGetCaseComments(
         throw error;
       }
     },
-    enabled:
-      !!projectId &&
-      !!caseId &&
-      (isMockEnabled || (isSignedIn && !isAuthLoading)),
+    enabled: !!projectId && !!caseId && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

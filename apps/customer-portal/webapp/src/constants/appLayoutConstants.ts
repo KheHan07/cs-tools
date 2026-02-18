@@ -15,15 +15,12 @@
 // under the License.
 
 import {
-  Briefcase,
-  FileText,
   FolderOpen,
   Headset,
   Home,
   Megaphone,
   RefreshCw,
   Shield,
-  Users,
 } from "@wso2/oxygen-ui-icons-react";
 import type { ComponentType } from "react";
 
@@ -51,7 +48,7 @@ export const APP_SHELL_NAV_ITEMS: AppShellNavItem[] = [
     path: "security-center",
     icon: Shield,
   },
-  {
+  /* {
     id: "engagements",
     label: "Engagements",
     path: "engagements",
@@ -63,7 +60,7 @@ export const APP_SHELL_NAV_ITEMS: AppShellNavItem[] = [
     path: "legal-contracts",
     icon: FileText,
   },
-  { id: "community", label: "Community", path: "community", icon: Users },
+  { id: "community", label: "Community", path: "community", icon: Users }, */
   {
     id: "announcements",
     label: "Announcements",

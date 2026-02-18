@@ -28,7 +28,6 @@ import {
 import { X } from "@wso2/oxygen-ui-icons-react";
 import { useCallback, useRef, useState, type JSX } from "react";
 import { usePostAttachments } from "@api/usePostAttachments";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "@constants/supportConstants";
 import UploadAttachmentDropZone from "@case-details-attachments/UploadAttachmentDropZone";
 import SelectedFileDisplay from "@case-details-attachments/SelectedFileDisplay";
@@ -45,7 +44,7 @@ export interface UploadAttachmentModalProps {
 
 /**
  * Modal for uploading a case attachment: drag-and-drop or file picker, optional name (defaults to file name).
- * Upload is disabled when isMockEnabled. Max file size 15 MB; shows ErrorBanner when exceeded.
+ * Max file size 15 MB; shows ErrorBanner when exceeded.
  *
  * @param {UploadAttachmentModalProps} props - open, caseId, onClose, optional onSuccess.
  * @returns {JSX.Element} The upload attachment modal.
@@ -57,7 +56,6 @@ export default function UploadAttachmentModal({
   onSuccess,
   onSelect,
 }: UploadAttachmentModalProps): JSX.Element {
-  const { isMockEnabled } = useMockConfig();
   const postAttachments = usePostAttachments();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,8 +70,7 @@ export default function UploadAttachmentModal({
     !!file &&
     !fileTooLarge &&
     !!displayName &&
-    (!!onSelect ||
-      (!isMockEnabled && !postAttachments.isPending && !!caseId));
+    (!!onSelect || (!postAttachments.isPending && !!caseId));
 
   const reset = useCallback(() => {
     setFile(null);
@@ -144,7 +141,7 @@ export default function UploadAttachmentModal({
       return;
     }
 
-    if (!caseId || isMockEnabled) return;
+    if (!caseId) return;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -175,7 +172,6 @@ export default function UploadAttachmentModal({
     file,
     name,
     fileTooLarge,
-    isMockEnabled,
     postAttachments,
     handleClose,
     onSuccess,

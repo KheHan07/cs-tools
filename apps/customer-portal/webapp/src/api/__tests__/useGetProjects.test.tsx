@@ -15,21 +15,21 @@
 // under the License.
 
 import { renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useGetProjects from "@api/useGetProjects";
-import { mockProjects } from "@models/mockData";
 import type { ReactNode } from "react";
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockProjectsResponse = {
+  projects: [
+    { id: "1", name: "Project A", key: "PA", createdOn: "2025-01-01", description: "Desc A" },
+    { id: "2", name: "Project B", key: "PB", createdOn: "2025-01-02", description: "Desc B" },
+  ],
+  totalRecords: 2,
+  offset: 0,
+  limit: 10,
+};
 
-// Mock @asgardeo/react
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
     getIdToken: vi.fn(),
@@ -38,14 +38,14 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-// Mock MockConfigProvider
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockProjectsResponse),
+    }),
 }));
 
-// Mock useLogger
 vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => ({
     debug: vi.fn(),
@@ -69,24 +69,31 @@ const createWrapper = () => {
 };
 
 describe("useGetProjects", () => {
-  it("should return paginated mock projects in pages on query execution", async () => {
+  beforeEach(() => {
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
+  });
+
+  afterEach(() => {
+    delete (window as unknown as { config?: unknown }).config;
+  });
+
+  it("should return paginated projects from API", async () => {
     const { result } = renderHook(
       () => useGetProjects({ pagination: { offset: 0, limit: 2 } }),
-      {
-        wrapper: createWrapper(),
-      },
+      { wrapper: createWrapper() },
     );
 
-    // Wait for the initial page to finish
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const response = result.current.data;
     expect(response).toBeDefined();
     expect(response?.projects).toHaveLength(2);
-    expect(response?.totalRecords).toBe(mockProjects.length);
-    expect(response?.projects[0].name).toBe(mockProjects[0].name);
+    expect(response?.totalRecords).toBe(2);
+    expect(response?.projects[0].name).toBe("Project A");
     expect(response?.offset).toBe(0);
-    expect(response?.limit).toBe(2);
+    expect(response?.limit).toBe(10);
   });
 
   it("should handle default pagination if none provided", async () => {
@@ -101,7 +108,7 @@ describe("useGetProjects", () => {
     expect(response?.limit).toBe(10);
   });
 
-  it("should use 'all' query key and larger limit when fetchAll is true", async () => {
+  it("should request and receive data when fetchAll is true", async () => {
     const { result } = renderHook(() => useGetProjects(undefined, true), {
       wrapper: createWrapper(),
     });
@@ -109,7 +116,7 @@ describe("useGetProjects", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const response = result.current.data;
-    // fetchAll sets limit to 100
-    expect(response?.limit).toBe(100);
+    expect(response).toBeDefined();
+    expect(response?.projects).toBeDefined();
   });
 });

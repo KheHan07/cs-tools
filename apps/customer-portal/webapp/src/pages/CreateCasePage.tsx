@@ -35,7 +35,6 @@ import { usePostAttachments } from "@api/usePostAttachments";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import type { CreateCaseRequest } from "@models/requests";
 import { BasicInformationSection } from "@components/support/case-creation-layout/form-sections/basic-information-section/BasicInformationSection";
 import { CaseCreationHeader } from "@components/support/case-creation-layout/header/CaseCreationHeader";
@@ -68,7 +67,6 @@ export default function CreateCasePage(): JSX.Element {
   const { data: filters, isLoading: isFiltersLoading } = useGetCasesFilters(
     projectId || "",
   );
-  const { isMockEnabled } = useMockConfig();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [issueType, setIssueType] = useState("");
@@ -215,12 +213,6 @@ export default function CreateCasePage(): JSX.Element {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!projectId) return;
-
-    if (isMockEnabled) {
-      showSuccess("Case created successfully");
-      navigate(`/${projectId}/support/cases/mock-case-created`);
-      return;
-    }
 
     const deploymentMatch = resolveDeploymentMatch(
       deployment,
@@ -386,7 +378,6 @@ export default function CreateCasePage(): JSX.Element {
               startIcon={<CircleCheck size={18} />}
               color="primary"
               disabled={
-                isMockEnabled ||
                 isProjectLoading ||
                 isFiltersLoading ||
                 isCreatePending ||

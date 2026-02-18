@@ -16,7 +16,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import TimeTrackingStatCards from "@components/project-details/time-tracking/TimeTrackingStatCards";
+import TimeTrackingStatCards from "@time-tracking/TimeTrackingStatCards";
 
 vi.mock("@components/common/stat-grid/SupportStatGrid", () => ({
   default: ({
@@ -54,11 +54,7 @@ describe("TimeTrackingStatCards", () => {
     };
 
     render(
-      <TimeTrackingStatCards
-        isLoading={false}
-        isError={false}
-        stats={stats}
-      />,
+      <TimeTrackingStatCards isLoading={false} isError={false} stats={stats} />,
     );
 
     expect(screen.getByTestId("support-stat-grid")).toBeInTheDocument();
@@ -71,9 +67,7 @@ describe("TimeTrackingStatCards", () => {
   });
 
   it("should pass loading state to SupportStatGrid", () => {
-    render(
-      <TimeTrackingStatCards isLoading={true} stats={undefined} />,
-    );
+    render(<TimeTrackingStatCards isLoading={true} stats={undefined} />);
 
     expect(screen.getByTestId("loading")).toBeInTheDocument();
   });

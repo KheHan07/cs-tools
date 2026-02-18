@@ -15,7 +15,7 @@
 // under the License.
 
 import { Form } from "@wso2/oxygen-ui";
-import { useMemo, type JSX, useEffect } from "react";
+import { type JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useGetProjectStat } from "@api/useGetProjectStat";
 import { useLoader } from "@context/linear-loader/LoaderContext";
@@ -23,11 +23,6 @@ import ProjectCardActions from "@components/project-hub/project-card/ProjectCard
 import ProjectCardBadges from "@components/project-hub/project-card/ProjectCardBadges";
 import ProjectCardInfo from "@components/project-hub/project-card/ProjectCardInfo";
 import ProjectCardStats from "@components/project-hub/project-card/ProjectCardStats";
-import {
-  getMockActiveChats,
-  getMockOpenCases,
-  getMockStatus,
-} from "@models/mockFunctions";
 
 // Props for the ProjectCard component.
 export interface ProjectCardProps {
@@ -79,14 +74,9 @@ export default function ProjectCard({
     }
   }, [isStatsLoading, showLoader, hideLoader]);
 
-  const mockStatus = useMemo(() => getMockStatus(), []);
-  const mockOpenCases = useMemo(() => getMockOpenCases(), []);
-  const mockActiveChats = useMemo(() => getMockActiveChats(), []);
-
-  const resolvedStatus = statsData?.projectStats?.slaStatus ?? mockStatus;
-  const resolvedOpenCases = statsData?.projectStats?.openCases ?? mockOpenCases;
-  const resolvedActiveChats =
-    statsData?.projectStats?.activeChats ?? mockActiveChats;
+  const resolvedStatus = statsData?.projectStats?.slaStatus ?? "—";
+  const resolvedOpenCases = statsData?.projectStats?.openCases;
+  const resolvedActiveChats = statsData?.projectStats?.activeChats;
 
   const resolvedIsStatsError = isStatsQueryError;
 

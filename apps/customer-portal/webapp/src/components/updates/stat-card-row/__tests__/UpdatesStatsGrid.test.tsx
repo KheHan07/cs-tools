@@ -17,7 +17,27 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { UpdatesStatsGrid } from "@components/updates/stat-card-row/UpdatesStatsGrid";
-import { mockRecommendedUpdateLevels } from "@models/mockData";
+import type { RecommendedUpdateLevelItem } from "@models/responses";
+
+const createUpdateLevelItem = (overrides: Partial<RecommendedUpdateLevelItem> = {}): RecommendedUpdateLevelItem => ({
+  productName: "product",
+  productBaseVersion: "1.0",
+  channel: "full",
+  startingUpdateLevel: 0,
+  endingUpdateLevel: 10,
+  installedUpdatesCount: 100,
+  installedSecurityUpdatesCount: 20,
+  timestamp: 0,
+  recommendedUpdateLevel: 10,
+  availableUpdatesCount: 50,
+  availableSecurityUpdatesCount: 10,
+  ...overrides,
+});
+
+const mockRecommendedUpdateLevels: RecommendedUpdateLevelItem[] = [
+  createUpdateLevelItem({ installedUpdatesCount: 200, installedSecurityUpdatesCount: 40, availableUpdatesCount: 60, availableSecurityUpdatesCount: 30 }),
+  ...Array(19).fill(null).map(() => createUpdateLevelItem({ installedUpdatesCount: 183, installedSecurityUpdatesCount: 39, availableUpdatesCount: 55, availableSecurityUpdatesCount: 21 })),
+];
 
 // Mock StatCard to avoid deep rendering issues and focus on grid logic
 vi.mock("@components/updates/stat-card-row/StatCard", () => ({

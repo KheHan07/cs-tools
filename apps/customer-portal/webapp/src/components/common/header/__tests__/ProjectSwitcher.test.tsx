@@ -17,7 +17,11 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ProjectSwitcher from "@components/common/header/ProjectSwitcher";
-import { mockProjects } from "@models/mockData";
+
+const mockProjects = [
+  { id: "1", name: "Project A", key: "PA", createdOn: "2025-01-01", description: "Desc A" },
+  { id: "2", name: "Project B", key: "PB", createdOn: "2025-01-02", description: "Desc B" },
+];
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({

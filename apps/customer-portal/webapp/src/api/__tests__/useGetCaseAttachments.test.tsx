@@ -18,16 +18,15 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
-import { mockCaseAttachments } from "@models/mockData";
 
-vi.mock("@constants/apiConstants", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@constants/apiConstants")>();
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockAttachmentsResponse = {
+  attachments: [
+    { id: "a1", name: "file.txt", size: 100, createdOn: "", createdBy: "" },
+  ],
+  totalRecords: 1,
+  offset: 0,
+  limit: 50,
+};
 
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
@@ -37,10 +36,12 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-const mockUseMockConfig = vi.fn().mockReturnValue({ isMockEnabled: true });
-
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockAttachmentsResponse),
+});
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 vi.mock("@hooks/useLogger", () => ({
@@ -59,10 +60,16 @@ describe("useGetCaseAttachments", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: true });
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockAttachmentsResponse),
+    });
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
-  it("should return mock attachments when isMockEnabled is true", async () => {
+  it("should return attachments from API", async () => {
     const { result } = renderHook(() => useGetCaseAttachments("case-001"), {
       wrapper,
     });
@@ -72,9 +79,9 @@ describe("useGetCaseAttachments", () => {
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.attachments).toBeDefined();
     expect(result.current.data?.attachments.length).toBe(
-      mockCaseAttachments.length,
+      mockAttachmentsResponse.attachments.length,
     );
-    expect(result.current.data?.totalRecords).toBe(mockCaseAttachments.length);
+    expect(result.current.data?.totalRecords).toBe(mockAttachmentsResponse.totalRecords);
     expect(result.current.data?.offset).toBe(0);
     expect(result.current.data?.limit).toBe(50);
   });
@@ -87,12 +94,22 @@ describe("useGetCaseAttachments", () => {
   it("should use correct query key", () => {
     renderHook(() => useGetCaseAttachments("case-001"), { wrapper });
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["case-attachments", "case-001", 50, 0, true],
+      queryKey: ["case-attachments", "case-001", 50, 0],
     })[0];
     expect(query).toBeDefined();
   });
 
-  it("should respect limit and offset options when mock is enabled", async () => {
+  it("should respect limit and offset options", async () => {
+    const limitedResponse = {
+      ...mockAttachmentsResponse,
+      limit: 2,
+      offset: 1,
+      attachments: mockAttachmentsResponse.attachments.slice(0, 2),
+    };
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(limitedResponse),
+    });
     const { result } = renderHook(
       () => useGetCaseAttachments("case-001", { limit: 2, offset: 1 }),
       { wrapper },
@@ -103,6 +120,6 @@ describe("useGetCaseAttachments", () => {
     expect(result.current.data?.limit).toBe(2);
     expect(result.current.data?.offset).toBe(1);
     expect(result.current.data?.attachments.length).toBeLessThanOrEqual(2);
-    expect(result.current.data?.totalRecords).toBe(mockCaseAttachments.length);
+    expect(result.current.data?.totalRecords).toBe(mockAttachmentsResponse.totalRecords);
   });
 });

@@ -16,7 +16,7 @@
 
 import { useParams, useNavigate } from "react-router";
 import { useEffect, type JSX } from "react";
-import { Typography, Box, Grid, Stack } from "@wso2/oxygen-ui";
+import { Box, Grid, Stack } from "@wso2/oxygen-ui";
 import { FileText, MessageSquare } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import CasesOverviewStatCard from "@components/support/cases-overview-stats/CasesOverviewStatCard";
@@ -51,15 +51,19 @@ export default function SupportPage(): JSX.Element {
     isError,
   } = useGetProjectSupportStats(projectId || "");
 
-  const { data, isFetching: isCasesLoading } = useGetProjectCases(
-    projectId || "",
-    {
-      sortBy: { field: "createdOn", order: "desc" },
-    },
-  );
+  const {
+    data,
+    isFetching: isCasesLoading,
+    isError: isCasesError,
+  } = useGetProjectCases(projectId || "", {
+    sortBy: { field: "createdOn", order: "desc" },
+  });
 
-  const { data: chatHistoryData, isFetching: isChatLoading } =
-    useGetChatHistory(projectId || "");
+  const {
+    data: chatHistoryData,
+    isFetching: isChatLoading,
+    isError: isChatError,
+  } = useGetChatHistory(projectId || "");
 
   const { isLoading: isAuthLoading } = useAsgardeo();
 
@@ -82,16 +86,6 @@ export default function SupportPage(): JSX.Element {
     }
   }, [stats, projectId, logger]);
 
-  if (isError) {
-    return (
-      <Box sx={{ mt: 3, textAlign: "center" }}>
-        <Typography variant="h6" color="error">
-          Error loading support statistics. Please try again later.
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Stack spacing={3}>
       <CasesOverviewStatCard
@@ -109,6 +103,7 @@ export default function SupportPage(): JSX.Element {
             iconVariant="orange"
             footerButtonLabel="View all cases"
             onFooterClick={() => navigate("cases")}
+            isError={isCasesError}
           >
             <OutstandingCasesList
               cases={cases}
@@ -129,6 +124,7 @@ export default function SupportPage(): JSX.Element {
             iconVariant="blue"
             footerButtonLabel="View all chat history"
             onFooterClick={() => navigate("chat")}
+            isError={isChatError}
           >
             <ChatHistoryList
               items={chatItems}

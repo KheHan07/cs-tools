@@ -18,7 +18,6 @@ import { useIdleTimer } from "react-idle-timer";
 import { useEffect, useState, type JSX, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import SessionWarningDialog from "@components/common/SessionWarningDialog";
 import {
   IDLE_TIMEOUT_MS,
@@ -33,7 +32,6 @@ interface IdleTimeoutProviderProps {
 /**
  * Provider that detects user idle time and shows a session warning dialog
  * before timeout. Continue resets the timer; Logout signs out.
- * Does not run when mock mode is enabled.
  *
  * @param {IdleTimeoutProviderProps} props - children.
  * @returns {JSX.Element} Children wrapped with idle timeout behavior.
@@ -44,16 +42,15 @@ export default function IdleTimeoutProvider({
   const [sessionWarningOpen, setSessionWarningOpen] = useState(false);
   const navigate = useNavigate();
   const { signOut, isSignedIn, isLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
 
   const onPrompt = () => {
-    if (isSignedIn && !isLoading && !isMockEnabled) {
+    if (isSignedIn && !isLoading) {
       setSessionWarningOpen(true);
     }
   };
 
   const onIdle = () => {
-    if (isSignedIn && !isLoading && !isMockEnabled) {
+    if (isSignedIn && !isLoading) {
       setSessionWarningOpen(false);
       signOut().finally(() => navigate("/login"));
     }
@@ -82,10 +79,10 @@ export default function IdleTimeoutProvider({
   };
 
   useEffect(() => {
-    if (!isSignedIn || isMockEnabled) {
+    if (!isSignedIn) {
       setSessionWarningOpen(false);
     }
-  }, [isSignedIn, isMockEnabled]);
+  }, [isSignedIn]);
 
   return (
     <>

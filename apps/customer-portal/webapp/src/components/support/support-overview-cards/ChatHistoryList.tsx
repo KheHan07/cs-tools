@@ -43,10 +43,12 @@ import {
   resolveColorFromTheme,
 } from "@utils/support";
 import ChatHistorySkeleton from "@components/support/support-overview-cards/ChatHistorySkeleton";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 export interface ChatHistoryListProps {
   items: ChatHistoryItem[];
   isLoading?: boolean;
+  isError?: boolean;
   onItemAction?: (chatId: string, action: ChatAction) => void;
 }
 
@@ -59,8 +61,13 @@ export interface ChatHistoryListProps {
 export default function ChatHistoryList({
   items,
   isLoading,
+  isError,
   onItemAction,
 }: ChatHistoryListProps): JSX.Element {
+  if (isError) {
+    return <ErrorIndicator entityName="chat history" size="medium" />;
+  }
+
   if (isLoading) {
     return <ChatHistorySkeleton />;
   }

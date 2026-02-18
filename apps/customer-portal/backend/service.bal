@@ -814,7 +814,7 @@ service http:InterceptableService / on new http:Listener(9090) {
 
             if getStatusCode(projectMetadata) == http:STATUS_FORBIDDEN {
                 log:printWarn(string `User: ${userInfo.userId} is forbidden to access project filters for project: ${
-                    id}`);
+                        id}`);
                 return <http:Forbidden>{
                     body: {
                         message: "You're not authorized to access the filters for the selected project."
@@ -1194,7 +1194,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + payload - Update search payload containing filters
     # + return - List of updates matching or an error
     resource function post updates/search(http:RequestContext ctx, types:ListUpdatePayload payload)
-        returns types:UpdateResponse|http:BadRequest|http:InternalServerError {
+        returns http:Ok|http:BadRequest|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1215,7 +1215,9 @@ service http:InterceptableService / on new http:Listener(9090) {
                 }
             };
         }
-        return updateResponse;
+        return <http:Ok>{
+            body: updateResponse
+        };
     }
 
     # Get product update levels.
@@ -1295,7 +1297,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     # + id - ID of the product vulnerability
     # + return - Product vulnerability details or error
     resource function get products/vulnerabilities/[string id](http:RequestContext ctx)
-            returns types:ProductVulnerabilityResponse|http:Forbidden|http:InternalServerError {
+            returns types:ProductVulnerabilityResponse|http:Forbidden|http:NotFound|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1314,6 +1316,15 @@ service http:InterceptableService / on new http:Listener(9090) {
                 return <http:Forbidden>{
                     body: {
                         message: "Access to product vulnerability information is forbidden for the user!"
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_NOT_FOUND {
+                log:printWarn(string `Requested product vulnerability is not found for the user: ${userInfo.userId}`);
+                return <http:NotFound>{
+                    body: {
+                        message: "Requested product vulnerability is not found!"
                     }
                 };
             }

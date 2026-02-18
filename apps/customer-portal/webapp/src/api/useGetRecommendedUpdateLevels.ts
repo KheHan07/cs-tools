@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { getMockRecommendedUpdateLevels } from "@models/mockFunctions";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { RecommendedUpdateLevelItem } from "@models/responses";
 
@@ -35,28 +33,11 @@ export function useGetRecommendedUpdateLevels(): UseQueryResult<
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useQuery<RecommendedUpdateLevelItem[], Error>({
-    queryKey: [ApiQueryKeys.RECOMMENDED_UPDATE_LEVELS, isMockEnabled],
+    queryKey: [ApiQueryKeys.RECOMMENDED_UPDATE_LEVELS],
     queryFn: async (): Promise<RecommendedUpdateLevelItem[]> => {
-      logger.debug(
-        `Fetching recommended update levels, mock: ${isMockEnabled}`,
-      );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const data: RecommendedUpdateLevelItem[] =
-          getMockRecommendedUpdateLevels();
-
-        logger.debug(
-          "Recommended update levels fetched successfully (mock)",
-          data,
-        );
-
-        return data;
-      }
+      logger.debug("Fetching recommended update levels");
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -87,7 +68,7 @@ export function useGetRecommendedUpdateLevels(): UseQueryResult<
         throw error;
       }
     },
-    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
+    enabled: isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

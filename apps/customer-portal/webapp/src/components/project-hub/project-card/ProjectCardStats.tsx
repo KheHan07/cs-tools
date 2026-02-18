@@ -32,9 +32,9 @@ import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { formatProjectDate } from "@utils/projectCard";
 
 interface ProjectCardStatsProps {
-  activeChats: number;
+  activeChats: number | undefined;
   date: string;
-  openCases: number;
+  openCases: number | undefined;
   isError?: boolean;
   isLoading?: boolean;
 }

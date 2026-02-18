@@ -27,7 +27,7 @@ import type { ElementType } from "react";
 import type { TabOption } from "@components/common/tab-bar/TabBar";
 import { colors } from "@wso2/oxygen-ui";
 import type { ProjectStatsResponse } from "@models/responses";
-import { getSystemHealthColor } from "@utils/projectStats";
+import { getSystemHealthColor } from "@utils/projectDetails";
 
 export interface Contact {
   role: string;
@@ -90,7 +90,7 @@ export interface ActivityItem {
   label: string;
   value: string;
   type?: "text" | "chip";
-  chipColor?: "success" | "warning" | "error" | "default" | "primary" | "info";
+  chipColor?: ProjectStatusChipColor;
 }
 
 export const statItems: Stat[] = [
@@ -211,6 +211,46 @@ export const PROJECT_USER_STATUSES = {
   INVITED: "invited",
   REGISTERED: "registered",
 } as const;
+
+export const TIME_TRACKING_BADGE_TYPES = {
+  SUPPORT: "support",
+  BILLABLE: "billable",
+  CASE: "case",
+  CONSULTATION: "consultation",
+  MAINTENANCE: "maintenance",
+} as const;
+
+export type TimeTrackingBadgeType =
+  (typeof TIME_TRACKING_BADGE_TYPES)[keyof typeof TIME_TRACKING_BADGE_TYPES];
+
+export const DEPLOYMENT_STATUS = {
+  HEALTHY: "Healthy",
+  WARNING: "Warning",
+  ERROR: "Error",
+} as const;
+
+export type DeploymentStatus =
+  (typeof DEPLOYMENT_STATUS)[keyof typeof DEPLOYMENT_STATUS];
+
+export const PRODUCT_SUPPORT_STATUS = {
+  ACTIVE: "Active Support",
+  END_OF_LIFE: "End of Life",
+  DEPRECATED: "Deprecated",
+  LIMITED: "Limited Support",
+  EXTENDED: "Extended Support",
+} as const;
+
+export type ProductSupportStatus =
+  (typeof PRODUCT_SUPPORT_STATUS)[keyof typeof PRODUCT_SUPPORT_STATUS];
+
+export type ProjectStatusChipColor =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "error"
+  | "info"
+  | "success"
+  | "warning";
 
 export const TOKEN_TYPES = {
   USER: "User",

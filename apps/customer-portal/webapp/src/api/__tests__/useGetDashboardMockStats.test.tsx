@@ -29,26 +29,10 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
-
-// Mock @asgardeo/react
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
     isSignedIn: true,
     isLoading: false,
-  }),
-}));
-
-// Mock MockConfigProvider
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
   }),
 }));
 
@@ -79,20 +63,19 @@ describe("useGetDashboardMockStats", () => {
     expect(result.current.isLoading).toBe(true);
   });
 
-  it("should return mock dashboard stats after fetching", async () => {
+  it("should error with not implemented", async () => {
     const { result } = renderHook(() => useGetDashboardMockStats("project-1"), {
       wrapper,
     });
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(result.current.isError).toBe(true));
 
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data?.totalCases).toBeDefined();
-    expect(result.current.data?.totalCases.trend).toBeDefined();
-
+    expect(result.current.error?.message).toBe(
+      "Dashboard stats API is not implemented yet.",
+    );
     expect(mockLogger.debug).toHaveBeenCalledWith(
       expect.stringContaining(
-        "Fetching dashboard mock stats for project ID: project-1",
+        "Fetching dashboard stats for project ID: project-1",
       ),
     );
   });
@@ -103,7 +86,7 @@ describe("useGetDashboardMockStats", () => {
     });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["dashboard-stats", "project-1", true],
+      queryKey: ["dashboard-stats", "project-1"],
     })[0];
 
     expect((query?.options as any).staleTime).toBe(5 * 60 * 1000);

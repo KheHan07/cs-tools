@@ -17,7 +17,14 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import UserProfile from "@components/common/header/UserProfile";
-import { mockUserDetails } from "@models/mockData";
+
+const mockUserDetails = {
+  id: "user-1",
+  email: "john@example.com",
+  lastName: "Doe",
+  firstName: "John",
+  timeZone: "UTC",
+};
 
 // Mock UserMenu and Skeleton from @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
@@ -64,12 +71,6 @@ vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => mockUseAsgardeo(),
 }));
 
-// Mock useMockConfig
-const mockUseMockConfig = vi.fn();
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
-}));
-
 // Mock useGetUserDetails and generic logger
 const mockUseGetUserDetails = vi.fn();
 vi.mock("@/api/useGetUserDetails", () => ({
@@ -85,9 +86,7 @@ vi.mock("@/hooks/useLogger", () => ({
 describe("UserProfile", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default mocks
     mockUseAsgardeo.mockReturnValue({ isSignedIn: true, isLoading: false });
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: false });
     mockUseGetUserDetails.mockReturnValue({
       data: mockUserDetails,
       isLoading: false,
@@ -105,19 +104,11 @@ describe("UserProfile", () => {
     );
   });
 
-  it("should NOT render if not signed in, not loading, and mocks disabled", () => {
+  it("should NOT render if not signed in and not loading", () => {
     mockUseAsgardeo.mockReturnValue({ isSignedIn: false, isLoading: false });
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: false });
 
     const { container } = render(<UserProfile />);
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it("should render if mocks are enabled even if not signed in", () => {
-    mockUseAsgardeo.mockReturnValue({ isSignedIn: false, isLoading: false });
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: true });
-    render(<UserProfile />);
-    expect(screen.getByTestId("user-menu")).toBeInTheDocument();
   });
 
   it("should render skeletons when loading", () => {

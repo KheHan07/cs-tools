@@ -25,6 +25,7 @@ export interface CaseDetailsTabsProps {
   focusMode?: boolean;
   onFocusModeToggle?: () => void;
   attachmentCount?: number;
+  callCount?: number;
 }
 
 /**
@@ -39,6 +40,7 @@ export default function CaseDetailsTabs({
   focusMode = false,
   onFocusModeToggle,
   attachmentCount,
+  callCount,
 }: CaseDetailsTabsProps): JSX.Element {
   return (
     <Box
@@ -70,10 +72,15 @@ export default function CaseDetailsTabs({
       >
         {CASE_DETAILS_TABS.map(({ label, Icon }) => {
           const isAttachmentsTab = label.startsWith("Attachments");
-          const tabLabel =
-            isAttachmentsTab && attachmentCount !== undefined
-              ? `Attachments (${attachmentCount})`
-              : label;
+          const isCallsTab = label.startsWith("Calls");
+
+          let tabLabel = label;
+          if (isAttachmentsTab && attachmentCount !== undefined) {
+            tabLabel = `Attachments (${attachmentCount})`;
+          } else if (isCallsTab && callCount !== undefined) {
+            tabLabel = `Calls (${callCount})`;
+          }
+
           return (
             <Tab
               key={label}

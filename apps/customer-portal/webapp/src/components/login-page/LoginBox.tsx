@@ -15,17 +15,14 @@
 // under the License.
 
 import { Box, Button, Typography } from "@wso2/oxygen-ui";
-import { Code, Cloud } from "@wso2/oxygen-ui-icons-react";
-import { useMockConfig } from "@providers/MockConfigProvider";
+import { Cloud } from "@wso2/oxygen-ui-icons-react";
 import { useAsgardeo } from "@asgardeo/react";
 import type { JSX } from "react";
 
 export default function LoginBox(): JSX.Element {
   const { signIn } = useAsgardeo();
-  const { setMockEnabled } = useMockConfig();
 
-  const handleLogin = async (isMock: boolean) => {
-    setMockEnabled(isMock);
+  const handleLogin = async () => {
     await signIn();
   };
 
@@ -37,7 +34,7 @@ export default function LoginBox(): JSX.Element {
         </Typography>
 
         <Typography color="text.secondary">
-          Ready to explore? Pick an API source to continue.
+          Ready to explore? Continue with your account to proceed.
         </Typography>
       </Box>
 
@@ -45,20 +42,10 @@ export default function LoginBox(): JSX.Element {
         <Button
           fullWidth
           variant="contained"
-          startIcon={<Code />}
-          color="secondary"
-          sx={{ my: 1 }}
-          onClick={() => handleLogin(true)}
-        >
-          Continue with Mock APIs
-        </Button>
-        <Button
-          fullWidth
-          variant="contained"
           startIcon={<Cloud />}
           color="primary"
           sx={{ my: 1 }}
-          onClick={() => handleLogin(false)}
+          onClick={handleLogin}
         >
           Continue with Real APIs
         </Button>

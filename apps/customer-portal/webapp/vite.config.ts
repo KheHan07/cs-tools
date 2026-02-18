@@ -34,17 +34,38 @@ export default defineConfig({
       "@components": fileURLToPath(
         new URL("./src/components", import.meta.url),
       ),
+      "@update-cards": fileURLToPath(
+        new URL("./src/components/updates/update-cards", import.meta.url),
+      ),
       "@case-details": fileURLToPath(
-        new URL("./src/components/support/case-details/header", import.meta.url),
+        new URL(
+          "./src/components/support/case-details/header",
+          import.meta.url,
+        ),
       ),
       "@case-details-attachments": fileURLToPath(
-        new URL("./src/components/support/case-details/attachments-tab", import.meta.url),
+        new URL(
+          "./src/components/support/case-details/attachments-tab",
+          import.meta.url,
+        ),
       ),
       "@case-details-details": fileURLToPath(
-        new URL("./src/components/support/case-details/details-tab", import.meta.url),
+        new URL(
+          "./src/components/support/case-details/details-tab",
+          import.meta.url,
+        ),
       ),
       "@case-details-activity": fileURLToPath(
-        new URL("./src/components/support/case-details/activity-tab", import.meta.url),
+        new URL(
+          "./src/components/support/case-details/activity-tab",
+          import.meta.url,
+        ),
+      ),
+      "@case-details-calls": fileURLToPath(
+        new URL(
+          "./src/components/support/case-details/calls-tab",
+          import.meta.url,
+        ),
       ),
       "@config": fileURLToPath(new URL("./src/config", import.meta.url)),
       "@constants": fileURLToPath(new URL("./src/constants", import.meta.url)),
@@ -54,6 +75,12 @@ export default defineConfig({
       "@models": fileURLToPath(new URL("./src/models", import.meta.url)),
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
       "@providers": fileURLToPath(new URL("./src/providers", import.meta.url)),
+      "@time-tracking": fileURLToPath(
+        new URL(
+          "./src/components/project-details/time-tracking",
+          import.meta.url,
+        ),
+      ),
       "@utils": fileURLToPath(new URL("./src/utils", import.meta.url)),
       buffer: "buffer",
       "buffer/": "buffer/index.js",

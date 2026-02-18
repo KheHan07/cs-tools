@@ -16,7 +16,6 @@
 
 import {
   Box,
-  Button,
   Chip,
   FormControl,
   Grid,
@@ -29,9 +28,9 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
-import { useState, useRef, type JSX } from "react";
+import { useState, type JSX } from "react";
 import type { CaseMetadataResponse } from "@models/responses";
-import { getSeverityColor } from "@utils/casesTable";
+import { getSeverityColor } from "@utils/support";
 import Editor from "@components/common/rich-text-editor/Editor";
 
 export interface CaseDetailsSectionProps {
@@ -78,30 +77,6 @@ export function CaseDetailsSection({
   onAttachmentRemove,
 }: CaseDetailsSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
-  const originalDetailsRef = useRef<{
-    title: string;
-    description: string;
-    issueType: string;
-    severity: string;
-  } | null>(null);
-
-  const handleEditStart = () => {
-    originalDetailsRef.current = { title, description, issueType, severity };
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    const orig = originalDetailsRef.current;
-    if (orig) {
-      setTitle(orig.title);
-      setDescription(orig.description);
-      setIssueType(orig.issueType);
-      setSeverity(orig.severity);
-      originalDetailsRef.current = null;
-    }
-    setIsEditing(false);
-  };
-
   const meta = metadata as
     | {
         issueTypes?: unknown[];
@@ -149,30 +124,25 @@ export function CaseDetailsSection({
       >
         <Typography variant="h6">Case Details</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {isEditing ? (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleCancel}
-              aria-label="Cancel editing case details"
+          <Tooltip
+            title={
+              isEditing
+                ? "Click here to stop modifying case details"
+                : "Click here to modify case details"
+            }
+            placement="top"
+            arrow
+          >
+            <IconButton
+              onClick={() => setIsEditing(!isEditing)}
+              aria-label={
+                isEditing ? "Stop editing case details" : "Edit case details"
+              }
+              color={isEditing ? "primary" : "default"}
             >
-              Cancel
-            </Button>
-          ) : (
-            <Tooltip
-              title="Click here to modify case details"
-              placement="top"
-              arrow
-            >
-              <IconButton
-                onClick={handleEditStart}
-                aria-label="Edit case details"
-                disabled={isEditing}
-              >
-                <PencilLine size={18} />
-              </IconButton>
-            </Tooltip>
-          )}
+              <PencilLine size={18} />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 

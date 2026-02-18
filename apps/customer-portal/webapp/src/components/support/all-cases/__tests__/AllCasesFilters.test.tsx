@@ -17,8 +17,14 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import AllCasesFilters from "@components/support/all-cases/AllCasesFilters";
-import { mockCaseMetadata } from "@models/mockData";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+
+const mockCaseMetadata = {
+  statuses: [{ id: "1", label: "Open" }],
+  severities: [{ id: "2", label: "High" }],
+  issueTypes: [{ id: "3", label: "Incident" }],
+  deploymentTypes: [{ id: "4", label: "Production" }],
+};
 
 describe("AllCasesFilters", () => {
   const theme = createTheme();

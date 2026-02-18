@@ -28,13 +28,14 @@ import type { CaseDetails } from "@models/responses";
 import AssignedEngineerDisplay from "@case-details-details/AssignedEngineerDisplay";
 import CaseDetailsCard from "@case-details-details/CaseDetailsCard";
 import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
-import { getStatusColor, getSeverityColor } from "@utils/casesTable";
 import {
   formatValue,
   formatSlaResponseTime,
   getAssignedEngineerLabel,
   resolveColorFromTheme,
   getStatusIconElement,
+  getSeverityColor,
+  getStatusColor,
 } from "@utils/support";
 
 export interface CaseDetailsDetailsPanelProps {

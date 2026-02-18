@@ -98,11 +98,8 @@ public isolated function processListUpdates(types:ListUpdatePayload payload)
             removedFiles: response.file\-changes.removed\-files,
             bundlesInfoChanges
         },
-        jwt: response.jwt,
-        platformName: response.platform\-name,
-        platformVersion: response.platform\-version,
         productName: response.product\-name,
-        productBaseVersion: response.product\-base\-version,
+        productVersion: response.product\-version,
         startingUpdateLevel: response.starting\-update\-level,
         endingUpdateLevel: response.ending\-update\-level,
         environment: response.environment,
@@ -110,7 +107,7 @@ public isolated function processListUpdates(types:ListUpdatePayload payload)
         updateSecurityMessage: response.update\-security\-message,
         totalUpdates: response.total\-updates,
         totalSecurityUpdates: response.total\-security\-updates,
-        appliedUpdateNumbers: response.applied\-update\-numbers
+        appliedUpdatesNumbers: response.applied\-updates\-numbers
     };
 }
 

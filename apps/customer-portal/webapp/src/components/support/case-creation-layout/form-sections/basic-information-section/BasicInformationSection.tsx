@@ -16,7 +16,6 @@
 
 import {
   Box,
-  Button,
   Chip,
   FormControl,
   Grid,
@@ -30,7 +29,7 @@ import {
   Tooltip,
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
-import { useState, useRef, useEffect, type JSX } from "react";
+import { useState, type JSX } from "react";
 
 export interface BasicInformationSectionProps {
   project?: string;
@@ -65,31 +64,6 @@ export function BasicInformationSection({
   extraProductOptions,
 }: BasicInformationSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
-  const editSnapshotRef = useRef<{ product: string; deployment: string } | null>(null);
-  const prevEditingRef = useRef(false);
-
-  useEffect(() => {
-    if (isEditing && !prevEditingRef.current) {
-      editSnapshotRef.current = { product, deployment };
-    }
-    prevEditingRef.current = isEditing;
-    if (!isEditing) {
-      editSnapshotRef.current = null;
-    }
-  }, [isEditing, product, deployment]);
-
-  const handleSaveBasicInfo = () => {
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    const snapshot = editSnapshotRef.current;
-    if (snapshot) {
-      setProduct(snapshot.product);
-      setDeployment(snapshot.deployment);
-    }
-    setIsEditing(false);
-  };
 
   const deploymentOptions = Array.from(
     new Set(
@@ -120,40 +94,27 @@ export function BasicInformationSection({
       >
         <Typography variant="h6">Basic Information</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {isEditing ? (
-            <>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleSaveBasicInfo}
-                aria-label="Save basic information"
-              >
-                Save
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleCancelEdit}
-                aria-label="Cancel editing basic information"
-              >
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <Tooltip
-              title="Click here to modify basic information"
-              placement="top"
-              arrow
+          <Tooltip
+            title={
+              isEditing
+                ? "Click here to stop modifying basic information"
+                : "Click here to modify basic information"
+            }
+            placement="top"
+            arrow
+          >
+            <IconButton
+              onClick={() => setIsEditing(!isEditing)}
+              aria-label={
+                isEditing
+                  ? "Stop editing basic information"
+                  : "Edit basic information"
+              }
+              color={isEditing ? "primary" : "default"}
             >
-              <IconButton
-                onClick={() => setIsEditing(true)}
-                aria-label="Edit basic information"
-                disabled={isEditing}
-              >
-                <PencilLine size={18} />
-              </IconButton>
-            </Tooltip>
-          )}
+              <PencilLine size={18} />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 

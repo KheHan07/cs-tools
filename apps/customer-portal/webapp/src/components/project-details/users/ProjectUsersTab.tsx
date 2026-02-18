@@ -33,8 +33,8 @@ import {
 } from "@wso2/oxygen-ui";
 import { Plus, Trash } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-import { getUserStatusColor } from "@utils/projectStats";
-import type { MockProjectUser } from "@models/mockData";
+import { getUserStatusColor } from "@utils/projectDetails";
+import type { ProjectUser } from "@models/responses";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import useGetProjectUsers from "@api/useGetProjectUsers";
 import AddProjectUserDialog from "@components/project-details/users/AddProjectUserDialog";
@@ -54,7 +54,7 @@ export default function ProjectUsersTab({
     projectId,
 }: ProjectUsersTabProps): JSX.Element {
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const [localUsers, setLocalUsers] = useState<MockProjectUser[]>([]);
+    const [localUsers, setLocalUsers] = useState<ProjectUser[]>([]);
     const [initialized, setInitialized] = useState<boolean>(false);
 
     const {
@@ -92,7 +92,7 @@ export default function ProjectUsersTab({
         lastName: string;
     }): void => {
         // TODO: Replace with API call to add user
-        const user: MockProjectUser = {
+        const user: ProjectUser = {
             id: Date.now().toString(),
             firstName: newUser.firstName || "--",
             lastName: newUser.lastName || "--",

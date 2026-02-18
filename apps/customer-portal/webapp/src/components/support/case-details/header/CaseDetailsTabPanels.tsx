@@ -20,12 +20,14 @@ import type { CaseDetails } from "@models/responses";
 import CaseDetailsActivityPanel from "@case-details-activity/CaseDetailsActivityPanel";
 import CaseDetailsAttachmentsPanel from "@case-details-attachments/CaseDetailsAttachmentsPanel";
 import CaseDetailsDetailsPanel from "@case-details-details/CaseDetailsDetailsPanel";
+import CallsPanel from "@case-details-calls/CallsPanel";
 
 export interface CaseDetailsTabPanelsProps {
   activeTab: number;
   caseId: string;
   data?: CaseDetails;
   isError?: boolean;
+  projectId?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export default function CaseDetailsTabPanels({
   caseId,
   data,
   isError = false,
+  projectId = "",
 }: CaseDetailsTabPanelsProps): JSX.Element | null {
   switch (activeTab) {
     case 0: {
@@ -72,12 +75,16 @@ export default function CaseDetailsTabPanels({
       return <CaseDetailsDetailsPanel data={data} isError={isError} />;
     case 2:
       return <CaseDetailsAttachmentsPanel caseId={caseId} />;
-    case 3:
-      return (
-        <Typography variant="body2" color="text.secondary">
-          Calls will appear here.
-        </Typography>
-      );
+    case 3: {
+      if (!projectId) {
+        return (
+          <Typography variant="body2" color="text.secondary">
+            Call requests will appear here.
+          </Typography>
+        );
+      }
+      return <CallsPanel projectId={projectId} caseId={caseId} />;
+    }
     case 4:
       return (
         <Typography variant="body2" color="text.secondary">

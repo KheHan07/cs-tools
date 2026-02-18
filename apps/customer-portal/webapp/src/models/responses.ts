@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { type TimeTrackingBadgeType } from "@constants/projectDetailsConstants";
+
 // Basic project definition returned in search list responses.
 export interface ProjectListItem {
   id: string;
@@ -60,6 +62,33 @@ export interface UserDetails {
   lastName: string;
   firstName: string;
   timeZone: string;
+}
+
+// Project user (invited/registered) for project users list.
+export interface ProjectUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: "Invited" | "Registered";
+}
+
+// Case creation form metadata (projects, products, severity levels, conversation summary, etc.).
+export interface CaseCreationMetadata {
+  projects: string[];
+  products: string[];
+  deploymentTypes: string[];
+  issueTypes: string[];
+  severityLevels: {
+    id: string;
+    label: string;
+    description: string;
+  }[];
+  conversationSummary: {
+    messagesExchanged: number;
+    troubleshootingAttempts: string;
+    kbArticlesReviewed: string;
+  };
 }
 
 // Project support statistics.
@@ -283,6 +312,11 @@ export interface CaseMetadataResponse {
   severities?: MetadataItem[];
   issueTypes?: MetadataItem[];
   deploymentTypes?: MetadataItem[];
+  callRequestStates?: MetadataItem[];
+  changeRequestStates?: MetadataItem[];
+  changeRequestImpacts?: MetadataItem[];
+  caseTypes?: MetadataItem[];
+  severityBasedAllocationTime?: Record<string, number>;
 }
 
 // Chat history list item (support chat session summary).
@@ -298,6 +332,27 @@ export interface ChatHistoryItem {
 // Response for project chat history list.
 export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
+}
+
+// Interface for items in the time tracking logs.
+export interface TimeTrackingLogBadge {
+  text: string;
+  type: TimeTrackingBadgeType;
+}
+
+export interface TimeTrackingLog {
+  id: string;
+  badges: TimeTrackingLogBadge[];
+  description: string | null;
+  user: string | null;
+  role: string | null;
+  date: string | null;
+  hours: number | null;
+}
+
+// Response for project time tracking details.
+export interface TimeTrackingDetailsResponse {
+  timeLogs: TimeTrackingLog[];
 }
 
 // Interface for all cases filters state
@@ -504,4 +559,9 @@ export interface CallRequest {
 // Response for case call requests list.
 export interface CallRequestsResponse {
   callRequests: CallRequest[];
+}
+
+// Response for creating a call request.
+export interface CreateCallResponse {
+  id: string;
 }

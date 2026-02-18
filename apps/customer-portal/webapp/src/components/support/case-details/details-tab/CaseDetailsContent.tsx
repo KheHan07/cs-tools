@@ -18,8 +18,9 @@ import { Box, Paper, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
-import { getStatusColor } from "@utils/casesTable";
+import { useGetCallRequests } from "@api/useGetCallRequests";
 import {
+  getStatusColor,
   resolveColorFromTheme,
   getStatusIconElement,
   getInitials,
@@ -38,6 +39,7 @@ export interface CaseDetailsContentProps {
   isError: boolean;
   caseId: string;
   onBack: () => void;
+  projectId?: string;
 }
 
 /**
@@ -52,6 +54,7 @@ export default function CaseDetailsContent({
   isError,
   caseId,
   onBack,
+  projectId = "",
 }: CaseDetailsContentProps): JSX.Element {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
@@ -84,6 +87,9 @@ export default function CaseDetailsContent({
 
   const attachmentsQuery = useGetCaseAttachments(caseId);
   const attachmentCount = attachmentsQuery.data?.totalRecords;
+
+  const callsQuery = useGetCallRequests(projectId, caseId);
+  const callCount = callsQuery.data?.callRequests?.length;
 
   const assignedEngineer = data?.assignedEngineer;
   const engineerInitials = getInitials(assignedEngineer);
@@ -174,6 +180,7 @@ export default function CaseDetailsContent({
           onChange={(_e, newValue) => setActiveTab(newValue)}
           onFocusModeToggle={() => setFocusMode((prev) => !prev)}
           attachmentCount={attachmentCount}
+          callCount={callCount}
         />
       </Paper>
 
@@ -196,6 +203,7 @@ export default function CaseDetailsContent({
           caseId={caseId}
           data={data}
           isError={isError}
+          projectId={projectId}
         />
       </Box>
     </Box>

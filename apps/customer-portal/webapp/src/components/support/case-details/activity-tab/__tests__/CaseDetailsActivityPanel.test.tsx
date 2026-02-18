@@ -19,10 +19,14 @@ import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import CaseDetailsActivityPanel from "@case-details-activity/CaseDetailsActivityPanel";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
-import {
-  mockCaseComments,
-  mockUserDetails,
-} from "@models/mockData";
+import LoggerProvider from "@context/logger/LoggerProvider";
+
+const mockCaseComments = [
+  { id: "c1", content: "Thanks for the detailed recommendations. I'll review with our team.", type: "comments", createdOn: "2026-02-12T11:15:42", createdBy: "user@test.com", isEscalated: false },
+  { id: "c2", content: "Show more content here.", type: "comments", createdOn: "2026-02-12T10:30:15", createdBy: "support@wso2.com", isEscalated: false },
+];
+
+const mockUserDetails = { id: "u1", email: "user@test.com", lastName: "User", firstName: "Test", timeZone: "UTC" };
 
 vi.mock("@api/useGetCaseComments", () => ({
   __esModule: true,
@@ -68,13 +72,15 @@ function renderPanel(props: {
 } = {}) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <ErrorBannerProvider>
-        <CaseDetailsActivityPanel
-          projectId={props.projectId ?? "project-001"}
-          caseId={props.caseId ?? "case-001"}
-          caseCreatedOn={props.caseCreatedOn}
-        />
-      </ErrorBannerProvider>
+      <LoggerProvider>
+        <ErrorBannerProvider>
+          <CaseDetailsActivityPanel
+            projectId={props.projectId ?? "project-001"}
+            caseId={props.caseId ?? "case-001"}
+            caseCreatedOn={props.caseCreatedOn}
+          />
+        </ErrorBannerProvider>
+      </LoggerProvider>
     </ThemeProvider>,
   );
 }
@@ -110,7 +116,7 @@ describe("CaseDetailsActivityPanel", () => {
 
   it("should render input field and send button", () => {
     renderPanel();
-    expect(screen.getByPlaceholderText("Add a comment...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /send comment/i })).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 });

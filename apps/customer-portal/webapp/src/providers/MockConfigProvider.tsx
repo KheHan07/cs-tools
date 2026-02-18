@@ -14,75 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  createContext,
-  useContext,
-  useState,
-  type JSX,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, type JSX, type ReactNode } from "react";
 
-interface MockConfigContextProps {
-  isMockEnabled: boolean;
-  setMockEnabled: (enabled: boolean) => void;
+/** Mock mode is enabled as requested to show time tracking data. */
+const MockConfigContext = createContext<{ isMockEnabled: boolean }>({
+  isMockEnabled: true,
+});
+
+export function useMockConfig(): { isMockEnabled: boolean } {
+  return useContext(MockConfigContext);
 }
 
-const MockConfigContext = createContext<MockConfigContextProps | undefined>(
-  undefined,
-);
-
-export const MockConfigProvider = ({
-  children,
-}: {
+interface MockConfigProviderProps {
   children: ReactNode;
-}): JSX.Element => {
-  const [isMockEnabled, setIsMockEnabledState] = useState<boolean>(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.localStorage === "undefined"
-    ) {
-      return false;
-    }
+}
 
-    try {
-      const storedValue = window.localStorage.getItem("isMockEnabled");
-      return storedValue !== null ? storedValue === "true" : false;
-    } catch {
-      return false;
-    }
-  });
-
-  const setMockEnabled = (enabled: boolean) => {
-    setIsMockEnabledState(enabled);
-
-    if (
-      typeof window === "undefined" ||
-      typeof window.localStorage === "undefined"
-    ) {
-      return;
-    }
-
-    try {
-      localStorage.setItem("isMockEnabled", String(enabled));
-    } catch (error) {
-      console.error(
-        "Failed to persist 'isMockEnabled' in localStorage.",
-        error,
-      );
-    }
-  };
-
+/**
+ * Provider for mock config. Enables mock mode by default.
+ *
+ * @param props - children.
+ * @returns {JSX.Element}
+ */
+export function MockConfigProvider({
+  children,
+}: MockConfigProviderProps): JSX.Element {
   return (
-    <MockConfigContext.Provider value={{ isMockEnabled, setMockEnabled }}>
+    <MockConfigContext.Provider value={{ isMockEnabled: true }}>
       {children}
     </MockConfigContext.Provider>
   );
-};
-
-export const useMockConfig = (): MockConfigContextProps => {
-  const context = useContext(MockConfigContext);
-  if (!context) {
-    throw new Error("useMockConfig must be used within a MockConfigProvider");
-  }
-  return context;
-};
+}

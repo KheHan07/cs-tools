@@ -44,13 +44,6 @@ vi.mock("@context/AuthApiContext", () => ({
     vi.fn().mockImplementation((url, init) => fetch(url, init)),
 }));
 
-let mockIsMockEnabled = false;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
-}));
-
 describe("usePostCreateDeployment", () => {
   let queryClient: QueryClient;
   const originalConfig = window.config;
@@ -74,7 +67,6 @@ describe("usePostCreateDeployment", () => {
         },
       },
     });
-    mockIsMockEnabled = false;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -133,18 +125,6 @@ describe("usePostCreateDeployment", () => {
 
     await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
       "Error creating deployment: 500 Internal Server Error - Error message",
-    );
-  });
-
-  it("should throw error when mock is enabled", async () => {
-    mockIsMockEnabled = true;
-
-    const { result } = renderHook(() => usePostCreateDeployment(projectId), {
-      wrapper,
-    });
-
-    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
-      "Creating a deployment is not available when mock is enabled. Disable mock to create a deployment.",
     );
   });
 

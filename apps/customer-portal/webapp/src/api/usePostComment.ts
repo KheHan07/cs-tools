@@ -20,7 +20,6 @@ import {
   type UseMutationResult,
 } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
@@ -49,7 +48,6 @@ export function usePostComment(): UseMutationResult<
   const queryClient = useQueryClient();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
-  const { isMockEnabled } = useMockConfig();
 
   return useMutation<void, Error, PostCommentVariables>({
     mutationFn: async ({
@@ -57,12 +55,6 @@ export function usePostComment(): UseMutationResult<
       body,
     }: PostCommentVariables): Promise<void> => {
       logger.debug("[usePostComment] Request:", { caseId, contentLength: body.content?.length ?? 0 });
-
-      if (isMockEnabled) {
-        throw new Error(
-          "Post comment is not available when mock is enabled. Disable mock to post a comment.",
-        );
-      }
 
       if (!isSignedIn || isAuthLoading) {
         throw new Error("User must be signed in to post a comment");

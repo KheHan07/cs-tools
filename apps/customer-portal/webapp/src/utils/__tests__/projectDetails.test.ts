@@ -24,9 +24,9 @@ import {
   getSubscriptionStatus,
   getSubscriptionColor,
   calculateProgress,
-} from "@utils/projectStats";
+} from "@utils/projectDetails";
 
-describe("projectStats utils", () => {
+describe("projectDetails utils", () => {
   describe("formatProjectDate", () => {
     it("should format valid date strings correctly", () => {
       expect(formatProjectDate("2024-01-15")).toBe("Jan 15, 2024");

@@ -19,8 +19,43 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import AllCasesPage from "@pages/AllCasesPage";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { mockCaseMetadata, mockCases } from "@models/mockData";
 import { LoaderProvider } from "@context/linear-loader/LoaderContext";
+
+const mockCaseMetadata = {
+  statuses: [{ id: "1", label: "Open" }],
+  severities: [{ id: "2", label: "High" }],
+  issueTypes: [{ id: "3", label: "Incident" }],
+  deploymentTypes: [{ id: "4", label: "Production" }],
+};
+
+const mockCases = [
+  {
+    id: "case-1",
+    internalId: "INT-1",
+    number: "CS001",
+    createdOn: "2026-01-01",
+    title: "Case One",
+    description: "Desc",
+    assignedEngineer: null,
+    project: { id: "p1", label: "Project A" },
+    issueType: { id: "1", label: "Bug" },
+    state: { id: 1, label: "Open" },
+    severity: { id: 1, label: "High" },
+  },
+  {
+    id: "case-2",
+    internalId: "INT-2",
+    number: "CS002",
+    createdOn: "2026-01-02",
+    title: "Case Two",
+    description: "Desc",
+    assignedEngineer: null,
+    project: { id: "p1", label: "Project A" },
+    issueType: { id: "1", label: "Bug" },
+    state: { id: 1, label: "Open" },
+    severity: { id: 1, label: "High" },
+  },
+];
 
 // Mock API hooks
 vi.mock("@api/useGetProjectCasesStats", () => ({

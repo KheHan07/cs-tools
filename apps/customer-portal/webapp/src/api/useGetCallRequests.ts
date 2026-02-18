@@ -16,9 +16,7 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
-import { API_MOCK_DELAY, ApiQueryKeys } from "@constants/apiConstants";
-import { mockCallRequests } from "@models/mockData";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CallRequestsResponse } from "@models/responses";
@@ -36,26 +34,14 @@ export function useGetCallRequests(
 ): UseQueryResult<CallRequestsResponse, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
 
   return useQuery<CallRequestsResponse, Error>({
-    queryKey: [
-      ApiQueryKeys.CASE_CALL_REQUESTS,
-      projectId,
-      caseId,
-      isMockEnabled,
-    ],
+    queryKey: [ApiQueryKeys.CASE_CALL_REQUESTS, projectId, caseId],
     queryFn: async (): Promise<CallRequestsResponse> => {
       logger.debug(
-        `[useGetCallRequests] Fetching call requests for case: ${caseId} in project: ${projectId}, mock: ${isMockEnabled}`,
+        `[useGetCallRequests] Fetching call requests for case: ${caseId} in project: ${projectId}`,
       );
-
-      if (isMockEnabled) {
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-        logger.debug("[useGetCallRequests] Returning mock data");
-        return mockCallRequests;
-      }
 
       try {
         if (!isSignedIn || isAuthLoading) {
@@ -89,11 +75,7 @@ export function useGetCallRequests(
         throw error;
       }
     },
-    enabled:
-      !!projectId &&
-      !!caseId &&
-      !isAuthLoading &&
-      (isSignedIn || isMockEnabled),
+    enabled: !!projectId && !!caseId && !isAuthLoading && isSignedIn,
     staleTime: 5 * 60 * 1000,
   });
 }

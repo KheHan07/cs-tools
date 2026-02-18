@@ -16,10 +16,8 @@
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
-import { mockProjects } from "@models/mockData";
-import { ApiQueryKeys, API_MOCK_DELAY } from "@constants/apiConstants";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { SearchProjectsRequest } from "@models/requests";
 import type { SearchProjectsResponse } from "@models/responses";
@@ -38,46 +36,20 @@ export default function useGetProjects(
 ): UseQueryResult<SearchProjectsResponse, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
   const limit = fetchAll ? 100 : searchData?.pagination?.limit || 10;
   const offset = searchData?.pagination?.offset || 0;
 
-  // A stable key for the "all projects" query ensures cache sharing
   const queryKey = fetchAll
-    ? [ApiQueryKeys.PROJECTS, "all", isMockEnabled]
-    : [ApiQueryKeys.PROJECTS, searchData ?? "default", isMockEnabled];
+    ? [ApiQueryKeys.PROJECTS, "all"]
+    : [ApiQueryKeys.PROJECTS, searchData ?? "default"];
 
   return useQuery<SearchProjectsResponse, Error>({
     queryKey,
     queryFn: async (): Promise<SearchProjectsResponse> => {
       logger.debug(
-        `Fetching projects... offset: ${offset}, limit: ${limit}, fetchAll: ${fetchAll}, mock: ${isMockEnabled}`,
+        `Fetching projects... offset: ${offset}, limit: ${limit}, fetchAll: ${fetchAll}`,
       );
-
-      if (isMockEnabled) {
-        // Mock behavior: simulate network latency for the in-memory `mockProjects` data.
-        await new Promise((resolve) => setTimeout(resolve, API_MOCK_DELAY));
-
-        const results: SearchProjectsResponse = {
-          limit,
-          offset,
-          projects: mockProjects
-            .slice(offset, offset + limit)
-            .map((project) => ({
-              createdOn: project.createdOn,
-              description: project.description,
-              id: project.id,
-              key: project.key,
-              name: project.name,
-            })),
-          totalRecords: mockProjects.length,
-        };
-
-        logger.debug("Projects fetched successfully (mock)", results);
-
-        return results;
-      }
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -109,6 +81,6 @@ export default function useGetProjects(
       }
     },
     staleTime: Infinity,
-    enabled: isMockEnabled || (isSignedIn && !isAuthLoading),
+    enabled: isSignedIn && !isAuthLoading,
   });
 }

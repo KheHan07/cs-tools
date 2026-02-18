@@ -18,9 +18,19 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import useGetCasesFilters from "@api/useGetCasesFilters";
-import { mockCaseMetadata } from "@models/mockData";
 
-// Mock providers and hooks
+const mockFiltersResponse = {
+  statuses: [{ id: "1", label: "Open" }],
+  severities: [{ id: "2", label: "High" }],
+  issueTypes: [{ id: "3", label: "Incident" }],
+  deploymentTypes: [{ id: "4", label: "Production" }],
+};
+
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockFiltersResponse),
+});
+
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
     getIdToken: vi.fn().mockResolvedValue("mock-token"),
@@ -30,31 +40,15 @@ vi.mock("@asgardeo/react", () => ({
 }));
 
 vi.mock("@context/AuthApiContext", () => ({
-  useAuthApiClient: () =>
-    vi.fn().mockImplementation((url, init) => fetch(url, init)),
-}));
-
-const mockUseMockConfig = vi.fn().mockReturnValue({
-  isMockEnabled: true,
-});
-
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 vi.mock("@/hooks/useLogger", () => ({
-  useLogger: () => ({
-    debug: vi.fn(),
-    error: vi.fn(),
-  }),
+  useLogger: () => ({ debug: vi.fn(), error: vi.fn() }),
 }));
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
+  defaultOptions: { queries: { retry: false } },
 });
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -65,52 +59,28 @@ describe("useGetCasesFilters", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockFiltersResponse),
+    });
     vi.stubGlobal("config", {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.example.com",
     });
   });
 
-  it("should return mock data when isMockEnabled is true", async () => {
+  it("should return filters from API", async () => {
     const { result } = renderHook(() => useGetCasesFilters("123"), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(result.current.data).toEqual(mockCaseMetadata);
+    expect(result.current.data).toEqual(mockFiltersResponse);
   });
 
-  it("should fetch data from API when isMockEnabled is false", async () => {
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: false });
-    const mockResponse = {
-      statuses: [{ id: "1", label: "Open" }],
-      severities: [{ id: "2", label: "High" }],
-      issueTypes: [{ id: "3", label: "Incident" }],
-      deploymentTypes: [{ id: "4", label: "Production" }],
-    };
-
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue(mockResponse),
-    });
-    vi.stubGlobal("fetch", mockFetch);
-
-    const { result } = renderHook(() => useGetCasesFilters("123"), { wrapper });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual(mockResponse);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("/projects/123/filters"),
-      expect.any(Object),
-    );
-  });
-
-  it("should fetch and return project case filters", async () => {
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: false });
-
-    const mockFetch = vi.fn().mockResolvedValue({
+  it("should propagate API error", async () => {
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Internal Server Error",
     });
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => useGetCasesFilters("123"), { wrapper });
 

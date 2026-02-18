@@ -19,12 +19,40 @@ import { describe, expect, it, vi } from "vitest";
 import CaseDetailsTabPanels from "@case-details/CaseDetailsTabPanels";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
-import {
-  mockCaseAttachments,
-  mockCaseComments,
-  mockCaseDetails,
-  mockUserDetails,
-} from "@models/mockData";
+import LoggerProvider from "@context/logger/LoggerProvider";
+import type { CaseDetails } from "@models/responses";
+
+const mockCaseDetails = {
+  id: "case-001",
+  internalId: "INT-1",
+  number: "CS0001001",
+  createdOn: "2026-01-31 10:45:12",
+  updatedOn: "2026-02-10 23:47:57",
+  title: "Test case",
+  description: "Desc",
+  slaResponseTime: "129671000",
+  product: null,
+  account: { type: null, id: "acc-1", name: "Account" },
+  csManager: null,
+  assignedEngineer: null,
+  project: { id: "p1", name: "Project" },
+  deployment: { id: "d1", label: "Production" },
+  deployedProduct: null,
+  issueType: null,
+  state: { id: 1, label: "Open" },
+  severity: { id: 60, label: "S0" },
+};
+
+const mockCaseComments = [
+  { id: "c1", content: "Thanks for the detailed recommendations. I'll review.", type: "comments", createdOn: "2026-02-12T11:15:42", createdBy: "user@test.com", isEscalated: false },
+  { id: "c2", content: "Show more content here.", type: "comments", createdOn: "2026-02-12T10:30:15", createdBy: "support@wso2.com", isEscalated: false },
+];
+
+const mockCaseAttachments = [
+  { id: "a1", name: "file.txt", type: "text/plain", downloadUrl: "/file", createdOn: "2026-02-01", createdBy: "user@test.com" },
+];
+
+const mockUserDetails = { id: "u1", email: "user@test.com", lastName: "User", firstName: "Test", timeZone: "UTC" };
 
 vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
   __esModule: true,
@@ -90,18 +118,20 @@ vi.mock("@asgardeo/react", () => ({
 function renderTabPanels(
   activeTab: number,
   caseId = "case-1",
-  options?: { data?: typeof mockCaseDetails; isError?: boolean },
+  options?: { data?: CaseDetails; isError?: boolean },
 ) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <ErrorBannerProvider>
-        <CaseDetailsTabPanels
-        activeTab={activeTab}
-        caseId={caseId}
-        data={options?.data ?? mockCaseDetails}
-        isError={options?.isError ?? false}
-      />
-      </ErrorBannerProvider>
+      <LoggerProvider>
+        <ErrorBannerProvider>
+          <CaseDetailsTabPanels
+            activeTab={activeTab}
+            caseId={caseId}
+            data={options?.data ?? (mockCaseDetails as CaseDetails)}
+            isError={options?.isError ?? false}
+          />
+        </ErrorBannerProvider>
+      </LoggerProvider>
     </ThemeProvider>,
   );
 }
@@ -118,7 +148,7 @@ describe("CaseDetailsTabPanels", () => {
 
   it("should show Activity placeholder when projectId is missing", () => {
     renderTabPanels(0, "case-1", {
-      data: { ...mockCaseDetails, project: null },
+      data: { ...mockCaseDetails, project: null } as CaseDetails,
     });
     expect(
       screen.getByText("Activity timeline will appear here."),
@@ -135,13 +165,13 @@ describe("CaseDetailsTabPanels", () => {
   it("should show Attachments panel with list and download when activeTab is 2", () => {
     renderTabPanels(2);
     expect(screen.getByRole("button", { name: /upload attachment/i })).toBeInTheDocument();
-    expect(screen.getByText("screenshot-error.png")).toBeInTheDocument();
+    expect(screen.getByText("file.txt")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /download/i }).length).toBeGreaterThan(0);
   });
 
   it("should show Calls placeholder when activeTab is 3", () => {
     renderTabPanels(3);
-    expect(screen.getByText("Calls will appear here.")).toBeInTheDocument();
+    expect(screen.getByText("Call requests will appear here.")).toBeInTheDocument();
   });
 
   it("should show Knowledge Base placeholder when activeTab is 4", () => {

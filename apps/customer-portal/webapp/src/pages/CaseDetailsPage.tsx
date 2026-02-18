@@ -80,6 +80,7 @@ export default function CaseDetailsPage(): JSX.Element {
       isLoading={showSkeletons}
       isError={isError}
       caseId={caseId || ""}
+      projectId={projectId}
       onBack={handleBack}
     />
   );

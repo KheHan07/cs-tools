@@ -40,11 +40,9 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+const mockAuthFetch = vi.fn();
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("usePostCase", () => {
@@ -73,7 +71,6 @@ describe("usePostCase", () => {
         },
       },
     });
-    mockIsMockEnabled = true;
     mockIsSignedIn = true;
     mockIsAuthLoading = false;
     vi.clearAllMocks();
@@ -84,18 +81,9 @@ describe("usePostCase", () => {
     vi.unstubAllGlobals();
   });
 
-  it("throws when isMockEnabled is true", async () => {
-    const { result } = renderHook(() => usePostCase(), { wrapper });
-
-    await expect(result.current.mutateAsync(requestBody)).rejects.toThrow(
-      "Create case is not available when mock is enabled. Disable mock to create a case.",
-    );
-  });
-
-  it("posts to API and returns CreateCaseResponse when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
+  it("posts to API and returns CreateCaseResponse", async () => {
     const mockResponse = { id: "case-123" };
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockResponse),
       status: 200,
@@ -104,17 +92,15 @@ describe("usePostCase", () => {
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCase(), { wrapper });
 
     const data = await result.current.mutateAsync(requestBody);
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       "https://api.test/cases",
       expect.objectContaining({
         method: "POST",
-        headers: expect.any(Object),
         body: JSON.stringify(requestBody),
       }),
     );
@@ -122,7 +108,6 @@ describe("usePostCase", () => {
   });
 
   it("throws when CUSTOMER_PORTAL_BACKEND_BASE_URL is missing", async () => {
-    mockIsMockEnabled = false;
     window.config = {} as typeof window.config;
 
     const { result } = renderHook(() => usePostCase(), { wrapper });
@@ -133,18 +118,15 @@ describe("usePostCase", () => {
   });
 
   it("throws when API response is not ok", async () => {
-    mockIsMockEnabled = false;
-    const mockFetch = vi.fn().mockResolvedValue({
+    mockAuthFetch.mockResolvedValueOnce({
       ok: false,
       statusText: "Internal Server Error",
       status: 500,
       text: () => Promise.resolve("Server error"),
     } as Response);
-
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
 
     const { result } = renderHook(() => usePostCase(), { wrapper });
 
@@ -154,7 +136,6 @@ describe("usePostCase", () => {
   });
 
   it("throws when user is not signed in", async () => {
-    mockIsMockEnabled = false;
     mockIsSignedIn = false;
 
     window.config = {

@@ -16,7 +16,6 @@
 
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
-import { useMockConfig } from "@providers/MockConfigProvider";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
@@ -29,7 +28,6 @@ export interface PostAttachmentsVariables {
 
 /**
  * Posts an attachment to a case (POST /cases/:caseId/attachments).
- * When mock is enabled, the mutation throws; the upload modal should disable the Save button.
  * On success, invalidates case-attachments queries so the list refetches.
  *
  * @returns {UseMutationResult<void, Error, PostAttachmentsVariables>} Mutation result.
@@ -42,7 +40,6 @@ export function usePostAttachments(): UseMutationResult<
   const logger = useLogger();
   const queryClient = useQueryClient();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
-  const { isMockEnabled } = useMockConfig();
   const fetchFn = useAuthApiClient();
 
   return useMutation<void, Error, PostAttachmentsVariables>({
@@ -57,12 +54,6 @@ export function usePostAttachments(): UseMutationResult<
           type: body.type,
           contentLength: body.content?.length ?? 0,
         });
-
-        if (isMockEnabled) {
-          throw new Error(
-            "Upload attachment is not available when mock is enabled. Disable mock to upload.",
-          );
-        }
 
         if (!isSignedIn || isAuthLoading) {
           throw new Error("User must be signed in to upload an attachment");

@@ -18,16 +18,12 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import useGetCaseDetails from "@api/useGetCaseDetails";
-import { mockCaseDetails } from "@models/mockData";
 
-vi.mock("@constants/apiConstants", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@constants/apiConstants")>();
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockCaseDetails = {
+  id: "case-001",
+  number: "CS0001001",
+  title: "Application crashes on startup",
+};
 
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
@@ -37,10 +33,12 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-const mockUseMockConfig = vi.fn().mockReturnValue({ isMockEnabled: true });
-
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => mockUseMockConfig(),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockCaseDetails),
+    }),
 }));
 
 vi.mock("@hooks/useLogger", () => ({
@@ -59,10 +57,12 @@ describe("useGetCaseDetails", () => {
   beforeEach(() => {
     queryClient.clear();
     vi.clearAllMocks();
-    mockUseMockConfig.mockReturnValue({ isMockEnabled: true });
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
-  it("should return mock case details when isMockEnabled is true", async () => {
+  it("should return case details from API", async () => {
     const { result } = renderHook(
       () => useGetCaseDetails("project-1", "case-001"),
       { wrapper },
@@ -92,7 +92,7 @@ describe("useGetCaseDetails", () => {
   it("should use correct query key", () => {
     renderHook(() => useGetCaseDetails("project-1", "case-001"), { wrapper });
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["case-details", "project-1", "case-001", true],
+      queryKey: ["case-details", "project-1", "case-001"],
     })[0];
     expect(query).toBeDefined();
   });

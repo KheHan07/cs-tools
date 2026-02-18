@@ -20,7 +20,6 @@ import { useNavigate, useParams } from "react-router";
 import ChatHeader from "@components/support/novera-ai-assistant/novera-chat-page/ChatHeader";
 import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/ChatInput";
 import ChatMessageList from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageList";
-import { getNoveraResponse } from "@models/mockFunctions";
 
 export interface Message {
   id: string;
@@ -94,7 +93,7 @@ export default function NoveraChatPage(): JSX.Element {
     const timeoutId = window.setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: getNoveraResponse(),
+        text: "Response from support assistant will appear here when the API is connected.",
         sender: "bot",
         timestamp: new Date(),
       };

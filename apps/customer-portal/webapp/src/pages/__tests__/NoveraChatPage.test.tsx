@@ -20,11 +20,6 @@ import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NoveraChatPage from "@pages/NoveraChatPage";
 
-// Mock mockFunctions
-vi.mock("@/models/mockFunctions", () => ({
-  getNoveraResponse: () => "I am a mock response.",
-}));
-
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div>{children}</div>,

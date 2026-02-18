@@ -28,6 +28,7 @@ import {
 import { ArrowRight } from "@wso2/oxygen-ui-icons-react";
 import type { ComponentType } from "react";
 import type { JSX } from "react";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 export interface SupportOverviewCardProps {
   title: string;
@@ -38,6 +39,7 @@ export interface SupportOverviewCardProps {
   footerButtonLabel: string;
   onFooterClick: () => void;
   sx?: SxProps<Theme>;
+  isError?: boolean;
 }
 
 /**
@@ -55,6 +57,7 @@ export default function SupportOverviewCard({
   footerButtonLabel,
   onFooterClick,
   sx,
+  isError,
 }: SupportOverviewCardProps): JSX.Element {
   const theme = useTheme();
   const paletteKey = iconVariant === "blue" ? "info" : "warning";
@@ -107,9 +110,15 @@ export default function SupportOverviewCard({
           gap: 1.5,
           flex: 1,
           width: "100%",
+          justifyContent: isError ? "center" : "flex-start",
+          alignItems: isError ? "center" : "stretch",
         }}
       >
-        {children}
+        {isError ? (
+          <ErrorIndicator entityName={title.toLowerCase()} size="medium" />
+        ) : (
+          children
+        )}
       </Box>
 
       <Box

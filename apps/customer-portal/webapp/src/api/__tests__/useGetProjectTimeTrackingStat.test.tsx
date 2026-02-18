@@ -20,13 +20,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
 import type { ReactNode } from "react";
 
-vi.mock("@constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
+const mockTimeTrackingResponse = {
+  totalHours: 17.5,
+  billableHours: 15,
+  nonBillableHours: 2.5,
+};
 
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
@@ -36,10 +34,12 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: true,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () =>
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockTimeTrackingResponse),
+    }),
 }));
 
 vi.mock("@hooks/useLogger", () => ({
@@ -67,9 +67,12 @@ const createWrapper = () => {
 describe("useGetProjectTimeTrackingStat", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
   });
 
-  it("should return time tracking stats when mock is enabled", async () => {
+  it("should return time tracking stats from API", async () => {
     const projectId = "project-1";
 
     const { result } = renderHook(

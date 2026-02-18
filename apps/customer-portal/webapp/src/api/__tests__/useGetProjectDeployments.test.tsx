@@ -19,7 +19,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { mockProjectDeployments } from "@models/mockData";
+
+const mockProjectDeploymentsResponse = [
+  {
+    id: "1",
+    name: "Prod",
+    createdOn: "2026-02-06",
+    updatedOn: "2026-02-06",
+    description: null,
+    url: null,
+    project: { id: "p1", label: "My Project" },
+    type: { id: "6", label: "Primary Production" },
+  },
+];
+
+const mockAuthFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve(mockProjectDeploymentsResponse),
+  status: 200,
+} as Response);
 
 const mockLogger = {
   debug: vi.fn(),
@@ -29,28 +47,16 @@ vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
 }));
 
-vi.mock("@/constants/apiConstants", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    API_MOCK_DELAY: 0,
-  };
-});
-
-const mockGetIdToken = vi.fn().mockResolvedValue("mock-token");
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
-    getIdToken: mockGetIdToken,
+    getIdToken: vi.fn().mockResolvedValue("mock-token"),
     isSignedIn: true,
     isLoading: false,
   }),
 }));
 
-let mockIsMockEnabled = true;
-vi.mock("@/providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({
-    isMockEnabled: mockIsMockEnabled,
-  }),
+vi.mock("@context/AuthApiContext", () => ({
+  useAuthApiClient: () => mockAuthFetch,
 }));
 
 describe("useGetProjectDeployments", () => {
@@ -58,13 +64,16 @@ describe("useGetProjectDeployments", () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
+      defaultOptions: { queries: { retry: false } },
     });
-    mockIsMockEnabled = true;
+    mockAuthFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockProjectDeploymentsResponse),
+      status: 200,
+    } as Response);
+    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
+    };
     vi.clearAllMocks();
   });
 
@@ -76,52 +85,7 @@ describe("useGetProjectDeployments", () => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
-  it("should return mock data when isMockEnabled is true", async () => {
-    const { result } = renderHook(
-      () => useGetProjectDeployments("project-1"),
-      { wrapper },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(result.current.data).toBeDefined();
-    expect(Array.isArray(result.current.data)).toBe(true);
-    expect(result.current.data).toHaveLength(mockProjectDeployments.length);
-    expect(result.current.data?.[0]).toMatchObject({
-      id: expect.any(String),
-      name: expect.any(String),
-      project: expect.objectContaining({ id: expect.any(String), label: expect.any(String) }),
-      type: expect.objectContaining({ id: expect.any(String), label: expect.any(String) }),
-    });
-    expect(result.current.data?.[0].type.label).toBe("Staging");
-  });
-
-  it("should fetch from API when isMockEnabled is false", async () => {
-    mockIsMockEnabled = false;
-    const mockResponse: typeof mockProjectDeployments = [
-      {
-        id: "1",
-        name: "Prod",
-        createdOn: "2026-02-06",
-        updatedOn: "2026-02-06",
-        description: null,
-        url: null,
-        project: { id: "p1", label: "My Project" },
-        type: { id: "6", label: "Primary Production" },
-      },
-    ];
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-      status: 200,
-    } as Response);
-
-    const originalConfig = window.config;
-    window.config = {
-      CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
-    } as typeof window.config;
-    vi.stubGlobal("fetch", mockFetch);
-
+  it("should return deployments from API", async () => {
     const { result } = renderHook(
       () => useGetProjectDeployments("project-123"),
       { wrapper },
@@ -129,14 +93,12 @@ describe("useGetProjectDeployments", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(mockAuthFetch).toHaveBeenCalledWith(
       "https://api.test/projects/project-123/deployments",
       expect.objectContaining({ method: "GET" }),
     );
-    expect(result.current.data).toEqual(mockResponse);
+    expect(result.current.data).toEqual(mockProjectDeploymentsResponse);
     expect(result.current.data?.[0].type.label).toBe("Primary Production");
-
-    window.config = originalConfig;
   });
 
   it("should be disabled when projectId is empty", () => {
