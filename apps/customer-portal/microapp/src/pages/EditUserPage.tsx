@@ -25,7 +25,7 @@ import { stringAvatar } from "@utils/others";
 
 export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "edit" }) {
   const location = useLocation();
-  const state = location.state as { email?: string; role?: string; name?: string };
+  const state = location.state as { email?: string; role?: RoleName; name?: string };
 
   const [role, setRole] = useState<RoleName>(state?.role ?? "Admin");
   const [email, setEmail] = useState(state?.email ?? "");
@@ -37,7 +37,8 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
 
   return (
     <Stack gap={2}>
-      {mode === "edit" && <UserSummaryCard name={name} email={email} />}
+      {/* TODO: Replace hardcoded `lastActive` value with backend-provided data once user activity tracking is integrated. */}
+      {mode === "edit" && <UserSummaryCard name={name} email={email} lastActive="2 hours ago" />}
       {mode === "invite" && <InvitationNotice />}
       <SectionCard title="User Details">
         <Stack gap={2}>
@@ -90,6 +91,7 @@ export default function EditUserPage({ mode = "invite" }: { mode?: "invite" | "e
         </>
       )}
 
+      {/* TODO: Implement proper submission handling */}
       <Button variant="contained" component={Link} to="/users" sx={{ textTransform: "initial" }}>
         {mode === "invite" ? "Send Invitation" : "Save Changes"}
       </Button>
@@ -143,7 +145,7 @@ function ExpirationNotice() {
     <Card
       component={Stack}
       direction="row"
-      alignItems="top"
+      alignItems="center"
       px={2}
       py={1.5}
       gap={2}
@@ -193,7 +195,7 @@ function PermissionDetails() {
   );
 }
 
-function UserSummaryCard({ name, email }: { name: string; email: string }) {
+function UserSummaryCard({ name, email, lastActive }: { name: string; email: string; lastActive: string }) {
   const theme = useTheme();
 
   return (
@@ -220,7 +222,7 @@ function UserSummaryCard({ name, email }: { name: string; email: string }) {
           </Typography>
         </Stack>
         <Typography variant="caption" fontWeight="regular" color="text.secondary">
-          Last Active: 2 hours ago
+          Last Active: {lastActive}
         </Typography>
       </Stack>
     </Card>
