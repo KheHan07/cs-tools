@@ -20,6 +20,7 @@ import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
 import { LogOut } from "@wso2/oxygen-ui-icons-react";
 import useGetUserDetails from "@api/useGetUserDetails";
+import { useLogger } from "@/hooks/useLogger";
 
 /**
  * User profile component.
@@ -30,14 +31,20 @@ export default function UserProfile(): JSX.Element {
   const navigate = useNavigate();
   const { signOut, isLoading: isAuthLoading, isSignedIn } = useAsgardeo();
   const { data: userDetails, isLoading, isError } = useGetUserDetails();
+  const logger = useLogger();
 
   if (!isAuthLoading && !isSignedIn) {
     return <></>;
   }
 
   const handleLogout = async () => {
-    await signOut();
-    navigate("/");
+    try {
+      await signOut();
+    } catch (error) {
+      logger.error("Failed to sign out", error);
+    } finally {
+      navigate("/");
+    }
   };
 
   if (isLoading || isAuthLoading) {
