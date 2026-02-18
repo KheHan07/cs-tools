@@ -136,7 +136,10 @@ export default function DeploymentCard({
           </Typography>
           <Divider />
 
-          <DeploymentProductList products={products} />
+          <DeploymentProductList
+            products={products}
+            deploymentId={deployment.id}
+          />
 
           <Divider />
 
