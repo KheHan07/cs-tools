@@ -33,5 +33,3 @@ public const int DEFAULT_LIMIT = 10;
 
 public const ERR_STATUS_CODE = "statusCode";
 public const ERR_BODY = "body";
-
-public const STATE_OPEN_ID = "1";

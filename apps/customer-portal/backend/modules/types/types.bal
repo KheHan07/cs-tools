@@ -180,35 +180,35 @@ public type ProjectCaseStats record {|
 # Project support statistics.
 public type ProjectSupportStats record {|
     # Total cases count
-    int totalCases;
+    int totalCases?;
     # Active chats count
-    int activeChats;
+    int activeChats?;
     # Session chats count
-    int sessionChats;
+    int sessionChats?;
     # Resolved chats count
-    int resolvedChats;
+    int resolvedChats?;
 |};
 
 # Project statistics.
 public type ProjectStats record {|
     # Open cases count
-    int openCases;
+    int openCases?;
     # Active chats count
-    int activeChats;
+    int activeChats?;
     # Deployments count
-    int deployments;
+    int deployments?;
     # SLA status
-    string slaStatus;
+    string slaStatus?;
 |};
 
 # Recent activity details.
 public type RecentActivity record {|
     # Total time logged
-    decimal totalTimeLogged;
+    decimal totalTimeLogged?;
     # Billable hours
-    decimal billableHours;
+    decimal billableHours?;
     # Last deployment date
-    string? lastDeploymentOn;
+    string? lastDeploymentOn?;
 |};
 
 # Project statistics response.

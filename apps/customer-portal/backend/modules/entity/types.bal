@@ -324,11 +324,11 @@ public type ProjectMetadataResponse record {|
 # Project statistics response from ServiceNow.
 public type ProjectStatsResponse record {|
     # Total time logged
-    decimal totalTimeLogged;
+    decimal totalTimeLogged?;
     # Billable hours
-    decimal billableHours;
+    decimal billableHours?;
     # SLA status
-    string slaStatus;
+    string slaStatus?;
     json...;
 |};
 

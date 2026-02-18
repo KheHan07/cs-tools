@@ -19,6 +19,8 @@ import customer_portal.types;
 import ballerina/http;
 import ballerina/log;
 
+configurable int stateIdOpen = 1;
+
 # Search cases for a given project.
 #
 # + idToken - ID token for authorization
@@ -350,8 +352,12 @@ public isolated function mapCaseStats(entity:ProjectCaseStatsResponse response) 
     };
 }
 
+# Get open cases count from project case stats response.
+#
+# + response - Project case stats response from the entity service
+# + return - Count of open cases, or null if not available
 public isolated function getOpenCasesCountFromProjectCasesStats(entity:ProjectCaseStatsResponse response) returns int? {
     types:ProjectCaseStats stats = mapCaseStats(response);
-    types:ReferenceItem[] openCases = stats.stateCount.filter(stat => stat.id == STATE_OPEN_ID);
+    types:ReferenceItem[] openCases = stats.stateCount.filter(stat => stat.id == stateIdOpen.toString());
     return openCases.length() > 0 ? openCases[0].count : ();
 }
