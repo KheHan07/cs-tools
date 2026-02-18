@@ -825,6 +825,7 @@ public type CallRequestCreatePayload record {|
     @constraint:Array {minLength: 1}
     string[] utcTimes;
     # Duration in minutes
+    @constraint:Int {minValue: 1}
     int durationInMinutes;
 |};
 

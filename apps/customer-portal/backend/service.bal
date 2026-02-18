@@ -1540,7 +1540,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Contact information to be validated
     # + return - Contact information if valid or error response
-    resource function post projects/[string id]/contacts/validate(http:RequestContext ctx, types:ValidationPayload payload)
+    resource function post projects/[string id]/contacts/validate(http:RequestContext ctx,
+            types:ValidationPayload payload)
         returns user_management:Contact|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1710,7 +1711,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + return - Updated call request details or an error
     resource function patch cases/[string caseId]/call\-requests/[string callRequestId](http:RequestContext ctx,
             entity:CallRequestUpdatePayload payload)
-        returns entity:UpdatedCallRequest|http:BadRequest|http:Forbidden|http:InternalServerError {
+        returns entity:UpdatedCallRequest|http:BadRequest|http:Forbidden|http:NotFound|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1738,6 +1739,14 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     utcTimes: payload.utcTimes
                 });
         if response is error {
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for updating call request."
+                    }
+                };
+            }
+
             if getStatusCode(response) == http:STATUS_FORBIDDEN {
                 log:printWarn(string `Access to update call request is forbidden for user: ${userInfo.userId}`);
                 return <http:Forbidden>{
@@ -1747,10 +1756,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 };
             }
 
-            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
-                return <http:BadRequest>{
+            if getStatusCode(response) == http:STATUS_NOT_FOUND {
+                return <http:NotFound>{
                     body: {
-                        message: "Invalid request parameters for updating call request."
+                        message: "The call request to be updated is not found!"
                     }
                 };
             }
