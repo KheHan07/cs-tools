@@ -21,7 +21,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  IconButton,
+  Button,
   Typography,
   alpha,
 } from "@wso2/oxygen-ui";
@@ -95,12 +95,12 @@ function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
         </Box>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>
-        <IconButton size="small">
+        <Button size="small">
           <Download size={16} />
-        </IconButton>
-        <IconButton size="small">
+        </Button>
+        <Button size="small">
           <Trash2 size={16} />
-        </IconButton>
+        </Button>
       </Box>
     </Box>
   );
