@@ -58,7 +58,9 @@ export default function TimeTrackingCard({
             }}
           >
             {badges.map((badge, index) => {
-              const paletteKey = getTimeTrackingBadgePaletteKey(badge.type);
+              const rawPaletteKey = getTimeTrackingBadgePaletteKey(badge.type);
+              const paletteKey =
+                rawPaletteKey === "default" ? "primary" : rawPaletteKey;
               const mainColor = theme.palette[paletteKey].main;
 
               return (

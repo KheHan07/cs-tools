@@ -18,15 +18,16 @@
 
 import { describe, expect, it } from "vitest";
 import { getStatusColor, getSeverityColor } from "@utils/casesTable";
+import { CaseSeverityLevel, CaseStatus } from "@constants/supportConstants";
 
 describe("casesTable utils", () => {
   describe("getSeverityColor", () => {
     it("should return correct MUI color paths for severity levels", () => {
-      expect(getSeverityColor("S0")).toBe("error.main");
-      expect(getSeverityColor("S1")).toBe("warning.main");
-      expect(getSeverityColor("S2")).toBe("text.disabled");
-      expect(getSeverityColor("S3")).toBe("info.main");
-      expect(getSeverityColor("S4")).toBe("success.main");
+      expect(getSeverityColor(CaseSeverityLevel.S0)).toBe("error.main");
+      expect(getSeverityColor(CaseSeverityLevel.S1)).toBe("warning.main");
+      expect(getSeverityColor(CaseSeverityLevel.S2)).toBe("info.main");
+      expect(getSeverityColor(CaseSeverityLevel.S3)).toBe("secondary.main");
+      expect(getSeverityColor(CaseSeverityLevel.S4)).toBe("success.main");
       expect(getSeverityColor("Unknown")).toBe("text.secondary");
       expect(getSeverityColor(undefined)).toBe("text.secondary");
     });
@@ -34,20 +35,20 @@ describe("casesTable utils", () => {
 
   describe("getStatusColor", () => {
     it("should return 'info.main' for open status", () => {
-      expect(getStatusColor("Open")).toBe("info.main");
+      expect(getStatusColor(CaseStatus.OPEN)).toBe("info.main");
     });
 
     it("should return 'primary.main' for awaiting response", () => {
-      expect(getStatusColor("Awaiting Response")).toBe("primary.main");
+      expect(getStatusColor(CaseStatus.AWAITING_INFO)).toBe("primary.main");
     });
 
     it("should return 'warning.main' for in progress", () => {
-      expect(getStatusColor("In Progress")).toBe("warning.main");
+      expect(getStatusColor(CaseStatus.WORK_IN_PROGRESS)).toBe("warning.main");
     });
 
     it("should return 'success.main' for resolved/closed status", () => {
       expect(getStatusColor("Resolved")).toBe("success.main");
-      expect(getStatusColor("Closed")).toBe("success.main");
+      expect(getStatusColor(CaseStatus.CLOSED)).toBe("success.main");
     });
 
     it("should return 'text.secondary' for unknown status", () => {

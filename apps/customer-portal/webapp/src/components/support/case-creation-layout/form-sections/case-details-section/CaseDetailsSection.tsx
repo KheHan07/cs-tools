@@ -29,6 +29,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
+import { CaseSeverity, CaseSeverityLevel } from "@constants/supportConstants";
 import type { CaseMetadataResponse } from "@models/responses";
 import { getSeverityColor } from "@utils/support";
 import Editor from "@components/common/rich-text-editor/Editor";
@@ -104,12 +105,24 @@ export function CaseDetailsSection({
     label: string;
     description?: string;
   }[];
+
+  const SEVERITY_LABEL_MAP: Record<string, string> = {
+    [CaseSeverity.LOW]: CaseSeverityLevel.S4,
+    [CaseSeverity.MEDIUM]: CaseSeverityLevel.S3,
+    [CaseSeverity.HIGH]: CaseSeverityLevel.S2,
+    [CaseSeverity.CRITICAL]: CaseSeverityLevel.S1,
+    [CaseSeverity.CATASTROPHIC]: CaseSeverityLevel.S0,
+  };
+
   const severityLevels = [
     ...baseSeverityLevels,
     ...(extraSeverityLevels ?? []).filter(
       (extra) => !baseSeverityLevels.some((level) => level.id === extra.id),
     ),
-  ];
+  ].map((level) => ({
+    ...level,
+    label: SEVERITY_LABEL_MAP[level.label] ?? level.label,
+  }));
 
   return (
     <Paper sx={{ p: 3 }}>

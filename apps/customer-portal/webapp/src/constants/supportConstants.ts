@@ -96,6 +96,18 @@ export const CaseSeverity = {
 
 export type CaseSeverity = (typeof CaseSeverity)[keyof typeof CaseSeverity];
 
+// Case severity levels (S0-S4).
+export const CaseSeverityLevel = {
+  S0: "S0",
+  S1: "S1",
+  S2: "S2",
+  S3: "S3",
+  S4: "S4",
+} as const;
+
+export type CaseSeverityLevel =
+  (typeof CaseSeverityLevel)[keyof typeof CaseSeverityLevel];
+
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
 

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { CaseSeverityLevel, CaseStatus } from "@constants/supportConstants";
+
 /**
  * Returns the Oxygen ui color path for a given severity label.
  * @param label - The severity label (e.g., S0, S1, S2, S3, S4).
@@ -21,12 +23,20 @@
  */
 export const getSeverityColor = (label?: string): string => {
   const normalized = label?.toUpperCase() || "";
-  if (normalized === "S0") return "error.main";
-  if (normalized === "S1") return "warning.main";
-  if (normalized === "S2") return "text.disabled";
-  if (normalized === "S3") return "info.main";
-  if (normalized === "S4") return "success.main";
-  return "text.secondary";
+  switch (normalized) {
+    case CaseSeverityLevel.S0:
+      return "error.main";
+    case CaseSeverityLevel.S1:
+      return "warning.main";
+    case CaseSeverityLevel.S2:
+      return "info.main";
+    case CaseSeverityLevel.S3:
+      return "secondary.main";
+    case CaseSeverityLevel.S4:
+      return "success.main";
+    default:
+      return "text.secondary";
+  }
 };
 
 /**
@@ -36,10 +46,19 @@ export const getSeverityColor = (label?: string): string => {
  */
 export const getStatusColor = (label?: string): string => {
   const normalized = label?.toLowerCase() || "";
-  if (normalized.includes("open")) return "info.main";
-  if (normalized.includes("awaiting")) return "primary.main";
-  if (normalized.includes("progress")) return "warning.main";
-  if (normalized.includes("resolved") || normalized.includes("closed"))
-    return "success.main";
-  return "text.secondary";
+  switch (true) {
+    case normalized.includes(CaseStatus.OPEN.toLowerCase()):
+    case normalized.includes(CaseStatus.REOPENED.toLowerCase()):
+      return "info.main";
+    case normalized.includes(CaseStatus.AWAITING_INFO.toLowerCase()):
+      return "primary.main";
+    case normalized.includes(CaseStatus.WORK_IN_PROGRESS.toLowerCase()):
+      return "warning.main";
+    case normalized.includes(CaseStatus.CLOSED.toLowerCase()):
+    case normalized.includes(CaseStatus.SOLUTION_PROPOSED.toLowerCase()):
+    case normalized.includes("resolved"):
+      return "success.main";
+    default:
+      return "text.secondary";
+  }
 };

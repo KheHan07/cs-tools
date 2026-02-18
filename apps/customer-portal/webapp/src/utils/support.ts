@@ -29,6 +29,7 @@ import {
   CaseStatus,
   CallRequestStatus,
   CaseSeverity,
+  CaseSeverityLevel,
 } from "@constants/supportConstants";
 import type { CaseComment } from "@models/responses";
 import type { Theme } from "@wso2/oxygen-ui";
@@ -434,20 +435,25 @@ export function getCallRequestStatusColor(status?: string): string {
 /**
  * Returns the Oxygen UI color path for a given severity label.
  *
- * @param {string} label - The severity label (e.g., "Critical (P1)", "Low (P4)").
+ * @param {string} label - The severity label (e.g., "Critical (P1)", "S1").
  * @returns {string} The Oxygen UI color path.
  */
 export function getSeverityColor(label?: string): string {
   switch (label) {
     case CaseSeverity.CATASTROPHIC:
+    case CaseSeverityLevel.S0:
       return "error.main";
     case CaseSeverity.CRITICAL:
+    case CaseSeverityLevel.S1:
       return "warning.main";
     case CaseSeverity.HIGH:
+    case CaseSeverityLevel.S2:
       return "info.main";
     case CaseSeverity.MEDIUM:
+    case CaseSeverityLevel.S3:
       return "secondary.main";
     case CaseSeverity.LOW:
+    case CaseSeverityLevel.S4:
       return "success.main";
     default:
       return "text.primary";
