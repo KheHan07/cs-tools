@@ -16,9 +16,16 @@
 
 import { UPDATES_STATS } from "@constants/updatesConstants";
 import type {
+  ProductUpdateLevelsResponse,
   RecommendedUpdateLevelItem,
   UpdatesStats,
 } from "@models/responses";
+
+/** Pending update level row for display. */
+export interface PendingUpdateLevelRow {
+  updateLevel: number;
+  updateType: "security" | "regular";
+}
 
 export const NULL_PLACEHOLDER = "--";
 
@@ -131,4 +138,54 @@ export const getStatTooltipText = (
   }
 
   return stat.tooltipText;
+};
+
+/**
+ * Computes pending update levels by matching productName and productBaseVersion
+ * between recommended and product-update-levels responses.
+ *
+ * @param {RecommendedUpdateLevelItem} recommended - The recommended item (productName, productBaseVersion, endingUpdateLevel, recommendedUpdateLevel, etc.).
+ * @param {ProductUpdateLevelsResponse} productLevels - The product update levels response.
+ * @returns {PendingUpdateLevelRow[]} Pending levels with type (security/regular).
+ */
+export const getPendingUpdateLevels = (
+  recommended: RecommendedUpdateLevelItem,
+  productLevels: ProductUpdateLevelsResponse | undefined,
+): PendingUpdateLevelRow[] => {
+  if (!productLevels) {
+    return [];
+  }
+
+  const product = productLevels.find(
+    (p) => p.productName === recommended.productName,
+  );
+  if (!product) {
+    return [];
+  }
+
+  const versionEntry = product.productUpdateLevels.find(
+    (v) => v.productBaseVersion === recommended.productBaseVersion,
+  );
+  if (!versionEntry) {
+    return [];
+  }
+
+  const { endingUpdateLevel, recommendedUpdateLevel } = recommended;
+  const updateLevelSet = new Set(versionEntry.updateLevels);
+
+  const pendingLevels: number[] = [];
+  for (let level = endingUpdateLevel + 1; level <= recommendedUpdateLevel; level++) {
+    if (updateLevelSet.has(level)) {
+      pendingLevels.push(level);
+    }
+  }
+  pendingLevels.sort((a, b) => a - b);
+
+  const securityCount = recommended.availableSecurityUpdatesCount;
+
+  return pendingLevels.map((level, index) => ({
+    updateLevel: level,
+    updateType:
+      index < securityCount && securityCount > 0 ? "security" : "regular",
+  }));
 };
