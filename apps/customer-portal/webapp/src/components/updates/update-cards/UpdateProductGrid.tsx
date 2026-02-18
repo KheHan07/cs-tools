@@ -15,6 +15,7 @@
 // under the License.
 
 import { Box, Grid, Typography } from "@wso2/oxygen-ui";
+import { useNavigate } from "react-router";
 import type { JSX } from "react";
 import type { RecommendedUpdateLevelItem } from "@models/responses";
 import { UpdateProductCard } from "@update-cards/UpdateProductCard";
@@ -24,6 +25,7 @@ export interface UpdateProductGridProps {
   data: RecommendedUpdateLevelItem[] | undefined;
   isLoading: boolean;
   isError: boolean;
+  projectId?: string;
 }
 
 /**
@@ -36,7 +38,10 @@ export function UpdateProductGrid({
   data,
   isLoading,
   isError,
+  projectId,
 }: UpdateProductGridProps): JSX.Element {
+  const navigate = useNavigate();
+
   if (isError) {
     return (
       <Box sx={{ mt: 4, textAlign: "center" }}>
@@ -71,7 +76,20 @@ export function UpdateProductGrid({
               key={`${item.productName}-${item.productBaseVersion}`}
               size={{ xs: 12, md: 6 }}
             >
-              <UpdateProductCard item={item} />
+              <UpdateProductCard
+                item={item}
+                onViewPendingUpdates={
+                  projectId
+                    ? () => {
+                        const params = new URLSearchParams({
+                          productName: item.productName,
+                          productBaseVersion: item.productBaseVersion,
+                        });
+                        navigate(`/${projectId}/updates/pending?${params}`);
+                      }
+                    : undefined
+                }
+              />
             </Grid>
           ))}
         </Grid>
