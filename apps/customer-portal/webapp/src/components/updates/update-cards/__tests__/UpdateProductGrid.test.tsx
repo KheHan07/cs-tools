@@ -14,10 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { describe, it, expect } from "vitest";
 import { UpdateProductGrid } from "@update-cards/UpdateProductGrid";
 import type { RecommendedUpdateLevelItem } from "@models/responses";
+
+const renderWithRouter = (ui: ReactElement) =>
+  render(<MemoryRouter>{ui}</MemoryRouter>);
 
 const mockData: RecommendedUpdateLevelItem[] = [
   {
@@ -37,7 +42,7 @@ const mockData: RecommendedUpdateLevelItem[] = [
 
 describe("UpdateProductGrid", () => {
   it("renders loading skeletons when isLoading is true", () => {
-    render(
+    renderWithRouter(
       <UpdateProductGrid data={undefined} isLoading={true} isError={false} />,
     );
     const skeletons =
@@ -48,14 +53,14 @@ describe("UpdateProductGrid", () => {
   });
 
   it("renders error message when isError is true", () => {
-    render(
+    renderWithRouter(
       <UpdateProductGrid data={undefined} isLoading={false} isError={true} />,
     );
     expect(screen.getByText("Failed to load product updates.")).toBeDefined();
   });
 
   it("renders product cards when data is provided", () => {
-    render(
+    renderWithRouter(
       <UpdateProductGrid data={mockData} isLoading={false} isError={false} />,
     );
     expect(screen.getByText("Product A")).toBeDefined();
