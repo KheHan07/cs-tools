@@ -617,3 +617,42 @@ public type ValidationPayload record {|
     # Contact email
     string contactEmail;
 |};
+
+# Request payload for searching call requests.
+public type CallRequestSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of state keys to filter
+        int[] stateKeys?;
+    } filters?;
+    # Pagination details
+    entity:Pagination pagination?;
+|};
+
+# Call request data from ServiceNow.
+public type CallRequest record {|
+    # ID
+    string id;
+    # Associated case information
+    ReferenceItem case;
+    # Reason for the call request
+    string? reason;
+    # Preferred times for the call
+    string[] preferredTimes;
+    # Duration in minutes
+    int durationMin;
+    # Scheduled time for the call
+    string? scheduleTime;
+    # Created date and time
+    string createdOn;
+    # Updated date and time
+    string updatedOn;
+    # State information
+    ReferenceItem state;
+|};
+
+# Call requests response from ServiceNow.
+public type CallRequestsResponse record {|
+    # List of call requests
+    CallRequest[] callRequests;
+|};

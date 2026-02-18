@@ -223,3 +223,14 @@ public isolated function getProductVulnerability(string idToken, string vulnerab
 public isolated function getProductVulnerabilityMetaData(string idToken) returns VulnerabilityMetaResponse|error {
     return csEntityClient->/products/vulnerabilities/meta.get(generateHeaders(idToken));
 }
+
+# Search call requests of a project.
+#
+# + idToken - ID token for authorization
+# + payload - Call request search payload
+# + return - Call requests response or error
+public isolated function searchCallRequests(string idToken, CallRequestSearchPayload payload)
+    returns CallRequestsResponse|error {
+
+    return csEntityClient->/call\-requests/search.post(payload, generateHeaders(idToken));
+}

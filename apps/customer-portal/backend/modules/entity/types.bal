@@ -771,3 +771,46 @@ public type VulnerabilityMetaResponse record {|
     ChoiceListItem[] severities;
     json...;
 |};
+
+# Request payload for searching call requests.
+public type CallRequestSearchPayload record {|
+    # Case ID
+    IdString caseId;
+    # Filter criteria
+    record {
+        # List of state keys to filter
+        int[] stateKeys?;
+    } filters?;
+    # Pagination details
+    Pagination pagination?;
+|};
+
+# Call request data.
+public type CallRequest record {|
+    # ID
+    string id;
+    # Associated case information
+    ReferenceTableItem case;
+    # Reason for the call request
+    string? reason;
+    # Preferred times for the call
+    string[] preferredTimes;
+    # Duration in minutes
+    int durationMin;
+    # Scheduled time for the call
+    string? scheduleTime;
+    # Created date and time
+    string createdOn;
+    # Updated date and time
+    string updatedOn;
+    # State information
+    ChoiceListItem state;
+    json...;
+|};
+
+# Call requests response from ServiceNow.
+public type CallRequestsResponse record {|
+    # List of call requests
+    CallRequest[] callRequests;
+    json...;
+|};

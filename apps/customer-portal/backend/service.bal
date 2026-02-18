@@ -1591,4 +1591,58 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
         return response;
     }
+
+    # Search call requests for a specific case with filters and pagination.
+    #
+    # + id - ID of the case
+    # + payload - Call request search payload containing filters and pagination info
+    # + return - List of call requests matching the criteria or an error response
+    resource function post cases/[string id]/call\-requests/search(http:RequestContext ctx,
+            types:CallRequestSearchPayload payload)
+        returns entity:CallRequestsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:CallRequestsResponse|error response = entity:searchCallRequests(userInfo.idToken,
+                {
+                    caseId: id,
+                    filters: payload.filters,
+                    pagination: payload.pagination
+                });
+        if response is error {
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for searching call requests."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to call request information is forbidden for user: ${
+                        userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to call request information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to search call requests.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response;
+    }
 }
