@@ -24,6 +24,8 @@ import {
   PROJECT_USER_STATUSES,
   TIME_TRACKING_BADGE_TYPES,
   type TimeTrackingBadgeType,
+  DEPLOYMENT_STATUS,
+  type ProjectStatusChipColor,
 } from "@constants/projectDetailsConstants";
 
 /**
@@ -34,7 +36,7 @@ import {
  */
 export const getTimeTrackingBadgePaletteKey = (
   type: TimeTrackingBadgeType | string,
-): "warning" | "success" | "info" | "secondary" | "primary" => {
+): ProjectStatusChipColor => {
   const normalizedType = type?.toLowerCase();
 
   switch (normalizedType) {
@@ -77,21 +79,19 @@ export const formatProjectDate = (dateString: string): string => {
  * @param {string} status - The SLA status string (e.g., "Good", "Bad", "Met", "Breached").
  * @returns {"success" | "error" | "default" | "warning"} The color for the Chip component.
  */
-export const getSLAStatusColor = (
-  status: string,
-): "success" | "error" | "default" | "warning" => {
+export const getSLAStatusColor = (status: string): ProjectStatusChipColor => {
   const normalizedStatus = status?.toLowerCase();
   const goodValue = SLA_STATUS.GOOD.toLowerCase();
 
-  if (normalizedStatus === goodValue || normalizedStatus === "good") {
-    return "success";
+  switch (normalizedStatus) {
+    case goodValue:
+    case "good":
+      return "success";
+    case SLA_STATUS.BAD.toLowerCase():
+      return "error";
+    default:
+      return "default";
   }
-
-  if (normalizedStatus === SLA_STATUS.BAD.toLowerCase()) {
-    return "error";
-  }
-
-  return "default";
 };
 
 /**
@@ -100,20 +100,17 @@ export const getSLAStatusColor = (
  * @param {string} tier - The support tier string (e.g., "Enterprise", "Standard").
  * @returns {"primary" | "info" | "default" | "success" | "warning" | "error"} The color for the Chip component.
  */
-export const getSupportTierColor = (
-  tier: string,
-): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+export const getSupportTierColor = (tier: string): ProjectStatusChipColor => {
   const normalizedTier = tier?.toLowerCase();
 
-  if (normalizedTier === SUPPORT_TIER.ENTERPRISE.toLowerCase()) {
-    return "warning";
+  switch (normalizedTier) {
+    case SUPPORT_TIER.ENTERPRISE.toLowerCase():
+      return "warning";
+    case SUPPORT_TIER.STANDARD.toLowerCase():
+      return "info";
+    default:
+      return "default";
   }
-
-  if (normalizedTier === SUPPORT_TIER.STANDARD.toLowerCase()) {
-    return "info";
-  }
-
-  return "default";
 };
 
 /**
@@ -122,20 +119,17 @@ export const getSupportTierColor = (
  * @param {string} type - The project type string (e.g., "Free", "Subscription").
  * @returns {"primary" | "info" | "default" | "success" | "warning" | "error"} The color for the Chip component.
  */
-export const getProjectTypeColor = (
-  type: string,
-): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+export const getProjectTypeColor = (type: string): ProjectStatusChipColor => {
   const normalizedType = type?.toLowerCase();
 
-  if (normalizedType === PROJECT_TYPE.SUBSCRIPTION.toLowerCase()) {
-    return "info";
+  switch (normalizedType) {
+    case PROJECT_TYPE.SUBSCRIPTION.toLowerCase():
+      return "info";
+    case PROJECT_TYPE.FREE.toLowerCase():
+      return "warning";
+    default:
+      return "default";
   }
-
-  if (normalizedType === PROJECT_TYPE.FREE.toLowerCase()) {
-    return "warning";
-  }
-
-  return "default";
 };
 
 /**
@@ -146,18 +140,17 @@ export const getProjectTypeColor = (
  */
 export const getSystemHealthColor = (
   status: string,
-): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+): ProjectStatusChipColor => {
   const normalizedStatus = status?.toLowerCase();
 
-  if (normalizedStatus === SYSTEM_HEALTH.HEALTHY.toLowerCase()) {
-    return "success";
+  switch (normalizedStatus) {
+    case SYSTEM_HEALTH.HEALTHY.toLowerCase():
+      return "success";
+    case SYSTEM_HEALTH.CRITICAL.toLowerCase():
+      return "error";
+    default:
+      return "default";
   }
-
-  if (normalizedStatus === SYSTEM_HEALTH.CRITICAL.toLowerCase()) {
-    return "error";
-  }
-
-  return "default";
 };
 
 /**
@@ -200,22 +193,19 @@ export const getSubscriptionStatus = (
  */
 export const getSubscriptionColor = (
   status: SubscriptionStatus | string,
-): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+): ProjectStatusChipColor => {
   const normalizedStatus = status?.toLowerCase();
 
-  if (normalizedStatus === SUBSCRIPTION_STATUS.EXPIRED.toLowerCase()) {
-    return "error";
+  switch (normalizedStatus) {
+    case SUBSCRIPTION_STATUS.EXPIRED.toLowerCase():
+      return "error";
+    case SUBSCRIPTION_STATUS.EXPIRING_SOON.toLowerCase():
+      return "warning";
+    case SUBSCRIPTION_STATUS.ACTIVE.toLowerCase():
+      return "success";
+    default:
+      return "default";
   }
-
-  if (normalizedStatus === SUBSCRIPTION_STATUS.EXPIRING_SOON.toLowerCase()) {
-    return "warning";
-  }
-
-  if (normalizedStatus === SUBSCRIPTION_STATUS.ACTIVE.toLowerCase()) {
-    return "success";
-  }
-
-  return "default";
 };
 
 /**
@@ -251,18 +241,51 @@ export const calculateProgress = (start: string, end: string): number => {
  * @param {string} status - The user status.
  * @returns {"primary" | "info" | "default" | "success" | "warning" | "error"} The color for the Chip component.
  */
-export const getUserStatusColor = (
-  status: string,
-): "primary" | "info" | "default" | "success" | "warning" | "error" => {
+export const getUserStatusColor = (status: string): ProjectStatusChipColor => {
   const normalizedStatus = status?.toLowerCase();
 
-  if (normalizedStatus === PROJECT_USER_STATUSES.REGISTERED.toLowerCase()) {
-    return "success";
+  switch (normalizedStatus) {
+    case PROJECT_USER_STATUSES.REGISTERED.toLowerCase():
+      return "success";
+    case PROJECT_USER_STATUSES.INVITED.toLowerCase():
+      return "warning";
+    default:
+      return "default";
   }
+};
 
-  if (normalizedStatus === PROJECT_USER_STATUSES.INVITED.toLowerCase()) {
-    return "warning";
+/**
+ * Formats bytes into a human-readable string (KB or MB).
+ *
+ * @param {number} bytes - The number of bytes.
+ * @returns {string} The formatted string (e.g., "1.50 MB").
+ */
+export const formatBytes = (bytes: number): string => {
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   }
+  return `${(bytes / 1024).toFixed(2)} KB`;
+};
 
-  return "default";
+/**
+ * Determines the color of the Deployment Status chip based on the status string.
+ *
+ * @param {string} status - The deployment status string (e.g., "Healthy", "Warning").
+ * @returns {"success" | "warning" | "error" | "default"} The color for the Chip component.
+ */
+export const getDeploymentStatusColor = (
+  status: string,
+): ProjectStatusChipColor => {
+  const normalizedStatus = status?.toLowerCase();
+
+  switch (normalizedStatus) {
+    case DEPLOYMENT_STATUS.HEALTHY.toLowerCase():
+      return "success";
+    case DEPLOYMENT_STATUS.WARNING.toLowerCase():
+      return "warning";
+    case DEPLOYMENT_STATUS.ERROR.toLowerCase():
+      return "error";
+    default:
+      return "default";
+  }
 };

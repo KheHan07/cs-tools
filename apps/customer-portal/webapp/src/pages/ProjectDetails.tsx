@@ -25,7 +25,6 @@ import ProjectUsersTab from "@components/project-details/users/ProjectUsersTab";
 import ProjectStatisticsCard from "@components/project-details/project-overview/project-statistics/ProjectStatisticsCard";
 import ContactInfoCard from "@components/project-details/project-overview/contact-info/ContactInfoCard";
 import RecentActivityCard from "@components/project-details/project-overview/recent-activity/RecentActivityCard";
-import TimeTrackingStatCards from "@components/project-details/time-tracking/TimeTrackingStatCards";
 import ProjectDeployments from "@components/project-details/deployments/ProjectDeployments";
 import ProjectTimeTracking from "@components/project-details/time-tracking/ProjectTimeTracking";
 import useGetProjectDetails from "@api/useGetProjectDetails";
