@@ -234,3 +234,26 @@ public isolated function searchCallRequests(string idToken, CallRequestSearchPay
 
     return csEntityClient->/call\-requests/search.post(payload, generateHeaders(idToken));
 }
+
+# Create a call request.
+#
+# + idToken - ID token for authorization
+# + payload - Call request creation payload
+# + return - Call request creation response or error
+public isolated function createCallRequest(string idToken, CallRequestCreatePayload payload)
+    returns CallRequestCreateResponse|error {
+
+    return csEntityClient->/call\-requests.post(payload, generateHeaders(idToken));
+}
+
+# Update a call request.
+#
+# + idToken - ID token for authorization
+# + callRequestId - Unique ID of the call request to be updated
+# + payload - Call request update payload
+# + return - Call request update response or error
+public isolated function updateCallRequest(string idToken, string callRequestId, CallRequestUpdatePayload payload)
+    returns CallRequestUpdateResponse|error {
+
+    return csEntityClient->/call\-requests/[callRequestId].patch(payload, generateHeaders(idToken));
+}

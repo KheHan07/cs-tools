@@ -808,9 +808,73 @@ public type CallRequest record {|
     json...;
 |};
 
-# Call requests response from ServiceNow.
+# Call requests response.
 public type CallRequestsResponse record {|
     # List of call requests
     CallRequest[] callRequests;
     json...;
+|};
+
+# Request payload for creating a call request.
+public type CallRequestCreatePayload record {|
+    # Case ID
+    IdString caseId;
+    # Reason for the call request
+    string reason;
+    # Preferred UTC times for the call
+    @constraint:Array {minLength: 1}
+    string[] utcTimes;
+    # Duration in minutes
+    int durationInMinutes;
+|};
+
+# Created call request details.
+public type CreatedCallRequest record {|
+    # ID
+    string id;
+    # Created date and time
+    string createdOn;
+    # User who created the call request
+    string createdBy;
+    # State information
+    ChoiceListItem state;
+    json...;
+|};
+
+# Response from creating a call request.
+public type CallRequestCreateResponse record {|
+    # Success message
+    string message;
+    # Created call request details
+    CreatedCallRequest callRequest;
+    json...;
+|};
+
+# Request payload for updating a call request.
+public type CallRequestUpdatePayload record {|
+    # State key (2 - Pending on WSO2, 6 - Canceled)
+    int stateKey;
+    # Reason for the update
+    string? reason;
+    # New preferred UTC times for the call (mandatory when stateKey is 2)
+    string[] utcTimes?;
+|};
+
+# Updated call request details.
+public type UpdatedCallRequest record {|
+    # ID
+    string id;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the call request
+    string updatedBy;
+    json...;
+|};
+
+# Response from updating a call request.
+public type CallRequestUpdateResponse record {|
+    # Success message
+    string message;
+    # Updated call request details
+    UpdatedCallRequest callRequest;
 |};

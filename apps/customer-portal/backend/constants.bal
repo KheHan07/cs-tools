@@ -34,3 +34,7 @@ public const int DEFAULT_LIMIT = 10;
 
 public const ERR_STATUS_CODE = "statusCode";
 public const ERR_BODY = "body";
+
+# Valid call request update state values.
+public const PENDING_ON_WSO2 = 2;
+public const CANCELED = 6;
