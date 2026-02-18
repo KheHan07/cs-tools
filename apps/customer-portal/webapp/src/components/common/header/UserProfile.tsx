@@ -18,10 +18,8 @@ import { Skeleton, UserMenu } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
-import { User } from "@wso2/oxygen-ui-icons-react";
-import { useLogger } from "@hooks/useLogger";
+import { LogOut } from "@wso2/oxygen-ui-icons-react";
 import useGetUserDetails from "@api/useGetUserDetails";
-import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 /**
  * User profile component.
@@ -32,61 +30,44 @@ export default function UserProfile(): JSX.Element {
   const navigate = useNavigate();
   const { signOut, isLoading: isAuthLoading, isSignedIn } = useAsgardeo();
   const { data: userDetails, isLoading, isError } = useGetUserDetails();
-  const logger = useLogger();
 
   if (!isAuthLoading && !isSignedIn) {
     return <></>;
   }
-  const user = userDetails
-    ? {
-        name:
-          userDetails.firstName || userDetails.lastName
-            ? `${userDetails.firstName || ""} ${userDetails.lastName || ""}`.trim()
-            : "--",
-        email: userDetails.email || "--",
-        avatar:
-          userDetails.firstName || userDetails.lastName ? (
-            `${(userDetails.firstName?.[0] || "").toUpperCase()}${(
-              userDetails.lastName?.[0] || ""
-            ).toUpperCase()}`
-          ) : (
-            <User />
-          ),
-      }
-    : null;
 
-  // Loading user object with skeletons
-  const loadingUser = {
-    name: <Skeleton variant="text" width={100} />,
-    email: <Skeleton variant="text" width={150} />,
-    avatar: <></>,
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
   };
 
-  // Error user object with tooltips
-  const errorUser = {
-    name: <ErrorIndicator entityName="user" />,
-    avatar: <User />,
-  };
+  if (isLoading || isAuthLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <Skeleton variant="circular" width={32} height={32} />
+        <Skeleton variant="text" width={100} />
+      </div>
+    );
+  }
 
-  const userToRender =
-    isLoading || isAuthLoading
-      ? loadingUser
-      : isError
-        ? errorUser
-        : user || errorUser;
+  const name = isError
+    ? "Unknown User"
+    : userDetails?.firstName || userDetails?.lastName
+      ? `${userDetails.firstName || ""} ${userDetails.lastName || ""}`.trim()
+      : "--";
+
+  const email = isError ? "--" : userDetails?.email || "--";
 
   return (
-    <>
-      {/* user profile menu */}
-      <UserMenu
-        user={userToRender as any}
-        onProfileClick={() => logger.debug("Profile clicked")}
-        onSettingsClick={() => logger.debug("Settings clicked")}
-        onLogout={async () => {
-          await signOut();
-          navigate("/");
-        }}
+    <UserMenu>
+      <UserMenu.Trigger name={name} />
+      <UserMenu.Header name={name} email={email} />
+
+      <UserMenu.Divider />
+      <UserMenu.Logout
+        icon={<LogOut size={18} />}
+        label="Log out"
+        onClick={handleLogout}
       />
-    </>
+    </UserMenu>
   );
 }
