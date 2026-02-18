@@ -20,16 +20,18 @@ import type { JSX } from "react";
 
 export interface DeploymentHeaderProps {
   count?: number;
+  onAddClick?: () => void;
 }
 
 /**
  * Header for the deployments section with count and Add Deployment button.
  *
- * @param {DeploymentHeaderProps} props - Props including deployment count.
+ * @param {DeploymentHeaderProps} props - Props including deployment count and add click handler.
  * @returns {JSX.Element} The deployment header.
  */
 export default function DeploymentHeader({
   count = 0,
+  onAddClick,
 }: DeploymentHeaderProps): JSX.Element {
   return (
     <Box
@@ -49,6 +51,7 @@ export default function DeploymentHeader({
           color="primary"
           startIcon={<Plus />}
           size="small"
+          onClick={onAddClick}
         >
           Add Deployment
         </Button>

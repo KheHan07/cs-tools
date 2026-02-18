@@ -17,18 +17,21 @@
 import { useGetProjectDeploymentDetails } from "@api/useGetProjectDeploymentDetails";
 import EmptyState from "@components/common/empty-state/EmptyState";
 import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
+import ErrorBanner from "@components/common/error-banner/ErrorBanner";
+import SuccessBanner from "@components/common/success-banner/SuccessBanner";
+import AddDeploymentModal from "@components/project-details/deployments/AddDeploymentModal";
 import DeploymentCard from "@components/project-details/deployments/DeploymentCard";
 import DeploymentCardSkeleton from "@components/project-details/deployments/DeploymentCardSkeleton";
 import DeploymentHeader from "@components/project-details/deployments/DeploymentHeader";
 import { Box, Grid, Typography } from "@wso2/oxygen-ui";
-import type { JSX } from "react";
+import { useState, type JSX } from "react";
 
 export interface ProjectDeploymentsProps {
   projectId: string;
 }
 
 /**
- * Displays deployment environments for a project using mock data.
+ * Displays deployment environments for a project.
  *
  * @param {ProjectDeploymentsProps} props - Props including projectId.
  * @returns {JSX.Element} The project deployments section.
@@ -39,7 +42,17 @@ export default function ProjectDeployments({
   const { data, isLoading, isError } =
     useGetProjectDeploymentDetails(projectId);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const deployments = data?.deployments ?? [];
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+  const handleSuccess = () =>
+    setSuccessMessage("Deployment created successfully.");
+  const handleError = (message: string) => setErrorMessage(message);
 
   if (!projectId) {
     return (
@@ -49,10 +62,28 @@ export default function ProjectDeployments({
     );
   }
 
+  const banners = (
+    <>
+      {successMessage && (
+        <SuccessBanner
+          message={successMessage}
+          onClose={() => setSuccessMessage(null)}
+        />
+      )}
+      {errorMessage && (
+        <ErrorBanner
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
+    </>
+  );
+
   if (isLoading) {
     return (
       <Box>
-        <DeploymentHeader count={0} />
+        {banners}
+        <DeploymentHeader count={0} onAddClick={handleOpenModal} />
         <Grid container spacing={3}>
           {[1, 2, 3].map((i) => (
             <Grid key={i} size={12}>
@@ -60,6 +91,13 @@ export default function ProjectDeployments({
             </Grid>
           ))}
         </Grid>
+        <AddDeploymentModal
+          open={isModalOpen}
+          projectId={projectId}
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
+          onError={handleError}
+        />
       </Box>
     );
   }
@@ -83,15 +121,27 @@ export default function ProjectDeployments({
   if (deployments.length === 0) {
     return (
       <Box>
-        <DeploymentHeader count={0} />
+        {banners}
+        <DeploymentHeader count={0} onAddClick={handleOpenModal} />
         <EmptyState description="It seems there are no deployments associated with this project." />
+        <AddDeploymentModal
+          open={isModalOpen}
+          projectId={projectId}
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
+          onError={handleError}
+        />
       </Box>
     );
   }
 
   return (
     <Box>
-      <DeploymentHeader count={deployments.length} />
+      {banners}
+      <DeploymentHeader
+        count={deployments.length}
+        onAddClick={handleOpenModal}
+      />
       <Grid container spacing={3}>
         {deployments.map((deployment) => (
           <Grid key={deployment.id} size={12}>
@@ -99,6 +149,13 @@ export default function ProjectDeployments({
           </Grid>
         ))}
       </Grid>
+      <AddDeploymentModal
+        open={isModalOpen}
+        projectId={projectId}
+        onClose={handleCloseModal}
+        onSuccess={handleSuccess}
+        onError={handleError}
+      />
     </Box>
   );
 }

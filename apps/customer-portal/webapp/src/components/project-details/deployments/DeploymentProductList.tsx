@@ -161,7 +161,8 @@ export default function DeploymentProductList({
                       sx={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: 1.5,
+                        columnGap: 1,
+                        rowGap: 1.5,
                         mb: 1.5,
                       }}
                     >
@@ -170,10 +171,17 @@ export default function DeploymentProductList({
                           display: "flex",
                           alignItems: "center",
                           gap: 0.5,
+                          flexShrink: 0,
                         }}
                       >
-                        <Cpu size={12} />
-                        <Typography variant="caption">
+                        <Cpu
+                          size={12}
+                          style={{ display: "block", flexShrink: 0 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ whiteSpace: "nowrap", lineHeight: 1 }}
+                        >
                           {product.cores} cores
                         </Typography>
                       </Box>
@@ -183,10 +191,17 @@ export default function DeploymentProductList({
                           alignItems: "center",
                           gap: 0.5,
                           color: "text.secondary",
+                          flexShrink: 0,
                         }}
                       >
-                        <Zap size={12} />
-                        <Typography variant="caption">
+                        <Zap
+                          size={12}
+                          style={{ display: "block", flexShrink: 0 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ whiteSpace: "nowrap", lineHeight: 1 }}
+                        >
                           {product.tps ? product.tps.toLocaleString() : 0} TPS
                         </Typography>
                       </Box>
@@ -196,10 +211,17 @@ export default function DeploymentProductList({
                           alignItems: "center",
                           gap: 0.5,
                           color: "text.secondary",
+                          flexShrink: 0,
                         }}
                       >
-                        <Calendar size={12} />
-                        <Typography variant="caption">
+                        <Calendar
+                          size={12}
+                          style={{ display: "block", flexShrink: 0 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ whiteSpace: "nowrap", lineHeight: 1 }}
+                        >
                           Released: {formatProjectDate(product.releasedDate)}
                         </Typography>
                       </Box>
@@ -209,10 +231,17 @@ export default function DeploymentProductList({
                           alignItems: "center",
                           gap: 0.5,
                           color: "text.secondary",
+                          flexShrink: 0,
                         }}
                       >
-                        <CircleAlert size={12} />
-                        <Typography variant="caption">
+                        <CircleAlert
+                          size={12}
+                          style={{ display: "block", flexShrink: 0 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ whiteSpace: "nowrap", lineHeight: 1 }}
+                        >
                           EOL: {formatProjectDate(product.endOfLifeDate)}
                         </Typography>
                       </Box>
@@ -222,6 +251,7 @@ export default function DeploymentProductList({
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
+                        mt: 1.5,
                       }}
                     >
                       <Chip
