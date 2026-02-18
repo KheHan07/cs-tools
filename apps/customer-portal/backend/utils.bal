@@ -322,3 +322,36 @@ public isolated function mapProductVulnerabilityMetadataResponse(entity:Vulnerab
         select {id: item.id.toString(), label: item.label};
     return {severities};
 }
+
+# Map project case stats response to the desired structure.
+#
+# + response - Project case stats response from the entity service
+# + return - Mapped project case stats response
+public isolated function mapCaseStats(entity:ProjectCaseStatsResponse response) returns types:ProjectCaseStats {
+    types:ReferenceItem[] stateCount = from entity:ChoiceListItem item in response.stateCount
+        select {id: item.id.toString(), label: item.label, count: item.count};
+    types:ReferenceItem[] severityCount = from entity:ChoiceListItem item in response.severityCount
+        select {id: item.id.toString(), label: item.label, count: item.count};
+    types:ReferenceItem[] outstandingSeverityCount =
+        from entity:ChoiceListItem item in response.outstandingSeverityCount
+    select {id: item.id.toString(), label: item.label, count: item.count};
+    types:ReferenceItem[] caseTypeCount = from entity:ReferenceTableItem item in response.caseTypeCount
+        select {id: item.id, label: item.name, count: item.count};
+
+    return {
+        totalCases: response.totalCount,
+        averageResponseTime: response.averageResponseTime,
+        resolvedCases: response.resolvedCount,
+        stateCount,
+        severityCount,
+        outstandingSeverityCount,
+        caseTypeCount,
+        casesTrend: response.casesTrend
+    };
+}
+
+public isolated function getOpenCasesCountFromProjectCasesStats(entity:ProjectCaseStatsResponse response) returns int? {
+    types:ProjectCaseStats stats = mapCaseStats(response);
+    types:ReferenceItem[] openCases = stats.stateCount.filter(stat => stat.id == STATE_OPEN_ID);
+    return openCases.length() > 0 ? openCases[0].count : ();
+}

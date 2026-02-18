@@ -203,10 +203,12 @@ public type Case record {|
 
 # Choice list item information.
 public type ChoiceListItem record {|
-    # ID
+    # Choice list item value
     int id;
-    # Label
+    # Choice list item label
     string label;
+    # Count
+    int count?;
     json...;
 |};
 
@@ -216,6 +218,8 @@ public type ReferenceTableItem record {|
     string id;
     # Display name
     string name;
+    # Count value
+    int count?;
     json...;
 |};
 
@@ -291,6 +295,7 @@ public type SortBy record {|
     CaseSortField 'field;
     # Sort order
     SortOrder 'order;
+    json...;
 |};
 
 # Project metadata response.
@@ -322,8 +327,6 @@ public type ProjectStatsResponse record {|
     decimal totalTimeLogged;
     # Billable hours
     decimal billableHours;
-    # System health status
-    string systemHealth;
     # SLA status
     string slaStatus;
     json...;
@@ -364,12 +367,12 @@ public type ResolvedCaseCount record {|
     json...;
 |};
 
-# Count of a specific item with its ID (State, severity, etc.)
-public type CountItem record {|
-    # ID of the item
-    int id;
-    # Count value
-    int count;
+# Cases trend by time unit.
+public type CasesTrend record {|
+    # Time unit identifier (e.g., "2025 - Q1", "2025 - M1")
+    string period;
+    # Severity breakdown for the time unit
+    ChoiceListItem[] severities;
     json...;
 |};
 
@@ -382,13 +385,15 @@ public type ProjectCaseStatsResponse record {|
     # Resolved case count breakdown
     ResolvedCaseCount resolvedCount;
     # Count of cases by state
-    map<CountItem> stateCount;
+    ChoiceListItem[] stateCount;
     # Count of cases by severity
-    map<CountItem> severityCount;
+    ChoiceListItem[] severityCount;
     # Outstanding cases count by severity
-    map<CountItem> outstandingSeverityCount;
-    # Cases trend by quarter and quarter
-    map<map<CountItem>> casesTrend;
+    ChoiceListItem[] outstandingSeverityCount;
+    # Count of cases by type
+    ReferenceTableItem[] caseTypeCount;
+    # Cases trend
+    CasesTrend[] casesTrend;
     json...;
 |};
 

@@ -26,6 +26,7 @@ const ERR_LIMIT_OFFSET_INVALID = "Limit must be between 1 and 50. Offset must be
 const ERR_MSG_UNAUTHORIZED_ACCESS = "You're not authorized to access this service. Please sign in again. " +
     "If the issue continues, contact support.";
 const ERR_MSG_OPEN_CASES_MISSING = "Failed to retrieve open cases count from project case statistics.";
+const ERR_MSG_CASES_STATISTICS_MISSING = "Failed to retrieve project case statistics.";
 
 // Default Pagination Values
 public const int DEFAULT_OFFSET = 0;
@@ -34,4 +35,4 @@ public const int DEFAULT_LIMIT = 10;
 public const ERR_STATUS_CODE = "statusCode";
 public const ERR_BODY = "body";
 
-public const STATE_OPEN = "Open";
+public const STATE_OPEN_ID = "1";

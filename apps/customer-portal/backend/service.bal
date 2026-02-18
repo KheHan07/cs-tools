@@ -441,21 +441,20 @@ service http:InterceptableService / on new http:Listener(9090) {
         entity:ProjectCaseStatsResponse|error caseStats =
             entity:getCaseStatsForProject(userInfo.idToken, id, caseTypes);
         if caseStats is error {
-            string customError = "Failed to retrieve project case statistics.";
-            log:printError(customError, caseStats);
+            log:printError(ERR_MSG_CASES_STATISTICS_MISSING, caseStats);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: ERR_MSG_CASES_STATISTICS_MISSING
                 }
             };
         }
 
-        if !caseStats.stateCount.hasKey(STATE_OPEN) {
-            string customError = ERR_MSG_OPEN_CASES_MISSING;
-            log:printError(customError);
+        int? openCasesCount = getOpenCasesCountFromProjectCasesStats(caseStats);
+        if openCasesCount is () {
+            log:printError("Open cases count is missing in the project case statistics response!");
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: ERR_MSG_CASES_STATISTICS_MISSING
                 }
             };
         }
@@ -499,7 +498,7 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         return {
             projectStats: {
-                openCases: caseStats.stateCount.get(STATE_OPEN).count,
+                openCases: openCasesCount,
                 activeChats: chatStats.activeCount,
                 deployments: deploymentStats.totalCount,
                 slaStatus: projectActivityStats.slaStatus
@@ -507,8 +506,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             recentActivity: {
                 totalTimeLogged: projectActivityStats.totalTimeLogged,
                 billableHours: projectActivityStats.billableHours,
-                lastDeploymentOn: deploymentStats.lastDeploymentOn,
-                systemHealth: projectActivityStats.systemHealth
+                lastDeploymentOn: deploymentStats.lastDeploymentOn
             }
         };
     }
@@ -570,26 +568,7 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        if !caseStats.stateCount.hasKey(STATE_OPEN) {
-            string customError = ERR_MSG_OPEN_CASES_MISSING;
-            log:printError(customError);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        return {
-            totalCases: caseStats.totalCount,
-            openCases: caseStats.stateCount.get(STATE_OPEN).count,
-            averageResponseTime: caseStats.averageResponseTime,
-            resolvedCases: caseStats.resolvedCount,
-            stateCount: caseStats.stateCount,
-            severityCount: caseStats.severityCount,
-            outstandingSeverityCount: caseStats.outstandingSeverityCount,
-            casesTrend: caseStats.casesTrend
-        };
+        return mapCaseStats(caseStats);
     }
 
     # Get project support statistics by ID.

@@ -93,6 +93,8 @@ public type ReferenceItem record {|
     string id;
     # Label
     string label;
+    # Count
+    int count?;
 |};
 
 # Cases list response with pagination.
@@ -159,20 +161,20 @@ public type ProjectFilterOptions record {|
 public type ProjectCaseStats record {|
     # Total case count
     int totalCases;
-    # Open cases count
-    int openCases;
     # Average response time
     decimal averageResponseTime;
     # Resolved case count breakdown
     entity:ResolvedCaseCount resolvedCases;
     # Count of cases by state
-    map<entity:CountItem> stateCount;
+    ReferenceItem[] stateCount;
     # Count of cases by severity
-    map<entity:CountItem> severityCount;
+    ReferenceItem[] severityCount;
     # Outstanding cases count by severity
-    map<entity:CountItem> outstandingSeverityCount;
-    # Cases trend by quarter and quarter
-    map<map<entity:CountItem>> casesTrend;
+    ReferenceItem[] outstandingSeverityCount;
+    # Count of cases by type
+    ReferenceItem[] caseTypeCount;
+    # Cases trend
+    entity:CasesTrend[] casesTrend;
 |};
 
 # Project support statistics.
@@ -207,8 +209,6 @@ public type RecentActivity record {|
     decimal billableHours;
     # Last deployment date
     string? lastDeploymentOn;
-    # System health status
-    string systemHealth;
 |};
 
 # Project statistics response.
