@@ -475,15 +475,15 @@ export interface RecommendedUpdateLevelItem {
 
 // Product update levels.
 export interface ProductUpdateLevelEntry {
-  "product-base-version": string;
+  productBaseVersion: string;
   channel: string;
-  "update-levels": number[];
+  updateLevels: number[];
 }
 
 // One product's update levels.
 export interface ProductUpdateLevelsItem {
-  "product-name": string;
-  "product-update-levels": ProductUpdateLevelEntry[];
+  productName: string;
+  productUpdateLevels: ProductUpdateLevelEntry[];
 }
 
 // Product update levels response.
