@@ -235,13 +235,20 @@ public isolated function mapDeployedProducts(entity:DeployedProductsResponse res
     return from entity:DeployedProduct product in response.deployedProducts
         let entity:ReferenceTableItem? associatedProduct = product.product
         let entity:ReferenceTableItem? deployment = product.deployment
+        let entity:ReferenceTableItem? version = product.version
         select {
             id: product.id,
             createdOn: product.createdOn,
             updatedOn: product.updatedOn,
             description: product.description,
+            cores: product.cores,
+            tps: product.tps,
+            releasedOn: product.releasedOn,
+            endOfLifeOn: product.endOfLifeOn,
+            updateLevel: product.updateLevel,
             product: associatedProduct != () ? {id: associatedProduct.id, label: associatedProduct.name} : (),
-            deployment: deployment != () ? {id: deployment.id, label: deployment.name} : ()
+            deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
+            version: version != () ? {id: version.id, label: version.name} : ()
         };
 }
 
