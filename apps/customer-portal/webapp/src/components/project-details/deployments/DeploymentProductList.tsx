@@ -136,13 +136,12 @@ export default function DeploymentProductList({
                           const statusColor = getProductSupportStatusColor(
                             product.supportStatus,
                           );
-                          const paletteColor =
-                            statusColor === "default" ? "grey" : statusColor;
+
                           return {
                             height: 20,
                             fontSize: "0.75rem",
                             bgcolor: alpha(
-                              (theme.palette as any)[paletteColor].main,
+                              (theme.palette as any)[statusColor].main,
                               0.1,
                             ),
                             color: `${statusColor}.main`,
