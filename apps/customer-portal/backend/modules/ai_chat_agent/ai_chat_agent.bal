@@ -23,3 +23,45 @@ public isolated function createCaseClassification(CaseClassificationPayload payl
 
     return aiChatAgentClient->/case_classification.post(payload);
 }
+
+# Create a chat for the given payload.
+# 
+# + payload - Chat payload
+# + return - Chat response or error
+public isolated function createChat(ChatPayload payload) returns ChatResponse|error {
+    return aiChatAgentClient->/chat.post(payload);
+}
+
+# List conversations for the given account ID.
+# 
+# + accountId - Account ID
+# + return - List of conversations or error
+public isolated function listConversations(string accountId) returns ConversationListResponse|error {
+    return aiChatAgentClient->/chat/conversations/[accountId].get();
+}
+
+# Get Chat History
+# 
+# + accountId - Account ID
+# + conversationId - Conversation ID
+# + return - Chat history response or error
+public isolated function getChatHistory(string accountId, string conversationId) returns ChatHistoryResponse|error {
+    return aiChatAgentClient->/chat/history/[accountId]/[conversationId].get();
+}
+
+#Delete Chat Conversation
+# 
+# + accountId - Account ID
+# + conversationId - Conversation ID
+# + return - Success message or error
+public isolated function deleteChatConversation(string accountId, string conversationId) returns DeleteConversationResponse|error {
+    return aiChatAgentClient->/chat/history/[accountId]/[conversationId].delete();
+}
+
+# Get Recommendation for user query
+# 
+# + payload - Recommendation payload
+# + return - Recommendation response or error
+public isolated function getRecommendation(RecommendationRequest payload) returns RecommendationResponse|error {
+    return aiChatAgentClient->/recommendations.post(payload);
+}   

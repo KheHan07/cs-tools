@@ -841,6 +841,145 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return classificationResponse;
     }
 
+    # AI chat agent
+    # + payload - Chat payload
+    # + return - Chat response or an error
+    resource function post chat(http:RequestContext ctx, ai_chat_agent:ChatPayload payload)
+        returns ai_chat_agent:ChatResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }   
+        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(payload);
+        if chatResponse is error {
+            string customError = "Failed to process chat message.";
+            log:printError(customError, chatResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return chatResponse;
+    }
+
+    # List conversations for the given account ID.
+    # 
+    # + accountId - Account ID
+    # + return - List of conversations or error
+    resource function get conversations/[string accountId](http:RequestContext ctx)
+        returns ai_chat_agent:ConversationListResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        ai_chat_agent:ConversationListResponse|error conversationListResponse =
+            ai_chat_agent:listConversations(accountId);
+        if conversationListResponse is error {
+            string customError = "Failed to retrieve conversations.";
+            log:printError(customError, conversationListResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return conversationListResponse;
+    }
+
+    # Get chat history for a specific conversation.
+    # 
+    # + accountId - Account ID
+    # + conversationId - Conversation ID
+    # + return - Chat history response or error 
+    resource function get chatHistory/[string accountId]/[string conversationId](http:RequestContext ctx)
+        returns ai_chat_agent:ChatHistoryResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        ai_chat_agent:ChatHistoryResponse|error chatHistoryResponse =
+            ai_chat_agent:getChatHistory(accountId, conversationId);
+        if chatHistoryResponse is error {
+            string customError = "Failed to retrieve chat history.";
+            log:printError(customError, chatHistoryResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return chatHistoryResponse;
+    }   
+
+    # Delete a specific chat conversation.
+    # 
+    # + accountId - Account ID
+    # + conversationId - Conversation ID
+    # + return - Success message or error
+    resource function delete deleteChatHistory/[string accountId]/[string conversationId](http:RequestContext ctx)
+        returns ai_chat_agent:DeleteConversationResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }       
+        ai_chat_agent:DeleteConversationResponse|error deleteResponse = ai_chat_agent:deleteChatConversation(accountId, conversationId);
+        if deleteResponse is error {
+            string customError = "Failed to delete chat conversation.";
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return deleteResponse;
+    }
+
+    # Get recommendations for a user query.
+    # 
+    # + payload - Recommendation payload
+    # + return - Recommendation response or error
+    resource function post recommendations(http:RequestContext ctx, ai_chat_agent:RecommendationRequest payload)
+        returns ai_chat_agent:RecommendationResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+        ai_chat_agent:RecommendationResponse|error recommendationResponse = ai_chat_agent:getRecommendation(payload);
+        if recommendationResponse is error {
+            string customError = "Failed to retrieve recommendations.";
+            log:printError(customError, recommendationResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return recommendationResponse;
+    }
+
     # Get comments for a specific case.
     #
     # + id - ID of the case

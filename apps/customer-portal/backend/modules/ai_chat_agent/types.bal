@@ -67,3 +67,179 @@ public type CaseClassificationResponse record {|
     ChatCaseInfo caseInfo;
     json...;
 |};
+
+public type ChatPayload record {|
+    # User message
+    string message;
+    # Account ID
+    string accountId;
+    # Conversation ID
+    string conversationId;
+    # env products
+    map<string[]> envProducts?;
+    json...;
+|};
+
+# Intent classification result for UI rendering.
+public type DetectedIntent record {|
+    # Global intent identifier
+    string intentId;
+    # Human-readable intent name
+    string intentLabel;
+    # Classification confidence 0-1
+    float confidence;
+    # Case severity (S1, S4, SR, General, Security)
+    string severity = "";
+    # Case creation logic to invoke
+    string caseType = "";
+|};
+
+# Available options for a slot — rendered as dropdown/selector by UI.
+public type SlotOption record {|
+    # Slot name, e.g. 'environment', 'product', 'version'
+    string slot;
+    # Human-readable label, e.g. 'Environment'
+    string label;
+    # Available values to choose from
+    string[] options = [];
+    # Input type: 'select' for dropdown, 'text' for free input
+    string 'type = "select";
+|};
+
+# Current slot-filling progress for UI rendering.
+public type SlotState record {|
+    # Intent being filled
+    string intentId;
+    # Slots already collected
+    map<string> filledSlots = {};
+    # Slots still needed
+    string[] missingSlots = [];
+    # True when all mandatory slots are filled
+    boolean isComplete = false;
+    # Available options per missing slot for UI dropdowns
+    SlotOption[]? slotOptions = ();
+|};
+
+# Action button rendered by the UI.
+public type UIAction record {|
+    # Action type, e.g. 'createCase'
+    string 'type;
+    # Button label
+    string label;
+    # Button style: primary | danger
+    string style = "primary";
+    # Data sent when button is clicked
+    map<json> payload = {};
+|};
+
+# Chat response from the agent.
+public type ChatResponse record {|
+    # Novera response
+    string message;
+    # Session identifier
+    string sessionId;
+    # Conversation thread ID
+    string conversationId;
+    # Detected global intent, if any
+    DetectedIntent? intent = ();
+    # Current slot-filling progress, if any
+    SlotState? slotState = ();
+    # UI action buttons, if any
+    UIAction[]? actions = ();
+    # True when user indicates their issue is resolved
+    boolean? resolved = ();
+|};
+
+# Metadata for a conversation thread.
+public type ConversationMetadata record {|
+    # Unique conversation ID
+    string conversationId;
+    # Conversation title (auto-generated from first message)
+    string title;
+    # ISO timestamp when conversation was created
+    string createdAt;
+    # ISO timestamp when conversation was last updated
+    string updatedAt;
+    # Number of messages in conversation
+    int messageCount = 0;
+|};
+
+# List of all conversations for a user.
+public type ConversationListResponse record {|
+    # User account identifier
+    string accountId;
+    # List of conversations
+    ConversationMetadata[] conversations = [];
+    # Total number of conversations
+    int totalCount = 0;
+|};
+
+# Single chat message for UI rendering.
+public type ChatMessage record {|
+    # Message role: 'user' or 'assistant'
+    string role;
+    # Message content
+    string content;
+    # ISO timestamp
+    string timestamp;
+|};
+
+# Response after deleting a conversation.
+public type DeleteConversationResponse record {|
+    # Success message
+    string message;
+    # Account ID
+    string accountId;
+    # Conversation ID
+    string conversationId;
+|};
+
+# Chat history response for UI.
+public type ChatHistoryResponse record {|
+    # Session identifier
+    string sessionId;
+    # Conversation thread ID
+    string conversationId;
+    # Chat messages
+    ChatMessage[] messages = [];
+    # Total number of messages
+    int messageCount = 0;
+|};
+
+# Conversation data for recommendations.
+public type ConversationData record {| 
+    # Chat history as a string
+    string chatHistory;
+    # Environment products
+    map<string[]> envProducts;
+    # Region
+    string region;
+    # Tier
+    string tier;
+|};
+
+# Recommendation request.
+public type RecommendationRequest record {| 
+    # Chat history
+    ChatMessage[] chatHistory;
+    # Customer question or issue description
+    ConversationData conversationData;
+|};
+
+# Recommendation item.
+public type RecommendationItem record {| 
+    # Article title
+    string title;
+    # Article ID / sys_id
+    string articleId;
+    # Similarity score
+    float score;
+|};
+
+# Recommendation response.
+public type RecommendationResponse record {| 
+    # Original query (shortDescription from classification)
+    string query;
+    # Top matching articles
+    RecommendationItem[] recommendations = [];
+|};
