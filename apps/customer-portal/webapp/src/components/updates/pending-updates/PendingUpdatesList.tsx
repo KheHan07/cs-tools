@@ -16,7 +16,6 @@
 
 import {
   Box,
-  Chip,
   Paper,
   Table,
   TableBody,
@@ -88,18 +87,9 @@ export function PendingUpdatesList({
                 <TableRow key={row.updateLevel} hover>
                   <TableCell>{row.updateLevel}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={row.updateType === "security" ? "Security" : "Regular"}
-                      sx={{
-                        bgcolor:
-                          row.updateType === "security"
-                            ? "error.main"
-                            : "success.main",
-                        color: "white",
-                        fontWeight: 500,
-                      }}
-                    />
+                    <Typography variant="body2" color="text.secondary">
+                      --
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Box

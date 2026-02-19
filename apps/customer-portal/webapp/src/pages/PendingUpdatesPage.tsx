@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Button, Stack, Typography } from "@wso2/oxygen-ui";
+import { Box, IconButton, Paper, Stack, Typography } from "@wso2/oxygen-ui";
 import { ArrowLeft, RefreshCw } from "@wso2/oxygen-ui-icons-react";
 import { useParams, useSearchParams, useNavigate } from "react-router";
 import { useMemo, type JSX } from "react";
@@ -82,12 +82,14 @@ export default function PendingUpdatesPage(): JSX.Element {
   if (!productName || !productBaseVersion) {
     return (
       <Box sx={{ py: 4 }}>
+        <Stack direction="row" alignItems="center" gap={2} sx={{ mb: 2 }}>
+          <IconButton onClick={handleBack} size="small" aria-label="Back">
+            <ArrowLeft size={20} />
+          </IconButton>
+        </Stack>
         <Typography variant="body1" color="text.secondary">
           Missing product parameters. Use the Updates page to open pending updates.
         </Typography>
-        <Button startIcon={<ArrowLeft size={16} />} onClick={handleBack} sx={{ mt: 2 }}>
-          Back to Updates
-        </Button>
       </Box>
     );
   }
@@ -96,49 +98,72 @@ export default function PendingUpdatesPage(): JSX.Element {
     isProductLevelsLoading || (recommendedData === undefined && !pendingRows.length);
 
   return (
-    <Box sx={{ width: "100%", pt: 0 }}>
-      <Button
-        startIcon={<ArrowLeft size={16} />}
-        onClick={handleBack}
-        sx={{ mb: 2 }}
-        variant="text"
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        minHeight: 0,
+        overflow: "hidden",
+        width: "100%",
+      }}
+    >
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          flexShrink: 0,
+          zIndex: 10,
+          borderRadius: 0,
+        }}
       >
-        Back to Updates
-      </Button>
-
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
-        <Box
-          sx={{
-            p: 1,
-            bgcolor: "warning.lighter",
-            color: "warning.main",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <RefreshCw size={24} />
-        </Box>
-        <Box>
-          <Typography variant="h5" color="text.primary">
-            {displayTitle} - Pending Updates
-          </Typography>
-          {levelRange && (
-            <Typography variant="body2" color="text.secondary">
-              Update levels {levelRange}
+        <Stack direction="row" alignItems="center" gap={2}>
+          <IconButton onClick={handleBack} size="small" aria-label="Back">
+            <ArrowLeft size={20} />
+          </IconButton>
+          <Box
+            sx={{
+              p: 1,
+              bgcolor: "warning.lighter",
+              color: "warning.main",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <RefreshCw size={24} />
+          </Box>
+          <Box>
+            <Typography variant="h5" color="text.primary" fontWeight={600}>
+              {displayTitle} - Pending Updates
             </Typography>
-          )}
-        </Box>
-      </Stack>
+            {levelRange && (
+              <Typography variant="body2" color="text.secondary">
+                Update levels {levelRange}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+      </Paper>
 
-      {isLoading ? (
-        <PendingUpdatesListSkeleton />
-      ) : (
-        <PendingUpdatesList
-          pendingRows={pendingRows}
-          recommendedItem={recommendedItem}
-        />
-      )}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: "auto",
+          p: 3,
+          pt: 2,
+        }}
+      >
+        {isLoading ? (
+          <PendingUpdatesListSkeleton />
+        ) : (
+          <PendingUpdatesList
+            pendingRows={pendingRows}
+            recommendedItem={recommendedItem}
+          />
+        )}
+      </Box>
     </Box>
   );
 }
