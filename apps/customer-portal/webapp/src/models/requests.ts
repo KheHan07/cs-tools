@@ -26,6 +26,7 @@ export interface SearchProjectsRequest {
 }
 
 // Request body for searching cases.
+//test comment
 export interface CaseSearchRequest {
   filters?: {
     issueId?: number;
