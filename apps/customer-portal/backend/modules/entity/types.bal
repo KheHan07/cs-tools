@@ -899,3 +899,56 @@ public type CallRequestUpdateResponse record {|
     UpdatedCallRequest callRequest;
     json...;
 |};
+
+# Request payload for updating a deployment.
+public type DeploymentUpdatePayload record {|
+    # Name
+    string name?;
+    # Type key
+    int typeKey?;
+    # Description of the deployment
+    string? description?;
+    # Active status (can only be set to false to deactivate deployment)
+    boolean active?;
+|};
+
+# Response from updating a deployment.
+public type DeploymentUpdateResponse record {|
+    # Success message
+    string message;
+    # Updated deployment details
+    UpdatedDeployment deployment;
+|};
+
+# Updated deployment details.
+public type UpdatedDeployment record {|
+    # ID of the updated deployment
+    string id;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the deployment
+    string updatedBy;
+    json...;
+|};
+
+# Request payload for searching products.
+public type ProductSearchPayload record {|
+    # Pagination details
+    Pagination pagination = {};
+|};
+
+# Product data.
+public type Product record {|
+    # ID
+    string id;
+    # Name
+    string name;
+    json...;
+|};
+
+# Products response.
+public type ProductsResponse record {|
+    # List of products
+    Product[] products;
+    json...; // TODO: Remove after adding pagination
+|};

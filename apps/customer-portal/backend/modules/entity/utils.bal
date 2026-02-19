@@ -106,3 +106,31 @@ public isolated function validateUtcTimes(Date[]? utcTimes) returns string|error
 
     return;
 }
+
+# Validate deployment update payload.
+#
+# + payload - Deployment update payload
+# + return - Error message if validation fails, nil otherwise
+public isolated function validateDeploymentUpdatePayload(DeploymentUpdatePayload payload) returns string? {
+    boolean hasDeploymentFields = payload.name !is () && payload.typeKey !is ();
+
+    // Check if payload has at least one field
+    if !hasDeploymentFields && payload.active is () {
+        return "At least one field (name, typeKey, or active) must be provided for update.";
+    }
+
+    // Validate that deployment fields and active field are mutually exclusive
+    if hasDeploymentFields && payload.active !is () {
+        return "Deployment fields (name, typeKey, description) and active field cannot be updated together.";
+    }
+
+    // Validate that active field can only be false
+    if payload.active !is () {
+        boolean? activeValue = payload.active;
+        if activeValue is boolean && activeValue {
+            return "Active field can only be set to false.";
+        }
+    }
+
+    return;
+}
