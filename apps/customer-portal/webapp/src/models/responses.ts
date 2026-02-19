@@ -497,7 +497,7 @@ export type ProductUpdateLevelsResponse = ProductUpdateLevelsItem[];
 export interface CaseClassificationResponse {
   issueType: string;
   severityLevel: string;
-  case_info: {
+  caseInfo: {
     description: string;
     shortDescription: string;
     productName: string;
