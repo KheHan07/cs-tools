@@ -855,7 +855,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
                 }
             };
-        }   
+        }
+
         ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(payload);
         if chatResponse is error {
             string customError = "Failed to process chat message.";
