@@ -14,29 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import type { ReactElement } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProjectDeployments from "@components/project-details/deployments/ProjectDeployments";
-import { useGetProjectDeploymentDetails } from "@api/useGetProjectDeploymentDetails";
+import { useGetDeployments } from "@api/useGetDeployments";
 
 const mockDeployments = {
   deployments: [
     {
       id: "dep-1",
       name: "Production",
-      status: "Healthy" as const,
-      url: "https://api.example.com",
-      version: "v1.0",
+      createdOn: "2026-01-17",
+      updatedOn: "2026-01-17",
       description: "Production env",
-      deployedAt: "2026-01-17",
-      uptimePercent: 99.98,
-      products: [],
-      documents: [],
+      url: "https://api.example.com",
+      project: { id: "proj-1", label: "Test Project" },
+      type: { id: "3", label: "Staging" },
     },
   ],
 };
 
-vi.mock("@api/useGetProjectDeploymentDetails");
+vi.mock("@api/useGetDeployments");
+vi.mock("@api/useGetDeploymentsProducts", () => ({
+  useGetDeploymentsProducts: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
 
 // Mock AddDeploymentModal so we can test open/close without full modal rendering
 vi.mock("@components/project-details/deployments/AddDeploymentModal", () => ({
@@ -59,6 +66,14 @@ vi.mock("@components/project-details/deployments/AddDeploymentModal", () => ({
       </div>
     ) : null,
 }));
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
 
 vi.mock(
   "@components/project-details/deployments/DeploymentCardSkeleton",
@@ -91,85 +106,104 @@ vi.mock("@components/common/error-banner/ErrorBanner", () => ({
 
 describe("ProjectDeployments", () => {
   beforeEach(() => {
-    vi.mocked(useGetProjectDeploymentDetails).mockReturnValue({
+    vi.mocked(useGetDeployments).mockReturnValue({
       data: mockDeployments,
       isLoading: false,
+      isPending: false,
       isError: false,
       error: null,
-    } as unknown as ReturnType<typeof useGetProjectDeploymentDetails>);
+    } as unknown as ReturnType<typeof useGetDeployments>);
   });
 
   it("should render deployment cards when data is loaded", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     expect(screen.getByText("1 deployment environment")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Production" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Healthy")).toBeInTheDocument();
+    expect(screen.getAllByTestId("error-indicator").length).toBeGreaterThan(0);
   });
 
   it("should show Invalid Project ID when projectId is empty", () => {
-    render(<ProjectDeployments projectId="" />);
+    renderWithProviders(<ProjectDeployments projectId="" />);
 
     expect(screen.getByText("Invalid Project ID.")).toBeInTheDocument();
   });
 
   it("should show loading skeletons when isLoading is true", () => {
-    vi.mocked(useGetProjectDeploymentDetails).mockReturnValue({
+    vi.mocked(useGetDeployments).mockReturnValue({
       data: undefined,
       isLoading: true,
+      isPending: true,
       isError: false,
       error: null,
-    } as unknown as ReturnType<typeof useGetProjectDeploymentDetails>);
+    } as unknown as ReturnType<typeof useGetDeployments>);
 
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
+
+    expect(screen.getAllByTestId("deployment-skeleton")).toHaveLength(3);
+  });
+
+  it("should show loading skeletons when isPending is true and isLoading is false", () => {
+    vi.mocked(useGetDeployments).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isPending: true,
+      isError: false,
+      error: null,
+    } as unknown as ReturnType<typeof useGetDeployments>);
+
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     expect(screen.getAllByTestId("deployment-skeleton")).toHaveLength(3);
   });
 
   it("should show empty state when data is undefined and not loading (initial state)", () => {
-    vi.mocked(useGetProjectDeploymentDetails).mockReturnValue({
+    vi.mocked(useGetDeployments).mockReturnValue({
       data: undefined,
       isLoading: false,
+      isPending: false,
       isError: false,
       error: null,
-    } as unknown as ReturnType<typeof useGetProjectDeploymentDetails>);
+    } as unknown as ReturnType<typeof useGetDeployments>);
 
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     // When data is undefined and not loading, deployments defaults to [] → empty state
     expect(screen.getByTestId("empty-state")).toBeInTheDocument();
   });
 
   it("should show error state when isError is true", () => {
-    vi.mocked(useGetProjectDeploymentDetails).mockReturnValue({
+    vi.mocked(useGetDeployments).mockReturnValue({
       data: undefined,
       isLoading: false,
+      isPending: false,
       isError: true,
       error: new Error("Network error"),
-    } as unknown as ReturnType<typeof useGetProjectDeploymentDetails>);
+    } as unknown as ReturnType<typeof useGetDeployments>);
 
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     expect(screen.getByTestId("error-state-icon")).toBeInTheDocument();
   });
 
   it("should show empty state when deployments are empty", () => {
-    vi.mocked(useGetProjectDeploymentDetails).mockReturnValue({
+    vi.mocked(useGetDeployments).mockReturnValue({
       data: { deployments: [] },
       isLoading: false,
+      isPending: false,
       isError: false,
       error: null,
-    } as unknown as ReturnType<typeof useGetProjectDeploymentDetails>);
+    } as unknown as ReturnType<typeof useGetDeployments>);
 
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     expect(screen.getByTestId("empty-state")).toBeInTheDocument();
   });
 
   it("should open AddDeploymentModal when Add Deployment button is clicked", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     expect(
       screen.queryByTestId("add-deployment-modal"),
@@ -181,7 +215,7 @@ describe("ProjectDeployments", () => {
   });
 
   it("should close AddDeploymentModal when onClose is called", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
     expect(screen.getByTestId("add-deployment-modal")).toBeInTheDocument();
@@ -193,7 +227,7 @@ describe("ProjectDeployments", () => {
   });
 
   it("should show SuccessBanner after successful deployment creation", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
     fireEvent.click(screen.getByRole("button", { name: "Trigger Success" }));
@@ -205,7 +239,7 @@ describe("ProjectDeployments", () => {
   });
 
   it("should show ErrorBanner when deployment creation fails", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
     fireEvent.click(screen.getByRole("button", { name: "Trigger Error" }));
@@ -215,7 +249,7 @@ describe("ProjectDeployments", () => {
   });
 
   it("should dismiss SuccessBanner when close is clicked", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
     fireEvent.click(screen.getByRole("button", { name: "Trigger Success" }));
@@ -226,7 +260,7 @@ describe("ProjectDeployments", () => {
   });
 
   it("should dismiss ErrorBanner when close is clicked", () => {
-    render(<ProjectDeployments projectId="project-123" />);
+    renderWithProviders(<ProjectDeployments projectId="project-123" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i }));
     fireEvent.click(screen.getByRole("button", { name: "Trigger Error" }));

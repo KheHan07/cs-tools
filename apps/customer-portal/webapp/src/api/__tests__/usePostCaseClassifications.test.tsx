@@ -55,8 +55,9 @@ describe("usePostCaseClassifications", () => {
 
   const requestBody: CaseClassificationRequest = {
     chatHistory: "User: Hello\nAssistant: Hi",
-    environments: ["Production"],
-    productDetails: ["WSO2 Identity Server - v6.1.0"],
+    envProducts: {
+      Production: ["WSO2 Identity Server - v6.1.0"],
+    },
     region: "",
     tier: "Enterprise",
   };
@@ -83,7 +84,7 @@ describe("usePostCaseClassifications", () => {
     const mockResponse = {
       issueType: "Question",
       severityLevel: "S4",
-      case_info: {
+      caseInfo: {
         description: "desc",
         shortDescription: "short",
         productName: "WSO2 Identity Server",

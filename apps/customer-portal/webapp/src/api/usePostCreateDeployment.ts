@@ -22,6 +22,7 @@ import {
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
+import { ApiQueryKeys } from "@constants/apiConstants";
 import type { CreateDeploymentRequest } from "@models/requests";
 import type { CreateDeploymentResponse } from "@models/responses";
 
@@ -84,6 +85,9 @@ export function usePostCreateDeployment(
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["project-deployments", projectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [ApiQueryKeys.DEPLOYMENTS, projectId],
       });
     },
   });

@@ -67,14 +67,14 @@ const EditableStatePlugin = ({ disabled }: { disabled: boolean }) => {
  */
 const InitialValuePlugin = ({ initialHtml }: { initialHtml?: string }) => {
   const [editor] = useLexicalComposerContext();
-  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    if (isFirstRender && initialHtml) {
+    if (initialHtml) {
       editor.update(() => {
         const root = $getRoot();
-        // Only set initial value if the editor is empty to avoid overwriting user updates
-        if (root.getTextContent() === "") {
+        const currentContent = root.getTextContent();
+
+        if (currentContent.trim() === "") {
           const parser = new DOMParser();
           const dom = parser.parseFromString(initialHtml, "text/html");
           const nodes = $generateNodesFromDOM(editor, dom);
@@ -82,9 +82,8 @@ const InitialValuePlugin = ({ initialHtml }: { initialHtml?: string }) => {
           root.append(...nodes);
         }
       });
-      setIsFirstRender(false);
     }
-  }, [editor, initialHtml, isFirstRender]);
+  }, [editor, initialHtml]);
 
   return null;
 };
@@ -235,7 +234,7 @@ const Editor = ({
           backdropFilter: "blur(10px)",
           transition: "border-color 0.2s",
           "&:hover:not(:focus-within)": {
-            borderColor: "text.primary",
+            borderColor: disabled ? "action.disabled" : "text.primary",
           },
 
           "&:focus-within": {
@@ -262,9 +261,8 @@ const Editor = ({
               outline: "none",
               minHeight:
                 typeof minHeight === "number" ? `${minHeight}px` : minHeight,
-              fontSize: oxygenTheme.typography.body2.fontSize,
-              color: "text.primary",
-              typography: "body2",
+              ...oxygenTheme.typography.body2,
+              color: disabled ? "text.disabled" : "text.primary",
             },
             "& .editor-text-bold": {
               fontWeight: oxygenTheme.typography.fontWeightBold || "bold",

@@ -15,7 +15,7 @@
 // under the License.
 
 import type { DeploymentDocument } from "@models/responses";
-import { formatProjectDate, formatBytes } from "@utils/projectDetails";
+import { displayValue, formatProjectDate, formatBytes } from "@utils/projectDetails";
 import {
   Accordion,
   AccordionDetails,
@@ -27,30 +27,42 @@ import {
 } from "@wso2/oxygen-ui";
 import { ChevronDown, Download, Trash2 } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 interface DeploymentDocumentListProps {
-  documents: DeploymentDocument[];
+  documents?: DeploymentDocument[];
+  hasError?: boolean;
 }
 
 /**
  * Renders the list of documents for a deployment.
  *
- * @param {DeploymentDocumentListProps} props - Props containing the documents list.
+ * @param {DeploymentDocumentListProps} props - Props containing documents list or hasError.
  * @returns {JSX.Element} The document list component.
  */
 export default function DeploymentDocumentList({
-  documents,
+  documents = [],
+  hasError = false,
 }: DeploymentDocumentListProps): JSX.Element {
   return (
     <Box>
       <Accordion>
         <AccordionSummary expandIcon={<ChevronDown />}>
-          <Typography>Documents ({documents.length})</Typography>
+          <Typography>
+            Documents {hasError ? "(?)" : `(${documents.length})`}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
-          {documents.length === 0 ? (
+          {hasError ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 2 }}>
+              <ErrorIndicator entityName="documents" size="small" />
+              <Typography variant="body2" color="text.secondary">
+                Failed to load documents
+              </Typography>
+            </Box>
+          ) : documents.length === 0 ? (
             <Typography
               variant="body2"
               color="text.secondary"
@@ -74,6 +86,8 @@ interface DocumentRowProps {
 function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
   const sizeStr = formatBytes(doc.sizeBytes);
   const dateStr = formatProjectDate(doc.uploadedAt);
+  const name = displayValue(doc.name);
+  const uploadedBy = displayValue(doc.uploadedBy);
 
   return (
     <Box
@@ -87,18 +101,18 @@ function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
       <Box sx={{ display: "flex", gap: 2 }}>
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {doc.name}
+            {name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {sizeStr} • Uploaded {dateStr} • {doc.uploadedBy}
+            {sizeStr} • Uploaded {dateStr} • {uploadedBy}
           </Typography>
         </Box>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Button size="small" aria-label={`Download ${doc.name}`}>
+        <Button size="small" aria-label={`Download ${name}`}>
           <Download size={16} />
         </Button>
-        <Button size="small" aria-label={`Delete ${doc.name}`}>
+        <Button size="small" aria-label={`Delete ${name}`}>
           <Trash2 size={16} />
         </Button>
       </Box>

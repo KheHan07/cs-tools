@@ -14,37 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import type { Deployment } from "@models/responses";
-import {
-  formatProjectDate,
-  getDeploymentStatusColor,
-} from "@utils/projectDetails";
+import type { ProjectDeploymentItem } from "@models/responses";
+import { displayValue, formatProjectDate } from "@utils/projectDetails";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  alpha,
   Box,
   Card,
-  Chip,
   Divider,
   Link,
   Typography,
-  useTheme,
 } from "@wso2/oxygen-ui";
-import {
-  Activity,
-  Calendar,
-  ChevronDown,
-  CircleAlert,
-  CircleCheck,
-} from "@wso2/oxygen-ui-icons-react";
+import { Activity, Calendar, ChevronDown } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
+import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import DeploymentDocumentList from "./DeploymentDocumentList";
 import DeploymentProductList from "./DeploymentProductList";
 
 export interface DeploymentCardProps {
-  deployment: Deployment;
+  deployment: ProjectDeploymentItem;
 }
 
 /**
@@ -56,22 +45,9 @@ export interface DeploymentCardProps {
 export default function DeploymentCard({
   deployment,
 }: DeploymentCardProps): JSX.Element {
-  const {
-    name,
-    status,
-    url,
-    version,
-    description,
-    products,
-    documents,
-    deployedAt,
-    uptimePercent,
-  } = deployment;
+  const { name, url, description, createdOn } = deployment;
 
-  const statusColor = getDeploymentStatusColor(status);
-  const StatusIcon = status === "Healthy" ? CircleCheck : CircleAlert;
-  const uptimeStr = `${uptimePercent.toFixed(2)}%`;
-  const theme = useTheme();
+  const deployedAtStr = formatProjectDate(createdOn);
 
   return (
     <Card>
@@ -85,43 +61,33 @@ export default function DeploymentCard({
                   alignItems: "center",
                   gap: 1.5,
                   mb: 0.5,
+                  flexWrap: "wrap",
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {name}
+                  {displayValue(name)}
                 </Typography>
-                <Chip
-                  label={status}
-                  color={statusColor}
-                  icon={<StatusIcon size={14} />}
+                <ErrorIndicator
+                  entityName="status and version"
                   size="small"
-                  sx={{
-                    height: 24,
-                    fontWeight: 600,
-                    "& .MuiChip-icon": { ml: 1 },
-                    ...(statusColor !== "default" && {
-                      color: theme.palette[statusColor].light,
-                      bgcolor: alpha(theme.palette[statusColor].light, 0.1),
-                    }),
-                  }}
-                />
-                <Chip
-                  label={version}
-                  size="small"
-                  variant="outlined"
-                  sx={{ height: 24, fontSize: "0.75rem", fontWeight: 500 }}
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Link
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variant="body2"
-                  sx={{ color: "text.secondary" }}
-                >
-                  {url}
-                </Link>
+                {url ? (
+                  <Link
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="body2"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    {url}
+                  </Link>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    {displayValue(url)}
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
@@ -132,18 +98,15 @@ export default function DeploymentCard({
         >
           <Divider />
           <Typography variant="body2" color="text.secondary">
-            {description}
+            {displayValue(description)}
           </Typography>
           <Divider />
 
-          <DeploymentProductList
-            products={products}
-            deploymentId={deployment.id}
-          />
+          <DeploymentProductList deploymentId={deployment.id} />
 
           <Divider />
 
-          <DeploymentDocumentList documents={documents} />
+          <DeploymentDocumentList hasError />
 
           <Divider />
           <Box sx={{ display: "flex", gap: 3 }}>
@@ -162,7 +125,8 @@ export default function DeploymentCard({
                 style={{ verticalAlign: "middle", display: "inline-block" }}
               />
               <span style={{ verticalAlign: "middle", whiteSpace: "nowrap" }}>
-                Deployed on {formatProjectDate(deployedAt)} • {version}
+                Deployed on {deployedAtStr} •{" "}
+                <ErrorIndicator entityName="version" size="small" />
               </span>
             </Box>
             <Box
@@ -178,9 +142,8 @@ export default function DeploymentCard({
                 size={14}
                 style={{ verticalAlign: "middle", display: "inline-block" }}
               />
-              <span style={{ verticalAlign: "middle" }}>
-                Uptime: {uptimeStr}
-              </span>
+              <span style={{ verticalAlign: "middle" }}>Uptime: </span>
+              <ErrorIndicator entityName="uptime" size="small" />
             </Box>
           </Box>
         </AccordionDetails>

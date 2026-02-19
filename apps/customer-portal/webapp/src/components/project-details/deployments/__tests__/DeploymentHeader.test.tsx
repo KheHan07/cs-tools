@@ -15,7 +15,7 @@
 // under the License.
 
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import DeploymentHeader from "@components/project-details/deployments/DeploymentHeader";
 
 describe("DeploymentHeader", () => {
@@ -54,5 +54,16 @@ describe("DeploymentHeader", () => {
     expect(() =>
       fireEvent.click(screen.getByRole("button", { name: /Add Deployment/i })),
     ).not.toThrow();
+  });
+
+  it("should show skeleton for count when isLoading is true", () => {
+    render(<DeploymentHeader count={0} isLoading />);
+
+    expect(
+      screen.queryByText("0 deployment environments"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("deployment-header-skeleton"),
+    ).toBeInTheDocument();
   });
 });

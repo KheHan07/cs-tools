@@ -15,42 +15,51 @@
 // under the License.
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { ReactElement } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentProductList from "@components/project-details/deployments/DeploymentProductList";
-import type { DeploymentProduct } from "@models/responses";
+import { useGetDeploymentsProducts } from "@api/useGetDeploymentsProducts";
+import type { DeploymentProductItem } from "@models/responses";
 
-const mockProducts: DeploymentProduct[] = [
+vi.mock("@api/useGetDeploymentsProducts");
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
+
+const mockProducts: DeploymentProductItem[] = [
   {
     id: "prod-1",
-    name: "WSO2 API Manager",
-    version: "4.2.0",
-    supportStatus: "Active Support",
-    description: "API Gateway and Management Platform",
-    cores: 8,
-    tps: 5000,
-    releasedDate: "2023-05-15",
-    endOfLifeDate: "2026-05-15",
-    updateLevel: "U22",
+    createdOn: "2026-01-17",
+    updatedOn: "2026-01-17",
+    description: "API Gateway",
+    product: { id: "p1", label: "WSO2 API Manager" },
+    deployment: { id: "dep-1", label: "Staging" },
   },
   {
     id: "prod-2",
-    name: "WSO2 Identity Server",
-    version: "6.1.0",
-    supportStatus: "Active Support",
-    description: "IAM and Identity Management Solution",
-    cores: 4,
-    tps: 3000,
-    releasedDate: "2023-08-20",
-    endOfLifeDate: "2026-08-20",
-    updateLevel: "U15",
+    createdOn: "2026-01-17",
+    updatedOn: "2026-01-17",
+    description: "IAM",
+    product: { id: "p2", label: "WSO2 Identity Server" },
+    deployment: { id: "dep-1", label: "Staging" },
   },
 ];
 
 describe("DeploymentProductList", () => {
-  it("should render products count and 'Add Product' button", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should render products count and Add Product button", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: mockProducts,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
+
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 Products (2)")).toBeInTheDocument();
     expect(
@@ -58,96 +67,91 @@ describe("DeploymentProductList", () => {
     ).toBeInTheDocument();
   });
 
-  it("should render product details (name, version, support status)", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should render product labels and descriptions", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: mockProducts,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
+
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
-    expect(screen.getByText("4.2.0")).toBeInTheDocument();
+    expect(screen.getByText("API Gateway")).toBeInTheDocument();
     expect(screen.getByText("WSO2 Identity Server")).toBeInTheDocument();
-    expect(screen.getByText("6.1.0")).toBeInTheDocument();
-
-    // Support status should appear twice (once for each product)
-    const supportStatuses = screen.getAllByText("Active Support");
-    expect(supportStatuses).toHaveLength(2);
+    expect(screen.getByText("IAM")).toBeInTheDocument();
   });
 
-  it("should display technical specs (cores, TPS, release date, EOL date)", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should display No products added yet when products array is empty", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    expect(screen.getByText("8 cores")).toBeInTheDocument();
-    expect(screen.getByText("5,000 TPS")).toBeInTheDocument();
-    expect(screen.getByText("4 cores")).toBeInTheDocument();
-    expect(screen.getByText("3,000 TPS")).toBeInTheDocument();
-
-    // Released and EOL dates should be formatted and displayed
-    const releasedLabels = screen.getAllByText(/Released:/);
-    expect(releasedLabels.length).toBeGreaterThan(0);
-    const eolLabels = screen.getAllByText(/EOL:/);
-    expect(eolLabels.length).toBeGreaterThan(0);
-  });
-
-  it("should display 'No products added yet' when products array is empty", () => {
-    render(<DeploymentProductList products={[]} deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
-  it("should render update level chip for each product", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should display -- for null product label", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: [
+        {
+          id: "p1",
+          createdOn: "",
+          updatedOn: "",
+          description: null,
+          product: { id: "p1", label: "" },
+          deployment: { id: "d1", label: "" },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    expect(screen.getByText("Update Level: U22")).toBeInTheDocument();
-    expect(screen.getByText("Update Level: U15")).toBeInTheDocument();
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+
+    expect(screen.getAllByText("--").length).toBeGreaterThan(0);
   });
 
-  it("should render product descriptions", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should show loading state", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    expect(
-      screen.getByText("API Gateway and Management Platform"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("IAM and Identity Management Solution"),
-    ).toBeInTheDocument();
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
-  it("should render checkboxes for each product", () => {
-    const { container } = render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+  it("should show error state when products fetch fails", () => {
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-    expect(checkboxes.length).toBe(2);
-  });
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
-  it("should handle single product correctly", () => {
-    const singleProduct: DeploymentProduct[] = [mockProducts[0]];
-    render(
-      <DeploymentProductList products={singleProduct} deploymentId="dep-123" />,
-    );
-
-    expect(screen.getByText("WSO2 Products (1)")).toBeInTheDocument();
-    expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
-    expect(screen.queryByText("WSO2 Identity Server")).not.toBeInTheDocument();
+    expect(screen.getByText("Failed to load products")).toBeInTheDocument();
   });
 
   it("should open Add Product modal when button is clicked", () => {
-    render(
-      <DeploymentProductList products={mockProducts} deploymentId="dep-123" />,
-    );
+    vi.mocked(useGetDeploymentsProducts).mockReturnValue({
+      data: mockProducts,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
+
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     const addButton = screen.getByRole("button", { name: /Add Product/i });
     fireEvent.click(addButton);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Add WSO2 Product")).toBeInTheDocument();
   });
 });

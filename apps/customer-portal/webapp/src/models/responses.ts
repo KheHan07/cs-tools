@@ -99,27 +99,41 @@ export interface ProjectSupportStats {
   resolvedChats: number;
 }
 
-// Project cases statistics.
+export interface CaseSeverity {
+  id: number;
+  label: string;
+  count: number;
+}
+
+export interface CaseState {
+  id: string;
+  label: string;
+  count: number;
+}
+
+export interface CaseType {
+  id: string;
+  label: string;
+  count: number;
+}
+
+export interface CasesTrendPeriod {
+  period: string;
+  severities: CaseSeverity[];
+}
+
 export interface ProjectCasesStats {
   totalCases: number;
-  openCases: number;
   averageResponseTime: number;
-  activeCases: {
-    workInProgress: number;
-    waitingOnClient: number;
-    waitingOnWso2: number;
-    total: number;
-  };
-  outstandingCases: {
-    medium: number;
-    high: number;
-    critical: number;
-    total: number;
-  };
   resolvedCases: {
     total: number;
     currentMonth: number;
   };
+  stateCount: CaseState[];
+  severityCount: CaseSeverity[];
+  outstandingSeverityCount: CaseSeverity[];
+  caseTypeCount: CaseType[];
+  casesTrend: CasesTrendPeriod[];
 }
 
 // Project time tracking statistics.
@@ -170,7 +184,10 @@ export interface CaseListItem {
   title: string;
   description: string;
   /** API may return string or { id, label? } or { id, name? } object. */
-  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
+  assignedEngineer:
+    | string
+    | { id: string; label?: string; name?: string }
+    | null;
   project: {
     id: string;
     label: string;
@@ -192,6 +209,10 @@ export interface CaseListItem {
     label: string;
   } | null;
   status: {
+    id: string;
+    label: string;
+  } | null;
+  caseTypes?: {
     id: string;
     label: string;
   } | null;
@@ -238,8 +259,10 @@ export interface CaseDetails {
   product: string | null;
   account: CaseDetailsAccount | null;
   csManager: string | null;
-  /** API may return string or { id, label? } or { id, name? } object. */
-  assignedEngineer: string | { id: string; label?: string; name?: string } | null;
+  assignedEngineer:
+    | string
+    | { id: string; label?: string; name?: string }
+    | null;
   project: CaseDetailsProject | null;
   deployment: { id: string; label: string } | null;
   deployedProduct: string | null;
@@ -287,16 +310,15 @@ export interface CaseCommentsResponse {
 // Project Stats Response
 export interface ProjectStatsResponse {
   projectStats: {
+    openCases: number;
     activeChats: number;
     deployments: number;
-    openCases: number;
     slaStatus: string;
   };
   recentActivity: {
+    totalTimeLogged: number;
     billableHours: number;
     lastDeploymentOn: string;
-    systemHealth: string;
-    totalTimeLogged: number;
   };
 }
 
@@ -361,6 +383,7 @@ export interface AllCasesFilterValues {
   severityId?: string;
   issueTypes?: string;
   deploymentId?: string;
+  caseTypeIds?: string[];
 }
 
 // Product deployed in an environment.
@@ -406,6 +429,11 @@ export interface DeploymentsResponse {
   deployments: Deployment[];
 }
 
+// Response for GET /projects/:projectId/deployments (real API).
+export interface ProjectDeploymentsListResponse {
+  deployments: ProjectDeploymentItem[];
+}
+
 // Single item from GET /projects/:projectId/deployments (array response).
 export interface ProjectDeploymentItem {
   id: string;
@@ -426,6 +454,12 @@ export interface DeploymentProductItem {
   description: string | null;
   product: { id: string; label: string };
   deployment: { id: string; label: string };
+  version?: string | null;
+  cores?: number | null;
+  tps?: number | null;
+  releasedOn?: string | null;
+  endOfLifeOn?: string | null;
+  updateLevel?: string | null;
 }
 
 // Case attachment item (GET /cases/:id/attachments).
@@ -493,7 +527,7 @@ export type ProductUpdateLevelsResponse = ProductUpdateLevelsItem[];
 export interface CaseClassificationResponse {
   issueType: string;
   severityLevel: string;
-  case_info: {
+  caseInfo: {
     description: string;
     shortDescription: string;
     productName: string;

@@ -76,6 +76,7 @@ export default function AllCasesPage(): JSX.Element {
         severityId: filters.severityId ? Number(filters.severityId) : undefined,
         issueId: filters.issueTypes ? Number(filters.issueTypes) : undefined,
         deploymentId: filters.deploymentId || undefined,
+        caseTypeIds: filters.caseTypeIds?.length ? [filters.caseTypeIds] : undefined,
       },
       sortBy: {
         field: "createdOn",

@@ -33,7 +33,7 @@ import type { JSX } from "react";
  */
 export default function DeploymentCardSkeleton(): JSX.Element {
   return (
-    <Card sx={{ mb: 2 }}>
+    <Card>
       <Accordion defaultExpanded={false}>
         <AccordionSummary sx={{ p: 3 }}>
           <Box

@@ -49,17 +49,18 @@ export function normalizeProductLabel(label: string | undefined): string {
     .trim()
     .replace(/\s*-\s*/g, " ")
     .replace(/\s+/g, " ")
+    .toLowerCase()
     .trim();
 }
 
 /**
  * Builds the combined product label from case classification response.
  *
- * @param {CaseClassificationResponse["case_info"]} caseInfo - case_info from classification response.
+ * @param {Partial<CaseClassificationResponse["caseInfo"]> | undefined} caseInfo - caseInfo from classification response (partial ok).
  * @returns {string} Combined label or empty string.
  */
 export function buildClassificationProductLabel(
-  caseInfo: CaseClassificationResponse["case_info"] | undefined,
+  caseInfo: Partial<CaseClassificationResponse["caseInfo"]> | undefined,
 ): string {
   if (!caseInfo?.productName?.trim()) return "";
   const name = caseInfo.productName.trim();
@@ -169,6 +170,60 @@ export function getBaseProductOptions(
         .filter((label): label is string => Boolean(label)),
     ),
   );
+}
+
+/**
+ * Formats chat messages for the case classification API.
+ *
+ * @param {Array<{ text: string; sender: string }>} messages - Chat messages with text and sender.
+ * @returns {string} Formatted string: "User: ...\nAssistant: ..."
+ */
+export function formatChatHistoryForClassification(
+  messages: Array<{ text: string; sender: string }>,
+): string {
+  return messages
+    .map((m) => {
+      const text = (m.text || "").trim();
+      if (!text) return "";
+      const role = m.sender === "user" ? "User" : "Assistant";
+      return `${role}: ${text}`;
+    })
+    .filter((line) => line.length > 0)
+    .join("\n");
+}
+
+/**
+ * Builds envProducts for classification from deployment products map.
+ * Caller must fetch products per deployment and pass the map.
+ *
+ * @param {Record<string, DeploymentProductItem[]>} productsByDeploymentId - Products keyed by deployment id.
+ * @param {ProjectDeploymentOption[]} projectDeployments - Deployments with id and name.
+ * @returns {Record<string, string[]>} envProducts: { [deploymentName]: [productLabel, ...] }
+ */
+export function buildEnvProducts(
+  productsByDeploymentId: Record<string, DeploymentProductItem[]>,
+  projectDeployments: ProjectDeploymentOption[] | undefined,
+): Record<string, string[]> {
+  if (!projectDeployments?.length) return {};
+
+  const result: Record<string, string[]> = {};
+
+  for (const dep of projectDeployments) {
+    const products = productsByDeploymentId[dep.id] ?? [];
+    const labels = Array.from(
+      new Set(
+        products
+          .map((p) => p.product?.label?.trim())
+          .filter((l): l is string => Boolean(l)),
+      ),
+    );
+    const key = dep.name ?? dep.type?.label ?? "";
+    if (key) {
+      result[key] = labels;
+    }
+  }
+
+  return result;
 }
 
 /**

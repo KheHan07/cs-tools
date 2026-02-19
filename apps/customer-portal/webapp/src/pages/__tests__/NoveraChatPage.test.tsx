@@ -61,6 +61,14 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   CircleAlert: () => <svg data-testid="alert-icon" />,
 }));
 
+const { useAllDeploymentProductsMock } = vi.hoisted(() => ({
+  useAllDeploymentProductsMock: vi.fn(),
+}));
+
+vi.mock("@hooks/useAllDeploymentProducts", () => ({
+  useAllDeploymentProducts: useAllDeploymentProductsMock,
+}));
+
 vi.mock("@api/usePostCaseClassifications", () => ({
   usePostCaseClassifications: () => ({
     mutateAsync: vi.fn().mockResolvedValue({}),
@@ -84,9 +92,9 @@ vi.mock("@api/useGetProjectDeployments", () => ({
 }));
 
 vi.mock("@api/useGetDeploymentsProducts", () => ({
-  fetchDeploymentProducts: vi.fn().mockResolvedValue([
-    { product: { label: "WSO2 API Manager 3.2.0" } },
-  ]),
+  fetchDeploymentProducts: vi
+    .fn()
+    .mockResolvedValue([{ product: { label: "WSO2 API Manager 3.2.0" } }]),
 }));
 
 vi.mock("@providers/MockConfigProvider", () => ({
@@ -146,7 +154,10 @@ const renderWithRouter = () => {
 describe("NoveraChatPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock scrollIntoView as it's not implemented in JSDOM
+    useAllDeploymentProductsMock.mockReturnValue({
+      productsByDeploymentId: {},
+      isLoading: false,
+    });
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
   });
 
@@ -217,9 +228,54 @@ describe("NoveraChatPage", () => {
     // Wait for the simulated bot response
     await waitFor(
       () => {
-        expect(screen.getByText("I am a mock response.")).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            "Response from support assistant will appear here when the API is connected.",
+          ),
+        ).toBeInTheDocument();
       },
       { timeout: 2000 },
     );
+  });
+
+  it("should wait for products to load before classifying case", async () => {
+    useAllDeploymentProductsMock
+      .mockReturnValueOnce({
+        productsByDeploymentId: {},
+        isLoading: true,
+      })
+      .mockReturnValue({
+        productsByDeploymentId: { "dep-1": [] },
+        isLoading: false,
+      });
+
+    const { default: NoveraChatPage } = await import("@pages/NoveraChatPage");
+
+    const { getByPlaceholderText, getByTestId, findByText } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={["/project-1/support/chat"]}>
+          <Routes>
+            <Route
+              path="/:projectId/support/chat"
+              element={<NoveraChatPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    const input = getByPlaceholderText("Type your message...");
+    const sendButton = getByTestId("send-icon").parentElement!;
+
+    for (let i = 0; i < 5; i++) {
+      fireEvent.change(input, { target: { value: `Message ${i}` } });
+      fireEvent.click(sendButton);
+    }
+
+    const createCaseButton = await findByText("Create Case");
+    fireEvent.click(createCaseButton);
+    expect(getByTestId("circular-progress")).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "Trigger update" } });
   });
 });

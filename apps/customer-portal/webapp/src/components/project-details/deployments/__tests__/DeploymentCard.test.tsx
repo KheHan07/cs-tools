@@ -14,108 +14,76 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentCard from "@components/project-details/deployments/DeploymentCard";
-import type { Deployment } from "@models/responses";
+import type { ProjectDeploymentItem } from "@models/responses";
 
-const mockDeployment: Deployment = {
+const mockDeployment: ProjectDeploymentItem = {
   id: "dep-1",
   name: "Production",
-  status: "Healthy",
-  url: "https://api.example.com",
-  version: "v1.0",
+  createdOn: "2026-01-17",
+  updatedOn: "2026-01-17",
   description: "Primary production environment",
-  deployedAt: "2026-01-17",
-  uptimePercent: 99.98,
-  products: [
-    {
-      id: "prod-1",
-      name: "WSO2 API Manager",
-      version: "4.2.0",
-      supportStatus: "Active Support",
-      description: "API Gateway",
-      cores: 8,
-      tps: 5000,
-      releasedDate: "2023-05-15",
-      endOfLifeDate: "2026-05-15",
-      updateLevel: "U22",
-    },
-  ],
-  documents: [
-    {
-      id: "doc-1",
-      name: "Architecture.pdf",
-      category: "Architecture",
-      sizeBytes: 1024,
-      uploadedAt: "2026-01-12",
-      uploadedBy: "John Doe",
-    },
-  ],
+  url: "https://api.example.com",
+  project: { id: "proj-1", label: "Test Project" },
+  type: { id: "3", label: "Staging" },
 };
 
+vi.mock("@api/useGetDeploymentsProducts", () => ({
+  useGetDeploymentsProducts: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
+
 describe("DeploymentCard", () => {
-  it("should render deployment name, status, url, and version", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+  it("should render deployment name, ErrorIndicators for missing fields, and url", () => {
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
     expect(
       screen.getByRole("heading", { name: "Production" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Healthy")).toBeInTheDocument();
+    expect(screen.getAllByTestId("error-indicator").length).toBeGreaterThan(0);
     expect(screen.getByText("https://api.example.com")).toBeInTheDocument();
-    expect(screen.getByText("v1.0")).toBeInTheDocument();
     expect(
       screen.getByText("Primary production environment"),
     ).toBeInTheDocument();
   });
 
-  it("should render products section with product name and description", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+  it("should render products section", () => {
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(screen.getByText("WSO2 Products (1)")).toBeInTheDocument();
-    expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
-    expect(screen.getByText("API Gateway")).toBeInTheDocument();
-  });
-
-  it("should render documents section", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
-
-    expect(screen.getByText("Documents (1)")).toBeInTheDocument();
-    expect(screen.getByText("Architecture.pdf")).toBeInTheDocument();
-  });
-
-  it("should render deployed date in the footer", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
-
-    // "Deployed on" text is now in the card footer (not the header)
-    expect(screen.getByText(/Deployed on/)).toBeInTheDocument();
-  });
-
-  it("should render uptime in the footer", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
-
-    expect(screen.getByText(/Uptime: 99\.98%/)).toBeInTheDocument();
-  });
-
-  it("should show No products added yet when products array is empty", () => {
-    const deploymentNoProducts: Deployment = {
-      ...mockDeployment,
-      products: [],
-    };
-
-    render(<DeploymentCard deployment={deploymentNoProducts} />);
-
+    expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
-  it("should render version chip in the header row alongside the status chip", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+  it("should render documents section with error state", () => {
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    const versionChip = screen.getByText("v1.0");
-    const statusChip = screen.getByText("Healthy");
+    expect(screen.getByText("Documents (?)")).toBeInTheDocument();
+    expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
+  });
 
-    // Both should be present in the document
-    expect(versionChip).toBeInTheDocument();
-    expect(statusChip).toBeInTheDocument();
+  it("should display -- for null description", () => {
+    const deploymentNoDesc: ProjectDeploymentItem = {
+      ...mockDeployment,
+      description: null,
+    };
+
+    renderWithProviders(<DeploymentCard deployment={deploymentNoDesc} />);
+
+    expect(screen.getByText("--")).toBeInTheDocument();
   });
 });

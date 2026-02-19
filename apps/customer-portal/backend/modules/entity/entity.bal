@@ -183,6 +183,18 @@ public isolated function createDeployment(string idToken, DeploymentCreatePayloa
     return csEntityClient->/deployments.post(payload, generateHeaders(idToken));
 }
 
+# Update a deployment.
+#
+# + idToken - ID token for authorization
+# + deploymentId - ID of the deployment to update
+# + payload - Deployment update payload
+# + return - Deployment update response or error
+public isolated function updateDeployment(string idToken, string deploymentId, DeploymentUpdatePayload payload)
+    returns DeploymentUpdateResponse|error {
+
+    return csEntityClient->/deployments/[deploymentId].patch(payload, generateHeaders(idToken));
+}
+
 # Create a comment for a case.
 #
 # + idToken - ID token for authorization
@@ -222,4 +234,47 @@ public isolated function getProductVulnerability(string idToken, string vulnerab
 # + return - Product vulnerability metadata or error
 public isolated function getProductVulnerabilityMetaData(string idToken) returns VulnerabilityMetaResponse|error {
     return csEntityClient->/products/vulnerabilities/meta.get(generateHeaders(idToken));
+}
+
+# Search call requests of a project.
+#
+# + idToken - ID token for authorization
+# + payload - Call request search payload
+# + return - Call requests response or error
+public isolated function searchCallRequests(string idToken, CallRequestSearchPayload payload)
+    returns CallRequestsResponse|error {
+
+    return csEntityClient->/call\-requests/search.post(payload, generateHeaders(idToken));
+}
+
+# Create a call request.
+#
+# + idToken - ID token for authorization
+# + payload - Call request creation payload
+# + return - Call request creation response or error
+public isolated function createCallRequest(string idToken, CallRequestCreatePayload payload)
+    returns CallRequestCreateResponse|error {
+
+    return csEntityClient->/call\-requests.post(payload, generateHeaders(idToken));
+}
+
+# Update a call request.
+#
+# + idToken - ID token for authorization
+# + callRequestId - Unique ID of the call request to be updated
+# + payload - Call request update payload
+# + return - Call request update response or error
+public isolated function updateCallRequest(string idToken, string callRequestId, CallRequestUpdatePayload payload)
+    returns CallRequestUpdateResponse|error {
+
+    return csEntityClient->/call\-requests/[callRequestId].patch(payload, generateHeaders(idToken));
+}
+
+# Get products by search criteria.
+#
+# + idToken - ID token for authorization
+# + payload - Product search payload containing search criteria
+# + return - Products response containing matching products or error
+public isolated function getProducts(string idToken, ProductSearchPayload payload) returns ProductsResponse|error {
+    return csEntityClient->/products/search.post(payload, generateHeaders(idToken));
 }

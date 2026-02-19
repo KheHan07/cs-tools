@@ -35,25 +35,25 @@ describe("caseCreation utils", () => {
 
     it("replaces hyphen with spaces with single space", () => {
       expect(normalizeProductLabel("WSO2 API Manager - 3.2.0")).toBe(
-        "WSO2 API Manager 3.2.0",
+        "wso2 api manager 3.2.0",
       );
     });
 
     it("collapses multiple spaces", () => {
       expect(normalizeProductLabel("WSO2   Identity   Server")).toBe(
-        "WSO2 Identity Server",
+        "wso2 identity server",
       );
     });
 
     it("trims leading and trailing whitespace", () => {
       expect(normalizeProductLabel("  WSO2 API Manager 3.2.0  ")).toBe(
-        "WSO2 API Manager 3.2.0",
+        "wso2 api manager 3.2.0",
       );
     });
   });
 
   describe("buildClassificationProductLabel", () => {
-    it("returns empty string when case_info is undefined", () => {
+    it("returns empty string when caseInfo is undefined", () => {
       expect(buildClassificationProductLabel(undefined)).toBe("");
     });
 
@@ -190,6 +190,12 @@ describe("caseCreation utils", () => {
       ).toBe("2");
     });
 
+    it("matches by normalized label (case insensitive) and returns DeploymentProductItem.id", () => {
+      expect(
+        resolveProductId("wso2 api manager 3.2.0", allDeploymentProducts),
+      ).toBe("1");
+    });
+
     it("returns empty string when no match", () => {
       expect(resolveProductId("Unknown Product", allDeploymentProducts)).toBe(
         "",
@@ -231,6 +237,14 @@ describe("caseCreation utils", () => {
       expect(
         shouldAddClassificationProductToOptions("WSO2 API Manager 3.2.0", [
           "WSO2 API Manager - 3.2.0",
+        ]),
+      ).toBe(false);
+    });
+
+    it("returns false when classification product matches a base option (case insensitive)", () => {
+      expect(
+        shouldAddClassificationProductToOptions("wso2 api manager 3.2.0", [
+          "WSO2 API Manager 3.2.0",
         ]),
       ).toBe(false);
     });

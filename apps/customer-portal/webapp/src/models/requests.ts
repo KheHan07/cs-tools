@@ -32,6 +32,8 @@ export interface CaseSearchRequest {
     deploymentId?: string;
     severityId?: number;
     statusId?: number;
+    searchQuery?: string;
+    caseTypeIds?: string[];
   };
   pagination: PaginationRequest;
   sortBy?: {
@@ -43,8 +45,7 @@ export interface CaseSearchRequest {
 // Request body for case classification.
 export interface CaseClassificationRequest {
   chatHistory: string;
-  environments: string[];
-  productDetails: string[];
+  envProducts: Record<string, string[]>;
   region: string;
   tier: string;
 }

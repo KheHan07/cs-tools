@@ -30,11 +30,12 @@ import { ChartLegend } from "@components/dashboard/charts/ChartLegend";
 
 interface CasesTrendChartProps {
   data: Array<{
-    name: string;
-    TypeA: number;
-    TypeB: number;
-    TypeC: number;
-    TypeD: number;
+    period: string;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    catastrophic: number;
   }>;
   isLoading?: boolean;
   isError?: boolean;
@@ -90,9 +91,9 @@ export const CasesTrendChart = ({
             }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              {/* Bar chart */}
               <BarChart
                 data={chartData}
+                xAxisDataKey="period"
                 grid={{ show: true }}
                 xAxis={{ show: true }}
                 yAxis={{ show: true }}

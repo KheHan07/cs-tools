@@ -45,21 +45,21 @@ export interface StatConfigItem {
 export const DASHBOARD_STATS: StatConfigItem[] = [
   {
     id: "totalCases",
-    label: "Total Cases",
+    label: "Total Engagements",
     icon: Clock,
     iconColor: "primary",
     tooltipText: "Total number of cases reported for this project",
   },
   {
     id: "openCases",
-    label: "Open Cases",
+    label: "Active Engagements",
     icon: AlertCircle,
     iconColor: "warning",
     tooltipText: "Currently active and unresolved cases",
   },
   {
     id: "resolvedCases",
-    label: "Resolved Cases",
+    label: "Resolved This Month",
     icon: CheckCircle,
     iconColor: "success",
     tooltipText: "Successfully closed and resolved cases",
@@ -76,17 +76,17 @@ export const DASHBOARD_STATS: StatConfigItem[] = [
 // Configuration for Active Cases Chart data mapping.
 export const ACTIVE_CASES_CHART_DATA = [
   {
-    name: "Work in progress",
+    name: "Work In Progress",
     key: "workInProgress",
     color: colors.blue[500],
   },
   {
-    name: "Waiting on client",
+    name: "Awaiting Info",
     key: "waitingOnClient",
     color: colors.green[500],
   },
   {
-    name: "Waiting on WSO2",
+    name: "Waiting On WSO2",
     key: "waitingOnWso2",
     color: colors.orange[500],
   },
@@ -95,20 +95,35 @@ export const ACTIVE_CASES_CHART_DATA = [
 // Configuration for Outstanding Incidents Chart data mapping.
 export const OUTSTANDING_INCIDENTS_CHART_DATA = [
   {
-    name: "Medium",
+    name: "S4 - Low",
+    key: "low",
+    label: "Low (P4)",
+    color: colors.grey[500],
+  },
+  {
+    name: "S3 - Medium",
     key: "medium",
+    label: "Medium (P3)",
     color: colors.blue[500],
   },
   {
-    name: "High",
+    name: "S2 - High",
     key: "high",
+    label: "High (P2)",
     color: colors.orange[500],
   },
   {
-    name: "Critical",
+    name: "S1 - Critical",
     key: "critical",
+    label: "Critical (P1)",
     color: colors.red[500],
   },
+  {
+    name: "S0 - Catastrophic",
+    key: "catastrophic",
+    label: "Catastrophic (P0)",
+    color: colors.purple[500],
+  }
 ] as const;
 
 /**
@@ -125,24 +140,29 @@ export interface CasesTrendChartDataItem {
 // Configuration for Cases Trend Chart data mapping.
 export const CASES_TREND_CHART_DATA: CasesTrendChartDataItem[] = [
   {
-    name: "Type A",
-    key: "TypeA",
-    color: colors.blue[500],
+    name: "Catastrophic (P0)",
+    key: "catastrophic",
+    color: colors.red[600],
     radius: [0, 0, 4, 4],
   },
   {
-    name: "Type B",
-    key: "TypeB",
+    name: "Critical (P1)",
+    key: "critical",
+    color: colors.blue[500],
+  },
+  {
+    name: "High (P2)",
+    key: "high",
     color: colors.green[500],
   },
   {
-    name: "Type C",
-    key: "TypeC",
+    name: "Medium (P3)",
+    key: "medium",
     color: colors.orange[500],
   },
   {
-    name: "Type D",
-    key: "TypeD",
+    name: "Low (P4)",
+    key: "low",
     color: colors.yellow[600],
     radius: [4, 4, 0, 0],
     border: true,
@@ -151,10 +171,10 @@ export const CASES_TREND_CHART_DATA: CasesTrendChartDataItem[] = [
 
 // Placeholder data for Cases Trend Chart when in error state.
 export const TREND_CHART_ERROR_PLACEHOLDER_DATA = [
-  { name: "Jan", TypeA: 40, TypeB: 24, TypeC: 24, TypeD: 20 },
-  { name: "Feb", TypeA: 30, TypeB: 13, TypeC: 22, TypeD: 30 },
-  { name: "Mar", TypeA: 20, TypeB: 98, TypeC: 22, TypeD: 10 },
-  { name: "Apr", TypeA: 27, TypeB: 39, TypeC: 20, TypeD: 40 },
-  { name: "May", TypeA: 18, TypeB: 48, TypeC: 21, TypeD: 50 },
-  { name: "Jun", TypeA: 23, TypeB: 38, TypeC: 25, TypeD: 30 },
+  { period: "Jan", critical: 40, high: 24, medium: 24, low: 20, catastrophic: 5 },
+  { period: "Feb", critical: 30, high: 13, medium: 22, low: 30, catastrophic: 2 },
+  { period: "Mar", critical: 20, high: 98, medium: 22, low: 10, catastrophic: 8 },
+  { period: "Apr", critical: 27, high: 39, medium: 20, low: 40, catastrophic: 3 },
+  { period: "May", critical: 18, high: 48, medium: 21, low: 50, catastrophic: 6 },
+  { period: "Jun", critical: 23, high: 38, medium: 25, low: 30, catastrophic: 4 },
 ];

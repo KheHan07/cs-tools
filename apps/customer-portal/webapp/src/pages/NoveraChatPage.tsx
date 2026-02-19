@@ -15,8 +15,22 @@
 // under the License.
 
 import { Box, Paper, Divider } from "@wso2/oxygen-ui";
-import { useState, useRef, useEffect, type JSX } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+  type JSX,
+} from "react";
 import { useNavigate, useParams } from "react-router";
+import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
+import { usePostCaseClassifications } from "@api/usePostCaseClassifications";
+import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
+import {
+  formatChatHistoryForClassification,
+  buildEnvProducts,
+} from "@utils/caseCreation";
 import ChatHeader from "@components/support/novera-ai-assistant/novera-chat-page/ChatHeader";
 import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/ChatInput";
 import ChatMessageList from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageList";
@@ -45,13 +59,19 @@ export default function NoveraChatPage(): JSX.Element {
     }
   };
 
-  const handleCreateCase = () => {
-    if (!projectId) {
-      navigate("/");
-      return;
-    }
-    navigate(`/${projectId}/support/chat/create-case`);
-  };
+  const { data: projectDeployments } = useGetProjectDeployments(
+    projectId || "",
+  );
+  const { productsByDeploymentId, isLoading: isAllProductsLoading } =
+    useAllDeploymentProducts(projectDeployments);
+  const envProducts = useMemo(
+    () => buildEnvProducts(productsByDeploymentId, projectDeployments),
+    [productsByDeploymentId, projectDeployments],
+  );
+  const { mutateAsync: classifyCase } = usePostCaseClassifications();
+  const [isCreateCaseLoading, setIsCreateCaseLoading] = useState(false);
+  const [isWaitingForClassification, setIsWaitingForClassification] =
+    useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -60,6 +80,62 @@ export default function NoveraChatPage(): JSX.Element {
       timestamp: new Date(),
     },
   ]);
+
+  const performClassification = useCallback(async () => {
+    if (!projectId) {
+      navigate("/");
+      setIsCreateCaseLoading(false);
+      setIsWaitingForClassification(false);
+      return;
+    }
+
+    try {
+      const chatHistory = formatChatHistoryForClassification(messages);
+      const hasEnvProducts = Object.keys(envProducts).length > 0;
+
+      if (chatHistory && hasEnvProducts) {
+        try {
+          const classificationResponse = await classifyCase({
+            chatHistory,
+            envProducts,
+            region: "EU",
+            tier: "Tier 1",
+          });
+          navigate(`/${projectId}/support/chat/create-case`, {
+            state: { messages, classificationResponse },
+          });
+        } catch {
+          navigate(`/${projectId}/support/chat/create-case`, {
+            state: { messages },
+          });
+        }
+      } else {
+        navigate(`/${projectId}/support/chat/create-case`, {
+          state: { messages },
+        });
+      }
+    } finally {
+      setIsCreateCaseLoading(false);
+      setIsWaitingForClassification(false);
+    }
+  }, [projectId, navigate, messages, envProducts, classifyCase]);
+
+  const handleCreateCase = useCallback(() => {
+    setIsCreateCaseLoading(true);
+
+    if (isAllProductsLoading) {
+      setIsWaitingForClassification(true);
+    } else {
+      performClassification();
+    }
+  }, [isAllProductsLoading, performClassification]);
+
+  useEffect(() => {
+    if (isWaitingForClassification && !isAllProductsLoading) {
+      setIsWaitingForClassification(false);
+      performClassification();
+    }
+  }, [isWaitingForClassification, isAllProductsLoading, performClassification]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pendingTimeoutsRef = useRef<number[]>([]);
@@ -146,8 +222,7 @@ export default function NoveraChatPage(): JSX.Element {
             setInputValue={setInputValue}
             showEscalationBanner={messages.length > 4}
             onCreateCase={handleCreateCase}
-            isCreateCaseLoading={false}
-            isCreateCaseDisabled={false}
+            isCreateCaseLoading={isCreateCaseLoading}
           />
         </Paper>
       </Box>

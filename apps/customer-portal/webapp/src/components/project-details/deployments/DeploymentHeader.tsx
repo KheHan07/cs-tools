@@ -14,13 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Button, Typography } from "@wso2/oxygen-ui";
+import { Box, Button, Skeleton, Typography } from "@wso2/oxygen-ui";
 import { Plus } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 
 export interface DeploymentHeaderProps {
   count?: number;
   onAddClick?: () => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -32,6 +33,7 @@ export interface DeploymentHeaderProps {
 export default function DeploymentHeader({
   count = 0,
   onAddClick,
+  isLoading = false,
 }: DeploymentHeaderProps): JSX.Element {
   return (
     <Box
@@ -42,9 +44,18 @@ export default function DeploymentHeader({
         mb: 2,
       }}
     >
-      <Typography variant="body2" color="text.secondary">
-        {count} deployment environment{count !== 1 ? "s" : ""}
-      </Typography>
+      {isLoading ? (
+        <Skeleton
+          variant="text"
+          width={120}
+          height={24}
+          data-testid="deployment-header-skeleton"
+        />
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          {count} deployment environment{count !== 1 ? "s" : ""}
+        </Typography>
+      )}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Button
           variant="contained"

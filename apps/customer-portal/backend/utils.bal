@@ -47,6 +47,7 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
     entity:CaseSearchResponse casesResponse = check entity:searchCases(idToken, searchPayload);
     types:Case[] cases = from entity:Case case in casesResponse.cases
         let entity:ReferenceTableItem? project = case.project
+        let entity:ReferenceTableItem? 'type = case.caseType
         let entity:ReferenceTableItem? deployedProduct = case.deployedProduct
         let entity:ChoiceListItem? issueType = case.issueType
         let entity:ReferenceTableItem? deployment = case.deployment
@@ -61,6 +62,7 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
             createdOn: case.createdOn,
             description: case.description,
             project: project != () ? {id: project.id, label: project.name} : (),
+            'type: 'type != () ? {id: 'type.id, label: 'type.name} : (),
             deployedProduct: deployedProduct != () ? {id: deployedProduct.id, label: deployedProduct.name} : (),
             issueType: issueType != () ? {id: issueType.id.toString(), label: issueType.label} : (),
             deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
@@ -367,4 +369,29 @@ public isolated function getOpenCasesCountFromProjectCasesStats(entity:ProjectCa
     types:ProjectCaseStats stats = mapCaseStats(response);
     types:ReferenceItem[] openCases = stats.stateCount.filter(stat => stat.id == stateIdOpen.toString());
     return openCases.length() > 0 ? openCases[0].count : ();
+}
+
+# Map call requests response to the desired structure.
+#
+# + response - Call requests response from the entity service
+# + return - Mapped call requests response
+public isolated function mapSearchCallRequestResponse(entity:CallRequestsResponse response)
+    returns types:CallRequestsResponse {
+
+    types:CallRequest[] callRequests = from entity:CallRequest callRequest in response.callRequests
+        let entity:ReferenceTableItem case = callRequest.case
+        let entity:ChoiceListItem state = callRequest.state
+        select {
+            id: callRequest.id,
+            reason: callRequest.reason,
+            preferredTimes: callRequest.preferredTimes,
+            durationMin: callRequest.durationMin,
+            scheduleTime: callRequest.scheduleTime,
+            createdOn: callRequest.createdOn,
+            updatedOn: callRequest.updatedOn,
+            case: {id: case.id, label: case.name},
+            state: {id: state.id.toString(), label: state.label}
+        };
+
+    return {callRequests};
 }

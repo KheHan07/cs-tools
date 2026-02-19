@@ -25,11 +25,12 @@ const mockDeploymentsResponse = {
     {
       id: "dep-1",
       name: "Production",
-      status: "Healthy",
+      createdOn: "2026-02-19 15:13:16",
+      updatedOn: "2026-02-19 15:13:16",
+      description: null,
       url: "https://example.com",
-      version: "1.0",
-      products: [],
-      documents: [],
+      project: { id: "proj-1", label: "Test Project" },
+      type: { id: "3", label: "Staging" },
     },
   ],
 };
@@ -64,6 +65,7 @@ describe("useGetDeployments", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -75,7 +77,6 @@ describe("useGetDeployments", () => {
     (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     };
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -100,7 +101,8 @@ describe("useGetDeployments", () => {
     expect(result.current.data?.deployments[0]).toMatchObject({
       id: "dep-1",
       name: "Production",
-      status: "Healthy",
+      project: { id: "proj-1", label: "Test Project" },
+      type: { id: "3", label: "Staging" },
     });
     expect(mockAuthFetch).toHaveBeenCalledWith(
       expect.stringContaining("/projects/project-123/deployments"),

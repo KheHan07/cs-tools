@@ -19,24 +19,27 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
-import type { DeploymentsResponse } from "@models/responses";
+import type {
+  ProjectDeploymentItem,
+  ProjectDeploymentsListResponse,
+} from "@models/responses";
 
 /**
  * Fetches deployments for a project.
  *
  * @param {string} projectId - The project ID.
- * @returns {UseQueryResult<DeploymentsResponse, Error>} The query result.
+ * @returns {UseQueryResult<ProjectDeploymentsListResponse, Error>} The query result.
  */
 export function useGetDeployments(
   projectId: string,
-): UseQueryResult<DeploymentsResponse, Error> {
+): UseQueryResult<ProjectDeploymentsListResponse, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
-  return useQuery<DeploymentsResponse, Error>({
+  return useQuery<ProjectDeploymentsListResponse, Error>({
     queryKey: [ApiQueryKeys.DEPLOYMENTS, projectId],
-    queryFn: async (): Promise<DeploymentsResponse> => {
+    queryFn: async (): Promise<ProjectDeploymentsListResponse> => {
       logger.debug(`Fetching deployments for project ID: ${projectId}`);
 
       try {
@@ -56,7 +59,10 @@ export function useGetDeployments(
           throw new Error(`Error fetching deployments: ${response.statusText}`);
         }
 
-        const data: DeploymentsResponse = await response.json();
+        const raw = await response.json();
+        const data: ProjectDeploymentsListResponse = Array.isArray(raw)
+          ? { deployments: raw as ProjectDeploymentItem[] }
+          : (raw as ProjectDeploymentsListResponse);
         logger.debug("[useGetDeployments] Data received:", data);
         return data;
       } catch (error) {

@@ -55,6 +55,40 @@ export const getTimeTrackingBadgePaletteKey = (
   }
 };
 
+/** Value that may be a string, number, or {id, label} object from API. */
+export type DisplayableValue =
+  | string
+  | number
+  | null
+  | undefined
+  | { id?: string; label?: string };
+
+/**
+ * Returns the value or "--" for null/undefined/empty string.
+ * Handles API objects with {id, label} by extracting label.
+ *
+ * @param {DisplayableValue} value - The value to display.
+ * @returns {string} The value or "--".
+ */
+export const displayValue = (value: DisplayableValue): string => {
+  if (value === null || value === undefined) {
+    return "--";
+  }
+  if (typeof value === "object" && "label" in value) {
+    const label = (value as { label?: string }).label;
+    return label === null || label === undefined || label === ""
+      ? "--"
+      : label;
+  }
+  if (typeof value === "number") {
+    return String(value);
+  }
+  if (typeof value === "string" && value === "") {
+    return "--";
+  }
+  return typeof value === "string" ? value : "--";
+};
+
 /**
  * Formats a date string into "MMM DD, YYYY" format.
  * Example: "Jan 15, 2024"
