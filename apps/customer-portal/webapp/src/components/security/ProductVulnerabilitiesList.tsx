@@ -100,7 +100,7 @@ const ProductVulnerabilitiesList = ({
                   </Box>
                 </TableCell>
               </TableRow>
-            ) : data?.vulnerabilities.length === 0 ? (
+            ) : !data || !data.vulnerabilities?.length ? (
               <TableRow>
                 <TableCell colSpan={COLUMN_COUNT} align="center">
                   No vulnerabilities found.

@@ -95,7 +95,7 @@ const ProductVulnerabilitiesTable = ({
   }, [data?.totalRecords, onTotalRecordsChange]);
 
   useEffect(() => {
-    onError?.(isError ?? false);
+    if (isError) onError?.(true);
   }, [isError, onError]);
 
   const paginatedData = useMemo(() => {
@@ -190,7 +190,7 @@ const ProductVulnerabilitiesTable = ({
       />
 
       <ProductVulnerabilitiesList
-        isLoading={isFetching}
+        isLoading={isFetching || (!data && !isError)}
         isError={isError}
         data={paginatedData}
         page={page}

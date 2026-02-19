@@ -179,13 +179,11 @@ export const getPendingUpdateLevels = (
       pendingLevels.push(level);
     }
   }
-  pendingLevels.sort((a, b) => a - b);
 
   const securityCount = recommended.availableSecurityUpdatesCount;
 
   return pendingLevels.map((level, index) => ({
     updateLevel: level,
-    updateType:
-      index < securityCount && securityCount > 0 ? "security" : "regular",
+    updateType: index < securityCount ? "security" : "regular",
   }));
 };

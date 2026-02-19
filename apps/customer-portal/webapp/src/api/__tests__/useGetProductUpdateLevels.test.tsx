@@ -66,8 +66,6 @@ describe("useGetProductUpdateLevels", () => {
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
-    mockLogger.debug.mockClear();
-    mockLogger.error.mockClear();
     mockAuthFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockProductUpdateLevelsResponse),
