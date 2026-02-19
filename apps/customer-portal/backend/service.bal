@@ -1667,6 +1667,20 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
+        string|error? validateUtcTimesError = entity:validateUtcTimes(payload.utcTimes);
+        if validateUtcTimesError is string {
+            log:printWarn(validateUtcTimesError);
+            return <http:BadRequest>{
+                body: {
+                    message: validateUtcTimesError
+                }
+            };
+        }
+
+        if validateUtcTimesError is error {
+            log:printError("Failed to validate UTC times for call request creation.", validateUtcTimesError);
+        }
+
         entity:CallRequestCreateResponse|error response = entity:createCallRequest(userInfo.idToken,
                 {
                     caseId: id,
@@ -1710,7 +1724,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + payload - Call request update payload
     # + return - Updated call request details or an error
     resource function patch cases/[string caseId]/call\-requests/[string callRequestId](http:RequestContext ctx,
-            entity:CallRequestUpdatePayload payload)
+            types:CallRequestUpdatePayload payload)
         returns entity:UpdatedCallRequest|http:BadRequest|http:Forbidden|http:NotFound|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1730,6 +1744,20 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     message: validationError
                 }
             };
+        }
+
+        string|error? validateUtcTimesError = entity:validateUtcTimes(payload.utcTimes);
+        if validateUtcTimesError is string {
+            log:printWarn(validateUtcTimesError);
+            return <http:BadRequest>{
+                body: {
+                    message: validateUtcTimesError
+                }
+            };
+        }
+
+        if validateUtcTimesError is error {
+            log:printError("Failed to validate UTC times for call request update.", validateUtcTimesError);
         }
 
         entity:CallRequestUpdateResponse|error response = entity:updateCallRequest(userInfo.idToken, callRequestId,

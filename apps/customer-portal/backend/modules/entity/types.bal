@@ -815,6 +815,15 @@ public type CallRequestsResponse record {|
     json...;
 |};
 
+# Date Constraint.
+@constraint:String {
+    pattern: {
+        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
+        message: "Invalid date provided. Please provide a valid date value."
+    }
+}
+public type Date string;
+
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
     # Case ID
@@ -823,7 +832,7 @@ public type CallRequestCreatePayload record {|
     string reason;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
-    string[] utcTimes;
+    Date[] utcTimes;
     # Duration in minutes
     @constraint:Int {minValue: 1}
     int durationInMinutes;
@@ -858,7 +867,7 @@ public type CallRequestUpdatePayload record {|
     # Reason for the update
     string? reason;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
-    string[] utcTimes?;
+    Date[] utcTimes?;
 |};
 
 # Updated call request details.

@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/time;
 
 # Generate authorization headers.
 #
@@ -85,4 +86,23 @@ public isolated function validateCallRequestUpdatePayload(CallRequestUpdatePaylo
     }
 
     return ();
+}
+
+# Validate UTC times in the call request payloads.
+#
+# + utcTimes - Array of UTC time strings to validate
+# + return - Error message if any UTC time is invalid or in the past, nil otherwise
+public isolated function validateUtcTimes(Date[]? utcTimes) returns string|error? {
+    if utcTimes != () {
+        foreach string utcTime in utcTimes {
+            time:Utc input = check time:utcFromString(utcTime);
+            time:Utc now = time:utcNow();
+            // TODO: Handle the timezine validation
+            if input < now {
+                return "UTC time cannot be in the past.";
+            }
+        }
+    }
+
+    return;
 }
