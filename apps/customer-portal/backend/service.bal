@@ -929,35 +929,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
         return chatHistoryResponse;
     }   
-
-    # Delete a specific chat conversation.
-    # 
-    # + accountId - Account ID
-    # + conversationId - Conversation ID
-    # + return - Success message or error
-    resource function delete deleteChatHistory/[string accountId]/[string conversationId](http:RequestContext ctx)
-        returns ai_chat_agent:DeleteConversationResponse|http:InternalServerError {
-        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }       
-        ai_chat_agent:DeleteConversationResponse|error deleteResponse = ai_chat_agent:deleteChatConversation(accountId, conversationId);
-        if deleteResponse is error {
-            string customError = "Failed to delete chat conversation.";
-            log:printError(customError, deleteResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        return deleteResponse;
-    }
-
+    
     # Get recommendations for a user query.
     # 
     # + payload - Recommendation payload
