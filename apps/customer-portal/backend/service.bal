@@ -1733,11 +1733,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         entity:CallRequestUpdateResponse|error response = entity:updateCallRequest(userInfo.idToken, callRequestId,
-                {
-                    stateKey: payload.stateKey,
-                    reason: payload.reason,
-                    utcTimes: payload.utcTimes
-                });
+                payload);
         if response is error {
             if getStatusCode(response) == http:STATUS_BAD_REQUEST {
                 return <http:BadRequest>{
