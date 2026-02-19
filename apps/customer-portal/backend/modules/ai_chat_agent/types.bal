@@ -68,6 +68,7 @@ public type CaseClassificationResponse record {|
     json...;
 |};
 
+# Chat payload for creating a chat message.
 public type ChatPayload record {|
     # User message
     string message;

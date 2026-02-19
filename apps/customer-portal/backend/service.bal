@@ -842,6 +842,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # AI chat agent.
+<<<<<<< HEAD
+=======
+    # 
+>>>>>>> d58df01c (Added a missing log entry)
     # + payload - Chat payload
     # + return - Chat response or an error
     resource function post chat(http:RequestContext ctx, ai_chat_agent:ChatPayload payload)
@@ -944,6 +948,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         ai_chat_agent:DeleteConversationResponse|error deleteResponse = ai_chat_agent:deleteChatConversation(accountId, conversationId);
         if deleteResponse is error {
             string customError = "Failed to delete chat conversation.";
+            log:printError(customError, deleteResponse);
             return <http:InternalServerError>{
                 body: {
                     message: customError
