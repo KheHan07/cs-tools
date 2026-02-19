@@ -34,6 +34,8 @@ export const ApiQueryKeys = {
   RECOMMENDED_UPDATE_LEVELS: "recommended-update-levels",
   PRODUCT_UPDATE_LEVELS: "product-update-levels",
   PRODUCT_VULNERABILITY: "product-vulnerability",
+  PRODUCT_VULNERABILITIES_SEARCH: "product-vulnerabilities-search",
+  PRODUCT_VULNERABILITIES_META: "product-vulnerabilities-meta",
   PROJECT_USERS: "project-users",
   CASE_CALL_REQUESTS: "case-call-requests",
   TIME_TRACKING_DETAILS: "time-tracking-details",

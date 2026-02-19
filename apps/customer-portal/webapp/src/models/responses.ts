@@ -537,15 +537,22 @@ export interface ProductVulnerability {
   id: string;
   cveId: string;
   vulnerabilityId: string;
-  severity: { id: number; label: string };
+  severity: { id: string | number; label: string };
   componentName: string;
   version: string;
   type: string;
-  useCase: string;
-  justification: string;
-  resolution: string;
+  useCase: string | null;
+  justification: string | null;
+  resolution: string | null;
   componentType?: string;
   updateLevel?: string;
+  /** Optional status/state if returned by API. */
+  status?: { id: string | number; label: string } | null;
+}
+
+// Response for product vulnerabilities metadata (GET /products/vulnerabilities/meta).
+export interface VulnerabilitiesMetaResponse {
+  severities: { id: string; label: string }[];
 }
 
 // Response for product vulnerabilities search.

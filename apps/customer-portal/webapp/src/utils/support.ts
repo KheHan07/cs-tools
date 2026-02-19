@@ -435,7 +435,7 @@ export function getCallRequestStatusColor(status?: string): string {
 /**
  * Returns the Oxygen UI color path for a given severity label.
  *
- * @param {string} label - The severity label (e.g., "Critical (P1)", "S1").
+ * @param {string} label - The severity label.
  * @returns {string} The Oxygen UI color path.
  */
 export function getSeverityColor(label?: string): string {
