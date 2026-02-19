@@ -195,7 +195,7 @@ public type DeleteConversationResponse record {|
     string conversationId;
 |};
 
-# Chat history response for UI.
+# Chat history response.
 public type ChatHistoryResponse record {|
     # Session identifier
     string sessionId;
