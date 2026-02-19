@@ -619,3 +619,74 @@ public type ValidationPayload record {|
     # Contact email
     string contactEmail;
 |};
+
+# Request payload for searching call requests.
+public type CallRequestSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of state keys to filter
+        int[] stateKeys?;
+    } filters?;
+    # Pagination details
+    entity:Pagination pagination?;
+|};
+
+# Call request data from ServiceNow.
+public type CallRequest record {|
+    # ID
+    string id;
+    # Associated case information
+    ReferenceItem case;
+    # Reason for the call request
+    string? reason;
+    # Preferred times for the call
+    string[] preferredTimes;
+    # Duration in minutes
+    int durationMin;
+    # Scheduled time for the call
+    string? scheduleTime;
+    # Created date and time
+    string createdOn;
+    # Updated date and time
+    string updatedOn;
+    # State information
+    ReferenceItem state;
+|};
+
+# Call requests response.
+public type CallRequestsResponse record {|
+    # List of call requests
+    CallRequest[] callRequests;
+    // TODO: Remove after adding pagination
+|};
+
+# Date Constraint.
+@constraint:String {
+    pattern: {
+        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
+        message: "Invalid date provided. Please provide a valid date value."
+    }
+}
+public type Date string;
+
+# Request payload for creating a call request.
+public type CallRequestCreatePayload record {|
+    # Reason for the call request
+    string reason;
+    # Preferred UTC times for the call
+    @constraint:Array {minLength: 1}
+    Date[] utcTimes;
+    # Duration in minutes
+    @constraint:Int {minValue: 1}
+    int durationInMinutes;
+|};
+
+# Request payload for updating a call request.
+public type CallRequestUpdatePayload record {|
+    # State key
+    int stateKey;
+    # Reason for the update
+    string? reason;
+    # New preferred UTC times for the call (mandatory when stateKey is 2)
+    Date[] utcTimes?;
+|};

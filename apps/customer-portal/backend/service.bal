@@ -1540,7 +1540,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Contact information to be validated
     # + return - Contact information if valid or error response
-    resource function post projects/[string id]/contacts/validate(http:RequestContext ctx, types:ValidationPayload payload)
+    resource function post projects/[string id]/contacts/validate(http:RequestContext ctx,
+            types:ValidationPayload payload)
         returns user_management:Contact|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1590,5 +1591,223 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
         return response;
+    }
+
+    # Search call requests for a specific case with filters and pagination.
+    #
+    # + id - ID of the case
+    # + payload - Call request search payload containing filters and pagination info
+    # + return - List of call requests matching the criteria or an error
+    resource function post cases/[string id]/call\-requests/search(http:RequestContext ctx,
+            types:CallRequestSearchPayload payload)
+        returns http:Ok|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:CallRequestsResponse|error response = entity:searchCallRequests(userInfo.idToken,
+                {
+                    caseId: id,
+                    filters: payload.filters,
+                    pagination: payload.pagination
+                });
+        if response is error {
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for searching call requests."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to call request information is forbidden for user: ${
+                        userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to call request information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to search call requests.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return <http:Ok>{
+            body: mapSearchCallRequestResponse(response)
+        };
+    }
+
+    # Create a call request for a specific case.
+    #
+    # + id - ID of the case
+    # + payload - Call request creation payload
+    # + return - Created call request details or an error
+    resource function post cases/[string id]/call\-requests(http:RequestContext ctx,
+            types:CallRequestCreatePayload payload)
+        returns entity:CreatedCallRequest|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        string|error? validateUtcTimesError = entity:validateUtcTimes(payload.utcTimes);
+        if validateUtcTimesError is string {
+            log:printWarn(validateUtcTimesError);
+            return <http:BadRequest>{
+                body: {
+                    message: validateUtcTimesError
+                }
+            };
+        }
+
+        if validateUtcTimesError is error {
+            string customError = "Failed to validate UTC times for call request creation.";
+            log:printError(customError, validateUtcTimesError);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        entity:CallRequestCreateResponse|error response = entity:createCallRequest(userInfo.idToken,
+                {
+                    caseId: id,
+                    reason: payload.reason,
+                    utcTimes: payload.utcTimes,
+                    durationInMinutes: payload.durationInMinutes
+                });
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to create call request is forbidden for the user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to create call request is forbidden for the user!"
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for creating a call request."
+                    }
+                };
+            }
+
+            string customError = "Failed to create call request.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response.callRequest;
+    }
+
+    # Update a call request for a specific case.
+    #
+    # + caseId - ID of the case
+    # + callRequestId - ID of the call request
+    # + payload - Call request update payload
+    # + return - Updated call request details or an error
+    resource function patch cases/[string caseId]/call\-requests/[string callRequestId](http:RequestContext ctx,
+            types:CallRequestUpdatePayload payload)
+        returns entity:UpdatedCallRequest|http:BadRequest|http:Forbidden|http:NotFound|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        string? validationError = entity:validateCallRequestUpdatePayload(payload);
+        if validationError is string {
+            log:printWarn(validationError);
+            return <http:BadRequest>{
+                body: {
+                    message: validationError
+                }
+            };
+        }
+
+        string|error? validateUtcTimesError = entity:validateUtcTimes(payload.utcTimes);
+        if validateUtcTimesError is string {
+            log:printWarn(validateUtcTimesError);
+            return <http:BadRequest>{
+                body: {
+                    message: validateUtcTimesError
+                }
+            };
+        }
+
+        if validateUtcTimesError is error {
+            string customError = "Failed to validate UTC times for call request update.";
+            log:printError(customError, validateUtcTimesError);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        entity:CallRequestUpdateResponse|error response = entity:updateCallRequest(userInfo.idToken, callRequestId,
+                payload);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for updating call request."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to update call request is forbidden for user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to update call request is forbidden for the user!"
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_NOT_FOUND {
+                return <http:NotFound>{
+                    body: {
+                        message: "The call request to be updated is not found!"
+                    }
+                };
+            }
+
+            string customError = "Failed to update call request.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response.callRequest;
     }
 }

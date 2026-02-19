@@ -370,3 +370,28 @@ public isolated function getOpenCasesCountFromProjectCasesStats(entity:ProjectCa
     types:ReferenceItem[] openCases = stats.stateCount.filter(stat => stat.id == stateIdOpen.toString());
     return openCases.length() > 0 ? openCases[0].count : ();
 }
+
+# Map call requests response to the desired structure.
+#
+# + response - Call requests response from the entity service
+# + return - Mapped call requests response
+public isolated function mapSearchCallRequestResponse(entity:CallRequestsResponse response)
+    returns types:CallRequestsResponse {
+
+    types:CallRequest[] callRequests = from entity:CallRequest callRequest in response.callRequests
+        let entity:ReferenceTableItem case = callRequest.case
+        let entity:ChoiceListItem state = callRequest.state
+        select {
+            id: callRequest.id,
+            reason: callRequest.reason,
+            preferredTimes: callRequest.preferredTimes,
+            durationMin: callRequest.durationMin,
+            scheduleTime: callRequest.scheduleTime,
+            createdOn: callRequest.createdOn,
+            updatedOn: callRequest.updatedOn,
+            case: {id: case.id, label: case.name},
+            state: {id: state.id.toString(), label: state.label}
+        };
+
+    return {callRequests};
+}

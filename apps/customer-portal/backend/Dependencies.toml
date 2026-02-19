@@ -305,9 +305,12 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "time"
-version = "2.7.0"
+version = "2.8.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "time", moduleName = "time"}
 ]
 
 [[package]]
@@ -342,6 +345,7 @@ dependencies = [
 	{org = "ballerina", name = "lang.regexp"},
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "test"},
+	{org = "ballerina", name = "time"},
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
