@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useGetProjectDeploymentDetails } from "@api/useGetProjectDeploymentDetails";
+import { useGetDeployments } from "@api/useGetDeployments";
 import EmptyState from "@components/common/empty-state/EmptyState";
 import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 import ErrorBanner from "@components/common/error-banner/ErrorBanner";
@@ -39,8 +39,8 @@ export interface ProjectDeploymentsProps {
 export default function ProjectDeployments({
   projectId,
 }: ProjectDeploymentsProps): JSX.Element {
-  const { data, isLoading, isError } =
-    useGetProjectDeploymentDetails(projectId);
+  const { data, isLoading, isPending, isError } = useGetDeployments(projectId);
+  const showLoading = isLoading || isPending;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -85,10 +85,14 @@ export default function ProjectDeployments({
   );
 
   const renderContent = () => {
-    if (isLoading) {
+    if (showLoading) {
       return (
         <>
-          <DeploymentHeader count={0} onAddClick={handleOpenModal} />
+          <DeploymentHeader
+            count={0}
+            onAddClick={handleOpenModal}
+            isLoading
+          />
           <Grid container spacing={3}>
             {[1, 2, 3].map((i) => (
               <Grid key={i} size={12}>
