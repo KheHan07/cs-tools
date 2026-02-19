@@ -841,7 +841,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return classificationResponse;
     }
 
-    # AI chat agent
+    # AI chat agent.
     # + payload - Chat payload
     # + return - Chat response or an error
     resource function post chat(http:RequestContext ctx, ai_chat_agent:ChatPayload payload)
