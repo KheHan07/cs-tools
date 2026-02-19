@@ -48,7 +48,9 @@ export default function DeploymentDocumentList({
     <Box>
       <Accordion>
         <AccordionSummary expandIcon={<ChevronDown />}>
-          <Typography>Documents ({documents.length})</Typography>
+          <Typography>
+            Documents {hasError ? "(?)" : `(${documents.length})`}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}

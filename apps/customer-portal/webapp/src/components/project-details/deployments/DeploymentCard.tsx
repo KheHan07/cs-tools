@@ -45,19 +45,9 @@ export interface DeploymentCardProps {
 export default function DeploymentCard({
   deployment,
 }: DeploymentCardProps): JSX.Element {
-  const {
-    name,
-    url,
-    description,
-    createdOn,
-    updatedOn,
-    project,
-    type,
-  } = deployment;
+  const { name, url, description, createdOn } = deployment;
 
-  const deployedAtStr = createdOn
-    ? formatProjectDate(createdOn)
-    : displayValue(null);
+  const deployedAtStr = formatProjectDate(createdOn);
 
   return (
     <Card>

@@ -45,7 +45,12 @@ export default function DeploymentHeader({
       }}
     >
       {isLoading ? (
-        <Skeleton variant="text" width={120} height={24} />
+        <Skeleton
+          variant="text"
+          width={120}
+          height={24}
+          data-testid="deployment-header-skeleton"
+        />
       ) : (
         <Typography variant="body2" color="text.secondary">
           {count} deployment environment{count !== 1 ? "s" : ""}
