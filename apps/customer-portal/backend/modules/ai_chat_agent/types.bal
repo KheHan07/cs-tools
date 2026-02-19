@@ -76,7 +76,7 @@ public type ChatPayload record {|
     string accountId;
     # Conversation ID
     string conversationId;
-    # env products
+    # Deployments with related products
     map<string[]> envProducts?;
     json...;
 |};
