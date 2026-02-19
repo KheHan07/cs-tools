@@ -53,7 +53,7 @@ describe("caseCreation utils", () => {
   });
 
   describe("buildClassificationProductLabel", () => {
-    it("returns empty string when case_info is undefined", () => {
+    it("returns empty string when caseInfo is undefined", () => {
       expect(buildClassificationProductLabel(undefined)).toBe("");
     });
 
