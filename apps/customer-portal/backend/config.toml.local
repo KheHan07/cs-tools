@@ -1,18 +1,42 @@
-# Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
+[customer_portal.entity]
+csEntityBaseUrl = "<base_url>"
+[customer_portal.entity.clientCredentialsOauth2Config]
+    tokenUrl = "<token_url>"
+    clientId = "<client_id>"
+    clientSecret = "<client_secret>"
+    scopes = ["<scopes>"]
 
-# WSO2 LLC. licenses this file to you under the Apache License,
-# Version 2.0 (the "License"); you may not use this file except
-# in compliance with the License.
-# You may obtain a copy of the License at
+[customer_portal.authorization.authorizedRoles]
+    userRole  = "<authorized_role>"
 
-# http://www.apache.org/licenses/LICENSE-2.0
+[customer_portal.scim]
+scimOperationsServiceUrl = "<base_url>"
+[customer_portal.scim.clientCredentialsOauth2Config]
+    tokenUrl = "<token_url>"
+    clientId = "<client_id>"
+    clientSecret = "<client_secret>"
+    scopes = ["<scopes>"]
 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+[customer_portal.updates]
+updatesServiceUrl = "<base_url>"
+[customer_portal.updates.clientCredentialsOauth2Config]
+    tokenUrl = "<token_url>"
+    clientId = "<client_id>"
+    clientSecret = "<client_secret>"
+    scopes = ["<scopes>"]
 
-[customer_service.entity]
-baseUrl = 
+[customer_portal.ai_chat_agent]
+aiChatAgentBaseUrl = "<base_url>"
+[customer_portal.ai_chat_agent.clientCredentialsOauth2Config]
+    tokenUrl = "<token_url>"
+    clientId = "<client_id>"
+    clientSecret = "<client_secret>"
+    scopes = ["<scopes>"]
+
+[customer_portal.user_management]
+userManagementServiceUrl = "<base_url>"
+[customer_portal.user_management.clientCredentialsOauth2Config]
+    tokenUrl = "<token_url>"
+    clientId = "<client_id>"
+    clientSecret = "<client_secret>"
+    scopes = ["<scopes>"]
