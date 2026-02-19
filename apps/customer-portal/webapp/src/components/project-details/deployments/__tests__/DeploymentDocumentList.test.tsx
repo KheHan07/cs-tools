@@ -90,8 +90,8 @@ describe("DeploymentDocumentList", () => {
   it("should show error state when hasError is true", () => {
     render(<DeploymentDocumentList hasError />);
 
-    expect(screen.getByText("Documents (0)")).toBeInTheDocument();
+    expect(screen.getByText("Documents (?)")).toBeInTheDocument();
     expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
-    expect(screen.getAllByTestId("error-indicator")).toHaveLength(1);
+    expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
   });
 });

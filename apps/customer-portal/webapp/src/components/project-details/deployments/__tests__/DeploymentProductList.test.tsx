@@ -16,11 +16,21 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type { ReactElement } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentProductList from "@components/project-details/deployments/DeploymentProductList";
 import { useGetDeploymentsProducts } from "@api/useGetDeploymentsProducts";
 import type { DeploymentProductItem } from "@models/responses";
 
 vi.mock("@api/useGetDeploymentsProducts");
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
 
 const mockProducts: DeploymentProductItem[] = [
   {
@@ -41,8 +51,6 @@ const mockProducts: DeploymentProductItem[] = [
   },
 ];
 
-vi.mock("@api/useGetDeploymentsProducts");
-
 describe("DeploymentProductList", () => {
   it("should render products count and Add Product button", () => {
     vi.mocked(useGetDeploymentsProducts).mockReturnValue({
@@ -51,7 +59,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 Products (2)")).toBeInTheDocument();
     expect(
@@ -66,7 +74,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
     expect(screen.getByText("API Gateway")).toBeInTheDocument();
@@ -81,7 +89,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
@@ -103,7 +111,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getAllByText("--").length).toBeGreaterThan(0);
   });
@@ -115,7 +123,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
@@ -127,7 +135,7 @@ describe("DeploymentProductList", () => {
       isError: true,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     expect(screen.getByText("Failed to load products")).toBeInTheDocument();
   });
@@ -139,7 +147,7 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    render(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
 
     const addButton = screen.getByRole("button", { name: /Add Product/i });
     fireEvent.click(addButton);

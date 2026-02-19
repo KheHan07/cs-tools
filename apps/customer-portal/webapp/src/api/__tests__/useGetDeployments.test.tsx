@@ -65,6 +65,7 @@ describe("useGetDeployments", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -76,7 +77,6 @@ describe("useGetDeployments", () => {
     (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     };
-    vi.clearAllMocks();
   });
 
   afterEach(() => {

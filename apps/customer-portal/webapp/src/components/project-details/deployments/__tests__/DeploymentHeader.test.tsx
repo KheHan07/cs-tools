@@ -62,5 +62,8 @@ describe("DeploymentHeader", () => {
     expect(
       screen.queryByText("0 deployment environments"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("deployment-header-skeleton"),
+    ).toBeInTheDocument();
   });
 });

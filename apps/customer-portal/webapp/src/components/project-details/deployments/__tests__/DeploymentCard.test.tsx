@@ -14,8 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentCard from "@components/project-details/deployments/DeploymentCard";
 import type { ProjectDeploymentItem } from "@models/responses";
 
@@ -38,9 +40,17 @@ vi.mock("@api/useGetDeploymentsProducts", () => ({
   }),
 }));
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
+
 describe("DeploymentCard", () => {
   it("should render deployment name, ErrorIndicators for missing fields, and url", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
     expect(
       screen.getByRole("heading", { name: "Production" }),
@@ -53,16 +63,16 @@ describe("DeploymentCard", () => {
   });
 
   it("should render products section", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
     expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
   it("should render documents section with error state", () => {
-    render(<DeploymentCard deployment={mockDeployment} />);
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(screen.getByText("Documents (0)")).toBeInTheDocument();
+    expect(screen.getByText("Documents (?)")).toBeInTheDocument();
     expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
   });
 
@@ -72,7 +82,7 @@ describe("DeploymentCard", () => {
       description: null,
     };
 
-    render(<DeploymentCard deployment={deploymentNoDesc} />);
+    renderWithProviders(<DeploymentCard deployment={deploymentNoDesc} />);
 
     expect(screen.getByText("--")).toBeInTheDocument();
   });
