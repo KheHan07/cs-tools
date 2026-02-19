@@ -1687,7 +1687,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             if getStatusCode(response) == http:STATUS_BAD_REQUEST {
                 return <http:BadRequest>{
                     body: {
-                        message: "Invalid request parameters for creating call request."
+                        message: "Invalid request parameters for creating a call request."
                     }
                 };
             }
