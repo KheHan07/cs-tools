@@ -70,8 +70,8 @@ const CasesList = ({
           <TableHead>
             <TableRow>
               <TableCell>Created</TableCell>
-              <TableCell>Case</TableCell>
-              <TableCell>Contact</TableCell>
+              <TableCell>Engagement</TableCell>
+              <TableCell>Type</TableCell>
               <TableCell>Assigned to</TableCell>
               <TableCell>Priority</TableCell>
               <TableCell>Status</TableCell>
@@ -165,9 +165,14 @@ const CasesList = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" color="text.secondary">
-                      --
-                    </Typography>
+                      <Chip
+                        label={row.caseTypes?.label || "--"}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          fontWeight: 500,
+                        }}
+                      />
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

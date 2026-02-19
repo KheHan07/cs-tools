@@ -673,3 +673,30 @@ export function getAvailableCaseActions(
       return ["Closed"];
   }
 }
+
+/**
+ * Normalizes case type options for display in a selector/filter.
+ *
+ * - Merges "Query" and "Incident" types into a single "Case" option
+ *   (with their IDs joined by comma as the value)
+ * - Removes "Announcement" types entirely
+ * - Keeps all other case types as-is
+ */
+export const normalizeCaseTypeOptions = (
+  caseTypes: { id: string; label: string }[]
+) => {
+  // Collect IDs of "Query" and "Incident" types to merge them into one "Case" option
+  const caseIds = caseTypes
+    .filter((c) => ["query", "incident"].includes(c.label.toLowerCase()))
+    .map((c) => c.id);
+
+  // Keep all types except Query, Incident, and Announcement
+  const others = caseTypes.filter(
+    (c) => !["query", "incident", "announcement"].includes(c.label.toLowerCase())
+  );
+
+  return [
+    ...others.map((c) => ({ label: c.label, value: c.id })),
+    ...(caseIds.length ? [{ label: "Case", value: caseIds.join(",") }] : []),
+  ];
+};

@@ -16,14 +16,14 @@
 
 import { Box, Button, Grid } from "@wso2/oxygen-ui";
 import { useNavigate, useParams } from "react-router";
-import { useEffect, useRef, type JSX } from "react";
+import { useEffect, useRef, useMemo, type JSX } from "react";
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
-import { DASHBOARD_STATS } from "@constants/dashboardConstants";
+import { DASHBOARD_STATS, ACTIVE_CASES_CHART_DATA, CASES_TREND_CHART_DATA, OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants";
 import { StatCard } from "@components/dashboard/stats/StatCard";
 import ChartLayout from "@components/dashboard/charts/ChartLayout";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
@@ -101,6 +101,62 @@ export default function DashboardPage(): JSX.Element {
     }
   };
 
+  const activeCases = useMemo(() => {
+    const workInProgress = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[0].name)?.count ?? 0;
+    const waitingOnClient = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[1].name)?.count ?? 0;
+    const waitingOnWso2 = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[2].name)?.count ?? 0;
+
+    return {
+      workInProgress,
+      waitingOnClient,
+      waitingOnWso2,
+      total: workInProgress + waitingOnClient + waitingOnWso2,
+    };
+  }, [casesStats]);
+
+  const outstandingCases = useMemo(() => {
+    const low =
+      casesStats?.outstandingSeverityCount.find(
+        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[0].label
+      )?.count ?? 0;
+    const medium =
+      casesStats?.outstandingSeverityCount.find(
+        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[1].label
+      )?.count ?? 0;
+    const high =
+      casesStats?.outstandingSeverityCount.find(
+        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[2].label
+      )?.count ?? 0;
+    const critical =
+      casesStats?.outstandingSeverityCount.find(
+        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[3].label
+      )?.count ?? 0;
+    const catastrophic =
+      casesStats?.outstandingSeverityCount.find(
+        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[4].label
+      )?.count ?? 0;
+
+    return {
+      critical,
+      high,
+      medium,
+      low,
+      catastrophic,
+      total: critical + high + medium + low + catastrophic,
+    };
+  }, [casesStats]);
+
+  const casesTrend = useMemo(() => {
+    return (casesStats?.casesTrend ?? []).map(({ period, severities }) => ({
+      period,
+      catastrophic: severities.find((s) => s.label === CASES_TREND_CHART_DATA[0].name)?.count ?? 0,
+      critical: severities.find((s) => s.label === CASES_TREND_CHART_DATA[1].name)?.count ?? 0,
+      high: severities.find((s) => s.label === CASES_TREND_CHART_DATA[2].name)?.count ?? 0,
+      medium: severities.find((s) => s.label === CASES_TREND_CHART_DATA[3].name)?.count ?? 0,
+      low: severities.find((s) => s.label === CASES_TREND_CHART_DATA[4].name)?.count ?? 0,
+    }));
+  }, [casesStats]);
+
   return (
     <Box sx={{ width: "100%", pt: 0, position: "relative" }}>
       {/* Get support button */}
@@ -136,7 +192,9 @@ export default function DashboardPage(): JSX.Element {
                 value = casesStats.totalCases;
                 break;
               case "openCases":
-                value = casesStats.openCases;
+                value = casesStats.stateCount
+                  .filter((state) => state.label !== "Closed")
+                  .reduce((sum, state) => sum + state.count, 0);
                 break;
               case "resolvedCases":
                 value = casesStats.resolvedCases.total;
@@ -159,7 +217,10 @@ export default function DashboardPage(): JSX.Element {
                 iconColor={stat.iconColor}
                 tooltipText={stat.tooltipText}
                 trend={trend}
-                isLoading={(isDashboardLoading || !casesStats) && !isErrorCases}
+                isLoading={
+                  (isDashboardLoading || !casesStats) &&
+                  !isErrorCases
+                }
                 isError={isErrorCases}
                 isTrendError={isErrorMock}
               />
@@ -169,23 +230,21 @@ export default function DashboardPage(): JSX.Element {
       </Grid>
       {/* Charts row */}
       <ChartLayout
-        outstandingCases={
-          casesStats?.outstandingCases || {
-            medium: 0,
-            high: 0,
-            critical: 0,
-            total: 0,
-          }
-        }
-        activeCases={
-          casesStats?.activeCases || {
-            workInProgress: 0,
-            waitingOnClient: 0,
-            waitingOnWso2: 0,
-            total: 0,
-          }
-        }
-        casesTrend={mockStats?.casesTrend || []}
+        outstandingCases={outstandingCases || {
+          low: 0,
+          medium: 0,
+          high: 0,
+          critical: 0,
+          catastrophic: 0,
+          total: 0,
+        }}
+        activeCases={activeCases || {
+          workInProgress: 0,
+          waitingOnClient: 0,
+          waitingOnWso2: 0,
+          total: 0,
+        }}
+        casesTrend={casesTrend || []}
         isLoading={
           (isDashboardLoading || !casesStats || !mockStats) &&
           !isErrorCases &&
@@ -193,7 +252,7 @@ export default function DashboardPage(): JSX.Element {
         }
         isErrorOutstanding={isErrorCases}
         isErrorActiveCases={isErrorCases}
-        isErrorTrend={isErrorMock}
+        isErrorTrend={isErrorCases}
       />
       {/* Cases Table */}
       {projectId && (

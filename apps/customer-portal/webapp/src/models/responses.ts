@@ -99,27 +99,41 @@ export interface ProjectSupportStats {
   resolvedChats: number;
 }
 
-// Project cases statistics.
+export interface CaseSeverity {
+  id: number;
+  label: string;
+  count: number;
+}
+
+export interface CaseState {
+  id: string;
+  label: string;
+  count: number;
+}
+
+export interface CaseType {
+  id: string;
+  label: string;
+  count: number;
+}
+
+export interface CasesTrendPeriod {
+  period: string;
+  severities: CaseSeverity[];
+}
+
 export interface ProjectCasesStats {
   totalCases: number;
-  openCases: number;
   averageResponseTime: number;
-  activeCases: {
-    workInProgress: number;
-    waitingOnClient: number;
-    waitingOnWso2: number;
-    total: number;
-  };
-  outstandingCases: {
-    medium: number;
-    high: number;
-    critical: number;
-    total: number;
-  };
   resolvedCases: {
     total: number;
     currentMonth: number;
   };
+  stateCount: CaseState[];
+  severityCount: CaseSeverity[];
+  outstandingSeverityCount: CaseSeverity[];
+  caseTypeCount: CaseType[];
+  casesTrend: CasesTrendPeriod[];
 }
 
 // Project time tracking statistics.
@@ -195,6 +209,10 @@ export interface CaseListItem {
     label: string;
   } | null;
   status: {
+    id: string;
+    label: string;
+  } | null;
+  caseTypes?: {
     id: string;
     label: string;
   } | null;
@@ -292,16 +310,15 @@ export interface CaseCommentsResponse {
 // Project Stats Response
 export interface ProjectStatsResponse {
   projectStats: {
+    openCases: number;
     activeChats: number;
     deployments: number;
-    openCases: number;
     slaStatus: string;
   };
   recentActivity: {
+    totalTimeLogged: number;
     billableHours: number;
     lastDeploymentOn: string;
-    systemHealth: string;
-    totalTimeLogged: number;
   };
 }
 
@@ -366,6 +383,7 @@ export interface AllCasesFilterValues {
   severityId?: string;
   issueTypes?: string;
   deploymentId?: string;
+  caseTypeIds?: string[];
 }
 
 // Product deployed in an environment.

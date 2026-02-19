@@ -26,6 +26,7 @@ import FilterPopover, {
 } from "@components/common/filter-panel/FilterPopover";
 import CasesTableHeader from "@components/dashboard/cases-table/CasesTableHeader";
 import CasesList from "@components/dashboard/cases-table/CasesList";
+import { normalizeCaseTypeOptions } from "@utils/support";
 
 interface CasesTableProps {
   projectId: string;
@@ -87,6 +88,12 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
           value: d.id,
         })) || [],
     },
+    {
+      id: "caseTypeIds",
+      label: "Case Type",
+      type: "select",
+      options: normalizeCaseTypeOptions(filtersMetadata?.caseTypes || []),
+    },
   ];
 
   const caseSearchRequest = useMemo(
@@ -96,6 +103,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
         severityId: filters.severityId ? Number(filters.severityId) : undefined,
         issueId: filters.issueTypes ? Number(filters.issueTypes) : undefined,
         deploymentId: filters.deploymentId || undefined,
+        caseTypeIds: filters.caseTypeIds?.length ? [filters.caseTypeIds] : undefined,
       },
       sortBy: {
         field: "createdOn",

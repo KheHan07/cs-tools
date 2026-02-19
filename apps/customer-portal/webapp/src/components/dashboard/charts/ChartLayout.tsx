@@ -22,10 +22,12 @@ import { OutstandingIncidentsChart } from "@components/dashboard/charts/Outstand
 
 interface ChartLayoutProps {
   outstandingCases: {
+    low: number;
     medium: number;
     high: number;
     critical: number;
     total: number;
+    catastrophic: number;
   };
   activeCases: {
     workInProgress: number;
@@ -34,11 +36,12 @@ interface ChartLayoutProps {
     total: number;
   };
   casesTrend: Array<{
-    name: string;
-    TypeA: number;
-    TypeB: number;
-    TypeC: number;
-    TypeD: number;
+    period: string;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    catastrophic: number;
   }>;
   isLoading?: boolean;
   isErrorOutstanding?: boolean;

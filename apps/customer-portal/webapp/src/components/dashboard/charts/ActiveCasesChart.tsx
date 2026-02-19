@@ -74,7 +74,7 @@ export const ActiveCasesChart = ({
     <Card sx={{ height: "100%", p: 2 }}>
       {/* Title */}
       <Typography variant="h6" component="h3" sx={{ mb: 2 }}>
-        Active cases
+        Active Engagements
       </Typography>
       {/* Chart state */}
       {isLoading ? (
@@ -175,10 +175,11 @@ export const ActiveCasesChart = ({
         <ChartLegend
           data={ACTIVE_CASES_CHART_DATA.map((item) => ({
             name: item.name,
-            value: 0,
+            value: safeData[item.key] || 0,
             color: item.color,
           }))}
           isError={isError}
+          showValues
         />
       )}
     </Card>

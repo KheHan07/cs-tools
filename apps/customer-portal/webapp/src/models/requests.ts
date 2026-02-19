@@ -32,6 +32,8 @@ export interface CaseSearchRequest {
     deploymentId?: string;
     severityId?: number;
     statusId?: number;
+    searchQuery?: string;
+    caseTypeIds?: string[];
   };
   pagination: PaginationRequest;
   sortBy?: {
