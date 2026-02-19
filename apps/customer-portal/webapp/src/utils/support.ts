@@ -380,7 +380,7 @@ export function getAttachmentFileCategory(
 /**
  * Returns the icon component for a given case status label.
  *
- * @param statusLabel - The case status label (e.g., "Open", "Working in Progress").
+ * @param statusLabel - The case status label.
  * @returns {ComponentType<{ size?: number }>} The icon component.
  */
 export function getStatusIcon(
