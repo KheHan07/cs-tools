@@ -97,7 +97,7 @@ public isolated function validateUtcTimes(Date[]? utcTimes) returns string|error
         foreach string utcTime in utcTimes {
             time:Utc input = check time:utcFromString(utcTime);
             time:Utc now = time:utcNow();
-            // TODO: Handle the timezine validation
+            // TODO: Handle the timezone validation
             if input < now {
                 return "UTC time cannot be in the past.";
             }

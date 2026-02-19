@@ -1678,7 +1678,13 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         if validateUtcTimesError is error {
-            log:printError("Failed to validate UTC times for call request creation.", validateUtcTimesError);
+            string customError = "Failed to validate UTC times for call request creation.";
+            log:printError(customError, validateUtcTimesError);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
         }
 
         entity:CallRequestCreateResponse|error response = entity:createCallRequest(userInfo.idToken,
@@ -1757,7 +1763,13 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         if validateUtcTimesError is error {
-            log:printError("Failed to validate UTC times for call request update.", validateUtcTimesError);
+            string customError = "Failed to validate UTC times for call request update.";
+            log:printError(customError, validateUtcTimesError);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
         }
 
         entity:CallRequestUpdateResponse|error response = entity:updateCallRequest(userInfo.idToken, callRequestId,
