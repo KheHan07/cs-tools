@@ -53,6 +53,13 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
   const isCaseDetailsPage = /\/[^/]+\/support\/cases\/[^/]+$/.test(
     location.pathname,
   );
+  const isVulnerabilityDetailsPage =
+    /\/[^/]+\/security-center\/[^/]+$/.test(location.pathname);
+  const isPendingUpdatesPage = /\/[^/]+\/updates\/pending$/.test(
+    location.pathname,
+  );
+  const isDetailsStylePage =
+    isCaseDetailsPage || isVulnerabilityDetailsPage || isPendingUpdatesPage;
 
   return (
     <IdleTimeoutProvider>
@@ -109,11 +116,11 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
               ref={mainContentRef}
               sx={{
                 flex: 1,
-                minHeight: isCaseDetailsPage ? "60vh" : 0,
+                minHeight: isDetailsStylePage ? "60vh" : 0,
                 overflow: "auto",
-                display: isCaseDetailsPage ? "flex" : "block",
-                flexDirection: isCaseDetailsPage ? "column" : undefined,
-                ...(isCaseDetailsPage
+                display: isDetailsStylePage ? "flex" : "block",
+                flexDirection: isDetailsStylePage ? "column" : undefined,
+                ...(isDetailsStylePage
                   ? { px: 0, pb: 0, pt: 0 }
                   : { p: 3 }),
               }}
