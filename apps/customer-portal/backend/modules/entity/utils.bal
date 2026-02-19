@@ -61,3 +61,28 @@ public isolated function getAttachments(string idToken, string id, int? 'limit, 
     };
     return searchAttachments(idToken, payload);
 }
+
+# Validate call request update payload.
+#
+# + payload - Call request update payload
+# + return - Error message if validation fails, nil otherwise
+public isolated function validateCallRequestUpdatePayload(CallRequestUpdatePayload payload) returns string? {
+    // Validate stateKey is either 2 (Pending on WSO2) or 6 (Canceled)
+    if payload.stateKey != PENDING_ON_WSO2 && payload.stateKey != CANCELED {
+        return "Invalid status. Allowed values are Pending on WSO2 or Canceled.";
+    }
+
+    string[]? utcTimes = payload.utcTimes;
+
+    // If stateKey is 2 (Pending on WSO2), utcTimes is mandatory
+    if payload.stateKey == PENDING_ON_WSO2 && (utcTimes is () || utcTimes.length() == 0) {
+        return "At least one UTC time is required when the status is Pending on WSO2.";
+    }
+
+    // If stateKey is 6 (Canceled), utcTimes should not be present
+    if payload.stateKey == CANCELED && utcTimes !is () {
+        return "UTC times must not be provided when the status is Canceled.";
+    }
+
+    return ();
+}

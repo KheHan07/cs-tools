@@ -1722,7 +1722,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        string? validationError = validateCallRequestUpdatePayload(payload);
+        string? validationError = entity:validateCallRequestUpdatePayload(payload);
         if validationError is string {
             log:printWarn(validationError);
             return <http:BadRequest>{
