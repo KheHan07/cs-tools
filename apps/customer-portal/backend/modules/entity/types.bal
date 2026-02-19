@@ -288,6 +288,14 @@ public type CaseResponse record {|
         # Email address
         string? email;
     }? csManager;
+    # Case closed date and time
+    string? closedOn?;
+    # User who closed the case
+    ReferenceTableItem? closedBy?;
+    # Close notes for the case closure
+    string? closeNotes?;
+    # Indicates if the case is auto closed
+    boolean? hasAutoClosed?;
     json...;
 |};
 

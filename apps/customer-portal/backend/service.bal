@@ -867,36 +867,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify case validation for the user
-        entity:CaseResponse|error caseDetails = entity:getCase(userInfo.idToken, id);
-        if caseDetails is error {
-            if getStatusCode(caseDetails) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(caseDetails) == http:STATUS_FORBIDDEN {
-                logForbiddenCaseAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            string customError = "Failed to retrieve case details.";
-            log:printError(customError, caseDetails);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
         entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
         if commentsResponse is error {
             string customError = "Failed to retrieve comments.";
@@ -932,27 +902,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:BadRequest>{
                 body: {
                     message: ERR_LIMIT_OFFSET_INVALID
-                }
-            };
-        }
-
-        // Verify case validation for the user
-        entity:CaseResponse|error caseDetails = entity:getCase(userInfo.idToken, id);
-        if caseDetails is error {
-            if getStatusCode(caseDetails) == http:STATUS_FORBIDDEN {
-                logForbiddenCaseAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            string customError = "Failed to retrieve case details.";
-            log:printError(customError, caseDetails);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
                 }
             };
         }
