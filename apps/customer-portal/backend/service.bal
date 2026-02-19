@@ -876,6 +876,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + return - List of conversations or error
     resource function get conversations/[string accountId](http:RequestContext ctx)
         returns ai_chat_agent:ConversationListResponse|http:InternalServerError {
+
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
