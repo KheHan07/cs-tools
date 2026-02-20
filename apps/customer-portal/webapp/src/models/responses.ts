@@ -212,6 +212,8 @@ export interface CaseListItem {
     id: string;
     label: string;
   } | null;
+  /** Case type from API (type or caseTypes). */
+  type?: { id: string; label: string } | null;
   caseTypes?: {
     id: string;
     label: string;

@@ -19,7 +19,12 @@ import {
   AlertCircle,
   CheckCircle,
   Activity,
+  CalendarDays,
+  FileText,
+  Server,
+  Shield,
 } from "@wso2/oxygen-ui-icons-react";
+import type { ComponentType } from "react";
 import { type DashboardMockStats } from "@models/responses";
 import { colors } from "@wso2/oxygen-ui";
 
@@ -40,6 +45,14 @@ export interface StatConfigItem {
   iconColor: StatCardColor;
   tooltipText: string;
 }
+
+/** Case type labels to filter stats by (Incident, Query, Service Request, Security Report Analysis). */
+export const DASHBOARD_CASE_TYPE_LABELS = [
+  "Incident",
+  "Query",
+  "Service Request",
+  "Security Report Analysis",
+] as const;
 
 // Dashboard statistics list.
 export const DASHBOARD_STATS: StatConfigItem[] = [
@@ -93,16 +106,32 @@ export const SEVERITY_LABEL_TO_DISPLAY: Record<string, string> = {
 };
 
 // Legend display format: "S{n} - {Severity}". Same order for Outstanding Engagements and Cases Trend.
-// Order: S4 - Catastrophic, S3 - Medium, S2 - High, S1 - Critical, S0 - Low.
+// Order: S0 - Catastrophic (highest), S1 - Critical, S2 - High, S3 - Medium, S4 - Low (lowest).
+// Matches SEVERITY_LABEL_TO_DISPLAY: Catastrophic (P0)→S0, Critical (P1)→S1, etc.
 export const SEVERITY_LEGEND_ORDER = [
-  { key: "catastrophic", label: "Catastrophic (P0)", displayName: "S4 - Catastrophic", color: colors.red[500] },
+  { key: "catastrophic", label: "Catastrophic (P0)", displayName: "S0 - Catastrophic", color: colors.red[500] },
   { key: "critical", label: "Critical (P1)", displayName: "S1 - Critical", color: colors.orange[500] },
   { key: "high", label: "High (P2)", displayName: "S2 - High", color: colors.yellow[700] },
   { key: "medium", label: "Medium (P3)", displayName: "S3 - Medium", color: colors.blue[500] },
-  { key: "low", label: "Low (P4)", displayName: "S0 - Low", color: colors.green[500] },
+  { key: "low", label: "Low (P4)", displayName: "S4 - Low", color: colors.green[500] },
 ] as const;
 
 export const OUTSTANDING_INCIDENTS_CHART_DATA = SEVERITY_LEGEND_ORDER;
+
+/** API severity labels in chart order (catastrophic, critical, high, medium, low) for casesTrend mapping. */
+export const SEVERITY_API_LABELS = SEVERITY_LEGEND_ORDER.map((item) => item.label);
+
+/** Case type entries for Outstanding Engagements chart (from caseTypeCount). */
+export const OUTSTANDING_CASE_TYPE_ENTRIES = [
+  { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.grey?.[500] ?? "#6B7280" },
+  { key: "securityReportAnalysis", label: "Security Report Analysis", displayName: "Security Report Analysis", color: colors.purple[500] },
+] as const;
+
+/** Combined chart data: severities + Service Request + Security Report Analysis. */
+export const OUTSTANDING_ENGAGEMENTS_CHART_DATA = [
+  ...OUTSTANDING_INCIDENTS_CHART_DATA,
+  ...OUTSTANDING_CASE_TYPE_ENTRIES,
+];
 
 /**
  * Type definition for Cases Trend Chart data item.
@@ -124,6 +153,72 @@ export const CASES_TREND_CHART_DATA: CasesTrendChartDataItem[] =
     ...(i === 0 && { radius: [0, 0, 4, 4] as [number, number, number, number] }),
     ...(i === 4 && { radius: [4, 4, 0, 0] as [number, number, number, number], border: true }),
   }));
+
+/** Case type display config for Outstanding Engagements table Type column. */
+export interface CaseTypeChipConfig {
+  displayLabel: string;
+  Icon: ComponentType<{ size?: number }>;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
+}
+
+/** API labels that map to "Case" (Incident + Query). */
+const CASE_TYPE_LABELS = ["Incident", "Query"];
+
+/** Resolves case type chip config from API label. Incident/Query show as "Case". */
+export function getCaseTypeChipConfig(
+  apiLabel: string | undefined | null,
+): CaseTypeChipConfig | null {
+  if (!apiLabel?.trim()) return null;
+  const normalized = apiLabel.trim();
+  const isCase = CASE_TYPE_LABELS.some(
+    (l) => l.toLowerCase() === normalized.toLowerCase(),
+  );
+  if (isCase) {
+    return {
+      displayLabel: "Case",
+      Icon: FileText,
+      bgColor: colors.orange?.[100] ?? "#FFF7ED",
+      textColor: colors.orange?.[800] ?? "#9A3412",
+      borderColor: colors.orange?.[200] ?? "#FED7AA",
+    };
+  }
+  if (/security\s*report\s*analysis/i.test(normalized)) {
+    return {
+      displayLabel: "Security Report Analysis",
+      Icon: Shield,
+      bgColor: colors.purple?.[100] ?? "#F3E8FF",
+      textColor: colors.purple?.[800] ?? "#6B21A8",
+      borderColor: colors.purple?.[200] ?? "#E9D5FF",
+    };
+  }
+  if (/service\s*request/i.test(normalized)) {
+    return {
+      displayLabel: "Service Request",
+      Icon: Server,
+      bgColor: colors.grey?.[100] ?? "#F1F5F9", 
+      textColor: colors.grey?.[800] ?? "#1E293B",
+      borderColor: colors.grey?.[200] ?? "#E2E8F0",
+    };
+  }
+  if (/change\s*request/i.test(normalized)) {
+    return {
+      displayLabel: "Change Request",
+      Icon: CalendarDays,
+      bgColor: colors.indigo?.[100] ?? colors.purple?.[100] ?? "#E0E7FF",
+      textColor: colors.indigo?.[800] ?? colors.purple?.[800] ?? "#3730A3",
+      borderColor: colors.indigo?.[200] ?? colors.purple?.[200] ?? "#C7D2FE",
+    };
+  }
+  return {
+    displayLabel: normalized,
+    Icon: FileText,
+    bgColor: colors.grey?.[100] ?? "#F3F4F6",
+    textColor: colors.grey?.[800] ?? "#1F2937",
+    borderColor: colors.grey?.[200] ?? "#E5E7EB",
+  };
+}
 
 // Placeholder data for Cases Trend Chart when in error state.
 export const TREND_CHART_ERROR_PLACEHOLDER_DATA = [
