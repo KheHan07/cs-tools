@@ -40,7 +40,7 @@ public isolated function listConversations(string accountId) returns Conversatio
     return aiChatAgentClient->/chat/conversations/[accountId].get();
 }
 
-# Get Chat History.
+# Get chat history.
 # 
 # + accountId - Account ID
 # + conversationId - Conversation ID
