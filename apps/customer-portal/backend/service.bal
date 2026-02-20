@@ -929,7 +929,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
         return chatHistoryResponse;
     }   
-    
+
     # Get recommendations for a user query.
     # 
     # + payload - Recommendation payload

@@ -37,7 +37,7 @@ public isolated function createChat(ChatPayload payload) returns ChatResponse|er
 # + accountId - Account ID
 # + return - List of conversations or error
 public isolated function listConversations(string accountId) returns ConversationListResponse|error {
-    return aiChatAgentClient->/chat/conversations/[accountId].get();
+    return aiChatAgentClient->/chat/conversations/[accountId];
 }
 
 # Get chat history.
@@ -49,7 +49,7 @@ public isolated function getChatHistory(string accountId, string conversationId)
     return aiChatAgentClient->/chat/history/[accountId]/[conversationId];
 }
 
-# Delete Chat Conversation.
+# Delete chat conversation.
 # 
 # + accountId - Account ID
 # + conversationId - Conversation ID
@@ -58,7 +58,7 @@ public isolated function deleteChatConversation(string accountId, string convers
     return aiChatAgentClient->/chat/history/[accountId]/[conversationId].delete();
 }
 
-# Get Recommendation for user query
+# Get recommendation for user query.
 # 
 # + payload - Recommendation payload
 # + return - Recommendation response or error
