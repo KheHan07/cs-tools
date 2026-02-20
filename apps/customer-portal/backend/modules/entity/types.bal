@@ -918,7 +918,7 @@ public type CallRequestsResponse record {|
     json...;
 |};
 
-# Date-time constraint.
+# Date-time (UTC).
 @constraint:String {
     pattern: {
         value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
