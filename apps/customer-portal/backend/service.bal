@@ -838,6 +838,14 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 };
             }
 
+            if getStatusCode(response) == http:STATUS_NOT_FOUND {
+                return <http:BadRequest>{
+                    body: {
+                        message: "The case you're trying to update does not exist. Please check and try again."
+                    }
+                };
+            }
+
             string customError = "Failed to update the case.";
             log:printError(customError, response);
             return <http:InternalServerError>{
