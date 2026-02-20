@@ -54,22 +54,31 @@ describe("CasesTableHeader", () => {
     onClearAll: vi.fn(),
     onUpdateFilter: vi.fn(),
     onFilterClick: vi.fn(),
+    onAllCases: vi.fn(),
     onCreateCase: vi.fn(),
   };
 
   it("should render title and buttons", () => {
     render(<CasesTableHeader {...mockProps} />);
 
-    expect(screen.getByText("Outstanding cases")).toBeInTheDocument();
-    expect(screen.getByText("Create case")).toBeInTheDocument();
+    expect(screen.getByText("Outstanding Engagements")).toBeInTheDocument();
+    expect(screen.getByText("Create")).toBeInTheDocument();
+    expect(screen.getByText("All")).toBeInTheDocument();
     expect(screen.getByText("Filters")).toBeInTheDocument();
   });
 
   it("should call onCreateCase when button is clicked", () => {
     render(<CasesTableHeader {...mockProps} />);
 
-    fireEvent.click(screen.getByText("Create case"));
+    fireEvent.click(screen.getByText("Create"));
     expect(mockProps.onCreateCase).toHaveBeenCalled();
+  });
+
+  it("should call onAllCases when All button is clicked", () => {
+    render(<CasesTableHeader {...mockProps} />);
+
+    fireEvent.click(screen.getByText("All"));
+    expect(mockProps.onAllCases).toHaveBeenCalled();
   });
 
   it("should call onFilterClick when filter button is clicked", () => {

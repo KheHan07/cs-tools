@@ -48,12 +48,7 @@ export default function UserProfile(): JSX.Element {
   };
 
   if (isLoading || isAuthLoading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Skeleton variant="circular" width={32} height={32} />
-        <Skeleton variant="text" width={100} />
-      </div>
-    );
+    return <Skeleton variant="circular" width={36} height={36} />;
   }
 
   const name = isError

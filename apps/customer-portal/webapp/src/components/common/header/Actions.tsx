@@ -16,6 +16,8 @@
 
 import { Box, ColorSchemeToggle, Divider, Header as HeaderUI } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
+import { useLocation } from "react-router";
+import GetHelpDropdown from "@components/common/header/GetHelpDropdown";
 import UserProfile from "@components/common/header/UserProfile";
 
 interface ActionsProps {
@@ -31,8 +33,20 @@ interface ActionsProps {
 export default function Actions({
   showUserProfile = true,
 }: ActionsProps): JSX.Element {
+  const location = useLocation();
+  const isProjectHub = location.pathname === "/";
+
   return (
     <HeaderUI.Actions>
+      {/* Get Help dropdown (before theme switcher, not on project hub) */}
+      {!isProjectHub && <GetHelpDropdown />}
+      {!isProjectHub && (
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{ mx: 1, display: { xs: "none", sm: "block" } }}
+        />
+      )}
       {/* theme switcher */}
       <ColorSchemeToggle />
       {/* header action divider */}

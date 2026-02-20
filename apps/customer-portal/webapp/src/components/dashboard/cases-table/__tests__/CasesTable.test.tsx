@@ -17,7 +17,7 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
-import useGetProjectCases from "@api/useGetProjectCases";
+import { useGetProjectCasesPage } from "@api/useGetProjectCasesPage";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 
@@ -28,7 +28,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("@/api/useGetProjectCases");
+vi.mock("@api/useGetProjectCasesPage");
 vi.mock("@/api/useGetCasesFilters");
 
 vi.mock("@asgardeo/react", () => ({
@@ -38,12 +38,6 @@ vi.mock("@asgardeo/react", () => ({
   }),
 }));
 
-vi.mock("@context/linear-loader/LoaderContext", () => ({
-  useLoader: () => ({
-    showLoader: vi.fn(),
-    hideLoader: vi.fn(),
-  }),
-}));
 
 vi.mock("@hooks/useLogger", () => ({
   useLogger: () => ({
@@ -133,21 +127,16 @@ vi.mock("@components/common/filter-panel/FilterPopover", () => ({
 describe("CasesTable", () => {
   const theme = createTheme();
   const mockProjectId = "proj-123";
-  const mockUseGetProjectCases = vi.mocked(useGetProjectCases);
+  const mockUseGetProjectCasesPage = vi.mocked(useGetProjectCasesPage);
   const mockUseGetCasesFilters = vi.mocked(useGetCasesFilters);
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseGetProjectCases.mockReturnValue({
-      data: {
-        pages: [{ cases: [], totalRecords: 0, offset: 0, limit: 10 }],
-        pageParams: [0],
-      },
+    mockUseGetProjectCasesPage.mockReturnValue({
+      data: { cases: [], totalRecords: 0, offset: 0, limit: 10 },
       isFetching: false,
-      fetchNextPage: vi.fn(),
-      hasNextPage: false,
-      isFetchingNextPage: false,
-    } as any);
+      isError: false,
+    } as ReturnType<typeof useGetProjectCasesPage>);
     mockUseGetCasesFilters.mockReturnValue({
       data: undefined,
       isFetching: false,
@@ -164,11 +153,13 @@ describe("CasesTable", () => {
 
     expect(screen.getByTestId("cases-table-header")).toBeInTheDocument();
     expect(screen.getByTestId("cases-list")).toBeInTheDocument();
-    expect(mockUseGetProjectCases).toHaveBeenCalledWith(
+    expect(mockUseGetProjectCasesPage).toHaveBeenCalledWith(
       mockProjectId,
       expect.objectContaining({
         sortBy: { field: "createdOn", order: "desc" },
       }),
+      expect.any(Number),
+      expect.any(Number),
     );
   });
 
@@ -191,27 +182,19 @@ describe("CasesTable", () => {
   });
 
   it("should update filters and fetch data when searching", async () => {
-    // Simulate some cases in rawData
-    mockUseGetProjectCases.mockReturnValue({
+    mockUseGetProjectCasesPage.mockReturnValue({
       data: {
-        pages: [
-          {
-            cases: [
-              { id: "1", status: { id: "1" }, severity: { id: "2" } },
-              { id: "2", status: { id: "2" }, severity: { id: "2" } },
-            ],
-            totalRecords: 2,
-            offset: 0,
-            limit: 10,
-          },
+        cases: [
+          { id: "1", status: { id: "1" }, severity: { id: "2" } } as never,
+          { id: "2", status: { id: "2" }, severity: { id: "2" } } as never,
         ],
-        pageParams: [0],
+        totalRecords: 2,
+        offset: 0,
+        limit: 10,
       },
       isFetching: false,
-      fetchNextPage: vi.fn(),
-      hasNextPage: false,
-      isFetchingNextPage: false,
-    } as any);
+      isError: false,
+    } as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -231,23 +214,16 @@ describe("CasesTable", () => {
   });
 
   it("should show 0 total records when no cases match filter", async () => {
-    mockUseGetProjectCases.mockReturnValue({
+    mockUseGetProjectCasesPage.mockReturnValue({
       data: {
-        pages: [
-          {
-            cases: [],
-            totalRecords: 58,
-            offset: 0,
-            limit: 10,
-          },
-        ],
-        pageParams: [0],
+        cases: [],
+        totalRecords: 0,
+        offset: 0,
+        limit: 10,
       },
       isFetching: false,
-      fetchNextPage: vi.fn(),
-      hasNextPage: false,
-      isFetchingNextPage: false,
-    } as any);
+      isError: false,
+    } as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -268,17 +244,13 @@ describe("CasesTable", () => {
       </ThemeProvider>,
     );
 
-    // Handle page changes should not trigger a new API call in client-side mode
     fireEvent.click(screen.getByText("Change Page"));
 
     await waitFor(() => {
-      // Still only called with the initial load params (once or twice depending on render cycles)
-      expect(mockUseGetProjectCases).toHaveBeenCalledWith(
-        mockProjectId,
-        expect.objectContaining({
-          sortBy: { field: "createdOn", order: "desc" },
-        }),
-      );
+      const calls = mockUseGetProjectCasesPage.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[2]).toBe(20); // offset for page 2
+      expect(lastCall[3]).toBe(10); // limit
     });
   });
 
@@ -292,35 +264,24 @@ describe("CasesTable", () => {
     fireEvent.click(screen.getByText("Change Rows"));
 
     await waitFor(() => {
-      // Still only called with initial load params
-      expect(mockUseGetProjectCases).toHaveBeenCalledWith(
-        mockProjectId,
-        expect.objectContaining({
-          sortBy: { field: "createdOn", order: "desc" },
-        }),
-      );
+      const calls = mockUseGetProjectCasesPage.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[2]).toBe(0); // offset (page reset to 0)
+      expect(lastCall[3]).toBe(25); // new rows per page
     });
   });
 
   it.skip("should handle remove filter", async () => {
-    // Simulate some cases in rawData
-    mockUseGetProjectCases.mockReturnValue({
+    mockUseGetProjectCasesPage.mockReturnValue({
       data: {
-        pages: [
-          {
-            cases: [{ id: "1", status: { id: "1" } }],
-            totalRecords: 1,
-            offset: 0,
-            limit: 10,
-          },
-        ],
-        pageParams: [0],
+        cases: [{ id: "1", status: { id: "1" } }] as never[],
+        totalRecords: 1,
+        offset: 0,
+        limit: 10,
       },
       isFetching: false,
-      fetchNextPage: vi.fn(),
-      hasNextPage: false,
-      isFetchingNextPage: false,
-    } as any);
+      isError: false,
+    } as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
