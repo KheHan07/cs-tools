@@ -86,15 +86,18 @@ vi.mock("../ChartLegend", () => ({
 
 describe("ActiveCasesChart", () => {
   const mockData = {
+    open: 5,
     workInProgress: 10,
-    waitingOnClient: 5,
-    waitingOnWso2: 3,
-    total: 18,
+    awaitingInfo: 3,
+    waitingOnWso2: 5,
+    solutionProposed: 0,
+    reopened: 0,
+    total: 23,
   };
 
   it("should render title correctly", () => {
     render(<ActiveCasesChart data={mockData} isLoading={false} />);
-    expect(screen.getByText("Active cases")).toBeInTheDocument();
+    expect(screen.getByText("Active Engagements")).toBeInTheDocument();
   });
 
   it("should render skeleton when loading", () => {
@@ -121,8 +124,8 @@ describe("ActiveCasesChart", () => {
 
     // Verify that all segments are still rendered (value will be undefined)
     const segments = screen.getAllByTestId("pie-segment");
-    // We expect 3 segments because ACTIVE_CASES_CHART_DATA has 3 items
-    expect(segments).toHaveLength(3);
+    // We expect 6 segments because ACTIVE_CASES_CHART_DATA has 6 items
+    expect(segments).toHaveLength(6);
 
     // Verify that the missing value was defaulted to 0
     const values = segments.map((s) => s.getAttribute("data-value"));

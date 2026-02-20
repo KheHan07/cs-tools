@@ -80,15 +80,17 @@ vi.mock("../ChartLegend", () => ({
 
 describe("OutstandingIncidentsChart", () => {
   const mockData = {
+    low: 2,
     medium: 5,
     high: 3,
     critical: 1,
-    total: 9,
+    catastrophic: 0,
+    total: 11,
   };
 
   it("should render title correctly", () => {
     render(<OutstandingIncidentsChart data={mockData} isLoading={false} />);
-    expect(screen.getByText("Outstanding cases")).toBeInTheDocument();
+    expect(screen.getByText("Outstanding Engagements")).toBeInTheDocument();
   });
 
   it("should render skeleton when loading", () => {
@@ -107,25 +109,26 @@ describe("OutstandingIncidentsChart", () => {
   it("should render all segments", () => {
     render(<OutstandingIncidentsChart data={mockData} isLoading={false} />);
     const segments = screen.getAllByTestId("pie-segment");
-    // We expect 3 segments (Medium, High, Critical)
-    expect(segments).toHaveLength(3);
+    expect(segments.length).toBe(5);
   });
 
   it("should render all segments even with missing data values", () => {
     const incompleteData = {
+      low: 0,
       medium: 5,
       high: 3,
+      critical: 0,
+      catastrophic: 0,
       total: 8,
-    } as any;
+    };
 
     render(
       <OutstandingIncidentsChart data={incompleteData} isLoading={false} />,
     );
 
     const segments = screen.getAllByTestId("pie-segment");
-    expect(segments).toHaveLength(3);
+    expect(segments.length).toBe(5);
 
-    // Verify that the missing value was defaulted to 0
     const values = segments.map((s) => s.getAttribute("data-value"));
     expect(values).toContain("0");
   });

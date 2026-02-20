@@ -50,16 +50,13 @@ const CasesTableSkeleton = ({
             </Box>
           </TableCell>
           <TableCell>
-            <Skeleton variant="rounded" width={60} height={24} />
-          </TableCell>
-          <TableCell>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Skeleton variant="circular" width={8} height={8} />
               <Skeleton variant="text" width={60} height={20} />
             </Box>
           </TableCell>
-          <TableCell align="right">
-            <Skeleton variant="circular" width={24} height={24} />
+          <TableCell>
+            <Skeleton variant="rounded" width={40} height={24} />
           </TableCell>
         </TableRow>
       ))}

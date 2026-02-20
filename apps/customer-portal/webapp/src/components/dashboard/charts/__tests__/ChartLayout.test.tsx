@@ -55,18 +55,32 @@ vi.mock("@wso2/oxygen-ui", () => ({
 describe("ChartLayout", () => {
   const mockProps = {
     outstandingCases: {
+      low: 2,
       medium: 5,
       high: 3,
       critical: 1,
-      total: 9,
+      catastrophic: 0,
+      total: 11,
     },
     activeCases: {
+      open: 5,
       workInProgress: 10,
-      waitingOnClient: 5,
-      waitingOnWso2: 3,
-      total: 18,
+      awaitingInfo: 3,
+      waitingOnWso2: 5,
+      solutionProposed: 0,
+      reopened: 0,
+      total: 23,
     },
-    casesTrend: [{ name: "Jan", TypeA: 10, TypeB: 20, TypeC: 30, TypeD: 40 }],
+    casesTrend: [
+      {
+        period: "2026-Q1",
+        critical: 10,
+        high: 20,
+        medium: 30,
+        low: 40,
+        catastrophic: 5,
+      },
+    ],
     isLoading: false,
   };
 
