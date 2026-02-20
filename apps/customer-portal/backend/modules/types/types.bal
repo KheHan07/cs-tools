@@ -700,7 +700,7 @@ public type CallRequestUpdatePayload record {|
     # State key
     int stateKey;
     # Reason for the update
-    string? reason;
+    string reason?;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
     Date[] utcTimes?;
 |};
