@@ -76,14 +76,17 @@ export default function CaseDetailsTabPanels({
     case 2:
       return <CaseDetailsAttachmentsPanel caseId={caseId} />;
     case 3: {
-      if (!projectId) {
+      const resolvedProjectId = data?.project?.id ?? projectId;
+      if (!resolvedProjectId) {
         return (
           <Typography variant="body2" color="text.secondary">
             Call requests will appear here.
           </Typography>
         );
       }
-      return <CallsPanel projectId={projectId} caseId={caseId} />;
+      return (
+        <CallsPanel projectId={resolvedProjectId} caseId={caseId} />
+      );
     }
     case 4:
       return (

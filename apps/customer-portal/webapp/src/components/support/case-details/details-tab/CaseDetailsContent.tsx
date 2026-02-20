@@ -88,7 +88,8 @@ export default function CaseDetailsContent({
   const attachmentsQuery = useGetCaseAttachments(caseId);
   const attachmentCount = attachmentsQuery.data?.totalRecords;
 
-  const callsQuery = useGetCallRequests(projectId, caseId);
+  const resolvedProjectId = data?.project?.id ?? projectId;
+  const callsQuery = useGetCallRequests(resolvedProjectId, caseId);
   const callCount = callsQuery.data?.callRequests?.length;
 
   const assignedEngineer = data?.assignedEngineer;
