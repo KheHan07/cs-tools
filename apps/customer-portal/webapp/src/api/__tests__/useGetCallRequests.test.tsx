@@ -91,8 +91,12 @@ describe("useGetCallRequests", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.test/projects/${projectId}/cases/${caseId}/call-requests`,
-      { method: "GET" },
+      `https://api.test/cases/${caseId}/call-requests/search`,
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pagination: { limit: 10, offset: 0 } }),
+      }),
     );
   });
 

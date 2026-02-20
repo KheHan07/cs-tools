@@ -49,12 +49,9 @@ describe("usePostCallRequest", () => {
   const projectId = "proj-123";
   const caseId = "case-456";
   const requestBody: CreateCallRequest = {
-    preferredTime: {
-      startTime: "14:00",
-      endTime: "16:00",
-    },
-    timezone: "EST",
-    notes: "Discuss configuration changes and implementation plan",
+    durationInMinutes: 30,
+    reason: "Discuss configuration changes",
+    utcTimes: ["2026-02-19T10:00:00Z"],
   };
 
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -93,11 +90,12 @@ describe("usePostCallRequest", () => {
 
     expect(data).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.test/projects/${projectId}/cases/${caseId}/call-requests`,
-      {
+      `https://api.test/cases/${caseId}/call-requests`,
+      expect.objectContaining({
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
-      },
+      }),
     );
   });
 

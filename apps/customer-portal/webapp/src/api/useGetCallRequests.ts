@@ -23,8 +23,9 @@ import type { CallRequestsResponse } from "@models/responses";
 
 /**
  * Hook to fetch call requests for a specific case.
+ * Uses POST /cases/:caseId/call-requests/search with pagination.
  *
- * @param {string} projectId - The ID of the project.
+ * @param {string} projectId - The ID of the project (used for query key only).
  * @param {string} caseId - The ID of the case.
  * @returns {UseQueryResult<CallRequestsResponse, Error>} Query result.
  */
@@ -40,7 +41,7 @@ export function useGetCallRequests(
     queryKey: [ApiQueryKeys.CASE_CALL_REQUESTS, projectId, caseId],
     queryFn: async (): Promise<CallRequestsResponse> => {
       logger.debug(
-        `[useGetCallRequests] Fetching call requests for case: ${caseId} in project: ${projectId}`,
+        `[useGetCallRequests] Fetching call requests for case: ${caseId}`,
       );
 
       try {
@@ -53,9 +54,16 @@ export function useGetCallRequests(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/projects/${projectId}/cases/${caseId}/call-requests`;
+        const requestUrl = `${baseUrl}/cases/${caseId}/call-requests/search`;
+        const body = JSON.stringify({
+          pagination: { limit: 10, offset: 0 },
+        });
 
-        const response = await fetchFn(requestUrl, { method: "GET" });
+        const response = await fetchFn(requestUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
 
         logger.debug(
           `[useGetCallRequests] Response status: ${response.status}`,
@@ -75,7 +83,7 @@ export function useGetCallRequests(
         throw error;
       }
     },
-    enabled: !!projectId && !!caseId && !isAuthLoading && isSignedIn,
+    enabled: !!caseId && !isAuthLoading && isSignedIn,
     staleTime: 5 * 60 * 1000,
   });
 }
