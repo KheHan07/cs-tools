@@ -21,6 +21,7 @@ import type { JSX } from "react";
 interface ChartLegendProps {
   data: { name: string; value: number; color: string }[];
   isError?: boolean;
+  showValues?: boolean;
 }
 
 /**
@@ -34,14 +35,14 @@ interface ChartLegendProps {
 export const ChartLegend = ({
   data,
   isError,
+  showValues = false,
 }: ChartLegendProps): JSX.Element => (
   <Box
     sx={{
       mt: 2,
       display: "flex",
-      flexWrap: "wrap",
-      gap: 1.5,
-      justifyContent: "center",
+      flexDirection: "column",
+      gap: 1,
     }}
   >
     {data.map((entry) => (
@@ -50,26 +51,33 @@ export const ChartLegend = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          gap: 0.5,
+          justifyContent: "space-between",
         }}
       >
-        {/* Legend icon/box */}
-        {isError ? (
-          <ErrorIndicator entityName="chart's stats" />
-        ) : (
-          <Box
-            sx={{
-              width: 12,
-              height: 12,
-              borderRadius: "50%",
-              bgcolor: entry.color,
-            }}
-          />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {/* Legend icon/box */}
+          {isError ? (
+            <ErrorIndicator entityName="chart's stats" />
+          ) : (
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                bgcolor: entry.color,
+              }}
+            />
+          )}
+          {/* Legend text */}
+          <Typography variant="caption" color="text.secondary">
+            {entry.name}
+          </Typography>
+        </Box>
+        {showValues && !isError && (
+          <Typography variant="caption" fontWeight={600}>
+            {entry.value}
+          </Typography>
         )}
-        {/* Legend text */}
-        <Typography variant="caption" color="text.secondary">
-          {entry.name}
-        </Typography>
       </Box>
     ))}
   </Box>

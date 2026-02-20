@@ -199,6 +199,13 @@ export const CASE_STATUS = {
   REOPENED: "Reopened",
 } as const;
 
+export const CASE_TYPES ={
+  INCIDENT: "Incident",
+  QUERY: "Query",
+  SERVICE_REQUEST: "Service Request",
+  SECURITY_REPORT_ANALYSIS: "Security Report Analysis",
+} as const;
+
 export type CaseStatus = (typeof CASE_STATUS)[keyof typeof CASE_STATUS];
 
 export const PROJECT_USER_STATUSES = {

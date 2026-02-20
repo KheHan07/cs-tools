@@ -400,6 +400,68 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return deploymentResponse.deployment;
     }
 
+    # Update an existing deployment for a project.
+    #
+    # + projectId - ID of the project
+    # + deploymentId - ID of the deployment to be updated
+    # + payload - Deployment update payload
+    # + return - Updated deployment or error response
+    resource function patch projects/[string projectId]/deployments/[string deploymentId](http:RequestContext ctx,
+            entity:DeploymentUpdatePayload payload)
+            returns entity:UpdatedDeployment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        string? validateDeploymentUpdatePayload = entity:validateDeploymentUpdatePayload(payload);
+        if validateDeploymentUpdatePayload is string {
+            log:printWarn(validateDeploymentUpdatePayload);
+            return <http:BadRequest>{
+                body: {
+                    message: validateDeploymentUpdatePayload
+                }
+            };
+        }
+
+        entity:DeploymentUpdateResponse|error response = entity:updateDeployment(userInfo.idToken,
+                deploymentId, payload);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to update deployment: ${
+                        deploymentId} for project: ${projectId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to update the deployment for the selected project."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            string customError = "Failed to update the deployment.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response.deployment;
+    }
+
     # Get overall project statistics by ID.
     #
     # + id - ID of the project
@@ -867,36 +929,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify case validation for the user
-        entity:CaseResponse|error caseDetails = entity:getCase(userInfo.idToken, id);
-        if caseDetails is error {
-            if getStatusCode(caseDetails) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(caseDetails) == http:STATUS_FORBIDDEN {
-                logForbiddenCaseAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            string customError = "Failed to retrieve case details.";
-            log:printError(customError, caseDetails);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
         entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
         if commentsResponse is error {
             string customError = "Failed to retrieve comments.";
@@ -932,27 +964,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:BadRequest>{
                 body: {
                     message: ERR_LIMIT_OFFSET_INVALID
-                }
-            };
-        }
-
-        // Verify case validation for the user
-        entity:CaseResponse|error caseDetails = entity:getCase(userInfo.idToken, id);
-        if caseDetails is error {
-            if getStatusCode(caseDetails) == http:STATUS_FORBIDDEN {
-                logForbiddenCaseAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_CASE_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            string customError = "Failed to retrieve case details.";
-            log:printError(customError, caseDetails);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
                 }
             };
         }
@@ -1216,6 +1227,32 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         return productUpdateLevels;
+    }
+
+    # Get products.
+    # 
+    # + return - List of products or an error
+    resource function get products(http:RequestContext ctx, int? offset, int? 'limit) returns entity:ProductsResponse|http:InternalServerError {
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProductsResponse|error response = entity:getProducts(userInfo.idToken, {}); // TODO: Handle pagination
+        if response is error {
+            string customError = "Failed to retrieve products.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response;
     }
 
     # Search product vulnerabilities based on provided filters.
@@ -1768,6 +1805,16 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:InternalServerError>{
                 body: {
                     message: customError
+                }
+            };
+        }
+
+        string? validateCallRequestUpdatePayload = entity:validateCallRequestUpdatePayload(payload);
+        if validateCallRequestUpdatePayload is string {
+            log:printWarn(validateCallRequestUpdatePayload);
+            return <http:BadRequest>{
+                body: {
+                    message: validateCallRequestUpdatePayload
                 }
             };
         }

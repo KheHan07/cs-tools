@@ -183,6 +183,18 @@ public isolated function createDeployment(string idToken, DeploymentCreatePayloa
     return csEntityClient->/deployments.post(payload, generateHeaders(idToken));
 }
 
+# Update a deployment.
+#
+# + idToken - ID token for authorization
+# + deploymentId - ID of the deployment to update
+# + payload - Deployment update payload
+# + return - Deployment update response or error
+public isolated function updateDeployment(string idToken, string deploymentId, DeploymentUpdatePayload payload)
+    returns DeploymentUpdateResponse|error {
+
+    return csEntityClient->/deployments/[deploymentId].patch(payload, generateHeaders(idToken));
+}
+
 # Create a comment for a case.
 #
 # + idToken - ID token for authorization
@@ -256,4 +268,13 @@ public isolated function updateCallRequest(string idToken, string callRequestId,
     returns CallRequestUpdateResponse|error {
 
     return csEntityClient->/call\-requests/[callRequestId].patch(payload, generateHeaders(idToken));
+}
+
+# Get products by search criteria.
+#
+# + idToken - ID token for authorization
+# + payload - Product search payload containing search criteria
+# + return - Products response containing matching products or error
+public isolated function getProducts(string idToken, ProductSearchPayload payload) returns ProductsResponse|error {
+    return csEntityClient->/products/search.post(payload, generateHeaders(idToken));
 }

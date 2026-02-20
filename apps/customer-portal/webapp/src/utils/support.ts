@@ -486,7 +486,7 @@ export function getAttachmentFileCategory(
 /**
  * Returns the icon component for a given case status label.
  *
- * @param statusLabel - The case status label (e.g., "Open", "Working in Progress").
+ * @param statusLabel - The case status label.
  * @returns {ComponentType<{ size?: number }>} The icon component.
  */
 export function getStatusIcon(
@@ -541,7 +541,7 @@ export function getCallRequestStatusColor(status?: string): string {
 /**
  * Returns the Oxygen UI color path for a given severity label.
  *
- * @param {string} label - The severity label (e.g., "Critical (P1)", "S1").
+ * @param {string} label - The severity label.
  * @returns {string} The Oxygen UI color path.
  */
 export function getSeverityColor(label?: string): string {
@@ -779,3 +779,30 @@ export function getAvailableCaseActions(
       return ["Closed"];
   }
 }
+
+/**
+ * Normalizes case type options for display in a selector/filter.
+ *
+ * - Merges "Query" and "Incident" types into a single "Case" option
+ *   (with their IDs joined by comma as the value)
+ * - Removes "Announcement" types entirely
+ * - Keeps all other case types as-is
+ */
+export const normalizeCaseTypeOptions = (
+  caseTypes: { id: string; label: string }[]
+) => {
+  // Collect IDs of "Query" and "Incident" types to merge them into one "Case" option
+  const caseIds = caseTypes
+    .filter((c) => ["query", "incident"].includes(c.label.toLowerCase()))
+    .map((c) => c.id);
+
+  // Keep all types except Query, Incident, and Announcement
+  const others = caseTypes.filter(
+    (c) => !["query", "incident", "announcement"].includes(c.label.toLowerCase())
+  );
+
+  return [
+    ...others.map((c) => ({ label: c.label, value: c.id })),
+    ...(caseIds.length ? [{ label: "Case", value: caseIds.join(",") }] : []),
+  ];
+};

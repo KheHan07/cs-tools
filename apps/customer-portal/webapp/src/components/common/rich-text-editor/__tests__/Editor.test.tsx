@@ -13,7 +13,7 @@
 // implied.  See the License for the specific language governing
 // permissions and limitations under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import Editor from "@components/common/rich-text-editor/Editor";
@@ -27,10 +27,14 @@ vi.mock("@hooks/useLogger", () => ({
   }),
 }));
 
+import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
+
 function renderEditor(props: Parameters<typeof Editor>[0] = {}) {
   return render(
     <ThemeProvider theme={createTheme()}>
-      <Editor {...props} />
+      <ErrorBannerProvider>
+        <Editor {...props} />
+      </ErrorBannerProvider>
     </ThemeProvider>,
   );
 }
@@ -55,5 +59,31 @@ describe("Editor", () => {
     const file = new File(["content"], "test.txt", { type: "text/plain" });
     renderEditor({ attachments: [file] });
     expect(screen.getByText(/Attachments \(1\)/)).toBeInTheDocument();
+  });
+
+  it("updates content when value prop changes from empty", async () => {
+    const { rerender } = render(
+      <ThemeProvider theme={createTheme()}>
+        <ErrorBannerProvider>
+          <Editor value="" onChange={vi.fn()} />
+        </ErrorBannerProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByTestId("case-description-editor")).toBeInTheDocument();
+
+    rerender(
+      <ThemeProvider theme={createTheme()}>
+        <ErrorBannerProvider>
+          <Editor value="<p>AI Generated Content</p>" onChange={vi.fn()} />
+        </ErrorBannerProvider>
+      </ThemeProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("case-description-editor")).toHaveTextContent(
+        "AI Generated Content",
+      );
+    });
   });
 });

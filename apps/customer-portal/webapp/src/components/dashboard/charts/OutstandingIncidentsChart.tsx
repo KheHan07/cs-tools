@@ -28,10 +28,12 @@ import { OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants"
 
 interface OutstandingIncidentsChartProps {
   data: {
+    low: number;
     medium: number;
     high: number;
     critical: number;
     total: number;
+    catastrophic: number;
   };
   isLoading?: boolean;
   isError?: boolean;
@@ -51,9 +53,11 @@ export const OutstandingIncidentsChart = ({
   isError,
 }: OutstandingIncidentsChartProps): JSX.Element => {
   const safeData = data ?? {
+    low: 0,
     medium: 0,
     high: 0,
     critical: 0,
+    catastrophic: 0,
     total: 0,
   };
 
@@ -75,7 +79,7 @@ export const OutstandingIncidentsChart = ({
     <Card sx={{ height: "100%", p: 2 }}>
       {/* Title */}
       <Typography variant="h6" component="h3" sx={{ mb: 2 }}>
-        Outstanding cases
+        Outstanding Engagements
       </Typography>
       {/* Chart state */}
       {isLoading ? (
@@ -176,10 +180,11 @@ export const OutstandingIncidentsChart = ({
         <ChartLegend
           data={OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
             name: item.name,
-            value: 0,
+            value: safeData[item.key] || 0,
             color: item.color,
           }))}
           isError={isError}
+          showValues
         />
       )}
     </Card>

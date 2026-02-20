@@ -16,7 +16,6 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CreateCasePage from "@pages/CreateCasePage";
 import { LoaderProvider } from "@context/linear-loader/LoaderContext";
@@ -89,117 +88,44 @@ vi.mock("@wso2/oxygen-ui-icons-react", async (importOriginal) => {
 });
 
 // Mock case-creation-layout components (paths may not exist in repo)
+// Enhanced mocks to verify props
 vi.mock(
   "@components/support/case-creation-layout/form-sections/basic-information-section/BasicInformationSection",
-  () => ({ BasicInformationSection: () => null }),
+  () => ({
+    BasicInformationSection: ({ product, deployment }: any) => (
+      <div data-testid="basic-info-section">
+        <span data-testid="product-val">{product}</span>
+        <span data-testid="deployment-val">{deployment}</span>
+      </div>
+    ),
+  }),
 );
-vi.mock(
-  "@components/support/case-creation-layout/header/CaseCreationHeader",
-  () => ({ CaseCreationHeader: () => null }),
-);
+
 vi.mock(
   "@components/support/case-creation-layout/form-sections/case-details-section/CaseDetailsSection",
-  () => ({ CaseDetailsSection: () => null }),
+  () => ({
+    CaseDetailsSection: ({ title, description, issueType, severity }: any) => (
+      <div data-testid="case-details-section">
+        <span data-testid="title-val">{title}</span>
+        <span data-testid="desc-val">{description}</span>
+        <span data-testid="issue-val">{issueType}</span>
+        <span data-testid="severity-val">{severity}</span>
+      </div>
+    ),
+  }),
 );
+
 vi.mock(
   "@components/support/case-creation-layout/form-sections/conversation-summary-section/ConversationSummary",
   () => ({ ConversationSummary: () => null }),
 );
 
-// Mock @asgardeo/react
-vi.mock("@asgardeo/react", () => ({
-  useAsgardeo: () => ({
-    getIdToken: vi.fn().mockResolvedValue("mock-token"),
-    isLoading: false,
-    state: { isAuthenticated: true },
-  }),
-}));
+vi.mock(
+  "@components/support/case-creation-layout/header/CaseCreationHeader",
+  () => ({ CaseCreationHeader: () => null }),
+);
 
-// Mock useLogger hook
-vi.mock("@hooks/useLogger", () => ({
-  useLogger: () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  }),
-}));
-
-// Mock useLoader
-vi.mock("../../context/linear-loader/LoaderContext", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    useLoader: () => ({
-      showLoader: vi.fn(),
-      hideLoader: vi.fn(),
-    }),
-  };
-});
-
-// Mock useGetProjectDetails hook
-vi.mock("@api/useGetProjectDetails", () => ({
-  default: vi.fn(() => ({
-    data: { id: "123", name: "WSO2 Super App", key: "WSA" },
-    isLoading: false,
-    error: null,
-  })),
-}));
-
-// Mock useGetCasesFilters hook
-vi.mock("@api/useGetCasesFilters", () => ({
-  default: vi.fn(() => ({
-    data: {
-      statuses: [{ id: "1", label: "Open" }],
-      severities: [
-        { id: "60", label: "S0", description: "S0 desc" },
-        { id: "61", label: "S1", description: "S1 desc" },
-      ],
-      issueTypes: [{ id: "6", label: "Error" }],
-      deploymentTypes: [{ id: "1", label: "Production" }],
-    },
-    isLoading: false,
-    isError: false,
-  })),
-}));
-
-// Mock useMockConfig
-vi.mock("@providers/MockConfigProvider", () => ({
-  useMockConfig: () => ({ isMockEnabled: false }),
-}));
-
-// Mock useGetProjectDeployments
-vi.mock("@api/useGetProjectDeployments", () => ({
-  useGetProjectDeployments: () => ({
-    data: [
-      { id: "dep-1", name: "Staging", type: { id: "3", label: "Staging" } },
-    ],
-  }),
-}));
-
-// Mock useGetDeploymentsProducts (products for selected deployment)
-vi.mock("@api/useGetDeploymentsProducts", () => ({
-  useGetDeploymentsProducts: vi.fn(() => ({
-    data: [
-      {
-        id: "dp-1",
-        product: { id: "prod-1", label: "WSO2 API Manager - v4.2.0" },
-        deployment: { id: "dep-1", label: "Staging" },
-      },
-    ],
-    isLoading: false,
-    isError: false,
-  })),
-  fetchDeploymentProducts: vi.fn().mockResolvedValue([]),
-}));
-
-// Mock usePostCase
-vi.mock("@api/usePostCase", () => ({
-  usePostCase: () => ({
-    mutate: vi.fn(),
-    isPending: false,
-  }),
-}));
+import { MemoryRouter, Routes, Route } from "react-router";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
@@ -212,42 +138,152 @@ describe("CreateCasePage", () => {
         <LoaderProvider>
           <ErrorBannerProvider>
             <SuccessBannerProvider>
-              <BrowserRouter>
+              <MemoryRouter>
                 <CreateCasePage />
-              </BrowserRouter>
+              </MemoryRouter>
             </SuccessBannerProvider>
           </ErrorBannerProvider>
         </LoaderProvider>
       </QueryClientProvider>,
     );
 
-    // Page renders with create case form and submit button (sections may be stubbed)
+    // Mock useGetProjectDetails hook
+    vi.mock("../../api/useGetProjectDetails", () => ({
+      default: vi.fn(() => ({
+        data: { id: "123", name: "WSO2 Super App", key: "WSA" },
+        isLoading: false,
+        error: null,
+      })),
+    }));
+
+    // Mock useGetCasesFilters hook
+    vi.mock("../../api/useGetCasesFilters", () => ({
+      default: vi.fn(() => ({
+        data: {
+          statuses: [{ id: "1", label: "Open" }],
+          severities: [
+            { id: "60", label: "S0", description: "S0 desc" },
+            { id: "61", label: "S1", description: "S1 desc" },
+          ],
+          issueTypes: [{ id: "6", label: "Error" }],
+          deploymentTypes: [{ id: "1", label: "Production" }],
+        },
+        isLoading: false,
+        isError: false,
+      })),
+    }));
+
+    // Mock useMockConfig
+    vi.mock("@providers/MockConfigProvider", () => ({
+      useMockConfig: () => ({ isMockEnabled: false }),
+    }));
+
+    // Mock useGetProjectDeployments
+    vi.mock("../../api/useGetProjectDeployments", () => ({
+      useGetProjectDeployments: () => ({
+        data: [
+          { id: "dep-1", name: "Staging", type: { id: "3", label: "Staging" } },
+        ],
+      }),
+    }));
+
+    // Mock useGetDeploymentsProducts (products for selected deployment)
+    vi.mock("../../api/useGetDeploymentsProducts", () => ({
+      useGetDeploymentsProducts: vi.fn(() => ({
+        data: [
+          {
+            id: "dp-1",
+            product: { id: "prod-1", label: "WSO2 API Manager - v4.2.0" },
+            deployment: { id: "dep-1", label: "Staging" },
+          },
+        ],
+        isLoading: false,
+        isError: false,
+      })),
+      fetchDeploymentProducts: vi.fn().mockResolvedValue([]),
+    }));
+
+    // Mock usePostCase
+    vi.mock("../../api/usePostCase", () => ({
+      usePostCase: () => ({
+        mutate: vi.fn(),
+        isPending: false,
+      }),
+    }));
+
+    // Mock usePostAttachments
+    vi.mock("../../api/usePostAttachments", () => ({
+      usePostAttachments: () => ({
+        mutateAsync: vi.fn(),
+        mutate: vi.fn(),
+        isPending: false,
+      }),
+    }));
+
+    // Page renders with create case form and submit button
     await waitFor(() => {
       expect(
         screen.getByRole("button", { name: /Create Support Case/i }),
       ).toBeInTheDocument();
     });
-    expect(screen.getAllByTestId("box").length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("grid").length).toBeGreaterThan(0);
   });
 
-  it("should render create case form with submit button", () => {
+  it("should populate form with classification data when available", async () => {
+    const classificationState = {
+      classificationResponse: {
+        issueType: "Error",
+        severityLevel: "S4",
+        caseInfo: {
+          description:
+            "I am experiencing an issue with the WSO2 API Manager 2.0.0 Key Manager in the Staging environment. I need assistance in resolving this matter as soon as possible.",
+          shortDescription:
+            "Issue with WSO2 API Manager 2.0.0 Key Manager in Staging environment.",
+          productName: "WSO2 API Manager",
+          productVersion: "2.0.0",
+          environment: "Staging",
+          tier: "Tier 1",
+          region: "EU",
+        },
+      },
+    };
+
     render(
       <QueryClientProvider client={queryClient}>
         <LoaderProvider>
           <ErrorBannerProvider>
             <SuccessBannerProvider>
-              <BrowserRouter>
-                <CreateCasePage />
-              </BrowserRouter>
+              <MemoryRouter
+                initialEntries={[
+                  {
+                    pathname: "/123/support/create",
+                    state: classificationState,
+                  },
+                ]}
+              >
+                <Routes>
+                  <Route
+                    path="/:projectId/support/create"
+                    element={<CreateCasePage />}
+                  />
+                </Routes>
+              </MemoryRouter>
             </SuccessBannerProvider>
           </ErrorBannerProvider>
         </LoaderProvider>
       </QueryClientProvider>,
     );
 
-    expect(
-      screen.getByRole("button", { name: /Create Support Case/i }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("title-val")).toHaveTextContent(
+        "Issue with WSO2 API Manager 2.0.0 Key Manager in Staging environment.",
+      );
+      expect(screen.getByTestId("desc-val")).toHaveTextContent(
+        "I am experiencing an issue with the WSO2 API Manager 2.0.0 Key Manager in the Staging environment. I need assistance in resolving this matter as soon as possible.",
+      );
+      expect(screen.queryByText("Support case")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Please describe your issue here."),
+      ).not.toBeInTheDocument();
+    });
   });
 });

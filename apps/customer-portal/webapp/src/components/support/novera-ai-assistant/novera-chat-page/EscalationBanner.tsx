@@ -83,7 +83,7 @@ export default function EscalationBanner({
           isLoading ? <CircularProgress size={16} color="inherit" /> : undefined
         }
       >
-        {isLoading ? "Creating..." : "Create Case"}
+        {isLoading ? "Processing" : "Create Case"}
       </Button>
     </Paper>
   );
