@@ -918,14 +918,14 @@ public type CallRequestsResponse record {|
     json...;
 |};
 
-# Date Constraint.
+# Date-time constraint.
 @constraint:String {
     pattern: {
         value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
         message: "Invalid date provided. Please provide a valid date value."
     }
 }
-public type Date string;
+public type DateTime string;
 
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
@@ -935,7 +935,7 @@ public type CallRequestCreatePayload record {|
     string reason;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
-    Date[] utcTimes;
+    DateTime[] utcTimes;
     # Duration in minutes
     @constraint:Int {minValue: 1}
     int durationInMinutes;
@@ -970,7 +970,7 @@ public type CallRequestUpdatePayload record {|
     # Reason for the update
     string reason?;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
-    Date[] utcTimes?;
+    DateTime[] utcTimes?;
 |};
 
 # Updated call request details.
@@ -1078,6 +1078,15 @@ public type ProductVersionsResponse record {|
     json...; // TODO: Add pagination
 |};
 
+# Date.
+@constraint:String {
+    pattern: {
+        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`,
+        message: "Invalid date format."
+    }
+}
+public type Date string;
+
 # Request payload for searching time cards.
 public type TimeCardSearchPayload record {|
     # Filter criteria
@@ -1085,9 +1094,9 @@ public type TimeCardSearchPayload record {|
         # List of project IDs to filter
         string[] projectIds?;
         # Start date for filtering time cards (ISO 8601 format)
-        string startDate?;
+        Date startDate?;
         # End date for filtering time cards (ISO 8601 format)
-        string endDate?;
+        Date endDate?;
     } filters?;
     # Pagination details
     Pagination pagination?;

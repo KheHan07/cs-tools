@@ -92,7 +92,7 @@ public isolated function validateCallRequestUpdatePayload(CallRequestUpdatePaylo
 #
 # + utcTimes - Array of UTC time strings to validate
 # + return - Error message if any UTC time is invalid or in the past, nil otherwise
-public isolated function validateUtcTimes(Date[]? utcTimes) returns string|error? {
+public isolated function validateUtcTimes(DateTime[]? utcTimes) returns string|error? {
     if utcTimes != () {
         foreach string utcTime in utcTimes {
             time:Utc input = check time:utcFromString(utcTime);
