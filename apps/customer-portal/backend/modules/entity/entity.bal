@@ -163,6 +163,29 @@ public isolated function getDeployedProducts(string idToken, string deploymentId
     return csEntityClient->/deployed\-products/search.post({deploymentId}, generateHeaders(idToken));
 }
 
+# Create a deployed product.
+#
+# + idToken - ID token for authorization
+# + payload - Deployed product creation payload
+# + return - Deployed product creation response or error
+public isolated function createDeployedProduct(string idToken, DeployedProductCreatePayload payload)
+    returns DeployedProductCreateResponse|error {
+
+    return csEntityClient->/deployed\-products.post(payload, generateHeaders(idToken));
+}
+
+# Update a deployed product.
+# 
+# + idToken - ID token for authorization
+# + deployedProductId - ID of the deployed product to update
+# + payload - Deployed product update payload
+# + return - Deployed product update response or error
+public isolated function updateDeployedProduct(string idToken, string deployedProductId,
+        DeployedProductUpdatePayload payload) returns DeployedProductUpdateResponse|error {
+
+    return csEntityClient->/deployed\-products/[deployedProductId].patch(payload, generateHeaders(idToken));
+}
+
 # Get deployments of a project.
 #
 # + idToken - ID token for authorization
