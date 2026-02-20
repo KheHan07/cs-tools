@@ -2119,9 +2119,11 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
     # Search time cards based on provided filters.
     #
+    # + id - ID of the project
     # + payload - Time card search payload containing filters and pagination info
     # + return - List of time cards matching the criteria or an error
-    resource function post time\-cards/search(http:RequestContext ctx, entity:TimeCardSearchPayload payload)
+    resource function post projects/[string id]/time\-cards/search(http:RequestContext ctx,
+            types:TimeCardSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -2133,7 +2135,15 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:TimeCardsResponse|error response = entity:searchTimecards(userInfo.idToken, payload);
+        entity:TimeCardsResponse|error response = entity:searchTimecards(userInfo.idToken,
+                {
+                    filters: {
+                        projectIds: [id],
+                        startDate: payload.filters?.startDate,
+                        endDate: payload.filters?.endDate
+                    },
+                    pagination: payload.pagination
+                });
         if response is error {
             if getStatusCode(response) == http:STATUS_BAD_REQUEST {
                 return <http:BadRequest>{
