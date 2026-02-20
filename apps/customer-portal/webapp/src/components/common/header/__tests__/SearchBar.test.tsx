@@ -18,22 +18,46 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import SearchBar from "@components/common/header/SearchBar";
 
-// Mock @wso2/oxygen-ui
-vi.mock("@wso2/oxygen-ui", () => ({
-  SearchBar: ({ placeholder }: { placeholder: string }) => (
-    <input data-testid="search-bar" placeholder={placeholder} />
-  ),
+vi.mock("react-router", () => ({
+  useNavigate: () => vi.fn(),
+  useParams: () => ({ projectId: "proj-1" }),
+}));
+
+vi.mock("@hooks/useDebouncedValue", () => ({
+  useDebouncedValue: (value: string) => value,
+}));
+
+vi.mock("@api/useGetProjectCases", () => ({
+  default: () => ({
+    data: { pages: [{ cases: [] }] },
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@components/support/all-cases/AllCasesList", () => ({
+  default: () => <div data-testid="all-cases-list" />,
+}));
+
+vi.mock("@components/support/all-cases/AllCasesListSkeleton", () => ({
+  default: () => <div data-testid="all-cases-list-skeleton" />,
+}));
+
+vi.mock("@components/common/empty-state/SearchNoResultsIcon", () => ({
+  default: () => <svg data-testid="search-no-results-icon" />,
+}));
+
+vi.mock("@components/common/error-state/ErrorStateIcon", () => ({
+  default: () => <svg data-testid="error-state-icon" />,
 }));
 
 describe("SearchBar", () => {
-  it("should render the search bar with correct placeholder", () => {
-    render(<SearchBar />);
+  it("should render the search input with correct placeholder", () => {
+    render(<SearchBar projectId="proj-1" />);
 
-    const searchInput = screen.getByTestId("search-bar");
-    expect(searchInput).toBeInTheDocument();
-    expect(searchInput).toHaveAttribute(
-      "placeholder",
+    const searchInput = screen.getByPlaceholderText(
       "Search cases, tickets, or users",
     );
+    expect(searchInput).toBeInTheDocument();
   });
 });

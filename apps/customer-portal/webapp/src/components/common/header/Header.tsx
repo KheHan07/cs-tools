@@ -134,7 +134,7 @@ export default function Header({ onToggleSidebar }: HeaderProps): JSX.Element {
             isError={isError}
           />
           {/* header search bar */}
-          <SearchBar />
+          <SearchBar projectId={projectId} />
         </>
       )}
       {/* header spacer */}
