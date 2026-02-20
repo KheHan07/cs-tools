@@ -21,7 +21,6 @@ import {
 } from "@utils/settingsStorage";
 
 describe("settingsStorage", () => {
-  const originalLocalStorage = window.localStorage;
 
   beforeEach(() => {
     vi.stubGlobal(

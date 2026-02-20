@@ -62,11 +62,6 @@ describe("caseCreation utils", () => {
         buildClassificationProductLabel({
           productName: "",
           productVersion: "3.2.0",
-          description: "",
-          shortDescription: "",
-          environment: "",
-          tier: "",
-          region: "",
         }),
       ).toBe("");
     });
@@ -76,11 +71,6 @@ describe("caseCreation utils", () => {
         buildClassificationProductLabel({
           productName: "WSO2 API Manager",
           productVersion: "",
-          description: "",
-          shortDescription: "",
-          environment: "",
-          tier: "",
-          region: "",
         }),
       ).toBe("WSO2 API Manager");
     });
@@ -90,11 +80,6 @@ describe("caseCreation utils", () => {
         buildClassificationProductLabel({
           productName: "WSO2 API Manager",
           productVersion: "3.2.0",
-          description: "",
-          shortDescription: "",
-          environment: "",
-          tier: "",
-          region: "",
         }),
       ).toBe("WSO2 API Manager 3.2.0");
     });

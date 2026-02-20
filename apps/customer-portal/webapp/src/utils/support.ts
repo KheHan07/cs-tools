@@ -31,6 +31,7 @@ import {
   CaseSeverity,
   CaseSeverityLevel,
 } from "@constants/supportConstants";
+import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment } from "@models/responses";
 import type { Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
@@ -199,7 +200,7 @@ export type AssignedEngineerValue =
 function getAssignedEngineerDisplayValue(obj: {
   id: string;
   label?: string;
-  name?: string;
+  name?: string | null;
 }): string {
   return obj.label ?? obj.name ?? "";
 }
@@ -227,7 +228,7 @@ export function formatValue(
   value:
     | string
     | number
-    | { id: string; label?: string; name?: string }
+    | { id: string; label?: string; name?: string | null }
     | null
     | undefined,
 ): string {
@@ -536,6 +537,17 @@ export function getCallRequestStatusColor(status?: string): string {
     default:
       return "text.secondary";
   }
+}
+
+/**
+ * Maps severity API label (e.g. "Critical (P1)") to display name (S0-S4).
+ *
+ * @param {string} label - The severity label from API.
+ * @returns {string} Mapped display name (S0, S1, S2, S3, S4) or original if no match.
+ */
+export function mapSeverityToDisplay(label?: string): string {
+  if (!label) return "--";
+  return SEVERITY_LABEL_TO_DISPLAY[label] ?? label;
 }
 
 /**

@@ -21,9 +21,13 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import useGetCasesFilters from "@api/useGetCasesFilters";
 import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
-import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
-import { DASHBOARD_STATS, ACTIVE_CASES_CHART_DATA, CASES_TREND_CHART_DATA, OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants";
+import {
+  useGetProjectCasesStats,
+  DASHBOARD_CASE_TYPE_LABELS,
+} from "@api/useGetProjectCasesStats";
+import { DASHBOARD_STATS, OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants";
 import { StatCard } from "@components/dashboard/stats/StatCard";
 import ChartLayout from "@components/dashboard/charts/ChartLayout";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
@@ -44,6 +48,20 @@ export default function DashboardPage(): JSX.Element {
   const { isLoading: isAuthLoading } = useAsgardeo();
 
   const {
+    data: filters,
+    isLoading: isFiltersLoading,
+    isError: isErrorFilters,
+  } = useGetCasesFilters(projectId || "");
+
+  const caseTypeIds = useMemo(() => {
+    const types = filters?.caseTypes ?? [];
+    const labels = new Set(DASHBOARD_CASE_TYPE_LABELS);
+    return types
+      .filter((t) => labels.has(t.label as (typeof DASHBOARD_CASE_TYPE_LABELS)[number]))
+      .map((t) => t.id);
+  }, [filters]);
+
+  const {
     data: mockStats,
     isFetching: isMockFetching,
     isError: isErrorMock,
@@ -52,12 +70,16 @@ export default function DashboardPage(): JSX.Element {
     data: casesStats,
     isFetching: isCasesFetching,
     isError: isErrorCases,
-  } = useGetProjectCasesStats(projectId || "");
+  } = useGetProjectCasesStats(projectId || "", caseTypeIds, {
+    enabled: !!projectId && !isFiltersLoading,
+  });
 
   const isDashboardLoading =
     isAuthLoading ||
+    isFiltersLoading ||
     isMockFetching ||
     isCasesFetching ||
+    (!filters && !isErrorFilters) ||
     (!mockStats && !isErrorMock) ||
     (!casesStats && !isErrorCases);
 
@@ -69,16 +91,19 @@ export default function DashboardPage(): JSX.Element {
   }, [isDashboardLoading, showLoader, hideLoader]);
 
   useEffect(() => {
-    if (mockStats && casesStats) {
+    if (filters && mockStats && casesStats) {
       logger.debug(`Dashboard data loaded for project ID: ${projectId}`);
     }
-  }, [mockStats, casesStats, logger, projectId]);
+  }, [filters, mockStats, casesStats, logger, projectId]);
 
   const { showError } = useErrorBanner();
   const hasShownErrorRef = useRef(false);
 
   useEffect(() => {
-    if ((isErrorMock || isErrorCases) && !hasShownErrorRef.current) {
+    if (
+      (isErrorMock || isErrorCases || isErrorFilters) &&
+      !hasShownErrorRef.current
+    ) {
       hasShownErrorRef.current = true;
       showError("Could not load dashboard statistics.");
 
@@ -88,11 +113,14 @@ export default function DashboardPage(): JSX.Element {
       if (isErrorCases) {
         logger.error(`Failed to load cases stats for project ID: ${projectId}`);
       }
+      if (isErrorFilters) {
+        logger.error(`Failed to load case filters for project ID: ${projectId}`);
+      }
     }
-    if (!isErrorMock && !isErrorCases) {
+    if (!isErrorMock && !isErrorCases && !isErrorFilters) {
       hasShownErrorRef.current = false;
     }
-  }, [isErrorMock, isErrorCases, showError, logger, projectId]);
+  }, [isErrorMock, isErrorCases, isErrorFilters, showError, logger, projectId]);
 
   const handleSupportClick = () => {
     if (projectId) {
@@ -110,15 +138,22 @@ export default function DashboardPage(): JSX.Element {
   };
 
   const activeCases = useMemo(() => {
-    const workInProgress = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[0].name)?.count ?? 0;
-    const waitingOnClient = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[1].name)?.count ?? 0;
-    const waitingOnWso2 = casesStats?.stateCount.find((s) => s.label === ACTIVE_CASES_CHART_DATA[2].name)?.count ?? 0;
+    const open = casesStats?.stateCount.find((s) => s.label === "Open")?.count ?? 0;
+    const workInProgress = casesStats?.stateCount.find((s) => s.label === "Work In Progress")?.count ?? 0;
+    const awaitingInfo = casesStats?.stateCount.find((s) => s.label === "Awaiting Info")?.count ?? 0;
+    const waitingOnWso2 = casesStats?.stateCount.find((s) => s.label === "Waiting On WSO2")?.count ?? 0;
+    const solutionProposed = casesStats?.stateCount.find((s) => s.label === "Solution Proposed")?.count ?? 0;
+    const reopened = casesStats?.stateCount.find((s) => s.label === "Reopened")?.count ?? 0;
+    const total = open + workInProgress + awaitingInfo + waitingOnWso2 + solutionProposed + reopened;
 
     return {
+      open,
       workInProgress,
-      waitingOnClient,
+      awaitingInfo,
       waitingOnWso2,
-      total: workInProgress + waitingOnClient + waitingOnWso2,
+      solutionProposed,
+      reopened,
+      total,
     };
   }, [casesStats]);
 
@@ -155,13 +190,14 @@ export default function DashboardPage(): JSX.Element {
   }, [casesStats]);
 
   const casesTrend = useMemo(() => {
+    const apiLabels = ["Catastrophic (P0)", "Critical (P1)", "High (P2)", "Medium (P3)", "Low (P4)"];
     return (casesStats?.casesTrend ?? []).map(({ period, severities }) => ({
       period,
-      catastrophic: severities.find((s) => s.label === CASES_TREND_CHART_DATA[0].name)?.count ?? 0,
-      critical: severities.find((s) => s.label === CASES_TREND_CHART_DATA[1].name)?.count ?? 0,
-      high: severities.find((s) => s.label === CASES_TREND_CHART_DATA[2].name)?.count ?? 0,
-      medium: severities.find((s) => s.label === CASES_TREND_CHART_DATA[3].name)?.count ?? 0,
-      low: severities.find((s) => s.label === CASES_TREND_CHART_DATA[4].name)?.count ?? 0,
+      catastrophic: severities.find((s) => s.label === apiLabels[0])?.count ?? 0,
+      critical: severities.find((s) => s.label === apiLabels[1])?.count ?? 0,
+      high: severities.find((s) => s.label === apiLabels[2])?.count ?? 0,
+      medium: severities.find((s) => s.label === apiLabels[3])?.count ?? 0,
+      low: severities.find((s) => s.label === apiLabels[4])?.count ?? 0,
     }));
   }, [casesStats]);
 
@@ -205,7 +241,7 @@ export default function DashboardPage(): JSX.Element {
                   .reduce((sum, state) => sum + state.count, 0);
                 break;
               case "resolvedCases":
-                value = casesStats.resolvedCases.total;
+                value = casesStats.resolvedCases.currentMonth;
                 break;
               case "avgResponseTime":
                 value = `${casesStats.averageResponseTime}h`;
@@ -247,9 +283,12 @@ export default function DashboardPage(): JSX.Element {
           total: 0,
         }}
         activeCases={activeCases || {
+          open: 0,
           workInProgress: 0,
-          waitingOnClient: 0,
+          awaitingInfo: 0,
           waitingOnWso2: 0,
+          solutionProposed: 0,
+          reopened: 0,
           total: 0,
         }}
         casesTrend={casesTrend || []}

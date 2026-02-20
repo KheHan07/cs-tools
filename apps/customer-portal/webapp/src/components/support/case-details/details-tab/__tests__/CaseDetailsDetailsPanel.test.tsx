@@ -18,8 +18,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import CaseDetailsDetailsPanel from "@case-details-details/CaseDetailsDetailsPanel";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+import type { CaseDetails } from "@models/responses";
 
-const mockCaseDetails = {
+const mockCaseDetails: Partial<CaseDetails> = {
   id: "case-001",
   internalId: "INT-1",
   number: "CS0001001",
@@ -46,13 +47,13 @@ vi.mock("@utils/casesTable", () => ({
 }));
 
 function renderDetailsPanel(props: {
-  data?: typeof mockCaseDetails;
+  data?: Partial<CaseDetails>;
   isError?: boolean;
 } = {}) {
   return render(
     <ThemeProvider theme={createTheme()}>
       <CaseDetailsDetailsPanel
-        data={props.data ?? mockCaseDetails}
+        data={(props.data ?? mockCaseDetails) as CaseDetails}
         isError={props.isError ?? false}
       />
     </ThemeProvider>,

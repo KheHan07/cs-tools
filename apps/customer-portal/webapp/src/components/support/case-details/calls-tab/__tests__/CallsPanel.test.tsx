@@ -57,7 +57,7 @@ describe("CallsPanel", () => {
       data: undefined,
       isError: false,
       refetch: vi.fn(),
-    } as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByTestId("calls-list-skeleton")).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("CallsPanel", () => {
       isError: true,
       data: undefined,
       refetch: vi.fn(),
-    } as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -97,7 +97,7 @@ describe("CallsPanel", () => {
           },
         ],
       },
-    } as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByText(/Call Request/i)).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe("CallsPanel", () => {
       isError: false,
       refetch: vi.fn(),
       data: { callRequests: [] },
-    } as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -125,7 +125,7 @@ describe("CallsPanel", () => {
       isError: false,
       refetch: vi.fn(),
       data: { callRequests: [] },
-    } as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
 

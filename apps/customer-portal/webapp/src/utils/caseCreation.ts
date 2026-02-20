@@ -56,14 +56,14 @@ export function normalizeProductLabel(label: string | undefined): string {
 /**
  * Builds the combined product label from case classification response.
  *
- * @param {Partial<Pick<CaseClassificationResponse["case_info"], "productName" | "productVersion">> | undefined} caseInfo - case_info (or subset) from classification response.
+ * @param {Partial<Pick<CaseClassificationResponse["caseInfo"], "productName" | "productVersion">> | undefined} caseInfo - caseInfo (or subset) from classification response.
  * @returns {string} Combined label or empty string.
  */
 export function buildClassificationProductLabel(
   caseInfo:
     | Partial<
         Pick<
-          CaseClassificationResponse["case_info"],
+          CaseClassificationResponse["caseInfo"],
           "productName" | "productVersion"
         >
       >

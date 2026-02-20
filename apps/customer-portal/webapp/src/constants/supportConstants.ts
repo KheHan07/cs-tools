@@ -200,18 +200,34 @@ export const ALL_CASES_STAT_CONFIGS: SupportStatConfig<AllCasesStatKey>[] = [
 
 /**
  * Flattens the project cases statistics for the stat cards.
+ * Derives openCases, workInProgress, waitingOnClient, waitingOnWso2 from stateCount.
  *
  * @param {ProjectCasesStats | undefined} stats - The original stats.
  * @returns {Record<AllCasesStatKey, number | undefined>} The flattened stats.
  */
 export const getAllCasesFlattenedStats = (
   stats: ProjectCasesStats | undefined,
-): Record<AllCasesStatKey, number | undefined> => ({
-  openCases: stats?.openCases,
-  waitingOnClient: stats?.activeCases?.waitingOnClient,
-  waitingOnWso2: stats?.activeCases?.waitingOnWso2,
-  workInProgress: stats?.activeCases?.workInProgress,
-});
+): Record<AllCasesStatKey, number | undefined> => {
+  const stateCount = stats?.stateCount ?? [];
+  const openCases = stateCount
+    .filter((s) => s.label !== CaseStatus.CLOSED)
+    .reduce((sum, s) => sum + (s.count ?? 0), 0);
+  const workInProgress =
+    stateCount.find((s) => s.label === CaseStatus.WORK_IN_PROGRESS)?.count ??
+    undefined;
+  const waitingOnClient =
+    stateCount.find((s) => s.label === CaseStatus.AWAITING_INFO)?.count ??
+    undefined;
+  const waitingOnWso2 =
+    stateCount.find((s) => s.label === CaseStatus.WAITING_ON_WSO2)?.count ??
+    undefined;
+  return {
+    openCases: openCases > 0 ? openCases : undefined,
+    waitingOnClient,
+    waitingOnWso2,
+    workInProgress,
+  };
+};
 
 // Configuration for the support statistics cards.
 export const SUPPORT_STAT_CONFIGS: SupportStatConfig[] = [
