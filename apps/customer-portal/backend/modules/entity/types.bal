@@ -552,7 +552,7 @@ public type DeployedProduct record {|
     # Cores allocated for the product
     int? cores;
     # TPS allocated for the product
-    int? tps;
+    decimal? tps;
     # Release date of the product
     string? releasedOn;
     # End of life date of the product
@@ -566,6 +566,70 @@ public type DeployedProduct record {|
 public type DeployedProductsResponse record {|
     # List of deployed products
     DeployedProduct[] deployedProducts;
+|};
+
+# Request payload for creating a deployed product.
+public type DeployedProductCreatePayload record {|
+    # Project ID
+    IdString projectId;
+    # Deployment ID
+    IdString deploymentId;
+    # Product ID
+    IdString productId;
+    # Product version ID
+    IdString versionId;
+    # Cores allocated for the product
+    int? cores?;
+    # TPS allocated for the product
+    decimal? tps?;
+|};
+
+# Response from creating a deployed product.
+public type DeployedProductCreateResponse record {|
+    # Success message
+    string message;
+    # Created deployed product details
+    CreatedDeployedProduct deployedProduct;
+    json...;
+|};
+
+# Created deployed product details.
+public type CreatedDeployedProduct record {|
+    # ID
+    string id;
+    # Created date and time
+    string createdOn;
+    # User who created the deployed product
+    string createdBy;
+    json...;
+|};
+
+# Payload for updating a deployed product.
+public type DeployedProductUpdatePayload record {|
+    # Cores allocated for the product
+    int? cores?;
+    # TPS allocated for the product
+    decimal? tps?;
+|};
+
+# Response from updating a deployed product.
+public type DeployedProductUpdateResponse record {|
+    # Success message
+    string message;
+    # Updated deployed product details
+    UpdatedDeployedProduct deployedProduct;
+    json...;
+|};
+
+# Updated deployed product details.
+public type UpdatedDeployedProduct record {|
+    # ID of the updated deployed product
+    string id;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the deployed product
+    string updatedBy;
+    json...;
 |};
 
 # Deployment data.

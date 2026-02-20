@@ -1215,6 +1215,137 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return mapDeployedProducts(productsResponse);
     }
 
+    # Add a product to a deployment by deployment ID.
+    #
+    # + id - ID of the deployment
+    # + payload - Deployed product creation payload
+    # + return - Created deployed product or error response
+    resource function post deployments/[string id]/products(http:RequestContext ctx,
+            types:DeployedProductCreatePayload payload) returns
+        entity:CreatedDeployedProduct|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:DeployedProductCreateResponse|error response = entity:createDeployedProduct(userInfo.idToken,
+                {
+                    deploymentId: id,
+                    productId: payload.productId,
+                    projectId: payload.projectId,
+                    versionId: payload.versionId,
+                    cores: payload?.cores,
+                    tps: payload?.tps
+                });
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to add product to deployment with ID: ${
+                        id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to add products to the deployment. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                string customError = "Invalid request parameters for adding product to the deployment.";
+                log:printWarn(customError, response);
+                return <http:BadRequest>{
+                    body: {
+                        message: customError
+                    }
+                };
+            }
+            string customError = "Failed to add product to the deployment.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response.deployedProduct;
+    }
+
+    # Update a product in a deployment by deployment ID and product ID.
+    #
+    # + deploymentId - ID of the deployment
+    # + productId - ID of the product to be updated
+    # + payload - Deployed product update payload
+    # + return - Updated deployed product or error response
+    resource function patch deployments/[string deploymentId]/products/[string productId](http:RequestContext ctx,
+            entity:DeployedProductUpdatePayload payload) returns
+        entity:UpdatedDeployedProduct|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:DeployedProductUpdateResponse|error response =
+            entity:updateDeployedProduct(userInfo.idToken, productId, payload);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to update product with ID: ${
+                        productId} in deployment with ID: ${deploymentId}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to update products in the deployment. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                string customError = "Invalid request parameters for updating product in the deployment.";
+                log:printWarn(customError, response);
+                return <http:BadRequest>{
+                    body: {
+                        message: customError
+                    }
+                };
+            }
+
+            string customError = "Failed to update product in the deployment.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return response.deployedProduct;
+    }
+
     # Get recommended update levels.
     #
     # + return - List of recommended update levels or an error

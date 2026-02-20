@@ -349,13 +349,27 @@ public type DeployedProduct record {|
     # Cores allocated for the product
     int? cores;
     # TPS allocated for the product
-    int? tps;
+    decimal? tps;
     # Release date of the product
     string? releasedOn;
     # End of life date of the product
     string? endOfLifeOn;
     # Update level of the product
     string? updateLevel;
+|};
+
+# Request payload for creating a deployed product.
+public type DeployedProductCreatePayload record {|
+    # Project ID
+    string projectId;
+    # Product ID
+    string productId;
+    # Product version ID
+    string versionId;
+    # Cores allocated for the product
+    int? cores?;
+    # TPS allocated for the product
+    decimal? tps?;
 |};
 
 # Payload for creating a comment.
