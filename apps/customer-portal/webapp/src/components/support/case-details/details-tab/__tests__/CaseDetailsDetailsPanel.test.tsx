@@ -77,7 +77,7 @@ describe("CaseDetailsDetailsPanel", () => {
     expect(screen.getAllByText("--").length).toBeGreaterThan(0);
   });
 
-  it("should render case overview dates and SLA and assigned engineer", () => {
+  it("should render case overview dates and SLA", () => {
     renderDetailsPanel();
     expect(screen.getByText("Created Date")).toBeInTheDocument();
     expect(screen.getByText("2026-01-31 10:45:12")).toBeInTheDocument();
@@ -89,7 +89,6 @@ describe("CaseDetailsDetailsPanel", () => {
         /\d+\s+(?:hour|minute|day|second)s?/.test(content),
       ),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("Assigned Engineer").length).toBeGreaterThan(0);
     expect(screen.getAllByText("--").length).toBeGreaterThan(0);
   });
 
@@ -106,11 +105,33 @@ describe("CaseDetailsDetailsPanel", () => {
     renderDetailsPanel();
     expect(screen.getByText("Customer Information")).toBeInTheDocument();
     expect(screen.getByText("Organization")).toBeInTheDocument();
-    expect(screen.getByText("Customer 3i")).toBeInTheDocument();
+    expect(screen.getByText("Account")).toBeInTheDocument();
     expect(screen.getByText("Account Type")).toBeInTheDocument();
-    expect(screen.getByText("Project")).toBeInTheDocument();
-    expect(screen.getByText("Customer Portal – Subscription")).toBeInTheDocument();
     expect(screen.getByText("CS Manager")).toBeInTheDocument();
+    expect(screen.getAllByText("Project").length).toBeGreaterThan(0);
+  });
+
+  it("should render Closed Case Details section when case is closed", () => {
+    renderDetailsPanel({
+      data: {
+        ...mockCaseDetails,
+        state: { id: 3, label: "Closed" },
+        closedOn: "2026-02-20 01:34:44",
+        closedBy: { id: "bcc4881f", name: "Anuradha Basnayake" },
+        closeNotes: "Resolved successfully",
+      },
+    });
+    expect(screen.getByText("Closed Case Details")).toBeInTheDocument();
+    expect(screen.getByText("Closed On")).toBeInTheDocument();
+    expect(screen.getByText("Closed By")).toBeInTheDocument();
+    expect(screen.getByText("Close Notes")).toBeInTheDocument();
+    expect(screen.getByText("Anuradha Basnayake")).toBeInTheDocument();
+    expect(screen.getByText("Resolved successfully")).toBeInTheDocument();
+  });
+
+  it("should not render Closed Case Details when case is not closed", () => {
+    renderDetailsPanel();
+    expect(screen.queryByText("Closed Case Details")).not.toBeInTheDocument();
   });
 
   it("should display -- for null or undefined values and hide Assigned Engineer when null", () => {

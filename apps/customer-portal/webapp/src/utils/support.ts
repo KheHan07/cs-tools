@@ -89,6 +89,24 @@ export function stripCustomerPrefixFromReason(reason: string): string {
 }
 
 /**
+ * Returns whether the "Open Related Case" button should be shown (within 2 months of closedOn).
+ *
+ * @param {string | null | undefined} closedOn - Closed date from API (UTC string).
+ * @returns {boolean} True if closedOn is missing/invalid (show for backward compat) or within 2 months.
+ */
+export function isWithinOpenRelatedCaseWindow(
+  closedOn: string | null | undefined,
+): boolean {
+  if (!closedOn) return true;
+  const normalized = normalizeUtcDateString(closedOn.trim());
+  const closed = new Date(normalized);
+  if (Number.isNaN(closed.getTime())) return true;
+  const twoMonthsLater = new Date(closed);
+  twoMonthsLater.setMonth(twoMonthsLater.getMonth() + 2);
+  return new Date() <= twoMonthsLater;
+}
+
+/**
  * Formats a UTC date string for display in the user's local timezone.
  *
  * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).

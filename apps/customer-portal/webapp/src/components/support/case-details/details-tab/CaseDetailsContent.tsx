@@ -169,6 +169,7 @@ export default function CaseDetailsContent({
                 assignedEngineer={assignedEngineer}
                 engineerInitials={engineerInitials}
                 statusLabel={statusLabel}
+                closedOn={data?.closedOn}
                 isLoading={isLoading}
               />
             </>

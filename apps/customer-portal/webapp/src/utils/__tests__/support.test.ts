@@ -45,6 +45,7 @@ import {
   getInitials,
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
+  isWithinOpenRelatedCaseWindow,
 } from "@utils/support";
 import type { CaseComment } from "@models/responses";
 import { createTheme } from "@wso2/oxygen-ui";
@@ -92,6 +93,24 @@ describe("support utils", () => {
 
     it("should return secondary.main for others", () => {
       expect(getChatStatusColor("")).toBe("secondary.main");
+    });
+  });
+
+  describe("isWithinOpenRelatedCaseWindow", () => {
+    it("returns true when closedOn is null or undefined", () => {
+      expect(isWithinOpenRelatedCaseWindow(null)).toBe(true);
+      expect(isWithinOpenRelatedCaseWindow(undefined)).toBe(true);
+    });
+
+    it("returns true when closedOn is within 2 months", () => {
+      const recent = new Date();
+      recent.setMonth(recent.getMonth() - 1);
+      const str = recent.toISOString().replace("T", " ").slice(0, 19);
+      expect(isWithinOpenRelatedCaseWindow(str)).toBe(true);
+    });
+
+    it("returns false when closedOn is more than 2 months ago", () => {
+      expect(isWithinOpenRelatedCaseWindow("2020-01-01 10:00:00")).toBe(false);
     });
   });
 

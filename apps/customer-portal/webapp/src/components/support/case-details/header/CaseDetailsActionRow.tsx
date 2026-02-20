@@ -38,6 +38,7 @@ import {
   formatValue,
   getAssignedEngineerLabel,
   getAvailableCaseActions,
+  isWithinOpenRelatedCaseWindow,
 } from "@utils/support";
 
 const ACTION_BUTTON_ICON_SIZE = 12;
@@ -67,6 +68,8 @@ export interface CaseDetailsActionRowProps {
   assignedEngineer: AssignedEngineerValue;
   engineerInitials: string;
   statusLabel?: string | null;
+  /** When case is closed, used to hide "Open Related Case" after 2 months. */
+  closedOn?: string | null;
   isLoading?: boolean;
 }
 
@@ -80,10 +83,20 @@ export default function CaseDetailsActionRow({
   assignedEngineer,
   engineerInitials,
   statusLabel,
+  closedOn,
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
   const hasEngineer = !!getAssignedEngineerLabel(assignedEngineer);
+
+  const availableActions = getAvailableCaseActions(statusLabel).filter(
+    (label) => {
+      if (label === "Open Related Case" && !isWithinOpenRelatedCaseWindow(closedOn)) {
+        return false;
+      }
+      return true;
+    },
+  );
 
   return (
     <Paper
@@ -162,7 +175,7 @@ export default function CaseDetailsActionRow({
 
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
         {CASE_STATUS_ACTIONS.filter((action) =>
-          getAvailableCaseActions(statusLabel).includes(action.label),
+          availableActions.includes(action.label),
         ).map(({ label, Icon, paletteIntent }) => (
           <Button
             key={label}

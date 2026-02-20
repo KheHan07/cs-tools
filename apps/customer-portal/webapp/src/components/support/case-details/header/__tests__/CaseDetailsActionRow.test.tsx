@@ -77,17 +77,34 @@ describe("CaseDetailsActionRow", () => {
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("should render Open Related Case button for closed status", () => {
+  it("should render Open Related Case button for closed status within 2 months", () => {
+    const recentClosedOn = "2026-02-01 10:00:00";
     render(
       <ThemeProvider theme={createTheme()}>
         <CaseDetailsActionRow
           assignedEngineer="Jane Doe"
           engineerInitials="JD"
           statusLabel="Closed"
+          closedOn={recentClosedOn}
         />
       </ThemeProvider>,
     );
     expect(screen.getByText("Open Related Case")).toBeInTheDocument();
     expect(screen.queryByText("Closed")).not.toBeInTheDocument();
+  });
+
+  it("should hide Open Related Case button when closed more than 2 months ago", () => {
+    const oldClosedOn = "2020-01-01 10:00:00";
+    render(
+      <ThemeProvider theme={createTheme()}>
+        <CaseDetailsActionRow
+          assignedEngineer="Jane Doe"
+          engineerInitials="JD"
+          statusLabel="Closed"
+          closedOn={oldClosedOn}
+        />
+      </ThemeProvider>,
+    );
+    expect(screen.queryByText("Open Related Case")).not.toBeInTheDocument();
   });
 });

@@ -178,7 +178,7 @@ export default function RequestCallModal({
       patchMutate(
         {
           callRequestId: editCall.id,
-          reason: reasonToSend || editCall.reason || "",
+          reason: reasonToSend,
           stateKey,
           utcTimes,
         },

@@ -242,6 +242,11 @@ export interface CaseDetailsProject {
   name: string | null;
 }
 
+export interface CaseDetailsClosedBy {
+  id: string;
+  name: string | null;
+}
+
 export interface CaseStatus {
   id: number;
   label: string | null;
@@ -269,6 +274,10 @@ export interface CaseDetails {
   issueType: string | null;
   state: CaseStatus | null;
   severity: CaseStatus | null;
+  closedOn?: string | null;
+  closedBy?: CaseDetailsClosedBy | null;
+  closeNotes?: string | null;
+  hasAutoClosed?: boolean;
 }
 
 // Inline attachment for comment images (API shape).
