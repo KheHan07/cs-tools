@@ -730,3 +730,37 @@ public type ProductVersionsResponse record {|
     ProductVersion[] versions;
     json...; // TODO: Add pagination
 |};
+
+# Time card data.
+public type TimeCard record {|
+    # ID
+    string id;
+    # Total time logged
+    decimal totalTime;
+    # Created date and time
+    string createdOn;
+    # Indicates if the time card has billable hours
+    boolean hasBillable;
+    # State information (e.g., "Approved", "Submitted")
+    string state;
+    # User who approved the time card
+    ReferenceItem? approvedBy;
+    # Associated project
+    ReferenceItem? project;
+    # Associated case
+    record {|
+        *ReferenceItem;
+        # Case number
+        string number;
+    |}? case;
+    json...;
+|};
+
+# Time cards response.
+public type TimeCardsResponse record {|
+    # List of time cards
+    TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *entity:Pagination;
+|};

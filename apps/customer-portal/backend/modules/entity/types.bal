@@ -1077,3 +1077,55 @@ public type ProductVersionsResponse record {|
     ProductVersion[] versions;
     json...; // TODO: Add pagination
 |};
+
+# Request payload for searching time cards.
+public type TimeCardSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of project IDs to filter
+        string[] projectIds?;
+        # Start date for filtering time cards (ISO 8601 format)
+        string startDate?;
+        # End date for filtering time cards (ISO 8601 format)
+        string endDate?;
+    } filters?;
+    # Pagination details
+    Pagination pagination?;
+|};
+
+# Time card data.
+public type TimeCard record {|
+    # ID
+    string id;
+    # Total time logged
+    decimal totalTime;
+    # Created date and time
+    string createdOn;
+    # Indicates if the time card has billable hours
+    boolean hasBillable;
+    # State information (e.g., "Approved", "Submitted")
+    string state;
+    # User who approved the time card
+    ReferenceTableItem? approvedBy;
+    # Associated project
+    ReferenceTableItem? project;
+    # Associated case
+    CaseAssociatedWithTimeCard? case;
+    json...;
+|};
+
+# Time card information associated with a case.
+public type CaseAssociatedWithTimeCard record {|
+    *ReferenceTableItem;
+    # Case number
+    string number;
+|};
+
+# Time cards response.
+public type TimeCardsResponse record {|
+    # List of time cards
+    TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *Pagination;
+|};

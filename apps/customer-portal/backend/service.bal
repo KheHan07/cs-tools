@@ -2116,4 +2116,61 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             body: mapProductVersionsResponse(response)
         };
     }
+
+    # Search time cards based on provided filters.
+    #
+    # + payload - Time card search payload containing filters and pagination info
+    # + return - List of time cards matching the criteria or an error
+    resource function post time\-cards/search(http:RequestContext ctx, entity:TimeCardSearchPayload payload)
+        returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:TimeCardsResponse|error response = entity:searchTimecards(userInfo.idToken, payload);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for searching time cards."
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access time card information!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to time card information is forbidden for user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to time card information is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to search time cards.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return <http:Ok>{
+            body: mapTimeCardSearchResponse(response)
+        };
+    }
 }

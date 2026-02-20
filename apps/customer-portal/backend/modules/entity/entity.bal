@@ -104,7 +104,7 @@ public isolated function createCase(string idToken, CaseCreatePayload payload) r
 }
 
 # Update an existing case.
-# 
+#
 # + idToken - ID token for authorization
 # + caseId - Unique ID of the case to be updated
 # + payload - Case update payload
@@ -187,7 +187,7 @@ public isolated function createDeployedProduct(string idToken, DeployedProductCr
 }
 
 # Update a deployed product.
-# 
+#
 # + idToken - ID token for authorization
 # + deployedProductId - ID of the deployed product to update
 # + payload - Deployed product update payload
@@ -324,4 +324,15 @@ public isolated function searchProductVersions(string idToken, string productId,
     returns ProductVersionsResponse|error {
 
     return csEntityClient->/products/[productId]/versions/search.post(payload, generateHeaders(idToken));
+}
+
+# Search timecards of a project.
+#
+# + idToken - ID token for authorization
+# + payload - Timecard search payload containing search criteria for timecards
+# + return - Timecards response containing matching timecards or error
+public isolated function searchTimecards(string idToken, TimeCardSearchPayload payload)
+    returns TimeCardsResponse|error {
+
+    return csEntityClient->/time\-cards/search.post(payload, generateHeaders(idToken));
 }
