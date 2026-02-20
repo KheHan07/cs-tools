@@ -43,6 +43,7 @@ export interface BasicInformationSectionProps {
   isProductLoading?: boolean;
   extraDeploymentOptions?: string[];
   extraProductOptions?: string[];
+  isRelatedCaseMode?: boolean;
 }
 
 /**
@@ -62,8 +63,10 @@ export function BasicInformationSection({
   isProductLoading = false,
   extraDeploymentOptions,
   extraProductOptions,
+  isRelatedCaseMode = false,
 }: BasicInformationSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
+  const effectiveEditing = isRelatedCaseMode || isEditing;
 
   const deploymentOptions = Array.from(
     new Set(
@@ -93,6 +96,7 @@ export function BasicInformationSection({
         }}
       >
         <Typography variant="h6">Basic Information</Typography>
+        {!isRelatedCaseMode && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Tooltip
             title={
@@ -116,6 +120,7 @@ export function BasicInformationSection({
             </IconButton>
           </Tooltip>
         </Box>
+        )}
       </Box>
 
       {/* project card grid layout */}
@@ -139,6 +144,7 @@ export function BasicInformationSection({
                 *
               </Box>
             </Typography>
+            {!isRelatedCaseMode && (
             <Chip
               label="Auto detected"
               size="small"
@@ -146,11 +152,12 @@ export function BasicInformationSection({
               icon={<Sparkles size={10} />}
               sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
             />
+            )}
           </Box>
           {isDeploymentLoading ? (
             <Skeleton variant="rounded" height={40} sx={{ maxWidth: "100%" }} />
           ) : (
-            <FormControl fullWidth size="small" disabled={!isEditing}>
+            <FormControl fullWidth size="small" disabled={!effectiveEditing}>
               <Select
                 value={deployment}
                 onChange={(e) => setDeployment(e.target.value)}
@@ -182,6 +189,7 @@ export function BasicInformationSection({
                 *
               </Box>
             </Typography>
+            {!isRelatedCaseMode && (
             <Chip
               label="Auto detected"
               size="small"
@@ -189,6 +197,7 @@ export function BasicInformationSection({
               icon={<Sparkles size={10} />}
               sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
             />
+            )}
           </Box>
           {isProductLoading ? (
             <Skeleton variant="rounded" height={40} sx={{ maxWidth: "100%" }} />
@@ -196,7 +205,7 @@ export function BasicInformationSection({
             <FormControl
               fullWidth
               size="small"
-              disabled={isProductDropdownDisabled || !isEditing}
+              disabled={isProductDropdownDisabled || !effectiveEditing}
             >
               <Select
                 value={product}

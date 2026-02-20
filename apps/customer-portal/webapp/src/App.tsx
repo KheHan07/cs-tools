@@ -70,6 +70,7 @@ export default function App(): JSX.Element {
                   <Route path="chat">
                     <Route index element={<NoveraChatPage />} />
                     <Route path="create-case" element={<CreateCasePage />} />
+                  <Route path="create-related-case" element={<CreateCasePage />} />
                   </Route>
                 </Route>
                 {/* Updates */}
