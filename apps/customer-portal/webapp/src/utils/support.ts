@@ -37,6 +37,94 @@ import DOMPurify from "dompurify";
 import { createElement, type ComponentType, type ReactNode } from "react";
 
 /**
+ * Normalizes UTC date string from API (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss) to ISO for parsing.
+ * Treats input as UTC; output is suitable for display in browser local time.
+ *
+ * @param {string} dateStr - Raw UTC date string.
+ * @returns {string} Normalized ISO string for Date constructor.
+ */
+function normalizeUtcDateString(dateStr: string): string {
+  const trimmed = dateStr.trim();
+  if (/T|Z$/i.test(trimmed)) return trimmed;
+  if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
+    return trimmed.replace(" ", "T") + "Z";
+  }
+  const mmddyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(
+    trimmed,
+  );
+  if (mmddyyyy) {
+    const [, mm, dd, yyyy, hh, mi, ss] = mmddyyyy;
+    return `${yyyy}-${mm!.padStart(2, "0")}-${dd!.padStart(2, "0")}T${hh}:${mi}:${ss}Z`;
+  }
+  return trimmed;
+}
+
+/**
+ * Converts a UTC date string to datetime-local input value (YYYY-MM-DDTHH:mm).
+ *
+ * @param {string} utcStr - UTC date string (ISO or YYYY-MM-DD HH:mm:ss).
+ * @returns {string} Local datetime-local value for input.
+ */
+export function utcToDatetimeLocal(utcStr: string | null | undefined): string {
+  if (!utcStr) return "";
+  const normalized = normalizeUtcDateString(utcStr.trim());
+  const d = new Date(normalized);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day}T${h}:${min}`;
+}
+
+/**
+ * Strips "[Customer]" or "[CUSTOMER]" prefix from call request reason for display in edit form.
+ *
+ * @param {string} reason - Raw reason from API.
+ * @returns {string} Reason without the prefix.
+ */
+export function stripCustomerPrefixFromReason(reason: string): string {
+  return reason.replace(/^\[Customer\]\s*/i, "").trim();
+}
+
+/**
+ * Formats a UTC date string for display in the user's local timezone.
+ *
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).
+ * @param {"short" | "long"} [formatStr="long"] - The format style.
+ * @returns {string} Formatted date/time in local time.
+ */
+export function formatUtcToLocal(
+  dateStr: string | null | undefined,
+  formatStr: "short" | "long" = "long",
+): string {
+  if (!dateStr) return "--";
+  const normalized = normalizeUtcDateString(dateStr);
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return "--";
+  if (formatStr === "short") {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      timeZoneName: "short",
+    }).format(date);
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    timeZoneName: "short",
+  }).format(date);
+}
+
+/**
  * Formats a date string into a user-friendly date and time format.
  *
  * @param {string} dateStr - The date string to format.

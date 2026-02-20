@@ -91,10 +91,14 @@ export interface CreateDeploymentRequest {
 
 // Request body for creating a call request.
 export interface CreateCallRequest {
-  preferredTime: {
-    startTime: string;
-    endTime: string;
-  };
-  timezone: string;
-  notes: string;
+  durationInMinutes: number;
+  reason: string;
+  utcTimes: string[];
+}
+
+// Request body for updating a call request (PATCH /cases/:caseId/call-requests/:id).
+export interface PatchCallRequest {
+  reason: string;
+  stateKey: number;
+  utcTimes: string[];
 }
