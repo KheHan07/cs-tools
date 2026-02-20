@@ -72,7 +72,7 @@ export const ActiveCasesChart = ({
       ? []
       : ACTIVE_CASES_CHART_DATA.map((item) => ({
           name: item.name,
-          value: safeData[item.key as keyof typeof safeData] || 0,
+          value: safeData[item.key as keyof typeof safeData] ?? 0,
           color: item.color,
         }));
 
@@ -173,7 +173,7 @@ export const ActiveCasesChart = ({
             mt: 2,
           }}
         >
-          {[1, 2, 3].map((i) => (
+          {ACTIVE_CASES_CHART_DATA.map((_, i) => (
             <Skeleton key={i} variant="rounded" width={80} height={20} />
           ))}
         </Box>
@@ -181,7 +181,7 @@ export const ActiveCasesChart = ({
         <ChartLegend
           data={ACTIVE_CASES_CHART_DATA.map((item) => ({
             name: item.name,
-            value: safeData[item.key as keyof typeof safeData] || 0,
+            value: safeData[item.key as keyof typeof safeData] ?? 0,
             color: item.color,
           }))}
           isError={isError}

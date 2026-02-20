@@ -28,6 +28,8 @@ import CasesTableHeader from "@components/dashboard/cases-table/CasesTableHeader
 import CasesList from "@components/dashboard/cases-table/CasesList";
 import { normalizeCaseTypeOptions } from "@utils/support";
 
+const OUTSTANDING_STATUS_IDS = [1, 10, 18, 1003, 1006] as const;
+
 interface CasesTableProps {
   projectId: string;
 }
@@ -94,9 +96,6 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
       options: normalizeCaseTypeOptions(filtersMetadata?.caseTypes || []),
     },
   ];
-
-  /** Outstanding engagements: Open (1), Work In Progress (10), Awaiting Info (18), Waiting On WSO2 (1003), Reopened (1006). */
-  const OUTSTANDING_STATUS_IDS = [1, 10, 18, 1003, 1006] as const;
 
   const caseSearchRequest = useMemo(
     () => ({

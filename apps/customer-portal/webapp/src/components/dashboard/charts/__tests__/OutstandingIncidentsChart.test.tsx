@@ -85,7 +85,9 @@ describe("OutstandingIncidentsChart", () => {
     high: 3,
     critical: 1,
     catastrophic: 0,
-    total: 11,
+    serviceRequest: 1,
+    securityReportAnalysis: 2,
+    total: 14,
   };
 
   it("should render title correctly", () => {
@@ -109,7 +111,7 @@ describe("OutstandingIncidentsChart", () => {
   it("should render all segments", () => {
     render(<OutstandingIncidentsChart data={mockData} isLoading={false} />);
     const segments = screen.getAllByTestId("pie-segment");
-    expect(segments.length).toBe(5);
+    expect(segments.length).toBe(7);
   });
 
   it("should render all segments even with missing data values", () => {
@@ -119,6 +121,8 @@ describe("OutstandingIncidentsChart", () => {
       high: 3,
       critical: 0,
       catastrophic: 0,
+      serviceRequest: 0,
+      securityReportAnalysis: 0,
       total: 8,
     };
 
@@ -127,7 +131,7 @@ describe("OutstandingIncidentsChart", () => {
     );
 
     const segments = screen.getAllByTestId("pie-segment");
-    expect(segments.length).toBe(5);
+    expect(segments.length).toBe(7);
 
     const values = segments.map((s) => s.getAttribute("data-value"));
     expect(values).toContain("0");

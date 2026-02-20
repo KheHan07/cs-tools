@@ -86,7 +86,7 @@ describe("CasesTrendChart", () => {
 
   it("should render title correctly", () => {
     render(<CasesTrendChart data={mockData} isLoading={false} />);
-    expect(screen.getByText("Cases trend")).toBeInTheDocument();
+    expect(screen.getByText(/Cases Trend/i)).toBeInTheDocument();
   });
 
   it("should render skeleton when loading", () => {

@@ -21,15 +21,7 @@ import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectCasesStats } from "@models/responses";
 
-/**
- * Case type labels to filter stats by (Incident, Query, Service Request, Security Report Analysis).
- */
-export const DASHBOARD_CASE_TYPE_LABELS = [
-  "Incident",
-  "Query",
-  "Service Request",
-  "Security Report Analysis",
-] as const;
+export { DASHBOARD_CASE_TYPE_LABELS } from "@constants/dashboardConstants";
 
 export interface UseGetProjectCasesStatsOptions {
   /** When false, the query will not run. Use to wait for filters before fetching. */
@@ -96,5 +88,9 @@ export function useGetProjectCasesStats(
       !isAuthLoading &&
       (options?.enabled ?? true),
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 }

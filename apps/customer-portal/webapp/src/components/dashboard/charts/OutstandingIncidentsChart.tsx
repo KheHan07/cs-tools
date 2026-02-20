@@ -24,7 +24,7 @@ import {
 import type { JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { ChartLegend } from "@components/dashboard/charts/ChartLegend";
-import { OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants";
+import { OUTSTANDING_ENGAGEMENTS_CHART_DATA } from "@constants/dashboardConstants";
 
 interface OutstandingIncidentsChartProps {
   data: {
@@ -32,8 +32,10 @@ interface OutstandingIncidentsChartProps {
     medium: number;
     high: number;
     critical: number;
-    total: number;
     catastrophic: number;
+    serviceRequest: number;
+    securityReportAnalysis: number;
+    total: number;
   };
   isLoading?: boolean;
   isError?: boolean;
@@ -58,20 +60,22 @@ export const OutstandingIncidentsChart = ({
     high: 0,
     critical: 0,
     catastrophic: 0,
+    serviceRequest: 0,
+    securityReportAnalysis: 0,
     total: 0,
   };
 
   const chartData = isError
-    ? OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
+    ? OUTSTANDING_ENGAGEMENTS_CHART_DATA.map((item) => ({
         name: item.displayName,
         value: 1,
         color: colors.grey?.[300] ?? "#D1D5DB",
       }))
     : isLoading
       ? []
-      : OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
+      : OUTSTANDING_ENGAGEMENTS_CHART_DATA.map((item) => ({
           name: item.displayName,
-          value: safeData[item.key as keyof typeof safeData] || 0,
+          value: safeData[item.key as keyof typeof safeData] ?? 0,
           color: item.color,
         }));
 
@@ -172,15 +176,15 @@ export const OutstandingIncidentsChart = ({
             mt: 2,
           }}
         >
-          {[1, 2, 3].map((i) => (
+          {OUTSTANDING_ENGAGEMENTS_CHART_DATA.map((_, i) => (
             <Skeleton key={i} variant="rounded" width={60} height={20} />
           ))}
         </Box>
       ) : (
         <ChartLegend
-          data={OUTSTANDING_INCIDENTS_CHART_DATA.map((item) => ({
+          data={OUTSTANDING_ENGAGEMENTS_CHART_DATA.map((item) => ({
             name: item.displayName,
-            value: safeData[item.key as keyof typeof safeData] || 0,
+            value: safeData[item.key as keyof typeof safeData] ?? 0,
             color: item.color,
           }))}
           isError={isError}

@@ -27,6 +27,7 @@ import {
   Paper,
   Avatar,
   TablePagination,
+  alpha,
 } from "@wso2/oxygen-ui";
 import { ExternalLink } from "@wso2/oxygen-ui-icons-react";
 import { type JSX, type ChangeEvent } from "react";
@@ -38,6 +39,7 @@ import {
   getStatusColor,
   mapSeverityToDisplay,
 } from "@utils/support";
+import { getCaseTypeChipConfig } from "@constants/dashboardConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CasesTableSkeleton from "@components/dashboard/cases-table/CasesTableSkeleton";
 
@@ -164,14 +166,46 @@ const CasesList = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                      <Chip
-                        label={row.caseTypes?.label || "--"}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          fontWeight: 500,
-                        }}
-                      />
+                    {(() => {
+                      const typeLabel =
+                        row.type?.label ?? row.caseTypes?.label;
+                      const config = getCaseTypeChipConfig(typeLabel ?? undefined);
+                      if (!config) {
+                        return (
+                          <Typography variant="body2" color="text.secondary">
+                            --
+                          </Typography>
+                        );
+                      }
+                      const { Icon } = config;
+                      const mainColor = config.textColor;
+                      return (
+                        <Chip
+                          icon={<Icon size={12} />}
+                          label={config.displayLabel}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            fontWeight: 500,
+                            bgcolor: alpha(mainColor, 0.1),
+                            color: mainColor,
+                            borderColor: alpha(mainColor, 0.3),
+                            px: 0,
+                            height: 20,
+                            fontSize: "0.75rem",
+                            "& .MuiChip-icon": {
+                              color: "inherit",
+                              ml: "6px",
+                              mr: "6px",
+                            },
+                            "& .MuiChip-label": {
+                              pl: 0,
+                              pr: "6px",
+                            },
+                          }}
+                        />
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

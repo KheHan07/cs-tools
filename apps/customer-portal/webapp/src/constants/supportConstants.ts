@@ -176,7 +176,7 @@ export const ALL_CASES_STAT_CONFIGS: SupportStatConfig<AllCasesStatKey>[] = [
     icon: CircleAlert,
     iconColor: "error",
     key: "openCases",
-    label: "Open",
+    label: "Total Active",
   },
   {
     icon: Clock,
@@ -213,14 +213,11 @@ export const getAllCasesFlattenedStats = (
     .filter((s) => s.label !== CaseStatus.CLOSED)
     .reduce((sum, s) => sum + (s.count ?? 0), 0);
   const workInProgress =
-    stateCount.find((s) => s.label === CaseStatus.WORK_IN_PROGRESS)?.count ??
-    undefined;
+    stateCount.find((s) => s.label === CaseStatus.WORK_IN_PROGRESS)?.count;
   const waitingOnClient =
-    stateCount.find((s) => s.label === CaseStatus.AWAITING_INFO)?.count ??
-    undefined;
+    stateCount.find((s) => s.label === CaseStatus.AWAITING_INFO)?.count;
   const waitingOnWso2 =
-    stateCount.find((s) => s.label === CaseStatus.WAITING_ON_WSO2)?.count ??
-    undefined;
+    stateCount.find((s) => s.label === CaseStatus.WAITING_ON_WSO2)?.count;
   return {
     openCases: openCases > 0 ? openCases : undefined,
     waitingOnClient,

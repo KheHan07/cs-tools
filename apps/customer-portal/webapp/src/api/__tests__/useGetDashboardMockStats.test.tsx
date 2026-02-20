@@ -90,7 +90,7 @@ describe("useGetDashboardMockStats", () => {
     })[0];
 
     expect((query?.options as any).staleTime).toBe(5 * 60 * 1000);
-    expect((query?.options as any).refetchOnWindowFocus).toBeUndefined();
+    expect((query?.options as any).refetchOnWindowFocus).toBe(false);
   });
 
   it("should not fetch if projectId is missing", () => {

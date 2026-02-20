@@ -125,7 +125,7 @@ export const CasesTrendChart = ({
             mt: 2,
           }}
         >
-          {[1, 2, 3, 4].map((i) => (
+          {CASES_TREND_CHART_DATA.map((_, i) => (
             <Skeleton key={i} variant="rounded" width={60} height={20} />
           ))}
         </Box>

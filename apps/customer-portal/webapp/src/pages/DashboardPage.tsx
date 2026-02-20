@@ -23,11 +23,13 @@ import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
+import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import {
-  useGetProjectCasesStats,
   DASHBOARD_CASE_TYPE_LABELS,
-} from "@api/useGetProjectCasesStats";
-import { DASHBOARD_STATS, OUTSTANDING_INCIDENTS_CHART_DATA } from "@constants/dashboardConstants";
+  DASHBOARD_STATS,
+  OUTSTANDING_ENGAGEMENTS_CHART_DATA,
+  SEVERITY_API_LABELS,
+} from "@constants/dashboardConstants";
 import { StatCard } from "@components/dashboard/stats/StatCard";
 import ChartLayout from "@components/dashboard/charts/ChartLayout";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
@@ -63,24 +65,22 @@ export default function DashboardPage(): JSX.Element {
 
   const {
     data: mockStats,
-    isFetching: isMockFetching,
     isError: isErrorMock,
   } = useGetDashboardMockStats(projectId || "");
   const {
     data: casesStats,
-    isFetching: isCasesFetching,
+    isLoading: isCasesLoading,
     isError: isErrorCases,
   } = useGetProjectCasesStats(projectId || "", caseTypeIds, {
     enabled: !!projectId && !isFiltersLoading,
   });
 
+  // Don't block on mockStats - it always throws; dashboard needs filters + casesStats only
   const isDashboardLoading =
     isAuthLoading ||
     isFiltersLoading ||
-    isMockFetching ||
-    isCasesFetching ||
+    isCasesLoading ||
     (!filters && !isErrorFilters) ||
-    (!mockStats && !isErrorMock) ||
     (!casesStats && !isErrorCases);
 
   useEffect(() => {
@@ -88,13 +88,14 @@ export default function DashboardPage(): JSX.Element {
       showLoader();
       return () => hideLoader();
     }
+    hideLoader();
   }, [isDashboardLoading, showLoader, hideLoader]);
 
   useEffect(() => {
-    if (filters && mockStats && casesStats) {
+    if (filters && casesStats) {
       logger.debug(`Dashboard data loaded for project ID: ${projectId}`);
     }
-  }, [filters, mockStats, casesStats, logger, projectId]);
+  }, [filters, casesStats, logger, projectId]);
 
   const { showError } = useErrorBanner();
   const hasShownErrorRef = useRef(false);
@@ -158,47 +159,65 @@ export default function DashboardPage(): JSX.Element {
   }, [casesStats]);
 
   const outstandingCases = useMemo(() => {
-    const low =
-      casesStats?.outstandingSeverityCount.find(
-        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[0].label
+    const severityByKey: Record<string, number> = {};
+    for (const item of OUTSTANDING_ENGAGEMENTS_CHART_DATA) {
+      if (item.key === "serviceRequest" || item.key === "securityReportAnalysis") break;
+      severityByKey[item.key] =
+        casesStats?.outstandingSeverityCount.find((s) => s.label === item.label)
+          ?.count ?? 0;
+    }
+    const serviceRequest =
+      casesStats?.caseTypeCount.find(
+        (c) => /service\s*request/i.test(c.label),
       )?.count ?? 0;
-    const medium =
-      casesStats?.outstandingSeverityCount.find(
-        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[1].label
-      )?.count ?? 0;
-    const high =
-      casesStats?.outstandingSeverityCount.find(
-        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[2].label
-      )?.count ?? 0;
-    const critical =
-      casesStats?.outstandingSeverityCount.find(
-        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[3].label
-      )?.count ?? 0;
-    const catastrophic =
-      casesStats?.outstandingSeverityCount.find(
-        (s) => s.label === OUTSTANDING_INCIDENTS_CHART_DATA[4].label
+    const securityReportAnalysis =
+      casesStats?.caseTypeCount.find(
+        (c) => /security\s*report\s*analysis/i.test(c.label),
       )?.count ?? 0;
 
+    const catastrophic = severityByKey.catastrophic ?? 0;
+    const critical = severityByKey.critical ?? 0;
+    const high = severityByKey.high ?? 0;
+    const medium = severityByKey.medium ?? 0;
+    const low = severityByKey.low ?? 0;
+
+    const total =
+      catastrophic +
+      critical +
+      high +
+      medium +
+      low +
+      serviceRequest +
+      securityReportAnalysis;
+
     return {
+      catastrophic,
       critical,
       high,
       medium,
       low,
-      catastrophic,
-      total: critical + high + medium + low + catastrophic,
+      serviceRequest,
+      securityReportAnalysis,
+      total,
     };
   }, [casesStats]);
 
   const casesTrend = useMemo(() => {
-    const apiLabels = ["Catastrophic (P0)", "Critical (P1)", "High (P2)", "Medium (P3)", "Low (P4)"];
-    return (casesStats?.casesTrend ?? []).map(({ period, severities }) => ({
+    const mapped = (casesStats?.casesTrend ?? []).map(({ period, severities }) => ({
       period,
-      catastrophic: severities.find((s) => s.label === apiLabels[0])?.count ?? 0,
-      critical: severities.find((s) => s.label === apiLabels[1])?.count ?? 0,
-      high: severities.find((s) => s.label === apiLabels[2])?.count ?? 0,
-      medium: severities.find((s) => s.label === apiLabels[3])?.count ?? 0,
-      low: severities.find((s) => s.label === apiLabels[4])?.count ?? 0,
+      catastrophic: severities.find((s) => s.label === SEVERITY_API_LABELS[0])?.count ?? 0,
+      critical: severities.find((s) => s.label === SEVERITY_API_LABELS[1])?.count ?? 0,
+      high: severities.find((s) => s.label === SEVERITY_API_LABELS[2])?.count ?? 0,
+      medium: severities.find((s) => s.label === SEVERITY_API_LABELS[3])?.count ?? 0,
+      low: severities.find((s) => s.label === SEVERITY_API_LABELS[4])?.count ?? 0,
     }));
+    return mapped.sort((a, b) => {
+      const parse = (p: string) => {
+        const m = p.match(/(\d{4})\D*[Qq](\d)/);
+        return m ? Number(m[1]) * 4 + Number(m[2]) : 0;
+      };
+      return parse(a.period) - parse(b.period);
+    });
   }, [casesStats]);
 
   return (
@@ -274,28 +293,11 @@ export default function DashboardPage(): JSX.Element {
       </Grid>
       {/* Charts row */}
       <ChartLayout
-        outstandingCases={outstandingCases || {
-          low: 0,
-          medium: 0,
-          high: 0,
-          critical: 0,
-          catastrophic: 0,
-          total: 0,
-        }}
-        activeCases={activeCases || {
-          open: 0,
-          workInProgress: 0,
-          awaitingInfo: 0,
-          waitingOnWso2: 0,
-          solutionProposed: 0,
-          reopened: 0,
-          total: 0,
-        }}
+        outstandingCases={outstandingCases}
+        activeCases={activeCases}
         casesTrend={casesTrend || []}
         isLoading={
-          (isDashboardLoading || !casesStats || !mockStats) &&
-          !isErrorCases &&
-          !isErrorMock
+          (isDashboardLoading || !casesStats) && !isErrorCases
         }
         isErrorOutstanding={isErrorCases}
         isErrorActiveCases={isErrorCases}
