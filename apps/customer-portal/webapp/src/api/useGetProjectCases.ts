@@ -26,16 +26,22 @@ import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseSearchRequest } from "@models/requests";
 import type { CaseSearchResponse } from "@models/responses";
 
+export interface UseGetProjectCasesOptions {
+  enabled?: boolean;
+}
+
 /**
  * Custom hook to search cases for a specific project using infinite query.
  *
  * @param {string} projectId - The ID of the project to search cases for.
  * @param {Omit<CaseSearchRequest, 'pagination'>} baseRequest - The search parameters excluding pagination.
+ * @param {UseGetProjectCasesOptions} options - Optional query options.
  * @returns {UseInfiniteQueryResult<CaseSearchResponse, Error>} The infinite query result object.
  */
 export default function useGetProjectCases(
   projectId: string,
   baseRequest: Omit<CaseSearchRequest, "pagination">,
+  options?: UseGetProjectCasesOptions,
 ): UseInfiniteQueryResult<InfiniteData<CaseSearchResponse>, Error> {
   const logger = useLogger();
 
@@ -95,7 +101,11 @@ export default function useGetProjectCases(
       const nextOffset = lastPage.offset + lastPage.limit;
       return nextOffset < lastPage.totalRecords ? nextOffset : undefined;
     },
-    enabled: !!projectId && isSignedIn && !isAuthLoading,
+    enabled:
+      (options?.enabled ?? true) &&
+      !!projectId &&
+      isSignedIn &&
+      !isAuthLoading,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
