@@ -23,6 +23,7 @@ import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { stripHtml } from "@utils/support";
 import Editor from "@components/common/rich-text-editor/Editor";
 import type { JSX } from "react";
+import { CommentType } from "@/constants/supportConstants";
 
 export interface ActivityCommentInputProps {
   caseId: string;
@@ -50,7 +51,7 @@ export default function ActivityCommentInput({
     if (stripHtml(value).length === 0 || isDisabled) return;
 
     postComment.mutate(
-      { caseId, body: { content: value.trim() } },
+      { caseId, body: { content: value.trim(), type: CommentType.COMMENT } },
       {
         onSuccess: () => {
           setValue("");

@@ -152,7 +152,6 @@ export default function UploadAttachmentModal({
         {
           caseId,
           body: {
-            referenceType: "case",
             name: attachmentName,
             type: file.type || "application/octet-stream",
             content,

@@ -389,3 +389,12 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
     metadataKey: "deploymentTypes",
   },
 ];
+
+/**
+ * Constants for comment types when posting a comment to a case.
+ */
+export const CommentType = {
+  COMMENT: "comments",
+  WORK_NOTE: "work_note",
+} as const;
+export type CommentType = (typeof CommentType)[keyof typeof CommentType];

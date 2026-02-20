@@ -23,9 +23,11 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import { ApiQueryKeys } from "@constants/apiConstants";
+import { CommentType } from "@constants/supportConstants";
 
 export interface PostCommentRequest {
   content: string;
+  type: CommentType;
 }
 
 export interface PostCommentVariables {
@@ -68,7 +70,7 @@ export function usePostComment(): UseMutationResult<
       const requestUrl = `${baseUrl}/cases/${caseId}/comments`;
       const response = await fetchFn(requestUrl, {
         method: "POST",
-        body: JSON.stringify({ content: body.content }),
+        body: JSON.stringify({ content: body.content, type: CommentType.COMMENT }),
       });
 
       logger.debug("[usePostComment] Response status:", response.status);
