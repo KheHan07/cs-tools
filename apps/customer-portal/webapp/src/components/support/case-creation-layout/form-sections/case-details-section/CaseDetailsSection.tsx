@@ -52,6 +52,7 @@ export interface CaseDetailsSectionProps {
   attachments?: File[];
   onAttachmentClick?: () => void;
   onAttachmentRemove?: (index: number) => void;
+  isRelatedCaseMode?: boolean;
 }
 
 /**
@@ -76,8 +77,10 @@ export function CaseDetailsSection({
   attachments = [],
   onAttachmentClick,
   onAttachmentRemove,
+  isRelatedCaseMode = false,
 }: CaseDetailsSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
+  const effectiveEditing = isRelatedCaseMode || isEditing;
   const meta = metadata as
     | {
         issueTypes?: unknown[];
@@ -136,6 +139,7 @@ export function CaseDetailsSection({
         }}
       >
         <Typography variant="h6">Case Details</Typography>
+        {!isRelatedCaseMode && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Tooltip
             title={
@@ -157,6 +161,7 @@ export function CaseDetailsSection({
             </IconButton>
           </Tooltip>
         </Box>
+        )}
       </Box>
 
       {/* main form fields container */}
@@ -170,6 +175,7 @@ export function CaseDetailsSection({
                 *
               </Box>
             </Typography>
+            {!isRelatedCaseMode && (
             <Chip
               label="Generated from chat"
               size="small"
@@ -177,6 +183,7 @@ export function CaseDetailsSection({
               icon={<Sparkles size={10} />}
               sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
             />
+            )}
           </Box>
           <Box>
             <TextField
@@ -186,8 +193,10 @@ export function CaseDetailsSection({
               minRows={1}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter issue title"
-              disabled={isLoading || !isEditing}
+              placeholder={
+                isRelatedCaseMode ? "Enter related case title" : "Enter issue title"
+              }
+              disabled={isLoading || !effectiveEditing}
             />
           </Box>
         </Box>
@@ -201,6 +210,7 @@ export function CaseDetailsSection({
                 *
               </Box>
             </Typography>
+            {!isRelatedCaseMode && (
             <Chip
               label="From conversation"
               size="small"
@@ -208,17 +218,19 @@ export function CaseDetailsSection({
               icon={<Sparkles size={10} />}
               sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
             />
+            )}
           </Box>
           <Box>
             <Editor
               onAttachmentClick={onAttachmentClick}
               attachments={attachments}
               onAttachmentRemove={onAttachmentRemove}
-              disabled={!isEditing}
+              disabled={!effectiveEditing}
               value={description}
               onChange={setDescription}
             />
           </Box>
+          {!isRelatedCaseMode && (
           <Typography
             variant="caption"
             color="text.disabled"
@@ -232,30 +244,33 @@ export function CaseDetailsSection({
           >
             This includes all the information you shared with Novera
           </Typography>
+          )}
         </Box>
 
         {/* issue type and severity grid container */}
         <Grid container spacing={3}>
           <Grid size={{ xs: 12 }}>
             <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography variant="caption">
-                Issue Type{" "}
-                <Box component="span" sx={{ color: "warning.main" }}>
-                  *
-                </Box>
-              </Typography>
-              <Chip
-                label="AI classified"
-                size="small"
-                variant="outlined"
-                icon={<Sparkles size={10} />}
-                sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-              />
-            </Box>
+            <Typography variant="caption">
+              Issue Type{" "}
+              <Box component="span" sx={{ color: "warning.main" }}>
+                *
+              </Box>
+            </Typography>
+            {!isRelatedCaseMode && (
+            <Chip
+              label="AI classified"
+              size="small"
+              variant="outlined"
+              icon={<Sparkles size={10} />}
+              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+            />
+            )}
+          </Box>
             <FormControl
               fullWidth
               size="small"
-              disabled={isLoading || !isEditing}
+              disabled={isLoading || !effectiveEditing}
             >
               <Select
                 id="issue-type-select"
@@ -293,24 +308,26 @@ export function CaseDetailsSection({
           </Grid>
           <Grid size={{ xs: 12 }}>
             <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography variant="caption">
-                Severity Level{" "}
-                <Box component="span" sx={{ color: "warning.main" }}>
-                  *
-                </Box>
-              </Typography>
-              <Chip
-                label="AI assessed"
-                size="small"
-                variant="outlined"
-                icon={<Sparkles size={10} />}
-                sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-              />
-            </Box>
+            <Typography variant="caption">
+              Severity Level{" "}
+              <Box component="span" sx={{ color: "warning.main" }}>
+                *
+              </Box>
+            </Typography>
+            {!isRelatedCaseMode && (
+            <Chip
+              label="AI assessed"
+              size="small"
+              variant="outlined"
+              icon={<Sparkles size={10} />}
+              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+            />
+            )}
+          </Box>
             <FormControl
               fullWidth
               size="small"
-              disabled={isLoading || !isEditing}
+              disabled={isLoading || !effectiveEditing}
             >
               <Select
                 id="severity-level-select"

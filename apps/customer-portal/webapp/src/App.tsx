@@ -34,8 +34,8 @@ import { SuccessBannerProvider } from "@context/success-banner/SuccessBannerCont
 import { LoaderProvider } from "@context/linear-loader/LoaderContext";
 import LoginPage from "@pages/LoginPage";
 import AuthGuard from "./AuthGuard";
-import SecurityPage from "./pages/SecurityPage";
-import VulnerabilityDetailsPage from "./pages/VulnerabilityDetailsPage";
+import SecurityPage from "@pages/SecurityPage";
+import VulnerabilityDetailsPage from "@pages/VulnerabilityDetailsPage";
 
 export default function App(): JSX.Element {
   return (
@@ -79,6 +79,10 @@ export default function App(): JSX.Element {
                           <Route index element={<NoveraChatPage />} />
                           <Route
                             path="create-case"
+                            element={<CreateCasePage />}
+                          />
+                          <Route
+                            path="create-related-case"
                             element={<CreateCasePage />}
                           />
                         </Route>

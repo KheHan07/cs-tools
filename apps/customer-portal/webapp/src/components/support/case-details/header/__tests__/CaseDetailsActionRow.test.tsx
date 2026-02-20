@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import CaseDetailsActionRow from "@case-details/CaseDetailsActionRow";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
@@ -106,5 +106,22 @@ describe("CaseDetailsActionRow", () => {
       </ThemeProvider>,
     );
     expect(screen.queryByText("Open Related Case")).not.toBeInTheDocument();
+  });
+
+  it("should call onOpenRelatedCase when Open Related Case button is clicked", () => {
+    const onOpenRelatedCase = vi.fn();
+    render(
+      <ThemeProvider theme={createTheme()}>
+        <CaseDetailsActionRow
+          assignedEngineer="Jane Doe"
+          engineerInitials="JD"
+          statusLabel="Closed"
+          closedOn="2026-02-01 10:00:00"
+          onOpenRelatedCase={onOpenRelatedCase}
+        />
+      </ThemeProvider>,
+    );
+    fireEvent.click(screen.getByText("Open Related Case"));
+    expect(onOpenRelatedCase).toHaveBeenCalledTimes(1);
   });
 });

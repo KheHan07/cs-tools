@@ -39,6 +39,7 @@ export interface CaseDetailsContentProps {
   isError: boolean;
   caseId: string;
   onBack: () => void;
+  onOpenRelatedCase?: () => void;
   projectId?: string;
 }
 
@@ -54,6 +55,7 @@ export default function CaseDetailsContent({
   isError,
   caseId,
   onBack,
+  onOpenRelatedCase,
   projectId = "",
 }: CaseDetailsContentProps): JSX.Element {
   const theme = useTheme();
@@ -170,6 +172,7 @@ export default function CaseDetailsContent({
                 engineerInitials={engineerInitials}
                 statusLabel={statusLabel}
                 closedOn={data?.closedOn}
+                onOpenRelatedCase={onOpenRelatedCase}
                 isLoading={isLoading}
               />
             </>

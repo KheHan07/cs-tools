@@ -25,7 +25,7 @@ import {
   type FormEvent,
   type JSX,
 } from "react";
-import { useNavigate, useParams, useLocation } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectDetails from "@api/useGetProjectDetails";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
@@ -40,6 +40,7 @@ import { BasicInformationSection } from "@components/support/case-creation-layou
 import { CaseCreationHeader } from "@components/support/case-creation-layout/header/CaseCreationHeader";
 import { CaseDetailsSection } from "@components/support/case-creation-layout/form-sections/case-details-section/CaseDetailsSection";
 import { ConversationSummary } from "@components/support/case-creation-layout/form-sections/conversation-summary-section/ConversationSummary";
+import { RelatedCaseSummary } from "@components/support/case-creation-layout/form-sections/conversation-summary-section/RelatedCaseSummary";
 import {
   buildClassificationProductLabel,
   getBaseDeploymentOptions,
@@ -66,10 +67,17 @@ interface ChatMessageForClassification {
  *
  * @returns {JSX.Element} The rendered CreateCasePage.
  */
+export interface RelatedCaseState {
+  number: string;
+  title: string;
+  description: string;
+}
+
 export default function CreateCasePage(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
+  const relatedCase = (location.state as { relatedCase?: RelatedCaseState })?.relatedCase;
   const { showLoader, hideLoader } = useLoader();
   const { data: projectDetails, isLoading: isProjectLoading } =
     useGetProjectDetails(projectId || "");
@@ -216,11 +224,20 @@ export default function CreateCasePage(): JSX.Element {
     if (isFiltersLoading || isDeploymentsLoading) return;
 
     const initialDeployment = baseDeploymentOptions[0] ?? "";
-    const initialIssueType = issueTypesList[0]?.label ?? "";
-    const initialSeverity = severityLevelsList[0]?.id ?? "";
+    const initialIssueType = relatedCase
+      ? ""
+      : (issueTypesList[0]?.label ?? "");
+    const initialSeverity = relatedCase ? "" : (severityLevelsList[0]?.id ?? "");
 
     queueMicrotask(() => {
-      if (!classificationResponse) {
+      if (relatedCase) {
+        setDeployment("");
+        setProduct("");
+        setIssueType("");
+        setSeverity("");
+        setTitle("");
+        setDescription("");
+      } else if (!classificationResponse) {
         setDeployment(initialDeployment);
         setProduct("");
         setIssueType(initialIssueType);
@@ -232,13 +249,16 @@ export default function CreateCasePage(): JSX.Element {
     hasInitializedRef.current = true;
   }, [
     baseDeploymentOptions,
+    classificationResponse,
     isDeploymentsLoading,
     issueTypesList,
     isFiltersLoading,
+    relatedCase,
     severityLevelsList,
   ]);
 
   useEffect(() => {
+    if (relatedCase) return;
     if (!classificationResponse?.caseInfo) return;
     const info = classificationResponse.caseInfo;
     if (info.shortDescription?.trim()) setTitle(info.shortDescription);
@@ -250,9 +270,10 @@ export default function CreateCasePage(): JSX.Element {
       const html = isLikelyHtml ? text : `<p>${escapeHtml(text)}</p>`;
       setDescription(html);
     }
-  }, [classificationResponse]);
+  }, [classificationResponse, relatedCase]);
 
   useEffect(() => {
+    if (relatedCase) return;
     if (hasClassificationAppliedRef.current || !classificationResponse) return;
     if (isFiltersLoading || isDeploymentsLoading) return;
 
@@ -302,6 +323,7 @@ export default function CreateCasePage(): JSX.Element {
   }, [
     classificationResponse,
     isFiltersLoading,
+    relatedCase,
     isDeploymentsLoading,
     baseDeploymentOptions,
     issueTypesList,
@@ -504,6 +526,7 @@ export default function CreateCasePage(): JSX.Element {
             isProductLoading={
               !!selectedDeploymentId && deploymentProductsLoading
             }
+            isRelatedCaseMode={!!relatedCase}
             extraProductOptions={extraProductOptions}
           />
 
@@ -525,6 +548,7 @@ export default function CreateCasePage(): JSX.Element {
             storageKey={
               projectId ? `create-case-draft-${projectId}` : undefined
             }
+            isRelatedCaseMode={!!relatedCase}
           />
 
           {/* form actions container */}
@@ -550,7 +574,9 @@ export default function CreateCasePage(): JSX.Element {
                 ? isUploadingAttachments
                   ? "Uploading Attachments..."
                   : "Creating..."
-                : "Create Support Case"}
+                : relatedCase
+                  ? "Create Related Case"
+                  : "Create Support Case"}
             </Button>
           </Box>
         </Box>
@@ -558,7 +584,15 @@ export default function CreateCasePage(): JSX.Element {
 
       {/* right column - sidebar */}
       <Grid size={{ xs: 12, md: 4 }}>
-        <ConversationSummary metadata={undefined} isLoading={false} />
+        {relatedCase ? (
+          <RelatedCaseSummary
+            number={relatedCase.number}
+            title={relatedCase.title}
+            description={relatedCase.description}
+          />
+        ) : (
+          <ConversationSummary metadata={undefined} isLoading={false} />
+        )}
       </Grid>
     </Grid>
   );
@@ -566,7 +600,10 @@ export default function CreateCasePage(): JSX.Element {
   return (
     <Box sx={{ width: "100%", pt: 0, position: "relative" }}>
       {/* header section */}
-      <CaseCreationHeader onBack={handleBack} />
+      <CaseCreationHeader
+        onBack={handleBack}
+        hideAiChip={!!relatedCase}
+      />
 
       {/* main content grid container */}
       {renderContent()}
