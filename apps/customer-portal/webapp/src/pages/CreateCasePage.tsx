@@ -231,7 +231,7 @@ export default function CreateCasePage(): JSX.Element {
 
     queueMicrotask(() => {
       if (relatedCase) {
-        setDeployment(initialDeployment);
+        setDeployment("");
         setProduct("");
         setIssueType("");
         setSeverity("");
@@ -258,6 +258,7 @@ export default function CreateCasePage(): JSX.Element {
   ]);
 
   useEffect(() => {
+    if (relatedCase) return;
     if (!classificationResponse?.caseInfo) return;
     const info = classificationResponse.caseInfo;
     if (info.shortDescription?.trim()) setTitle(info.shortDescription);
@@ -269,9 +270,10 @@ export default function CreateCasePage(): JSX.Element {
       const html = isLikelyHtml ? text : `<p>${escapeHtml(text)}</p>`;
       setDescription(html);
     }
-  }, [classificationResponse]);
+  }, [classificationResponse, relatedCase]);
 
   useEffect(() => {
+    if (relatedCase) return;
     if (hasClassificationAppliedRef.current || !classificationResponse) return;
     if (isFiltersLoading || isDeploymentsLoading) return;
 
@@ -321,6 +323,7 @@ export default function CreateCasePage(): JSX.Element {
   }, [
     classificationResponse,
     isFiltersLoading,
+    relatedCase,
     isDeploymentsLoading,
     baseDeploymentOptions,
     issueTypesList,
@@ -597,7 +600,10 @@ export default function CreateCasePage(): JSX.Element {
   return (
     <Box sx={{ width: "100%", pt: 0, position: "relative" }}>
       {/* header section */}
-      <CaseCreationHeader onBack={handleBack} />
+      <CaseCreationHeader
+        onBack={handleBack}
+        hideAiChip={!!relatedCase}
+      />
 
       {/* main content grid container */}
       {renderContent()}

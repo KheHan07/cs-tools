@@ -20,6 +20,7 @@ import type { JSX } from "react";
 
 export interface CaseCreationHeaderProps {
   onBack?: () => void;
+  hideAiChip?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export interface CaseCreationHeaderProps {
  */
 export function CaseCreationHeader({
   onBack,
+  hideAiChip = false,
 }: CaseCreationHeaderProps): JSX.Element {
   return (
     <Box sx={{ mb: 3 }}>
@@ -62,13 +64,15 @@ export function CaseCreationHeader({
             submitting
           </Typography>
         </Box>
-        <Chip
-          icon={<Sparkles size={10} />}
-          label="AI Generated"
-          color="warning"
-          variant="outlined"
-          sx={{ p: 0.5 }}
-        />
+        {!hideAiChip && (
+          <Chip
+            icon={<Sparkles size={10} />}
+            label="AI Generated"
+            color="warning"
+            variant="outlined"
+            sx={{ p: 0.5 }}
+          />
+        )}
       </Box>
     </Box>
   );
