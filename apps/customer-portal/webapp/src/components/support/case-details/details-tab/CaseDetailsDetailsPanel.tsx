@@ -17,6 +17,7 @@
 import { Box, Chip, Stack, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import {
   Calendar,
+  CircleCheck,
   Clock,
   Package,
   Tag,
@@ -31,6 +32,7 @@ import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 import {
   formatValue,
   formatSlaResponseTime,
+  formatUtcToLocal,
   getAssignedEngineerLabel,
   resolveColorFromTheme,
   getStatusIconElement,
@@ -230,7 +232,43 @@ export default function CaseDetailsDetailsPanel({
         </Box>
       </CaseDetailsCard>
 
-      {/* Section 3: Customer Information */}
+      {/* Section 3: Closed Case Details (only when case is closed) */}
+      {statusLabel?.toLowerCase() === "closed" && (
+        <CaseDetailsCard
+          title="Closed Case Details"
+          icon={<CircleCheck size={20} aria-hidden />}
+        >
+          <Box sx={twoColumnGridSx}>
+            <Box>
+              <Typography {...labelSx}>Closed On</Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Calendar
+                  size={16}
+                  color={theme.palette.text.secondary}
+                  aria-hidden
+                />
+                <Typography {...valueSx}>
+                  {formatUtcToLocal(data?.closedOn)}
+                </Typography>
+              </Stack>
+            </Box>
+            <Box>
+              <Typography {...labelSx}>Closed By</Typography>
+              <Typography {...valueSx}>
+                {formatValue(data?.closedBy)}
+              </Typography>
+            </Box>
+            <Box sx={{ gridColumn: { xs: "1", md: "1 / -1" } }}>
+              <Typography {...labelSx}>Close Notes</Typography>
+              <Typography {...valueSx}>
+                {formatValue(data?.closeNotes)}
+              </Typography>
+            </Box>
+          </Box>
+        </CaseDetailsCard>
+      )}
+
+      {/* Section 4: Customer Information */}
       <CaseDetailsCard
         title="Customer Information"
         icon={<Building2 size={20} aria-hidden />}
