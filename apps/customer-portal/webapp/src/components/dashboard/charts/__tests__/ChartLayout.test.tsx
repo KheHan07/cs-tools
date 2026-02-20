@@ -60,6 +60,8 @@ describe("ChartLayout", () => {
       high: 3,
       critical: 1,
       catastrophic: 0,
+      serviceRequest: 0,
+      securityReportAnalysis: 0,
       total: 11,
     },
     activeCases: {
