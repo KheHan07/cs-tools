@@ -49,7 +49,7 @@ public isolated function getChatHistory(string accountId, string conversationId)
     return aiChatAgentClient->/chat/history/[accountId]/[conversationId];
 }
 
-# Delete Chat Conversation
+# Delete Chat Conversation.
 # 
 # + accountId - Account ID
 # + conversationId - Conversation ID
