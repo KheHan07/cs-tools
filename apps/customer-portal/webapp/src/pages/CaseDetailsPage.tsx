@@ -74,6 +74,19 @@ export default function CaseDetailsPage(): JSX.Element {
     navigate(`/${projectId}/support/cases`);
   };
 
+  const handleOpenRelatedCase = () => {
+    if (!projectId) return;
+    navigate(`/${projectId}/support/chat/create-related-case`, {
+      state: {
+        relatedCase: {
+          number: data?.number ?? "",
+          title: data?.title ?? "",
+          description: data?.description ?? "",
+        },
+      },
+    });
+  };
+
   return (
     <CaseDetailsContent
       data={data}
@@ -82,6 +95,7 @@ export default function CaseDetailsPage(): JSX.Element {
       caseId={caseId || ""}
       projectId={projectId}
       onBack={handleBack}
+      onOpenRelatedCase={handleOpenRelatedCase}
     />
   );
 }

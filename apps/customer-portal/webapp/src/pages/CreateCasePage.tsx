@@ -25,7 +25,7 @@ import {
   type FormEvent,
   type JSX,
 } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectDetails from "@api/useGetProjectDetails";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
@@ -40,6 +40,7 @@ import { BasicInformationSection } from "@components/support/case-creation-layou
 import { CaseCreationHeader } from "@components/support/case-creation-layout/header/CaseCreationHeader";
 import { CaseDetailsSection } from "@components/support/case-creation-layout/form-sections/case-details-section/CaseDetailsSection";
 import { ConversationSummary } from "@components/support/case-creation-layout/form-sections/conversation-summary-section/ConversationSummary";
+import { RelatedCaseSummary } from "@components/support/case-creation-layout/form-sections/conversation-summary-section/RelatedCaseSummary";
 import {
   getBaseDeploymentOptions,
   getBaseProductOptions,
@@ -58,9 +59,17 @@ const DEFAULT_CASE_DESCRIPTION = "Please describe your issue here.";
  *
  * @returns {JSX.Element} The rendered CreateCasePage.
  */
+export interface RelatedCaseState {
+  number: string;
+  title: string;
+  description: string;
+}
+
 export default function CreateCasePage(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
+  const relatedCase = (location.state as { relatedCase?: RelatedCaseState })?.relatedCase;
   const { showLoader, hideLoader } = useLoader();
   const { data: projectDetails, isLoading: isProjectLoading } =
     useGetProjectDetails(projectId || "");
@@ -144,16 +153,20 @@ export default function CreateCasePage(): JSX.Element {
     if (isFiltersLoading || isDeploymentsLoading) return;
 
     const initialDeployment = baseDeploymentOptions[0] ?? "";
-    const initialIssueType = issueTypesList[0]?.label ?? "";
-    const initialSeverity = severityLevelsList[0]?.id ?? "";
+    const initialIssueType = relatedCase
+      ? ""
+      : (issueTypesList[0]?.label ?? "");
+    const initialSeverity = relatedCase ? "" : (severityLevelsList[0]?.id ?? "");
+    const initialTitle = relatedCase ? "" : DEFAULT_CASE_TITLE;
+    const initialDescription = relatedCase ? "" : DEFAULT_CASE_DESCRIPTION;
 
     queueMicrotask(() => {
       setDeployment(initialDeployment);
       setProduct("");
       setIssueType(initialIssueType);
       setSeverity(initialSeverity);
-      setTitle(DEFAULT_CASE_TITLE);
-      setDescription(DEFAULT_CASE_DESCRIPTION);
+      setTitle(initialTitle);
+      setDescription(initialDescription);
     });
     hasInitializedRef.current = true;
   }, [
@@ -161,6 +174,7 @@ export default function CreateCasePage(): JSX.Element {
     isDeploymentsLoading,
     issueTypesList,
     isFiltersLoading,
+    relatedCase,
     severityLevelsList,
   ]);
 
@@ -347,6 +361,7 @@ export default function CreateCasePage(): JSX.Element {
             isProductLoading={
               !!selectedDeploymentId && deploymentProductsLoading
             }
+            isRelatedCaseMode={!!relatedCase}
           />
 
           <CaseDetailsSection
@@ -367,6 +382,7 @@ export default function CreateCasePage(): JSX.Element {
             storageKey={
               projectId ? `create-case-draft-${projectId}` : undefined
             }
+            isRelatedCaseMode={!!relatedCase}
           />
 
           {/* form actions container */}
@@ -392,7 +408,9 @@ export default function CreateCasePage(): JSX.Element {
                 ? isUploadingAttachments
                   ? "Uploading Attachments..."
                   : "Creating..."
-                : "Create Support Case"}
+                : relatedCase
+                  ? "Create Related Case"
+                  : "Create Support Case"}
             </Button>
           </Box>
         </Box>
@@ -400,7 +418,15 @@ export default function CreateCasePage(): JSX.Element {
 
       {/* right column - sidebar */}
       <Grid size={{ xs: 12, md: 4 }}>
-        <ConversationSummary metadata={undefined} isLoading={false} />
+        {relatedCase ? (
+          <RelatedCaseSummary
+            number={relatedCase.number}
+            title={relatedCase.title}
+            description={relatedCase.description}
+          />
+        ) : (
+          <ConversationSummary metadata={undefined} isLoading={false} />
+        )}
       </Grid>
     </Grid>
   );

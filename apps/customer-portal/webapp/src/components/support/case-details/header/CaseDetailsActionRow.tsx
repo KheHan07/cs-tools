@@ -70,6 +70,7 @@ export interface CaseDetailsActionRowProps {
   statusLabel?: string | null;
   /** When case is closed, used to hide "Open Related Case" after 2 months. */
   closedOn?: string | null;
+  onOpenRelatedCase?: () => void;
   isLoading?: boolean;
 }
 
@@ -84,6 +85,7 @@ export default function CaseDetailsActionRow({
   engineerInitials,
   statusLabel,
   closedOn,
+  onOpenRelatedCase,
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
@@ -182,6 +184,9 @@ export default function CaseDetailsActionRow({
             variant="outlined"
             size="small"
             startIcon={<Icon size={ACTION_BUTTON_ICON_SIZE} />}
+            onClick={
+              label === "Open Related Case" ? onOpenRelatedCase : undefined
+            }
             sx={
               getActionButtonSx(theme, paletteIntent) as Record<string, unknown>
             }
