@@ -326,7 +326,7 @@ public isolated function searchProductVersions(string idToken, string productId,
     return csEntityClient->/products/[productId]/versions/search.post(payload, generateHeaders(idToken));
 }
 
-# Search timecards of a project.
+# Search timecards.
 #
 # + idToken - ID token for authorization
 # + payload - Timecard search payload containing search criteria for timecards
