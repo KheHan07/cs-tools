@@ -73,7 +73,6 @@ public isolated function processSearchUpdatesBetweenUpdateLevels(string email, t
 
     UpdateDescription[] response = check searchUpdatesBetweenUpdateLevels(email, requestPayload);
     return from UpdateDescription description in response
-        let string? bundlesInfoChanges = description?.bundles\-info\-changes
         let DependantRelease[]? dependantReleases = description?.dependant\-releases
         select {
             productName: description.product\-name,
@@ -81,16 +80,26 @@ public isolated function processSearchUpdatesBetweenUpdateLevels(string email, t
             channel: description.channel,
             updateLevel: description.update\-level,
             updateNumber: description.update\-number,
-            description: description.description,
-            instructions: description.instructions,
-            bugFixes: description.bug\-fixes,
-            filesAdded: description.files\-added,
-            filesModified: description.files\-modified,
-            filesRemoved: description.files\-removed,
-            bundlesInfoChanges,
-            updateType: description.update\-type,
+            description: description?.description,
+            instructions: description?.instructions,
+            bugFixes: description?.bug\-fixes,
+            filesAdded: description?.files\-added,
+            filesModified: description?.files\-modified,
+            filesRemoved: description?.files\-removed,
+            bundlesInfoChanges: description?.bundles\-info\-changes,
+            updateType: description?.update\-type,
             timestamp: description.timestamp,
-            securityAdvisories: description.security\-advisories,
+            securityAdvisories: from SecurityAdvisoryDescription advisory in description.security\-advisories
+                select {
+                    id: advisory.id,
+                    overview: advisory.overview,
+                    severity: advisory.severity,
+                    description: advisory.description,
+                    impact: advisory.impact,
+                    solution: advisory.solution,
+                    notes: advisory.notes,
+                    credits: advisory.credits
+                },
             dependantReleases: dependantReleases is () ? () : from DependantRelease release in dependantReleases
                     select {
                         repository: release.repository,

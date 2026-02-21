@@ -820,23 +820,23 @@ public type UpdateDescription record {|
     # Update number
     int updateNumber;
     # Description
-    string description;
+    string? description?;
     # Instructions
-    string instructions;
+    string? instructions?;
     # Bug fixes
-    string bugFixes;
+    string? bugFixes?;
     # Files added
-    string filesAdded;
+    string? filesAdded?;
     # Files modified
-    string filesModified;
+    string? filesModified?;
     # Files removed
-    string filesRemoved;
+    string? filesRemoved?;
     # Bundles info changes
     string? bundlesInfoChanges?;
     # Dependant releases
     DependantRelease[]? dependantReleases?;
     # Update type
-    string updateType;
+    string? updateType?;
     # timestamp
     int timestamp;
     # Security advisorie descriptions

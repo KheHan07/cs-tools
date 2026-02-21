@@ -183,23 +183,23 @@ public type UpdateDescription record {|
     # Update number
     int update\-number;
     # Description
-    string description;
+    string? description?;
     # Instructions
-    string instructions;
+    string? instructions?;
     # Bug fixes
-    string bug\-fixes;
+    string? bug\-fixes?;
     # Files added
-    string files\-added;
+    string? files\-added?;
     # Files modified
-    string files\-modified;
+    string? files\-modified?;
     # Files removed
-    string files\-removed;
+    string? files\-removed?;
     # Bundles info changes
     string? bundles\-info\-changes?;
     # Dependant releases
     DependantRelease[]? dependant\-releases?;
     # Update type
-    string update\-type;
+    string? update\-type?;
     # timestamp
     int timestamp;
     # Security advisorie descriptions
@@ -213,6 +213,7 @@ public type DependantRelease record {|
     string repository;
     # Release version
     string release\-version;
+    json...;
 |};
 
 # Security advisory description.
@@ -233,4 +234,5 @@ public type SecurityAdvisoryDescription record {|
     string notes;
     # Credits
     string credits;
+    json...;
 |};
