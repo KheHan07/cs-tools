@@ -201,6 +201,7 @@ const Editor = ({
   showToolbar = true,
   toolbarVariant = "full",
   onSubmitKeyDown,
+  placeholder = "Enter description...",
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -353,7 +354,7 @@ const Editor = ({
                   userSelect: "none",
                 }}
               >
-                Enter description...
+                {placeholder}
               </Typography>
             }
             ErrorBoundary={LexicalErrorBoundary}

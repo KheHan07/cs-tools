@@ -55,7 +55,7 @@ export function usePatchCallRequest(
       payload: PatchCallRequest & { callRequestId: string },
     ): Promise<CallRequestResponse> => {
       const { callRequestId, ...rest } = payload;
-      const body: Record<string, unknown> = {
+      const body: PatchCallRequest = {
         reason: rest.reason,
         stateKey: rest.stateKey,
       };
@@ -79,7 +79,7 @@ export function usePatchCallRequest(
         const response = await fetchFn(requestUrl, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body as unknown as PatchCallRequest),
+          body: JSON.stringify(body),
         });
 
         logger.debug(
