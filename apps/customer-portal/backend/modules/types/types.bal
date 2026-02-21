@@ -771,7 +771,7 @@ public type Conversation record {|
     int messageCount;
     # Created date and time
     string createdOn;
-    # User who created the chat
+    # User who created the conversation
     string createdBy;
     # Project information
     ReferenceItem? project;
@@ -785,7 +785,7 @@ public type Conversation record {|
 # Conversations response.
 public type ConversationResponse record {|
     # List of conversations
-    Conversation[] chats;
+    Conversation[] conversations;
     # Total records count
     int totalRecords;
     *entity:Pagination;
@@ -894,7 +894,7 @@ public type ConversationSearchPayload record {|
     # Sort configuration
     record {
         # Field to sort by
-        entity:ChatSortField 'field;
+        entity:ConversationSortField 'field;
         # Sort order
         entity:SortOrder 'order;
     } sortBy?;

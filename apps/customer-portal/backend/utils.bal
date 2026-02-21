@@ -449,12 +449,12 @@ public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse resp
 
 # Map conversation search response to the desired structure.
 # 
-# + response - Chat search response from the entity service
-# + return - Mapped chat search response
+# + response - Conversation search response from the entity service
+# + return - Mapped conversation search response
 public isolated function mapConversationSearchResponse(entity:ConversationResponse response)
     returns types:ConversationResponse {
 
-    types:Conversation[] chats = from entity:Conversation chat in response.conversations
+    types:Conversation[] conversations = from entity:Conversation chat in response.conversations
         let entity:ReferenceTableItem? project = chat.project
         let entity:ReferenceTableItem? case = chat.case
         let entity:ChoiceListItem? state = chat.state
@@ -471,7 +471,7 @@ public isolated function mapConversationSearchResponse(entity:ConversationRespon
         };
 
     return {
-        chats,
+        conversations,
         totalRecords: response.totalRecords,
         'limit: response.'limit,
         offset: response.offset

@@ -41,8 +41,8 @@ public enum CommentType {
     WORK_NOTE = "work_note"
 }
 
-# Valid chat sort field values.
-public enum ChatSortField {
+# Valid conversation sort field values.
+public enum ConversationSortField {
     CHAT_CREATED_ON = "createdOn",
     CHAT_UPDATED_ON = "updatedOn"
 }

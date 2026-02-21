@@ -27,7 +27,6 @@ const WAITING_ON_WSO2 = 1003;
 const CLOSED = 3;
 const REOPENED = 1006;
 
-# Valid chat state values
+# Valid conversation state values
 const ACTIVE = 2;
 const RESOLVED = 3;
-const CONVERTED = 4;

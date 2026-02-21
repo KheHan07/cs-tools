@@ -65,12 +65,12 @@ public isolated function getCaseStatsForProject(string idToken, string id, strin
     return csEntityClient->/projects/[id]/cases/stats.get(generateHeaders(idToken));
 }
 
-# Get converstaion statistics of a project by ID.
+# Get conversation statistics of a project by ID.
 #
 # + idToken - ID token for authorization
 # + id - Unique ID of the project
-# + return - Project chats statistics or error
-public isolated function getConverstationStatsForProject(string idToken, string id)
+# + return - Project conversations statistics or error
+public isolated function getConversationStatsForProject(string idToken, string id)
     returns ProjectConversationStatsResponse|error {
 
     return csEntityClient->/projects/[id]/conversations/stats.get(generateHeaders(idToken));
@@ -347,7 +347,7 @@ public isolated function searchTimeCards(string idToken, TimeCardSearchPayload p
 public isolated function searchConversations(string idToken, ConversationSearchPayload payload)
     returns ConversationResponse|error {
 
-    return csEntityClient->/chats/search.post(payload, generateHeaders(idToken));
+    return csEntityClient->/conversations/search.post(payload, generateHeaders(idToken));
 }
 
 # Create a conversation.

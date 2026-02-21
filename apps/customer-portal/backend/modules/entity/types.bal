@@ -359,7 +359,7 @@ public type ProjectMetadataResponse record {|
     ChoiceListItem[] changeRequestStates;
     # List of available change request impacts
     ChoiceListItem[] changeRequestImpacts;
-    # List of available converstaion states
+    # List of available conversation states
     ChoiceListItem[] conversationStates;
     # List of available case types
     ReferenceTableItem[] caseTypes;
@@ -1102,7 +1102,7 @@ public type ConversationSearchPayload record {|
     # Sort configuration
     record {
         # Field to sort by
-        ChatSortField 'field;
+        ConversationSortField 'field;
         # Sort order
         SortOrder 'order;
     } sortBy?;
@@ -1144,7 +1144,7 @@ public type TimeCardsResponse record {|
     TimeCard[] timeCards;
 |};
 
-# Chat data.
+# Conversation data.
 public type Conversation record {|
     # ID of the chat
     IdString id;

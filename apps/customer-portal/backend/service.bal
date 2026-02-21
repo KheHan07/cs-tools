@@ -517,7 +517,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
         // Fetch chat stats
         entity:ProjectConversationStatsResponse|error conversationStats =
-            entity:getConverstationStatsForProject(userInfo.idToken, id);
+            entity:getConversationStatsForProject(userInfo.idToken, id);
         if conversationStats is error {
             log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
             // To return other stats even if chat stats retrieval fails, error will not be returned.
@@ -672,7 +672,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
         // Fetch chat stats
         entity:ProjectConversationStatsResponse|error conversationStats =
-            entity:getConverstationStatsForProject(userInfo.idToken, id);
+            entity:getConversationStatsForProject(userInfo.idToken, id);
         if conversationStats is error {
             log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
             // To return other stats even if chat stats retrieval fails, error will not be returned.
@@ -991,7 +991,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Conversation search request body
     # + return - Paginated conversations or error
-    resource function post projects/[string id]/conversations/search(http:RequestContext ctx,
+    resource function post projects/[entity:IdString id]/conversations/search(http:RequestContext ctx,
             types:ConversationSearchPayload payload)
         returns http:Ok|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
