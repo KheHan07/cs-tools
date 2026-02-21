@@ -48,6 +48,12 @@ vi.mock("@api/useGetCaseAttachments", () => ({
   })),
 }));
 
+vi.mock("@api/useInfiniteCallRequests", () => ({
+  useInfiniteCallRequests: vi.fn(() => ({
+    data: { pages: [{ totalRecords: 2, callRequests: [] }] },
+  })),
+}));
+
 vi.mock("@case-details/CaseDetailsTabPanels", () => ({
   __esModule: true,
   default: () => <div data-testid="tab-panels">Tab panels</div>,

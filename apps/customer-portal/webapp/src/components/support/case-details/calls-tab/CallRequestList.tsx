@@ -22,6 +22,7 @@ import CallRequestCard from "@case-details-calls/CallRequestCard";
 export interface CallRequestListProps {
   requests: CallRequest[];
   onEditClick?: (call: CallRequest) => void;
+  onDeleteClick?: (call: CallRequest) => void;
 }
 
 /**
@@ -33,6 +34,7 @@ export interface CallRequestListProps {
 export default function CallRequestList({
   requests,
   onEditClick,
+  onDeleteClick,
 }: CallRequestListProps): JSX.Element {
   return (
     <Stack spacing={2}>
@@ -41,6 +43,7 @@ export default function CallRequestList({
           key={call.id}
           call={call}
           onEditClick={onEditClick}
+          onDeleteClick={onDeleteClick}
         />
       ))}
     </Stack>

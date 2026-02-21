@@ -16,17 +16,17 @@
 
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
   Divider,
-  IconButton,
   Stack,
   Typography,
   alpha,
   useTheme,
 } from "@wso2/oxygen-ui";
-import { Clock, Pencil, Phone, Trash2 } from "@wso2/oxygen-ui-icons-react";
+import { Clock, Phone } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 import type { CallRequest } from "@models/responses";
 import {
@@ -38,6 +38,7 @@ import {
 export interface CallRequestCardProps {
   call: CallRequest;
   onEditClick?: (call: CallRequest) => void;
+  onDeleteClick?: (call: CallRequest) => void;
 }
 
 /** Renders preferred times (UTC) converted to local. */
@@ -58,6 +59,7 @@ function formatPreferredTimes(times: string[] | undefined): string {
 export default function CallRequestCard({
   call,
   onEditClick,
+  onDeleteClick,
 }: CallRequestCardProps): JSX.Element {
   const theme = useTheme();
   const statusLabel = call.state?.label ?? "--";
@@ -74,87 +76,104 @@ export default function CallRequestCard({
           justifyContent="space-between"
           sx={{ mb: 2 }}
         >
-          <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ flex: 1 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              p: 1,
-              borderRadius: "50%",
-              bgcolor: alpha(theme.palette.info.main, 0.1),
-              color: "info.main",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="flex-start"
+            sx={{ flex: 1 }}
           >
-            <Phone size={20} />
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{ mb: 0.5 }}
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                p: 1,
+                borderRadius: "50%",
+                bgcolor: alpha(theme.palette.info.main, 0.1),
+                color: "info.main",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
             >
-              <Typography variant="body2" fontWeight="medium">
-                Call Request
-              </Typography>
-              <Chip
-                label={statusLabel}
-                size="small"
-                variant="outlined"
-                icon={<Clock size={10} />}
-                sx={{
-                  height: 20,
-                  fontSize: "0.625rem",
-                  bgcolor: alpha(resolvedColor, 0.1),
-                  color: resolvedColor,
-                  px: 0,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  "& .MuiChip-icon": {
-                    color: "inherit",
-                    ml: "6px",
-                    mr: "6px",
-                    mt: 0,
-                    mb: 0,
-                    alignSelf: "center",
-                  },
-                  "& .MuiChip-label": {
-                    pl: 0,
-                    pr: "6px",
-                    display: "flex",
+              <Phone size={20} />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 0.5 }}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  Call Request
+                </Typography>
+                <Chip
+                  label={statusLabel}
+                  size="small"
+                  variant="outlined"
+                  icon={<Clock size={10} />}
+                  sx={{
+                    height: 20,
+                    fontSize: "0.625rem",
+                    bgcolor: alpha(resolvedColor, 0.1),
+                    color: resolvedColor,
+                    px: 0,
+                    display: "inline-flex",
                     alignItems: "center",
-                  },
-                }}
-              />
-            </Stack>
-            <Typography variant="caption" color="text.secondary">
-              Requested on {formatUtcToLocal(call.createdOn, "short")}
-            </Typography>
-          </Box>
+                    justifyContent: "center",
+                    "& .MuiChip-icon": {
+                      color: "inherit",
+                      ml: "6px",
+                      mr: "6px",
+                      mt: 0,
+                      mb: 0,
+                      alignSelf: "center",
+                    },
+                    "& .MuiChip-label": {
+                      pl: 0,
+                      pr: "6px",
+                      display: "flex",
+                      alignItems: "center",
+                    },
+                  }}
+                />
+              </Stack>
+              <Typography variant="caption" color="text.secondary">
+                Requested on {formatUtcToLocal(call.createdOn, "short")}
+              </Typography>
+            </Box>
           </Stack>
-          <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
-            <IconButton
-              size="small"
-              aria-label={`Edit call request ${call.id}`}
+          <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
+            <Button
+              variant="contained"
+              color="warning"
               onClick={() => onEditClick?.(call)}
-              sx={{ p: 0.5 }}
+              sx={{
+                minWidth: "auto",
+                px: 1,
+                py: 0.3,
+                fontSize: "0.7rem",
+                height: 24,
+              }}
             >
-              <Pencil size={16} />
-            </IconButton>
-            <IconButton
-              size="small"
-              aria-label={`Delete call request ${call.id}`}
-              disabled
-              aria-disabled
-              sx={{ p: 0.5 }}
+              Reschedule
+            </Button>
+
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => onDeleteClick?.(call)}
+              sx={{
+                minWidth: "auto",
+                px: 1,
+                py: 0.3,
+                fontSize: "0.7rem",
+                height: 24,
+              }}
             >
-              <Trash2 size={16} />
-            </IconButton>
+              Cancel
+            </Button>
           </Stack>
         </Stack>
 
