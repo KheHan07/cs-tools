@@ -1422,7 +1422,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + payload - Contact information to be added
     # + return - Membership information or error response
     resource function post projects/[string id]/contacts(http:RequestContext ctx,
-            types:OnBoardContactPayload payload)
+            types:ContactOnboardPayload payload)
         returns user_management:Membership|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
