@@ -109,19 +109,22 @@ public type ProjectResponse record {|
     string 'type;
     # Salesforce ID
     string sfId;
-    # Subscription information
-    Subscription? subscription;
-    json...;
-|};
-
-# Project subscription information.
-public type Subscription record {|
-    # Subscription start date
-    string? startDate;
-    # Subscription end date
-    string? endDate;
-    # Support tier
-    string? supportTier;
+    # Account information
+    record {|
+        # System ID of the account
+        IdString id;
+        # Name of the account
+        string? name;
+        # Activation date
+        string? activationDate;
+        # Deactivation date
+        string? deactivationDate;
+        # Support tier
+        string? supportTier;
+        # Region
+        string? region;
+        json...;
+    |}? account;
     json...;
 |};
 
@@ -143,6 +146,10 @@ public type CaseCreatePayload record {|
     int issueTypeKey;
     # Severity key
     int severityKey;
+    # Related case ID (if the case is related to an existing case)
+    IdString parentCaseId?;
+    # Chat ID (if the case is related to a chat)
+    IdString chatId?;
 |};
 
 # Response from creating a case.
@@ -225,6 +232,10 @@ public type Case record {|
     ReferenceTableItem? deployment;
     # Deployed product information
     ReferenceTableItem? deployedProduct;
+    # Related case information (if the case is related to an existing case)
+    ReferenceTableItem? parentCase;
+    # Related chat information (if the case is related to a chat)
+    ReferenceTableItem? chat;
     # issue type of the case
     ChoiceListItem? issueType;
     # Status information
@@ -934,7 +945,7 @@ public type CallRequestCreatePayload record {|
     # Case ID
     IdString caseId;
     # Reason for the call request
-    string reason;
+    string reason?;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
     Date[] utcTimes;

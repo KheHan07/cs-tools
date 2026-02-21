@@ -52,6 +52,8 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
         let entity:ChoiceListItem? issueType = case.issueType
         let entity:ReferenceTableItem? deployment = case.deployment
         let entity:ReferenceTableItem? assignedEngineer = case.assignedEngineer
+        let entity:ReferenceTableItem? parentCase = case.parentCase
+        let entity:ReferenceTableItem? chat = case.chat
         let entity:ChoiceListItem? severity = case.severity
         let entity:ChoiceListItem? state = case.state
         select {
@@ -67,6 +69,8 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
             issueType: issueType != () ? {id: issueType.id.toString(), label: issueType.label} : (),
             deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
             assignedEngineer: assignedEngineer != () ? {id: assignedEngineer.id, label: assignedEngineer.name} : (),
+            parentCase: parentCase != () ? {id: parentCase.id, label: parentCase.name} : (),
+            chat: chat != () ? {id: chat.id, label: chat.name} : (),
             severity: severity != () ? {id: severity.id.toString(), label: severity.label} : (),
             status: state != () ? {id: state.id.toString(), label: state.label} : ()
         };

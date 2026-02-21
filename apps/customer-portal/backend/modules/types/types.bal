@@ -79,6 +79,10 @@ public type Case record {|
     ReferenceItem? 'type;
     # Deployed product information
     ReferenceItem? deployedProduct;
+    # Related case information (if the case is related to an existing case)
+    ReferenceItem? parentCase;
+    # Related chat information (if the case is related to a chat)
+    ReferenceItem? chat;
     # issueType of the case
     ReferenceItem? issueType;
     # Deployment
