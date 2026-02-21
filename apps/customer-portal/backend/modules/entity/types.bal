@@ -1119,12 +1119,12 @@ public type TimeCard record {|
     # Associated project
     ReferenceTableItem? project;
     # Associated case
-    CaseAssociatedWithTimeCard? case;
+    TimeCardCase? case;
     json...;
 |};
 
 # Time card information associated with a case.
-public type CaseAssociatedWithTimeCard record {|
+public type TimeCardCase record {|
     *ReferenceTableItem;
     # Case number
     string number;

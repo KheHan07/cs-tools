@@ -425,7 +425,7 @@ public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse resp
     types:TimeCard[] timeCards = from entity:TimeCard timeCard in response.timeCards
         let entity:ReferenceTableItem? approvedBy = timeCard.approvedBy
         let entity:ReferenceTableItem? project = timeCard.project
-        let entity:CaseAssociatedWithTimeCard? case = timeCard.case
+        let entity:TimeCardCase? case = timeCard.case
         select {
             id: timeCard.id,
             totalTime: timeCard.totalTime,
