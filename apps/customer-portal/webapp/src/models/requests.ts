@@ -104,4 +104,5 @@ export interface PatchCallRequest {
   reason: string;
   stateKey: number;
   utcTimes: string[];
+  utcTimes?: string[];
 }

@@ -23,7 +23,7 @@ import {
   useMemo,
   type JSX,
 } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { usePostCaseClassifications } from "@api/usePostCaseClassifications";
 import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
@@ -50,6 +50,9 @@ export interface Message {
 export default function NoveraChatPage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
+  const location = useLocation();
+  const initialUserMessage = (location.state as { initialUserMessage?: string } | null)
+    ?.initialUserMessage;
 
   const handleBack = () => {
     if (projectId) {
@@ -72,14 +75,26 @@ export default function NoveraChatPage(): JSX.Element {
   const [isCreateCaseLoading, setIsCreateCaseLoading] = useState(false);
   const [isWaitingForClassification, setIsWaitingForClassification] =
     useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const botWelcome: Message = {
       id: "1",
       text: "Hi! I'm Novera, your AI support assistant. I'm here to help you resolve your issue quickly. Can you describe the problem you're experiencing?",
       sender: "bot",
       timestamp: new Date(),
-    },
-  ]);
+    };
+    if (initialUserMessage?.trim()) {
+      return [
+        botWelcome,
+        {
+          id: "2",
+          text: initialUserMessage.trim(),
+          sender: "user" as const,
+          timestamp: new Date(),
+        },
+      ];
+    }
+    return [botWelcome];
+  });
 
   const performClassification = useCallback(async () => {
     if (!projectId) {
