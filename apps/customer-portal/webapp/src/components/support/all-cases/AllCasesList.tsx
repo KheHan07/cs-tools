@@ -122,7 +122,7 @@ export default function AllCasesList({
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      {mapSeverityToDisplay(caseItem.severity?.label) || "--"}
+                      {mapSeverityToDisplay(caseItem.severity?.label)}
                     </Typography>
                   </Box>
                   <Chip

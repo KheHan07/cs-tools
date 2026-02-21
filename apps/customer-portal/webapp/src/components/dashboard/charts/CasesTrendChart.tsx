@@ -48,7 +48,7 @@ export const CasesTrendChart = ({
   isLoading,
   isError,
 }: CasesTrendChartProps): JSX.Element => {
-  const chartData = isError ? [] : data || [];
+  const chartData = isError ? [] : (data ?? []);
 
   return (
     <Card sx={{ p: 2, height: "100%" }}>

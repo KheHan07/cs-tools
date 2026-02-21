@@ -255,26 +255,26 @@ const Toolbar = ({
   };
 
   const onBlockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const variant = e.target.value;
-    setBlockVariant(variant);
+    const blockType = e.target.value;
+    setBlockVariant(blockType);
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        if (variant.startsWith("h")) {
-          const level = parseInt(variant.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6;
+        if (blockType.startsWith("h")) {
+          const level = parseInt(blockType.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6;
           $setBlocksType(selection, () =>
             $createHeadingNode(
               `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
             ),
           );
           $patchStyleText(selection, { "font-size": null });
-        } else if (variant === "quote") {
+        } else if (blockType === "quote") {
           $setBlocksType(selection, () => $createQuoteNode());
           $patchStyleText(selection, { "font-size": null });
         } else {
           $setBlocksType(selection, () => $createParagraphNode());
           const typo = theme.typography[
-            variant as keyof typeof theme.typography
+            blockType as keyof typeof theme.typography
           ] as { fontSize?: string | number };
           const fontSize = typo?.fontSize ?? theme.typography.body1.fontSize;
           $patchStyleText(selection, { "font-size": String(fontSize) });

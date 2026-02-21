@@ -18,10 +18,10 @@ import type { ReactElement } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useInfiniteCallRequests } from "@api/useInfiniteCallRequests";
+import { useGetCallRequests } from "@api/useGetCallRequests";
 import CallsPanel from "@case-details-calls/CallsPanel";
 
-vi.mock("@api/useInfiniteCallRequests");
+vi.mock("@api/useGetCallRequests");
 vi.mock("@api/usePostCallRequest", () => ({
   usePostCallRequest: () => ({
     mutate: vi.fn(),
@@ -29,9 +29,10 @@ vi.mock("@api/usePostCallRequest", () => ({
   }),
 }));
 
+const mockPatchMutate = vi.fn();
 vi.mock("@api/usePatchCallRequest", () => ({
   usePatchCallRequest: () => ({
-    mutate: vi.fn(),
+    mutate: mockPatchMutate,
     isPending: false,
   }),
 }));
@@ -52,7 +53,7 @@ const mockCaseId = "case-1";
 
 describe("CallsPanel", () => {
   it("should render loading state", () => {
-    vi.mocked(useInfiniteCallRequests).mockReturnValue({
+    vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: true,
       data: undefined,
       isError: false,
@@ -60,14 +61,14 @@ describe("CallsPanel", () => {
       fetchNextPage: vi.fn(),
       hasNextPage: false,
       isFetchingNextPage: false,
-    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByTestId("calls-list-skeleton")).toBeInTheDocument();
   });
 
   it("should render error state", () => {
-    vi.mocked(useInfiniteCallRequests).mockReturnValue({
+    vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: false,
       isError: true,
       data: undefined,
@@ -75,7 +76,7 @@ describe("CallsPanel", () => {
       fetchNextPage: vi.fn(),
       hasNextPage: false,
       isFetchingNextPage: false,
-    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -84,7 +85,7 @@ describe("CallsPanel", () => {
   });
 
   it("should render call requests", () => {
-    vi.mocked(useInfiniteCallRequests).mockReturnValue({
+    vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
@@ -110,7 +111,7 @@ describe("CallsPanel", () => {
           },
         ],
       },
-    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByText(/Call Request/i)).toBeInTheDocument();
@@ -119,7 +120,7 @@ describe("CallsPanel", () => {
   });
 
   it("should render empty state", () => {
-    vi.mocked(useInfiniteCallRequests).mockReturnValue({
+    vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
@@ -127,7 +128,7 @@ describe("CallsPanel", () => {
       hasNextPage: false,
       isFetchingNextPage: false,
       data: { pages: [{ callRequests: [] }] },
-    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -135,8 +136,93 @@ describe("CallsPanel", () => {
     ).toBeInTheDocument();
   });
 
+  it("should show delete confirmation modal and call patch on confirm", () => {
+    mockPatchMutate.mockClear();
+    const mockCall = {
+      id: "call-1",
+      case: { id: "case-1", label: "CS0438719" },
+      reason: "Test notes",
+      preferredTimes: ["2024-10-29 14:00:00"],
+      durationMin: 60,
+      scheduleTime: "2024-11-05 14:00:00",
+      createdOn: "2024-10-29 10:00:00",
+      updatedOn: "2024-10-29 10:00:00",
+      state: { id: "1", label: "Pending on WSO2" },
+    };
+    vi.mocked(useGetCallRequests).mockReturnValue({
+      isPending: false,
+      isError: false,
+      refetch: vi.fn(),
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      data: {
+        pages: [{ callRequests: [mockCall] }],
+      },
+    } as unknown as ReturnType<typeof useGetCallRequests>);
+
+    renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+
+    expect(screen.getByText(/Are you sure you want to cancel/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Go Back/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Confirm/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
+
+    expect(mockPatchMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        callRequestId: "call-1",
+        reason: "",
+        stateKey: 6,
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it("should show Load more and call fetchNextPage when clicked", () => {
+    const mockFetchNextPage = vi.fn();
+    vi.mocked(useGetCallRequests).mockReturnValue({
+      isPending: false,
+      isError: false,
+      refetch: vi.fn(),
+      fetchNextPage: mockFetchNextPage,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      data: {
+        pages: [
+          {
+            callRequests: [
+              {
+                id: "call-1",
+                case: { id: "case-1", label: "CS0438719" },
+                reason: "Notes",
+                preferredTimes: [],
+                durationMin: 60,
+                scheduleTime: "2024-11-05 14:00:00",
+                createdOn: "2024-10-29 10:00:00",
+                updatedOn: "2024-10-29 10:00:00",
+                state: { id: "1", label: "Pending" },
+              },
+            ],
+          },
+        ],
+      },
+    } as unknown as ReturnType<typeof useGetCallRequests>);
+
+    renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
+
+    const loadMoreBtn = screen.getByRole("button", { name: /Load more/i });
+    expect(loadMoreBtn).toBeInTheDocument();
+
+    fireEvent.click(loadMoreBtn);
+
+    expect(mockFetchNextPage).toHaveBeenCalled();
+  });
+
   it("should open Request Call modal when button is clicked", () => {
-    vi.mocked(useInfiniteCallRequests).mockReturnValue({
+    vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
@@ -144,7 +230,7 @@ describe("CallsPanel", () => {
       hasNextPage: false,
       isFetchingNextPage: false,
       data: { pages: [{ callRequests: [] }] },
-    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
+    } as unknown as ReturnType<typeof useGetCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
 
