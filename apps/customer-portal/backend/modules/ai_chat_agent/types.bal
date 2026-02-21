@@ -153,6 +153,7 @@ public type RecommendationItem record {|
     string articleId;
     # Similarity score
     float score;
+    json...;
 |};
 
 # Recommendation response.
