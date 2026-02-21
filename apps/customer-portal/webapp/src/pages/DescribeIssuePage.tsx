@@ -60,7 +60,7 @@ export default function DescribeIssuePage(): JSX.Element {
     });
   }, [plainText, navigate, projectId]);
 
-  const isSubmitDisabled = !plainText.trim();
+  const isSubmitDisabled = !projectId || !plainText.trim();
 
   return (
     <Box
@@ -99,11 +99,13 @@ export default function DescribeIssuePage(): JSX.Element {
                 fontWeight={500}
                 color="text.primary"
                 component="label"
+                htmlFor="describe-issue-editor"
                 sx={{ display: "block", mb: 1 }}
               >
                 Describe your issue
               </Typography>
               <Editor
+                id="describe-issue-editor"
                 value={value}
                 onChange={setValue}
                 placeholder={ISSUE_PLACEHOLDER}

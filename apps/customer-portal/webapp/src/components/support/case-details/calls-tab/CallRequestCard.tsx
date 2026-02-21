@@ -152,7 +152,7 @@ export default function CallRequestCard({
             <Button
               variant="contained"
               color="warning"
-              onClick={() => !isTerminal && onEditClick?.(call)}
+              onClick={() => onEditClick?.(call)}
               disabled={isTerminal}
               sx={{
                 minWidth: "auto",
@@ -168,7 +168,7 @@ export default function CallRequestCard({
             <Button
               variant="contained"
               color="error"
-              onClick={() => !isTerminal && onDeleteClick?.(call)}
+              onClick={() => onDeleteClick?.(call)}
               disabled={isTerminal}
               sx={{
                 minWidth: "auto",

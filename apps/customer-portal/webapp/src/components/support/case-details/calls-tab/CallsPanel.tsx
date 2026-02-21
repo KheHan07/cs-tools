@@ -102,7 +102,7 @@ export default function CallsPanel({
         },
         onError: (error) => {
           handleCloseDeleteModal();
-          setErrorMessage(error.message ?? "Failed to cancel call request.");
+          setErrorMessage(error.message || "Failed to cancel call request.");
         },
       },
     );

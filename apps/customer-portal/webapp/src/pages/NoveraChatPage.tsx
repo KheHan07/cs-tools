@@ -235,7 +235,11 @@ export default function NoveraChatPage(): JSX.Element {
             onSend={handleSendMessage}
             inputValue={inputValue}
             setInputValue={setInputValue}
-            showEscalationBanner={messages.length > 4}
+            showEscalationBanner={
+              messages.length -
+                (initialUserMessage?.trim() ? 1 : 0) >
+              4
+            }
             onCreateCase={handleCreateCase}
             isCreateCaseLoading={isCreateCaseLoading}
           />

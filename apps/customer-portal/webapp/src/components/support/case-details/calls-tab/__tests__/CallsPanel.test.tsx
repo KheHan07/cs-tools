@@ -16,9 +16,10 @@
 
 import type { ReactElement } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGetCallRequests } from "@api/useGetCallRequests";
+import { CALL_REQUEST_STATE_CANCELLED } from "@constants/supportConstants";
 import CallsPanel from "@case-details-calls/CallsPanel";
 
 vi.mock("@api/useGetCallRequests");
@@ -52,6 +53,10 @@ const mockProjectId = "project-1";
 const mockCaseId = "case-1";
 
 describe("CallsPanel", () => {
+  beforeEach(() => {
+    mockPatchMutate.mockClear();
+  });
+
   it("should render loading state", () => {
     vi.mocked(useGetCallRequests).mockReturnValue({
       isPending: true,
@@ -137,7 +142,6 @@ describe("CallsPanel", () => {
   });
 
   it("should show delete confirmation modal and call patch on confirm", () => {
-    mockPatchMutate.mockClear();
     const mockCall = {
       id: "call-1",
       case: { id: "case-1", label: "CS0438719" },
@@ -175,7 +179,7 @@ describe("CallsPanel", () => {
       expect.objectContaining({
         callRequestId: "call-1",
         reason: "",
-        stateKey: 6,
+        stateKey: CALL_REQUEST_STATE_CANCELLED,
       }),
       expect.any(Object),
     );

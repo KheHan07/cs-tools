@@ -43,7 +43,13 @@ export function useGetCallRequests(
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
-  return useInfiniteQuery<CallRequestsResponse, Error>({
+  return useInfiniteQuery<
+    CallRequestsResponse,
+    Error,
+    InfiniteData<CallRequestsResponse>,
+    readonly (string | number)[],
+    number
+  >({
     queryKey: [ApiQueryKeys.CASE_CALL_REQUESTS, projectId, caseId],
     queryFn: async ({ pageParam }): Promise<CallRequestsResponse> => {
       logger.debug(
@@ -62,7 +68,7 @@ export function useGetCallRequests(
 
         const requestUrl = `${baseUrl}/cases/${caseId}/call-requests/search`;
         const body = JSON.stringify({
-          pagination: { limit: LIMIT, offset: pageParam as number },
+          pagination: { limit: LIMIT, offset: pageParam },
         });
 
         const response = await fetchFn(requestUrl, {

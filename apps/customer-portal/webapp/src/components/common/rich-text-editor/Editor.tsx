@@ -34,7 +34,7 @@ import { Trash, ChevronLeft, ChevronRight } from "@wso2/oxygen-ui-icons-react";
 import { getFileIcon, scrollElement } from "@utils/richTextEditor";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import Toolbar from "@components/common/rich-text-editor/ToolBar";
+import Toolbar, { type ToolbarVariant } from "@components/common/rich-text-editor/ToolBar";
 import type { JSX } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ImageNode } from "@components/common/rich-text-editor/ImageNode";
@@ -130,8 +130,9 @@ const EnterSubmitPlugin = ({
     return editor.registerCommand(
       KEY_ENTER_COMMAND,
       (event: KeyboardEvent | null) => {
-        if (event?.shiftKey) return false;
-        event?.preventDefault?.();
+        if (event === null) return false;
+        if (event.shiftKey) return false;
+        event.preventDefault?.();
         onSubmit();
         return true;
       },
@@ -202,6 +203,7 @@ const Editor = ({
   toolbarVariant = "full",
   onSubmitKeyDown,
   placeholder = "Enter description...",
+  id,
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -212,10 +214,11 @@ const Editor = ({
   resetTrigger?: number;
   minHeight?: number | string;
   showToolbar?: boolean;
-  toolbarVariant?: "full" | "describeIssue";
+  toolbarVariant?: ToolbarVariant;
   /** When provided, Enter (without Shift) triggers this callback to submit. Shift+Enter inserts newline. */
   onSubmitKeyDown?: () => void;
   placeholder?: string;
+  id?: string;
 }): JSX.Element => {
   const oxygenTheme = useTheme();
   const logger = useLogger();
@@ -338,6 +341,7 @@ const Editor = ({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
+                id={id}
                 className="editor-input"
                 data-testid="case-description-editor"
               />
