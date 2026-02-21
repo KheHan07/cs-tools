@@ -104,7 +104,7 @@ public type ProjectResponse record {|
     string sfId;
     # Account information
     record {|
-        # System ID of the account
+        # ID of the account
         IdString id;
         # Name of the account
         string? name;
@@ -141,8 +141,8 @@ public type CaseCreatePayload record {|
     int severityKey;
     # Related case ID (if the case is related to an existing case)
     IdString parentCaseId?;
-    # Chat ID (if the case is related to a chat)
-    IdString chatId?;
+    # Conversation ID (if the case is related to a conversation)
+    IdString conversationId?;
 |};
 
 # Response from creating a case.
@@ -188,7 +188,7 @@ public type CaseUpdateResponse record {|
 
 # Updated case details.
 public type UpdatedCase record {|
-    # System ID of the updated case
+    # ID of the updated case
     IdString id;
     # Updated date and time
     string updatedOn;
@@ -227,8 +227,8 @@ public type Case record {|
     ReferenceTableItem? deployedProduct;
     # Related case information (if the case is related to an existing case)
     ReferenceTableItem? parentCase;
-    # Related chat information (if the case is related to a chat)
-    ReferenceTableItem? chat;
+    # Conversation information (if the case is related to a conversation)
+    ReferenceTableItem? conversation;
     # issue type of the case
     ChoiceListItem? issueType;
     # Status information
@@ -359,8 +359,8 @@ public type ProjectMetadataResponse record {|
     ChoiceListItem[] changeRequestStates;
     # List of available change request impacts
     ChoiceListItem[] changeRequestImpacts;
-    # List of available chat states
-    ChoiceListItem[] chatStates;
+    # List of available converstaion states
+    ChoiceListItem[] conversationStates;
     # List of available case types
     ReferenceTableItem[] caseTypes;
     # Severity based allocation time mapping (severity ID to allocation time in minutes)
@@ -444,8 +444,8 @@ public type ProjectCaseStatsResponse record {|
     json...;
 |};
 
-# Project chats statistics response.
-public type ProjectChatStatsResponse record {|
+# Project conversation statistics response.
+public type ProjectConversationStatsResponse record {|
     # Active chat count
     int activeCount;
     # Session count
@@ -714,7 +714,7 @@ public type CommentCreatePayload record {|
 
 # Created comment details.
 public type CreatedComment record {|
-    # System ID of the created comment
+    # ID of the created comment
     IdString id;
     # Created date and time
     string createdOn;
@@ -1088,8 +1088,8 @@ public type TimeCardSearchPayload record {|
     } filters?;
 |};
 
-# Payload for searching chats.
-public type ChatSearchPayload record {|
+# Payload for searching conversations.
+public type ConversationSearchPayload record {|
     # Filter criteria
     record {
         # List of project IDs to filter
@@ -1145,7 +1145,7 @@ public type TimeCardsResponse record {|
 |};
 
 # Chat data.
-public type Chat record {|
+public type Conversation record {|
     # ID of the chat
     IdString id;
     # Chat number
@@ -1167,30 +1167,30 @@ public type Chat record {|
     json...;
 |};
 
-# Chats response.
-public type ChatsResponse record {|
-    # List of chats
-    Chat[] chats;
+# Conversation response.
+public type ConversationResponse record {|
+    # List of conversations
+    Conversation[] conversations;
     # Total records count
     int totalRecords;
     *Pagination;
 |};
 
-# Request payload for creating a chat.
-public type ChatCreatePayload record {|
+# Request payload for creating a conversation.
+public type ConversationCreatePayload record {|
     # Project ID
     IdString projectId;
-    # Initial message of the chat
+    # Initial message of the conversation
     string initialMessage;
 |};
 
-# Created chat details.
-public type CreatedChat record {|
-    # System ID of the created chat
+# Created conversation details.
+public type CreatedConversation record {|
+    # ID of the created conversation
     IdString id;
-    # Chat number
+    # Conversation number
     string? number;
-    # User who created the chat
+    # User who created the conversation
     string createdBy;
     # Created date and time
     string createdOn;
@@ -1199,39 +1199,39 @@ public type CreatedChat record {|
     json...;
 |};
 
-# Response from creating a chat.
-public type ChatCreateResponse record {|
+# Response from creating a conversation.
+public type ConversationCreateResponse record {|
     # Success message
     string message;
-    # Created chat details
-    CreatedChat chat;
+    # Created conversation details
+    CreatedConversation conversation;
 |};
 
-# Request payload for updating a chat.
-public type ChatUpdatePayload record {|
+# Request payload for updating a conversation.
+public type ConversationUpdatePayload record {|
     # State key to update
     int stateKey;
 |};
 
-# Updated chat details.
-public type UpdatedChat record {|
-    # System ID of the updated chat
+# Updated conversation details.
+public type UpdatedConversation record {|
+    # ID of the updated conversation
     IdString id;
-    # Chat number
+    # Conversation number
     string? number;
     # Updated date and time
     string updatedOn;
-    # User who updated the chat
+    # User who updated the conversation
     string updatedBy;
     # State information
     ChoiceListItem state;
     json...;
 |};
 
-# Response from updating a chat.
-public type ChatUpdateResponse record {|
+# Response from updating a conversation.
+public type ConversationUpdateResponse record {|
     # Success message
     string message;
-    # Updated chat details
-    UpdatedChat chat;
+    # Updated conversation details
+    UpdatedConversation conversation;
 |};

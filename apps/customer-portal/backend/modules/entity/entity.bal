@@ -65,13 +65,15 @@ public isolated function getCaseStatsForProject(string idToken, string id, strin
     return csEntityClient->/projects/[id]/cases/stats.get(generateHeaders(idToken));
 }
 
-# Get chats statistics of a project by ID.
+# Get converstaion statistics of a project by ID.
 #
 # + idToken - ID token for authorization
 # + id - Unique ID of the project
 # + return - Project chats statistics or error
-public isolated function getChatStatsForProject(string idToken, string id) returns ProjectChatStatsResponse|error {
-    return csEntityClient->/projects/[id]/chats/stats.get(generateHeaders(idToken));
+public isolated function getConverstationStatsForProject(string idToken, string id)
+    returns ProjectConversationStatsResponse|error {
+
+    return csEntityClient->/projects/[id]/conversations/stats.get(generateHeaders(idToken));
 }
 
 # Get deployments statistics of a project by ID.
@@ -335,34 +337,38 @@ public isolated function searchTimeCards(string idToken, TimeCardSearchPayload p
     returns TimeCardsResponse|error {
 
     return csEntityClient->/time\-cards/search.post(payload, generateHeaders(idToken));
-    }
-    
-# Search chats of a project.
+}
+
+# Search conversations of a project.
 #
 # + idToken - ID token for authorization
-# + payload - Chat search payload containing search criteria for chats
-# + return - Chats response containing matching chats or error
-public isolated function searchChats(string idToken, ChatSearchPayload payload) returns ChatsResponse|error {
+# + payload - Conversation search payload containing search criteria
+# + return - Conversations response containing matching conversations or error
+public isolated function searchConversations(string idToken, ConversationSearchPayload payload)
+    returns ConversationResponse|error {
+
     return csEntityClient->/chats/search.post(payload, generateHeaders(idToken));
 }
 
-# Create a chat message.
+# Create a conversation.
 #
 # + idToken - ID token for authorization
-# + payload - Chat creation payload containing details of the chat message to be created
-# + return - Chat creation response containing details of the created chat message or error
-public isolated function createChat(string idToken, ChatCreatePayload payload) returns ChatCreateResponse|error {
-    return csEntityClient->/chats.post(payload, generateHeaders(idToken));
+# + payload - Conversation creation payload containing details of the conversation to be created
+# + return - Conversation creation response containing details of the created conversation or error
+public isolated function createConversation(string idToken, ConversationCreatePayload payload)
+    returns ConversationCreateResponse|error {
+
+    return csEntityClient->/conversations.post(payload, generateHeaders(idToken));
 }
 
-# Update a chat message.
+# Update a conversation.
 #
 # + idToken - ID token for authorization
-# + chatId - Unique ID of the chat message to be updated
-# + payload - Chat update payload containing details to be updated in the chat message
-# + return - Chat update response containing details of the updated chat message or error
-public isolated function updateChat(string idToken, string chatId, ChatUpdatePayload payload)
-    returns ChatUpdateResponse|error {
+# + conversationId - Unique ID of the conversation to be updated
+# + payload - Conversation update payload containing details to be updated in the conversation
+# + return - Conversation update response containing details of the updated conversation or error
+public isolated function updateConversation(string idToken, string conversationId, ConversationUpdatePayload payload)
+    returns ConversationUpdateResponse|error {
 
-    return csEntityClient->/chats/[chatId].patch(payload, generateHeaders(idToken));
+    return csEntityClient->/conversations/[conversationId].patch(payload, generateHeaders(idToken));
 }

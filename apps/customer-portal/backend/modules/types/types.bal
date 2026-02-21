@@ -81,8 +81,8 @@ public type Case record {|
     ReferenceItem? deployedProduct;
     # Related case information (if the case is related to an existing case)
     ReferenceItem? parentCase;
-    # Related chat information (if the case is related to a chat)
-    ReferenceItem? chat;
+    # Related conversation information (if the case is related to a conversation)
+    ReferenceItem? conversation;
     # issueType of the case
     ReferenceItem? issueType;
     # Deployment
@@ -157,8 +157,8 @@ public type ProjectFilterOptions record {|
     ReferenceItem[] changeRequestStates;
     # List of available change request impacts
     ReferenceItem[] changeRequestImpacts;
-    # List of available chat states
-    ReferenceItem[] chatStates;
+    # List of available conversation states
+    ReferenceItem[] conversationStates;
     # List of available case types
     ReferenceItem[] caseTypes;
     # Severity based allocation time mapping (severity ID to allocation time in minutes)
@@ -759,13 +759,13 @@ public type TimeCardsResponse record {|
     TimeCard[] timeCards;
 |};
 
-# Chat data.
-public type Chat record {|
-    # ID of the chat
+# Conversation data.
+public type Conversation record {|
+    # ID
     entity:IdString id;
-    # Chat number
+    # Conversation number
     string? number;
-    # Initial message of the chat
+    # Initial message of the conversation
     string? initialMessage;
     # Message count
     int messageCount;
@@ -782,10 +782,10 @@ public type Chat record {|
     json...;
 |};
 
-# Chats response.
-public type ChatsResponse record {|
-    # List of chats
-    Chat[] chats;
+# Conversations response.
+public type ConversationResponse record {|
+    # List of conversations
+    Conversation[] chats;
     # Total records count
     int totalRecords;
     *entity:Pagination;
@@ -880,4 +880,24 @@ public type DependantRelease record {|
     string repository;
     # Release version
     string releaseVersion;
+|};
+
+# Payload for searching conversations.
+public type ConversationSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of state keys to filter
+        int[] stateKeys?;
+        # Search query for conversation messages
+        string searchQuery?;
+    } filters?;
+    # Sort configuration
+    record {
+        # Field to sort by
+        entity:ChatSortField 'field;
+        # Sort order
+        entity:SortOrder 'order;
+    } sortBy?;
+    # Pagination details
+    entity:Pagination pagination?;
 |};

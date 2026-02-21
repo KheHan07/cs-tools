@@ -97,6 +97,8 @@ public type ConversationPayload record {|
     string region = "";
     # Support tier (optional context for recommendations)
     string tier = "";
+    # True if this is the first message that starts the conversation thread
+    boolean isFirstMessage;
     json...;
 |};
 
@@ -278,5 +280,4 @@ public type RecommendationRequest record {|
     Message[] chatHistory;
     # Customer question or issue description
     ConversationData conversationData;
-    json...;
 |};

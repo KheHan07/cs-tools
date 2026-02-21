@@ -33,13 +33,6 @@ final cache:Cache userCache = new ({
     cleanupInterval: 1800
 });
 
-final cache:Cache recommendationsCache = new ({
-    capacity: 5000,
-    defaultMaxAge: 2592000, // 30 days
-    evictionFactor: 0.2,
-    cleanupInterval: 3600
-});
-
 service class ErrorInterceptor {
     *http:ResponseErrorInterceptor;
 
@@ -523,9 +516,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         // Fetch chat stats
-        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-        if chatStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, chatStats);
+        entity:ProjectConversationStatsResponse|error conversationStats =
+            entity:getConverstationStatsForProject(userInfo.idToken, id);
+        if conversationStats is error {
+            log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
             // To return other stats even if chat stats retrieval fails, error will not be returned.
         }
 
@@ -548,7 +542,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             projectStats: {
                 openCases: caseStats is entity:ProjectCaseStatsResponse ?
                     getOpenCasesCountFromProjectCasesStats(caseStats) : (),
-                activeChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.activeCount : (),
+                activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                    conversationStats.activeCount : (),
                 deployments: deploymentStats is entity:ProjectDeploymentStatsResponse ? deploymentStats.totalCount : (),
                 slaStatus: projectActivityStats is entity:ProjectStatsResponse ? projectActivityStats.slaStatus : ()
             },
@@ -676,17 +671,21 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         // Fetch chat stats
-        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-        if chatStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, chatStats);
+        entity:ProjectConversationStatsResponse|error conversationStats =
+            entity:getConverstationStatsForProject(userInfo.idToken, id);
+        if conversationStats is error {
+            log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
             // To return other stats even if chat stats retrieval fails, error will not be returned.
         }
 
         return {
             totalCases: caseStats is entity:ProjectCaseStatsResponse ? caseStats.totalCount : (),
-            activeChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.activeCount : (),
-            sessionChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.sessionCount : (),
-            resolvedChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.resolvedCount : ()
+            activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.activeCount : (),
+            sessionChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.sessionCount : (),
+            resolvedChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.resolvedCount : ()
         };
     }
 
@@ -987,21 +986,14 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return classificationResponse;
     }
 
-    # TODO
-    # Call ServiceNow chat saving endpoint and get the sysID as conversationId and then invoke the redis.
-
-    # TODO
-    # Call Service now cases endpoint to save conversation as journal entries.
-
-    # AI chat agent.
+    # Search conversations for a specific project with filters and pagination.
     #
-    # + Id - ID of the project
-    # + conversationId - ID of the conversation
-    # + payload - Conversation payload
-    # + return - Chat response or an error
-    resource function post projects/[string Id]/conversations/[string conversationId](
-            http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
-        returns ai_chat_agent:ChatResponse|http:InternalServerError {
+    # + id - ID of the project
+    # + payload - Conversation search request body
+    # + return - Paginated conversations or error
+    resource function post projects/[string id]/conversations/search(http:RequestContext ctx,
+            types:ConversationSearchPayload payload)
+        returns http:Ok|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1012,82 +1004,47 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        string recommendationsCacheKey = string `${Id}:${conversationId}:recommendationsReturned`;
-        boolean includeRecommendations = !recommendationsCache.hasKey(recommendationsCacheKey);
-        if includeRecommendations {
-            ai_chat_agent:ChatHistoryResponse|error history =
-                ai_chat_agent:getChatHistory(Id, conversationId);
-            if history is ai_chat_agent:ChatHistoryResponse && history.messageCount > 0 {
-                includeRecommendations = false;
-                error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
-                if cacheError is error {
-                    log:printWarn("Error updating recommendationsReturned cache", cacheError);
-                }
-            }
-        }
-
-        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(Id, conversationId, payload);
-        if chatResponse is error {
-            string customError = "Failed to process chat message.";
-            log:printError(customError, chatResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        if includeRecommendations {
-            if payload.region.length() == 0 || payload.tier.length() == 0 {
-                log:printWarn("Skipping recommendations due to missing region/tier in chat payload");
-            } else {
-                map<string[]> envProducts = payload.envProducts ?: {};
-                ai_chat_agent:RecommendationResponse|error recommendationResponse =
-                    ai_chat_agent:getRecommendationsForExchange(payload.message, chatResponse.message, envProducts,
-                        payload.region, payload.tier);
-                if recommendationResponse is ai_chat_agent:RecommendationResponse {
-                    chatResponse.recommendations = recommendationResponse;
-                    error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
-                    if cacheError is error {
-                        log:printWarn("Error updating recommendationsReturned cache", cacheError);
+        entity:ConversationResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
+                {
+                    filters: {
+                        projectIds: [id],
+                        stateKeys: payload.filters?.stateKeys,
+                        searchQuery: payload.filters?.searchQuery
+                    },
+                    sortBy: payload.sortBy,
+                    pagination: payload.pagination
+                });
+        if conversationResponse is error {
+            if getStatusCode(conversationResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
                     }
-                } else {
-                    log:printWarn("Failed to retrieve recommendations for the first chat invocation",
-                            recommendationResponse);
-                }
+                };
             }
-        }
-        return chatResponse;
-    }
+            if getStatusCode(conversationResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to search conversations for project: ${
+                        id}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to search conversations for the selected project."
+                    }
+                };
+            }
 
-    # List conversations for the given account ID.
-    #
-    # + Id - ID of the project
-    # + return - List of conversations or error
-    resource function get projects/[string Id]/conversations(http:RequestContext ctx)
-        returns ai_chat_agent:ConversationListResponse|http:InternalServerError {
-
-        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        ai_chat_agent:ConversationListResponse|error conversationListResponse =
-            ai_chat_agent:listConversations(Id);
-        if conversationListResponse is error {
             string customError = "Failed to retrieve conversations.";
-            log:printError(customError, conversationListResponse);
+            log:printError(customError, conversationResponse);
             return <http:InternalServerError>{
                 body: {
                     message: customError
                 }
             };
         }
-        return conversationListResponse;
+
+        return <http:Ok>{
+            body: mapConversationSearchResponse(conversationResponse)
+        };
     }
 
     # Get chat history for a specific conversation.
@@ -1204,7 +1161,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Comment creation payload
     # + return - Created comment or error response
-    resource function post cases/[entity:IdString id]/comments(http:RequestContext ctx, types:CommentCreatePayload payload)
+    resource function post cases/[entity:IdString id]/comments(http:RequestContext ctx,
+            types:CommentCreatePayload payload)
         returns entity:CreatedComment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1221,7 +1179,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     referenceId: id,
                     referenceType: entity:CASE,
                     content: payload.content,
-                    'type: payload.'type
+                    'type: entity:COMMENTS
                 });
         if createdCaseResponse is error {
             if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
