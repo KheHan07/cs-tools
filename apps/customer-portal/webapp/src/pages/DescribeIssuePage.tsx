@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { ArrowLeft, Send } from "@wso2/oxygen-ui-icons-react";
-import { useState, useCallback, type JSX } from "react";
+import { useState, useCallback, useMemo, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import Editor from "@components/common/rich-text-editor/Editor";
 import { htmlToPlainText } from "@utils/richTextEditor";
@@ -50,16 +50,16 @@ export default function DescribeIssuePage(): JSX.Element {
     }
   }, [navigate, projectId]);
 
+  const plainText = useMemo(() => htmlToPlainText(value), [value]);
+
   const handleSubmit = useCallback(() => {
-    const plainText = htmlToPlainText(value);
     if (!plainText.trim() || !projectId) return;
 
     navigate(`/${projectId}/support/chat`, {
       state: { initialUserMessage: plainText.trim() },
     });
-  }, [value, navigate, projectId]);
+  }, [plainText, navigate, projectId]);
 
-  const plainText = htmlToPlainText(value);
   const isSubmitDisabled = !plainText.trim();
 
   return (
@@ -110,6 +110,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 minHeight={250}
                 showToolbar
                 toolbarVariant="describeIssue"
+                onSubmitKeyDown={handleSubmit}
               />
               <Typography
                 variant="caption"

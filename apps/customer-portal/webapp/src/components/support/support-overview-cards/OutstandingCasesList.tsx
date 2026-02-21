@@ -118,7 +118,7 @@ export default function OutstandingCasesList({
                     }}
                   />
                   <Typography variant="caption" color="text.secondary">
-                    {mapSeverityToDisplay(c.severity?.label) ?? "—"}
+                    {mapSeverityToDisplay(c.severity?.label)}
                   </Typography>
                 </Stack>
               }

@@ -88,7 +88,7 @@ export default function NoveraChatPage(): JSX.Element {
         {
           id: "2",
           text: initialUserMessage.trim(),
-          sender: "user" as const,
+          sender: "user",
           timestamp: new Date(),
         },
       ];
