@@ -1532,7 +1532,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        types:UpdateDescription|error updateResponse =
+        types:UpdateDescription[]|error updateResponse =
             updates:processSearchUpdatesBetweenUpdateLevels(userInfo.email, payload);
         if updateResponse is error {
             string customError = "Failed to search updates based on the provided filters.";

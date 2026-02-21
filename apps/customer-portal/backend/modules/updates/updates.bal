@@ -22,14 +22,6 @@ public isolated function getRecommendedUpdateLevels(string email) returns Recomm
     return updatesClient->/updates/recommended\-update\-levels.get(user = email);
 }
 
-# List updates based on the provided parameters.
-#
-# + payload - Payload for listing updates
-# + return - List of updates, or an error if the operation fails
-public isolated function listUpdates(ListUpdatePayload payload) returns UpdateResponse|error {
-    return updatesClient->/updates/list\-updates.post(payload, readOnly = true);
-}
-
 # Get product update levels.
 #
 # + return - List of product update levels, or an error if the operation fails
@@ -43,7 +35,7 @@ public isolated function getProductUpdateLevels() returns ProductUpdateLevel[]|e
 # + payload - Payload containing the update levels to search between
 # + return - Update description for the specified update levels, or an error if the operation fails
 public isolated function searchUpdatesBetweenUpdateLevels(string email, UpdateDescriptionRequest payload)
-    returns UpdateDescription|error {
+    returns UpdateDescription[]|error {
 
     return updatesClient->/updates/descriptions.post(payload);
 }

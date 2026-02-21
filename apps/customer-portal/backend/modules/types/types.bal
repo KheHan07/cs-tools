@@ -832,9 +832,9 @@ public type UpdateDescription record {|
     # Files removed
     string filesRemoved;
     # Bundles info changes
-    string bundlesInfoChanges;
+    string? bundlesInfoChanges?;
     # Dependant releases
-    DependantRelease[] dependantReleases;
+    DependantRelease[]? dependantReleases?;
     # Update type
     string updateType;
     # timestamp
