@@ -48,8 +48,8 @@ vi.mock("@api/useGetCaseAttachments", () => ({
   })),
 }));
 
-vi.mock("@api/useInfiniteCallRequests", () => ({
-  useInfiniteCallRequests: vi.fn(() => ({
+vi.mock("@api/useGetCallRequests", () => ({
+  useGetCallRequests: vi.fn(() => ({
     data: { pages: [{ totalRecords: 2, callRequests: [] }] },
   })),
 }));

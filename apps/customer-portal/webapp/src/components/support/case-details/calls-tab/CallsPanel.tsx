@@ -18,7 +18,7 @@ import { Button, Stack } from "@wso2/oxygen-ui";
 import { PhoneCall } from "@wso2/oxygen-ui-icons-react";
 import { useState, useCallback, useEffect, type JSX } from "react";
 import type { CallRequest } from "@models/responses";
-import { useInfiniteCallRequests } from "@api/useInfiniteCallRequests";
+import { useGetCallRequests } from "@api/useGetCallRequests";
 import { usePatchCallRequest } from "@api/usePatchCallRequest";
 import CallsListSkeleton from "@case-details-calls/CallsListSkeleton";
 import CallRequestList from "@case-details-calls/CallRequestList";
@@ -28,6 +28,7 @@ import RequestCallModal from "@case-details-calls/RequestCallModal";
 import DeleteCallRequestModal from "@case-details-calls/DeleteCallRequestModal";
 import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 import SuccessBanner from "@components/common/success-banner/SuccessBanner";
+import { CALL_REQUEST_STATE_CANCELLED } from "@constants/supportConstants";
 import { ERROR_BANNER_TIMEOUT_MS } from "@constants/errorBannerConstants";
 
 export interface CallsPanelProps {
@@ -59,7 +60,7 @@ export default function CallsPanel({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteCallRequests(projectId, caseId);
+  } = useGetCallRequests(projectId, caseId);
   const patchCallRequest = usePatchCallRequest(projectId, caseId);
 
   const callRequests = data?.pages?.flatMap((p) => p.callRequests ?? []) ?? [];
@@ -78,13 +79,9 @@ export default function CallsPanel({
     setEditCall(call);
     setIsModalOpen(true);
   };
-  const handleDeleteClick = useCallback(
-    (call: CallRequest) => {
-      refetch();
-      setDeleteCall(call);
-    },
-    [refetch],
-  );
+  const handleDeleteClick = useCallback((call: CallRequest) => {
+    setDeleteCall(call);
+  }, []);
   const handleCloseDeleteModal = useCallback(() => {
     setDeleteCall(null);
     setErrorMessage(null);
@@ -95,7 +92,7 @@ export default function CallsPanel({
       {
         callRequestId: deleteCall.id,
         reason: "",
-        stateKey: 6,
+        stateKey: CALL_REQUEST_STATE_CANCELLED,
       },
       {
         onSuccess: () => {
@@ -119,13 +116,16 @@ export default function CallsPanel({
   }, []);
 
   useEffect(() => {
-    if (!successMessage && !errorMessage) return;
-    const t = setTimeout(() => {
-      setSuccessMessage(null);
-      setErrorMessage(null);
-    }, ERROR_BANNER_TIMEOUT_MS);
+    if (!successMessage) return;
+    const t = setTimeout(() => setSuccessMessage(null), ERROR_BANNER_TIMEOUT_MS);
     return () => clearTimeout(t);
-  }, [successMessage, errorMessage]);
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    const t = setTimeout(() => setErrorMessage(null), ERROR_BANNER_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [errorMessage]);
 
   return (
     <Stack spacing={3}>

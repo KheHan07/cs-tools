@@ -154,7 +154,7 @@ export default function CaseDetailsDetailsPanel({
                 }}
               />
               <Typography variant="caption" color="text.secondary">
-                {formatValue(mapSeverityToDisplay(severityLabel ?? undefined))}
+                {mapSeverityToDisplay(severityLabel ?? undefined)}
               </Typography>
             </Box>
           </Box>

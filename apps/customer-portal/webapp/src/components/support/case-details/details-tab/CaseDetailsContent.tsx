@@ -18,7 +18,7 @@ import { Box, Paper, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
-import { useInfiniteCallRequests } from "@api/useInfiniteCallRequests";
+import { useGetCallRequests } from "@api/useGetCallRequests";
 import {
   getStatusColor,
   resolveColorFromTheme,
@@ -92,7 +92,7 @@ export default function CaseDetailsContent({
   const attachmentCount = attachmentsQuery.data?.totalRecords;
 
   const resolvedProjectId = data?.project?.id ?? projectId;
-  const callsQuery = useInfiniteCallRequests(resolvedProjectId, caseId);
+  const callsQuery = useGetCallRequests(resolvedProjectId, caseId);
   const callCount =
     callsQuery.data?.pages?.[0]?.totalRecords ??
     callsQuery.data?.pages?.flatMap((p) => p.callRequests ?? []).length ??
