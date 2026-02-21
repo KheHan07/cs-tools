@@ -772,3 +772,81 @@ public type TimeCardSearchPayload record {|
     # Pagination details
     entity:Pagination pagination?;
 |};
+
+# Payload for searching updates between update levels.
+public type UpdateDescriptionPayload record {|
+    # Product name
+    string productName;
+    # Product version
+    string productVersion;
+    # Channel
+    string channel;
+    # Starting update level
+    int startingUpdateLevel;
+    # Ending update level
+    int endingUpdateLevel;
+|};
+
+# Security advisory description.
+public type SecurityAdvisoryDescription record {|
+    # Advisory ID
+    string id;
+    # Overview
+    string overview;
+    # Severity
+    string severity;
+    # Description
+    string description;
+    # Impact
+    string impact;
+    # Solution
+    string solution;
+    # Notes
+    string notes;
+    # Credits
+    string credits;
+|};
+
+# Update description.
+public type UpdateDescription record {|
+    # Product name
+    string productName;
+    # Product version
+    string productVersion;
+    # Channel
+    string channel;
+    # Update level
+    int updateLevel;
+    # Update number
+    int updateNumber;
+    # Description
+    string description;
+    # Instructions
+    string instructions;
+    # Bug fixes
+    string bugFixes;
+    # Files added
+    string filesAdded;
+    # Files modified
+    string filesModified;
+    # Files removed
+    string filesRemoved;
+    # Bundles info changes
+    string bundlesInfoChanges;
+    # Dependant releases
+    DependantRelease[] dependantReleases;
+    # Update type
+    string updateType;
+    # timestamp
+    int timestamp;
+    # Security advisorie descriptions
+    SecurityAdvisoryDescription[] securityAdvisories;
+|};
+
+# Dependant release information.
+public type DependantRelease record {|
+    # Release name
+    string repository;
+    # Release version
+    string releaseVersion;
+|};

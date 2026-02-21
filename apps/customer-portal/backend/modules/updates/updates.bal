@@ -36,3 +36,14 @@ public isolated function listUpdates(ListUpdatePayload payload) returns UpdateRe
 public isolated function getProductUpdateLevels() returns ProductUpdateLevel[]|error {
     return updatesClient->/updates/product\-update\-levels.get();
 }
+
+# Search for updates between specified update levels.
+#
+# + email - Email of the user
+# + payload - Payload containing the update levels to search between
+# + return - Update description for the specified update levels, or an error if the operation fails
+public isolated function searchUpdatesBetweenUpdateLevels(string email, UpdateDescriptionRequest payload)
+    returns UpdateDescription|error {
+
+    return updatesClient->/updates/descriptions.post(payload);
+}

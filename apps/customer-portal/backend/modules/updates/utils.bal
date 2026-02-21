@@ -127,3 +127,45 @@ public isolated function processProductUpdateLevels() returns types:ProductUpdat
                 }
         };
 }
+
+# Process search for updates between specified update levels.
+#
+# + email - Email of the user
+# + payload - Payload containing the update levels to search between
+# + return - Update description for the specified update levels, or an error if the operation fails
+public isolated function processSearchUpdatesBetweenUpdateLevels(string email, types:UpdateDescriptionPayload payload)
+    returns types:UpdateDescription|error {
+
+    UpdateDescriptionRequest requestPayload = {
+        product\-name: payload.productName,
+        product\-version: payload.productVersion,
+        channel: payload.channel,
+        starting\-update\-level: payload.startingUpdateLevel,
+        ending\-update\-level: payload.endingUpdateLevel,
+        user\-email: email
+    };
+
+    UpdateDescription response = check searchUpdatesBetweenUpdateLevels(email, requestPayload);
+    return {
+        productName: response.product\-name,
+        productVersion: response.product\-version,
+        channel: response.channel,
+        updateLevel: response.update\-level,
+        updateNumber: response.update\-number,
+        description: response.description,
+        instructions: response.instructions,
+        bugFixes: response.bug\-fixes,
+        filesAdded: response.files\-added,
+        filesModified: response.files\-modified,
+        filesRemoved: response.files\-removed,
+        bundlesInfoChanges: response.bundles\-info\-changes,
+        updateType: response.update\-type,
+        timestamp: response.timestamp,
+        securityAdvisories: response.security\-advisories,
+        dependantReleases: from DependantRelease release in response.dependant\-releases
+            select {
+                repository: release.repository,
+                releaseVersion: release.release\-version
+            }
+    };
+}

@@ -175,3 +175,83 @@ public type UpdateLevel record {|
     int[] update\-levels;
     json...;
 |};
+
+# Update description payload.
+public type UpdateDescriptionRequest record {|
+    # Product name
+    string product\-name;
+    # Product version
+    string product\-version;
+    # Channel
+    string channel;
+    # Starting update level
+    int starting\-update\-level;
+    # Ending update level
+    int ending\-update\-level;
+    # User email
+    string user\-email;
+|};
+
+# Update description.
+public type UpdateDescription record {|
+    # Product name
+    string product\-name;
+    # Product version
+    string product\-version;
+    # Channel
+    string channel;
+    # Update level
+    int update\-level;
+    # Update number
+    int update\-number;
+    # Description
+    string description;
+    # Instructions
+    string instructions;
+    # Bug fixes
+    string bug\-fixes;
+    # Files added
+    string files\-added;
+    # Files modified
+    string files\-modified;
+    # Files removed
+    string files\-removed;
+    # Bundles info changes
+    string bundles\-info\-changes;
+    # Dependant releases
+    DependantRelease[] dependant\-releases;
+    # Update type
+    string update\-type;
+    # timestamp
+    int timestamp;
+    # Security advisorie descriptions
+    SecurityAdvisoryDescription[] security\-advisories;
+|};
+
+# Dependant release information.
+public type DependantRelease record {|
+    # Release name
+    string repository;
+    # Release version
+    string release\-version;
+|};
+
+# Security advisory description.
+public type SecurityAdvisoryDescription record {|
+    # Advisory ID
+    string id;
+    # Overview
+    string overview;
+    # Severity
+    string severity;
+    # Description
+    string description;
+    # Impact
+    string impact;
+    # Solution
+    string solution;
+    # Notes
+    string notes;
+    # Credits
+    string credits;
+|};
