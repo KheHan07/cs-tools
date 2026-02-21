@@ -67,7 +67,7 @@ export default function GetHelpDropdown(): JSX.Element {
     if (projectId) {
       const noveraEnabled = getNoveraChatEnabled();
       if (noveraEnabled) {
-        navigate(`/${projectId}/support/chat`);
+        navigate(`/${projectId}/support/chat/describe-issue`);
       } else {
         navigate(`/${projectId}/support/chat/create-case`, {
           state: { skipChat: true },

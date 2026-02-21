@@ -26,6 +26,7 @@ import PendingUpdatesPage from "@pages/PendingUpdatesPage";
 import AllCasesPage from "@pages/AllCasesPage";
 import CaseDetailsPage from "@pages/CaseDetailsPage";
 import NoveraChatPage from "@pages/NoveraChatPage";
+import DescribeIssuePage from "@pages/DescribeIssuePage";
 import CreateCasePage from "@pages/CreateCasePage";
 import AppLayout from "@layouts/AppLayout";
 import { AuthApiProvider } from "@context/AuthApiContext";
@@ -77,6 +78,10 @@ export default function App(): JSX.Element {
                         </Route>
                         <Route path="chat">
                           <Route index element={<NoveraChatPage />} />
+                          <Route
+                            path="describe-issue"
+                            element={<DescribeIssuePage />}
+                          />
                           <Route
                             path="create-case"
                             element={<CreateCasePage />}

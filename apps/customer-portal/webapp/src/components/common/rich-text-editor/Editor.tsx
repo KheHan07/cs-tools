@@ -48,6 +48,7 @@ import { useLogger } from "@hooks/useLogger";
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import { $getRoot } from "lexical";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { KEY_ENTER_COMMAND, COMMAND_PRIORITY_LOW } from "lexical";
 
 /**
  * Internal component to handle editable state changes.
@@ -111,6 +112,37 @@ const OnChangeHTMLPlugin = ({
 };
 
 /**
+ * Plugin to call onSubmitKeyDown when Enter is pressed without Shift.
+ * Shift+Enter inserts newline; Enter submits.
+ */
+const EnterSubmitPlugin = ({
+  onSubmit,
+  disabled,
+}: {
+  onSubmit?: () => void;
+  disabled?: boolean;
+}) => {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!onSubmit || disabled) return;
+
+    return editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      (event: KeyboardEvent | null) => {
+        if (event?.shiftKey) return false;
+        event?.preventDefault?.();
+        onSubmit();
+        return true;
+      },
+      COMMAND_PRIORITY_LOW,
+    );
+  }, [editor, onSubmit, disabled]);
+
+  return null;
+};
+
+/**
  * Internal component to handle resetting the editor.
  */
 const ResetPlugin = ({ resetTrigger }: { resetTrigger?: number }) => {
@@ -167,6 +199,8 @@ const Editor = ({
   resetTrigger,
   minHeight = 150,
   showToolbar = true,
+  toolbarVariant = "full",
+  onSubmitKeyDown,
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -177,6 +211,9 @@ const Editor = ({
   resetTrigger?: number;
   minHeight?: number | string;
   showToolbar?: boolean;
+  toolbarVariant?: "full" | "describeIssue";
+  /** When provided, Enter (without Shift) triggers this callback to submit. Shift+Enter inserts newline. */
+  onSubmitKeyDown?: () => void;
   placeholder?: string;
 }): JSX.Element => {
   const oxygenTheme = useTheme();
@@ -249,6 +286,7 @@ const Editor = ({
             <Toolbar
               onAttachmentClick={onAttachmentClick}
               disabled={disabled}
+              variant={toolbarVariant}
             />
             <Divider sx={{ my: 1 }} />
           </>
@@ -328,6 +366,10 @@ const Editor = ({
           <InitialValuePlugin initialHtml={value} />
           <OnChangeHTMLPlugin onChange={onChange} />
           <ResetPlugin resetTrigger={resetTrigger} />
+          <EnterSubmitPlugin
+            onSubmit={onSubmitKeyDown}
+            disabled={disabled}
+          />
         </Box>
         {attachments.length > 0 && (
           <>

@@ -54,7 +54,14 @@ export function usePatchCallRequest(
     mutationFn: async (
       payload: PatchCallRequest & { callRequestId: string },
     ): Promise<CallRequestResponse> => {
-      const { callRequestId, ...body } = payload;
+      const { callRequestId, ...rest } = payload;
+      const body: Record<string, unknown> = {
+        reason: rest.reason,
+        stateKey: rest.stateKey,
+      };
+      if (rest.utcTimes != null && rest.utcTimes.length > 0) {
+        body.utcTimes = rest.utcTimes;
+      }
       logger.debug("[usePatchCallRequest] Request payload:", body);
 
       try {
@@ -72,7 +79,7 @@ export function usePatchCallRequest(
         const response = await fetchFn(requestUrl, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify(body as unknown as PatchCallRequest),
         });
 
         logger.debug(
