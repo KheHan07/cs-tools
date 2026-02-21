@@ -71,7 +71,7 @@ public isolated function processSearchUpdatesBetweenUpdateLevels(string email, t
         user\-email: email
     };
 
-    UpdateDescription[] response = check searchUpdatesBetweenUpdateLevels(email, requestPayload);
+    UpdateDescription[] response = check searchUpdatesBetweenUpdateLevels(requestPayload);
     return from UpdateDescription description in response
         let DependantRelease[]? dependantReleases = description?.dependant\-releases
         select {

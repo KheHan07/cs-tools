@@ -200,16 +200,16 @@ public type UpdateDescription record {|
     DependantRelease[]? dependant\-releases?;
     # Update type
     string? update\-type?;
-    # timestamp
+    # Timestamp
     int timestamp;
-    # Security advisorie descriptions
+    # Security advisories
     SecurityAdvisoryDescription[] security\-advisories;
     json...;
 |};
 
 # Dependant release information.
 public type DependantRelease record {|
-    # Release name
+    # Repository
     string repository;
     # Release version
     string release\-version;

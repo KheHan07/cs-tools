@@ -31,10 +31,9 @@ public isolated function getProductUpdateLevels() returns ProductUpdateLevel[]|e
 
 # Search for updates between specified update levels.
 #
-# + email - Email of the user
 # + payload - Payload containing the update levels to search between
 # + return - Update description for the specified update levels, or an error if the operation fails
-public isolated function searchUpdatesBetweenUpdateLevels(string email, UpdateDescriptionRequest payload)
+public isolated function searchUpdatesBetweenUpdateLevels(UpdateDescriptionRequest payload)
     returns UpdateDescription[]|error {
 
     return updatesClient->/updates/descriptions.post(payload);

@@ -837,15 +837,15 @@ public type UpdateDescription record {|
     DependantRelease[]? dependantReleases?;
     # Update type
     string? updateType?;
-    # timestamp
+    # Timestamp
     int timestamp;
-    # Security advisorie descriptions
+    # Security advisories
     SecurityAdvisoryDescription[] securityAdvisories;
 |};
 
 # Dependant release information.
 public type DependantRelease record {|
-    # Release name
+    # Repository
     string repository;
     # Release version
     string releaseVersion;
