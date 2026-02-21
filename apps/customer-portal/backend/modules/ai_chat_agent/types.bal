@@ -175,7 +175,7 @@ public type ConversationListResponse record {|
     int totalCount = 0;
 |};
 
-# Single chat message for UI rendering.
+# Single chat message.
 public type ChatMessage record {|
     # Message role: 'user' or 'assistant'
     string role;
