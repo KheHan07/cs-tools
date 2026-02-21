@@ -136,7 +136,7 @@ describe("CasesTable", () => {
       data: { cases: [], totalRecords: 0, offset: 0, limit: 10 },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
     mockUseGetCasesFilters.mockReturnValue({
       data: undefined,
       isFetching: false,
@@ -194,7 +194,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -223,7 +223,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -281,7 +281,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>

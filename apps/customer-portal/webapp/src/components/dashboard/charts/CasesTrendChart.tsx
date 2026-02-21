@@ -22,10 +22,7 @@ import {
 } from "@wso2/oxygen-ui-charts-react";
 import type { JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
-import {
-  CASES_TREND_CHART_DATA,
-  TREND_CHART_ERROR_PLACEHOLDER_DATA,
-} from "@constants/dashboardConstants";
+import { CASES_TREND_CHART_DATA } from "@constants/dashboardConstants";
 import { ChartLegend } from "@components/dashboard/charts/ChartLegend";
 
 interface CasesTrendChartProps {
@@ -51,7 +48,7 @@ export const CasesTrendChart = ({
   isLoading,
   isError,
 }: CasesTrendChartProps): JSX.Element => {
-  const chartData = isError ? TREND_CHART_ERROR_PLACEHOLDER_DATA : data || [];
+  const chartData = isError ? [] : data || [];
 
   return (
     <Card sx={{ p: 2, height: "100%" }}>

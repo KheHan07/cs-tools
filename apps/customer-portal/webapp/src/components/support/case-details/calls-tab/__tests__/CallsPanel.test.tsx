@@ -18,10 +18,10 @@ import type { ReactElement } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useGetCallRequests } from "@api/useGetCallRequests";
+import { useInfiniteCallRequests } from "@api/useInfiniteCallRequests";
 import CallsPanel from "@case-details-calls/CallsPanel";
 
-vi.mock("@api/useGetCallRequests");
+vi.mock("@api/useInfiniteCallRequests");
 vi.mock("@api/usePostCallRequest", () => ({
   usePostCallRequest: () => ({
     mutate: vi.fn(),
@@ -52,24 +52,30 @@ const mockCaseId = "case-1";
 
 describe("CallsPanel", () => {
   it("should render loading state", () => {
-    vi.mocked(useGetCallRequests).mockReturnValue({
+    vi.mocked(useInfiniteCallRequests).mockReturnValue({
       isPending: true,
       data: undefined,
       isError: false,
       refetch: vi.fn(),
-    } as unknown as ReturnType<typeof useGetCallRequests>);
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByTestId("calls-list-skeleton")).toBeInTheDocument();
   });
 
   it("should render error state", () => {
-    vi.mocked(useGetCallRequests).mockReturnValue({
+    vi.mocked(useInfiniteCallRequests).mockReturnValue({
       isPending: false,
       isError: true,
       data: undefined,
       refetch: vi.fn(),
-    } as unknown as ReturnType<typeof useGetCallRequests>);
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -78,26 +84,33 @@ describe("CallsPanel", () => {
   });
 
   it("should render call requests", () => {
-    vi.mocked(useGetCallRequests).mockReturnValue({
+    vi.mocked(useInfiniteCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
       data: {
-        callRequests: [
+        pages: [
           {
-            id: "call-1",
-            case: { id: "case-1", label: "CS0438719" },
-            reason: "Test notes",
-            preferredTimes: ["2024-10-29 14:00:00"],
-            durationMin: 60,
-            scheduleTime: "2024-11-05 14:00:00",
-            createdOn: "2024-10-29 10:00:00",
-            updatedOn: "2024-10-29 10:00:00",
-            state: { id: "1", label: "Pending on WSO2" },
+            callRequests: [
+              {
+                id: "call-1",
+                case: { id: "case-1", label: "CS0438719" },
+                reason: "Test notes",
+                preferredTimes: ["2024-10-29 14:00:00"],
+                durationMin: 60,
+                scheduleTime: "2024-11-05 14:00:00",
+                createdOn: "2024-10-29 10:00:00",
+                updatedOn: "2024-10-29 10:00:00",
+                state: { id: "1", label: "Pending on WSO2" },
+              },
+            ],
           },
         ],
       },
-    } as unknown as ReturnType<typeof useGetCallRequests>);
+    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(screen.getByText(/Call Request/i)).toBeInTheDocument();
@@ -106,12 +119,15 @@ describe("CallsPanel", () => {
   });
 
   it("should render empty state", () => {
-    vi.mocked(useGetCallRequests).mockReturnValue({
+    vi.mocked(useInfiniteCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
-      data: { callRequests: [] },
-    } as unknown as ReturnType<typeof useGetCallRequests>);
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      data: { pages: [{ callRequests: [] }] },
+    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
     expect(
@@ -120,12 +136,15 @@ describe("CallsPanel", () => {
   });
 
   it("should open Request Call modal when button is clicked", () => {
-    vi.mocked(useGetCallRequests).mockReturnValue({
+    vi.mocked(useInfiniteCallRequests).mockReturnValue({
       isPending: false,
       isError: false,
       refetch: vi.fn(),
-      data: { callRequests: [] },
-    } as unknown as ReturnType<typeof useGetCallRequests>);
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      data: { pages: [{ callRequests: [] }] },
+    } as unknown as ReturnType<typeof useInfiniteCallRequests>);
 
     renderWithProviders(<CallsPanel projectId={mockProjectId} caseId={mockCaseId} />);
 
