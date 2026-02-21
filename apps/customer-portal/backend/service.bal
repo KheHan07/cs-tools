@@ -999,7 +999,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + conversationId - ID of the conversation
     # + payload - Conversation payload
     # + return - Chat response or an error
-    resource function post projects/[string projectId]/conversations/[string conversationId](http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
+    resource function post projects/[string projectId]/conversations/[string conversationId](
+            http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
         returns ai_chat_agent:ChatResponse|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
