@@ -131,6 +131,7 @@ public type SlotState record {|
     boolean isComplete = false;
     # Available options per missing slot for UI dropdowns
     SlotOption[]? slotOptions = ();
+    json...;
 |};
 
 # Action button rendered by the UI.
