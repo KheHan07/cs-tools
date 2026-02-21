@@ -33,7 +33,7 @@ final cache:Cache userCache = new ({
     cleanupInterval: 1800
 });
 
-final cache:Cache recommendationsReturnedCache = new ({
+final cache:Cache recommendationsCache = new ({
     capacity: 5000,
     defaultMaxAge: 2592000, // 30 days
     evictionFactor: 0.2,
@@ -995,11 +995,11 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
     # AI chat agent.
     # 
-    # + projectId - ID of the project
+    # + Id - ID of the project
     # + conversationId - ID of the conversation
     # + payload - Conversation payload
     # + return - Chat response or an error
-    resource function post projects/[string projectId]/conversations/[string conversationId](
+    resource function post projects/[string Id]/conversations/[string conversationId](
             http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
         returns ai_chat_agent:ChatResponse|http:InternalServerError {
 
@@ -1012,21 +1012,21 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        string recommendationsCacheKey = string `${projectId}:${conversationId}:recommendationsReturned`;
-        boolean includeRecommendations = !recommendationsReturnedCache.hasKey(recommendationsCacheKey);
+        string recommendationsCacheKey = string `${Id}:${conversationId}:recommendationsReturned`;
+        boolean includeRecommendations = !recommendationsCache.hasKey(recommendationsCacheKey);
         if includeRecommendations {
             ai_chat_agent:ChatHistoryResponse|error history =
-                ai_chat_agent:getChatHistory(projectId, conversationId);
+                ai_chat_agent:getChatHistory(Id, conversationId);
             if history is ai_chat_agent:ChatHistoryResponse && history.messageCount > 0 {
                 includeRecommendations = false;
-                error? cacheError = recommendationsReturnedCache.put(recommendationsCacheKey, true);
+                error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
                 if cacheError is error {
                     log:printWarn("Error updating recommendationsReturned cache", cacheError);
                 }
             }
         }
 
-        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(projectId, conversationId, payload);
+        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(Id, conversationId, payload);
         if chatResponse is error {
             string customError = "Failed to process chat message.";
             log:printError(customError, chatResponse);
@@ -1042,43 +1042,19 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 log:printWarn("Skipping recommendations due to missing region/tier in chat payload");
             } else {
                 map<string[]> envProducts = payload.envProducts ?: {};
-
-                ai_chat_agent:Message userMessage = {
-                    role: "user",
-                    content: payload.message,
-                    timestamp: ""
-                };
-                ai_chat_agent:Message assistantMessage = {
-                    role: "assistant",
-                    content: chatResponse.message,
-                    timestamp: ""
-                };
-
-                ai_chat_agent:ConversationData conversationData = {
-                    chatHistory: string `${userMessage.role}: ${userMessage.content}\n${assistantMessage.role}: ${
-                            assistantMessage.content}`,
-                    envProducts,
-                    region: payload.region,
-                    tier: payload.tier
-                };
-                ai_chat_agent:RecommendationRequest recommendationRequest = {
-                    chatHistory: [userMessage, assistantMessage],
-                    conversationData
-                };
-
                 ai_chat_agent:RecommendationResponse|error recommendationResponse =
-                    ai_chat_agent:getRecommendation(recommendationRequest);
+                    ai_chat_agent:getRecommendationsForExchange(payload.message, chatResponse.message, envProducts,
+                        payload.region, payload.tier);
                 if recommendationResponse is ai_chat_agent:RecommendationResponse {
                     chatResponse.recommendations = recommendationResponse;
+                    error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
+                    if cacheError is error {
+                        log:printWarn("Error updating recommendationsReturned cache", cacheError);
+                    }
                 } else {
                     log:printWarn("Failed to retrieve recommendations for the first chat invocation",
                         recommendationResponse);
                 }
-            }
-
-            error? cacheError = recommendationsReturnedCache.put(recommendationsCacheKey, true);
-            if cacheError is error {
-                log:printWarn("Error updating recommendationsReturned cache", cacheError);
             }
         }
         return chatResponse;
@@ -1086,9 +1062,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
     # List conversations for the given account ID.
     # 
-    # + projectId - ID of the project
+    # + Id - ID of the project
     # + return - List of conversations or error
-    resource function get projects/[string projectId]/conversations(http:RequestContext ctx)
+    resource function get projects/[string Id]/conversations(http:RequestContext ctx)
         returns ai_chat_agent:ConversationListResponse|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1101,7 +1077,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         ai_chat_agent:ConversationListResponse|error conversationListResponse =
-            ai_chat_agent:listConversations(projectId);
+            ai_chat_agent:listConversations(Id);
         if conversationListResponse is error {
             string customError = "Failed to retrieve conversations.";
             log:printError(customError, conversationListResponse);
@@ -1116,10 +1092,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
     # Get chat history for a specific conversation.
     # 
-    # + projectId - ID of the project
+    # + Id - ID of the project
     # + conversationId - ID of the conversation
     # + return - Chat history response or error 
-    resource function get projects/[string projectId]/conversations/[string conversationId](http:RequestContext ctx)
+    resource function get projects/[string Id]/conversations/[string conversationId](http:RequestContext ctx)
         returns ai_chat_agent:ChatHistoryResponse|http:InternalServerError {
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1131,7 +1107,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         ai_chat_agent:ChatHistoryResponse|error chatHistoryResponse =
-            ai_chat_agent:getChatHistory(projectId, conversationId);
+            ai_chat_agent:getChatHistory(Id, conversationId);
         if chatHistoryResponse is error {
             string customError = "Failed to retrieve chat history.";
             log:printError(customError, chatHistoryResponse);
@@ -1143,33 +1119,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
         return chatHistoryResponse;
     }   
-
-    # Get recommendations for a user query.
-    # 
-    # + payload - Recommendation payload
-    # + return - Recommendation response or error
-    resource function post recommendations(http:RequestContext ctx, ai_chat_agent:RecommendationRequest payload)
-        returns ai_chat_agent:RecommendationResponse|http:InternalServerError {
-        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-        ai_chat_agent:RecommendationResponse|error recommendationResponse = ai_chat_agent:getRecommendation(payload);
-        if recommendationResponse is error {
-            string customError = "Failed to retrieve recommendations.";
-            log:printError(customError, recommendationResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-        return recommendationResponse;
-    }
 
     # Get comments for a specific case.
     #

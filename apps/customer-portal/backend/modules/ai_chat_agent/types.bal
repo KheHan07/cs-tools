@@ -36,6 +36,7 @@ public type CaseClassificationPayload record {|
     string region;
     # Tier
     string tier;
+    json...;
 |};
 
 # Chat case information.
@@ -81,6 +82,7 @@ public type ChatPayload record {|
     json...;
 |};
 
+# Conversation payload for creating a conversation thread.
 public type ConversationPayload record {|
     # User message
     string message;
@@ -187,6 +189,7 @@ public type ChatResponse record {|
     RecommendationResponse? recommendations = ();
     # True when user indicates their issue is resolved
     boolean? resolved = ();
+    json...;
 |};
 
 # Metadata for a conversation thread.
@@ -201,6 +204,8 @@ public type ConversationMetadata record {|
     string updatedAt;
     # Number of messages in conversation
     int messageCount = 0;
+    json...;
+
 |};
 
 # List of all conversations for a user.
@@ -211,6 +216,7 @@ public type ConversationListResponse record {|
     ConversationMetadata[] conversations = [];
     # Total number of conversations
     int totalCount = 0;
+    json...;
 |};
 
 # Supported chat message roles.
@@ -224,6 +230,7 @@ public type Message record {|
     string content;
     # ISO timestamp
     string timestamp;
+    json...;
 |};
 
 # Response after deleting a conversation.
@@ -234,6 +241,7 @@ public type DeleteConversationResponse record {|
     string accountId;
     # Conversation ID
     string conversationId;
+    json...;
 |};
 
 # Chat history response.
@@ -246,6 +254,7 @@ public type ChatHistoryResponse record {|
     Message[] messages = [];
     # Total number of messages
     int messageCount = 0;
+    json...;
 |};
 
 # Conversation data for recommendations.
@@ -258,6 +267,7 @@ public type ConversationData record {|
     string region;
     # Tier
     string tier;
+    json...;
 |};
 
 # Recommendation request.
@@ -266,4 +276,5 @@ public type RecommendationRequest record {|
     Message[] chatHistory;
     # Customer question or issue description
     ConversationData conversationData;
+    json...;
 |};
