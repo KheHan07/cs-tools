@@ -219,13 +219,3 @@ export function getCaseTypeChipConfig(
     borderColor: colors.grey?.[200] ?? "#E5E7EB",
   };
 }
-
-// Placeholder data for Cases Trend Chart when in error state.
-export const TREND_CHART_ERROR_PLACEHOLDER_DATA = [
-  { period: "Jan", critical: 40, high: 24, medium: 24, low: 20, catastrophic: 5 },
-  { period: "Feb", critical: 30, high: 13, medium: 22, low: 30, catastrophic: 2 },
-  { period: "Mar", critical: 20, high: 98, medium: 22, low: 10, catastrophic: 8 },
-  { period: "Apr", critical: 27, high: 39, medium: 20, low: 40, catastrophic: 3 },
-  { period: "May", critical: 18, high: 48, medium: 21, low: 50, catastrophic: 6 },
-  { period: "Jun", critical: 23, high: 38, medium: 25, low: 30, catastrophic: 4 },
-];

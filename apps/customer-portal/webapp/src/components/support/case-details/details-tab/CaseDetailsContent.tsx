@@ -18,12 +18,13 @@ import { Box, Paper, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import { useMemo, useState, type JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import useGetCaseAttachments from "@api/useGetCaseAttachments";
-import { useGetCallRequests } from "@api/useGetCallRequests";
+import { useInfiniteCallRequests } from "@api/useInfiniteCallRequests";
 import {
   getStatusColor,
   resolveColorFromTheme,
   getStatusIconElement,
   getInitials,
+  mapSeverityToDisplay,
 } from "@utils/support";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CaseDetailsBackButton from "@case-details/CaseDetailsBackButton";
@@ -91,8 +92,11 @@ export default function CaseDetailsContent({
   const attachmentCount = attachmentsQuery.data?.totalRecords;
 
   const resolvedProjectId = data?.project?.id ?? projectId;
-  const callsQuery = useGetCallRequests(resolvedProjectId, caseId);
-  const callCount = callsQuery.data?.callRequests?.length;
+  const callsQuery = useInfiniteCallRequests(resolvedProjectId, caseId);
+  const callCount =
+    callsQuery.data?.pages?.[0]?.totalRecords ??
+    callsQuery.data?.pages?.flatMap((p) => p.callRequests ?? []).length ??
+    0;
 
   const assignedEngineer = data?.assignedEngineer;
   const engineerInitials = getInitials(assignedEngineer);
@@ -160,7 +164,7 @@ export default function CaseDetailsContent({
               <CaseDetailsHeader
                 caseNumber={data?.number}
                 title={data?.title}
-                severityLabel={severityLabel}
+                severityLabel={mapSeverityToDisplay(severityLabel ?? undefined)}
                 statusLabel={statusLabel}
                 statusChipIcon={statusChipIcon}
                 statusChipSx={statusChipSx}
