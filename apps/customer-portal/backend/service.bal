@@ -515,12 +515,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             // To return other stats even if case stats retrieval fails, error will not be returned.
         }
 
-        // Fetch chat stats
+        // Fetch conversation stats
         entity:ProjectConversationStatsResponse|error conversationStats =
             entity:getConversationStatsForProject(userInfo.idToken, id);
         if conversationStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
-            // To return other stats even if chat stats retrieval fails, error will not be returned.
+            log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
+            // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
 
         // Fetch deployment stats
@@ -670,12 +670,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             // To return other stats even if case stats retrieval fails, error will not be returned.
         }
 
-        // Fetch chat stats
+        // Fetch conversation stats
         entity:ProjectConversationStatsResponse|error conversationStats =
             entity:getConversationStatsForProject(userInfo.idToken, id);
         if conversationStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, conversationStats);
-            // To return other stats even if chat stats retrieval fails, error will not be returned.
+            log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
+            // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
 
         return {
@@ -971,7 +971,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // TODO: Need to persist the chat history
         ai_chat_agent:CaseClassificationResponse|error classificationResponse =
             ai_chat_agent:createCaseClassification(payload);
         if classificationResponse is error {

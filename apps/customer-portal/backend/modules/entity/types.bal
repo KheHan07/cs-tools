@@ -1096,7 +1096,7 @@ public type ConversationSearchPayload record {|
         IdString[] projectIds?;
         # List of state keys to filter
         int[] stateKeys?;
-        # Search query for chat messages
+        # Search query for conversations
         string searchQuery?;
     } filters?;
     # Sort configuration

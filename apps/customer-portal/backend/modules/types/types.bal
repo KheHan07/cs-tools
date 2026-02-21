@@ -888,7 +888,7 @@ public type ConversationSearchPayload record {|
     record {
         # List of state keys to filter
         int[] stateKeys?;
-        # Search query for conversation messages
+        # Search query for conversations
         string searchQuery?;
     } filters?;
     # Sort configuration

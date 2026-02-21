@@ -454,17 +454,17 @@ public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse resp
 public isolated function mapConversationSearchResponse(entity:ConversationResponse response)
     returns types:ConversationResponse {
 
-    types:Conversation[] conversations = from entity:Conversation chat in response.conversations
-        let entity:ReferenceTableItem? project = chat.project
-        let entity:ReferenceTableItem? case = chat.case
-        let entity:ChoiceListItem? state = chat.state
+    types:Conversation[] conversations = from entity:Conversation conversation in response.conversations
+        let entity:ReferenceTableItem? project = conversation.project
+        let entity:ReferenceTableItem? case = conversation.case
+        let entity:ChoiceListItem? state = conversation.state
         select {
-            id: chat.id,
-            number: chat.number,
-            initialMessage: chat.initialMessage,
-            messageCount: chat.messageCount,
-            createdOn: chat.createdOn,
-            createdBy: chat.createdBy,
+            id: conversation.id,
+            number: conversation.number,
+            initialMessage: conversation.initialMessage,
+            messageCount: conversation.messageCount,
+            createdOn: conversation.createdOn,
+            createdBy: conversation.createdBy,
             project: project != () ? {id: project.id, label: project.name} : (),
             case: case != () ? {id: case.id, label: case.name} : (),
             state: state != () ? {id: state.id.toString(), label: state.label} : ()
