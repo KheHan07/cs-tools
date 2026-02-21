@@ -30,7 +30,9 @@ public isolated function createCaseClassification(CaseClassificationPayload payl
 # + conversationId - Conversation ID
 # + payload - Conversation payload
 # + return - Chat response or error
-public isolated function createChat(string projectId, string conversationId, ConversationPayload payload) returns ChatResponse|error {
+public isolated function createChat(string projectId, string conversationId, ConversationPayload payload)
+    returns ChatResponse|error {
+
     ChatPayload chatPayload = {
         message: payload.message,
         accountId: projectId,
