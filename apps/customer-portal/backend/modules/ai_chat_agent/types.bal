@@ -134,7 +134,7 @@ public type SlotState record {|
 |};
 
 # Action button rendered by the UI.
-public type UIAction record {|
+public type Action record {|
     # Action type, e.g. 'Create case'
     string 'type;
     # Button label
@@ -207,16 +207,11 @@ public type ConversationListResponse record {|
     int totalCount = 0;
 |};
 
-<<<<<<< Updated upstream
-# Single chat message.
-public type ChatMessage record {|
-=======
 # Supported chat message roles.
 public type Role "user"|"assistant";
 
 # Single chat message for UI rendering.
 public type Message record {|
->>>>>>> Stashed changes
     # Message role: 'user' or 'assistant'
     Role role;
     # Message content
