@@ -35,12 +35,13 @@ export default function Actions({
 }: ActionsProps): JSX.Element {
   const location = useLocation();
   const isProjectHub = location.pathname === "/";
+  const isLoginPage = location.pathname === "/login";
 
   return (
     <HeaderUI.Actions>
-      {/* Get Help dropdown (before theme switcher, not on project hub) */}
-      {!isProjectHub && <GetHelpDropdown />}
-      {!isProjectHub && (
+      {/* Get Help dropdown (before theme switcher, not on project hub or login) */}
+      {!isProjectHub && !isLoginPage && <GetHelpDropdown />}
+      {!isProjectHub && !isLoginPage && (
         <Divider
           orientation="vertical"
           flexItem

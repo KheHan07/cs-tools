@@ -32,10 +32,11 @@ import OutstandingCasesSkeleton from "./OutstandingCasesSkeleton";
 import {
   formatRelativeTime,
   getAssignedEngineerLabel,
-  resolveColorFromTheme,
-  stripHtml,
   getSeverityColor,
   getStatusColor,
+  mapSeverityToDisplay,
+  resolveColorFromTheme,
+  stripHtml,
 } from "@utils/support";
 
 export interface OutstandingCasesListProps {
@@ -117,7 +118,7 @@ export default function OutstandingCasesList({
                     }}
                   />
                   <Typography variant="caption" color="text.secondary">
-                    {c.severity?.label ?? "—"}
+                    {mapSeverityToDisplay(c.severity?.label)}
                   </Typography>
                 </Stack>
               }

@@ -34,7 +34,7 @@ import { Trash, ChevronLeft, ChevronRight } from "@wso2/oxygen-ui-icons-react";
 import { getFileIcon, scrollElement } from "@utils/richTextEditor";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import Toolbar from "@components/common/rich-text-editor/ToolBar";
+import Toolbar, { type ToolbarVariant } from "@components/common/rich-text-editor/ToolBar";
 import type { JSX } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ImageNode } from "@components/common/rich-text-editor/ImageNode";
@@ -48,6 +48,7 @@ import { useLogger } from "@hooks/useLogger";
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import { $getRoot } from "lexical";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { KEY_ENTER_COMMAND, COMMAND_PRIORITY_LOW } from "lexical";
 
 /**
  * Internal component to handle editable state changes.
@@ -111,6 +112,38 @@ const OnChangeHTMLPlugin = ({
 };
 
 /**
+ * Plugin to call onSubmitKeyDown when Enter is pressed without Shift.
+ * Shift+Enter inserts newline; Enter submits.
+ */
+const EnterSubmitPlugin = ({
+  onSubmit,
+  disabled,
+}: {
+  onSubmit?: () => void;
+  disabled?: boolean;
+}) => {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!onSubmit || disabled) return;
+
+    return editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      (event: KeyboardEvent | null) => {
+        if (event === null) return false;
+        if (event.shiftKey) return false;
+        event.preventDefault?.();
+        onSubmit();
+        return true;
+      },
+      COMMAND_PRIORITY_LOW,
+    );
+  }, [editor, onSubmit, disabled]);
+
+  return null;
+};
+
+/**
  * Internal component to handle resetting the editor.
  */
 const ResetPlugin = ({ resetTrigger }: { resetTrigger?: number }) => {
@@ -167,6 +200,10 @@ const Editor = ({
   resetTrigger,
   minHeight = 150,
   showToolbar = true,
+  toolbarVariant = "full",
+  onSubmitKeyDown,
+  placeholder = "Enter description...",
+  id,
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -177,7 +214,11 @@ const Editor = ({
   resetTrigger?: number;
   minHeight?: number | string;
   showToolbar?: boolean;
+  toolbarVariant?: ToolbarVariant;
+  /** When provided, Enter (without Shift) triggers this callback to submit. Shift+Enter inserts newline. */
+  onSubmitKeyDown?: () => void;
   placeholder?: string;
+  id?: string;
 }): JSX.Element => {
   const oxygenTheme = useTheme();
   const logger = useLogger();
@@ -249,6 +290,7 @@ const Editor = ({
             <Toolbar
               onAttachmentClick={onAttachmentClick}
               disabled={disabled}
+              variant={toolbarVariant}
             />
             <Divider sx={{ my: 1 }} />
           </>
@@ -299,6 +341,7 @@ const Editor = ({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
+                id={id}
                 className="editor-input"
                 data-testid="case-description-editor"
               />
@@ -315,7 +358,7 @@ const Editor = ({
                   userSelect: "none",
                 }}
               >
-                Enter description...
+                {placeholder}
               </Typography>
             }
             ErrorBoundary={LexicalErrorBoundary}
@@ -328,6 +371,10 @@ const Editor = ({
           <InitialValuePlugin initialHtml={value} />
           <OnChangeHTMLPlugin onChange={onChange} />
           <ResetPlugin resetTrigger={resetTrigger} />
+          <EnterSubmitPlugin
+            onSubmit={onSubmitKeyDown}
+            disabled={disabled}
+          />
         </Box>
         {attachments.length > 0 && (
           <>

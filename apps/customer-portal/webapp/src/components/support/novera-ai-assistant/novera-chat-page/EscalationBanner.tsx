@@ -18,11 +18,11 @@ import {
   Box,
   Button,
   CircularProgress,
-  colors,
   Paper,
+  Stack,
   Typography,
 } from "@wso2/oxygen-ui";
-import { CircleAlert } from "@wso2/oxygen-ui-icons-react";
+import { FileText, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
 
 interface EscalationBannerProps {
@@ -33,11 +33,14 @@ interface EscalationBannerProps {
   isCreateCaseDisabled?: boolean;
 }
 
+const NOVERA_PROSE =
+  "Thank you for describing the issue. To provide more targeted assistance:\n\n1. What WSO2 product and version are you using?\n2. Is this in a production or non-production environment?\n3. Can you provide more details about when this issue occurs?";
+
 /**
  * Renders an escalation banner for creating support cases.
  *
- * Displays a warning message and a button to create a support case
- * with the conversation details.
+ * Displays Novera badge, guidance text, and a Create Case button with
+ * "Skip the chat and create a support case now" option.
  *
  * @returns The EscalationBanner JSX element or null if not visible.
  */
@@ -55,36 +58,61 @@ export default function EscalationBanner({
         mb: 2,
         py: 2,
         px: 2,
-        display: "flex",
-        alignItems: "center",
-        gap: 1,
+        maxWidth: 672,
       }}
     >
-      <CircleAlert
-        size={18}
-        color={colors.orange[700]}
-        style={{ flexShrink: 0 }}
-      />
+      <Stack spacing={2}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              background: (theme) =>
+                `linear-gradient(to bottom right, ${theme.palette.warning.main}, ${theme.palette.warning.dark})`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Sparkles size={14} color="white" />
+          </Box>
+          <Typography variant="body2" fontWeight={500}>
+            Novera
+          </Typography>
+        </Box>
 
-      <Box sx={{ flex: 1 }}>
-        <Typography variant="body2">
-          Need more help? I can create a support case with all the details
-          we&apos;ve discussed.
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ whiteSpace: "pre-line", lineHeight: 1.6 }}
+        >
+          {NOVERA_PROSE}
         </Typography>
-      </Box>
 
-      <Button
-        variant="contained"
-        size="medium"
-        color="primary"
-        onClick={onCreateCase}
-        disabled={isLoading || isCreateCaseDisabled}
-        startIcon={
-          isLoading ? <CircularProgress size={16} color="inherit" /> : undefined
-        }
-      >
-        {isLoading ? "Processing" : "Create Case"}
-      </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+          <Button
+            variant="contained"
+            size="small"
+            color="warning"
+            onClick={onCreateCase}
+            disabled={isLoading || isCreateCaseDisabled}
+            startIcon={
+              isLoading ? (
+                <CircularProgress size={14} color="inherit" />
+              ) : (
+                <FileText size={14} />
+              )
+            }
+          >
+            {isLoading ? "Processing" : "Create Case"}
+          </Button>
+          <Typography variant="caption" color="text.secondary">
+            Skip the chat and create a support case now
+          </Typography>
+        </Box>
+      </Stack>
     </Paper>
   );
 }

@@ -117,7 +117,7 @@ const SubscriptionDetails = ({
           ) : isDateInvalid ? (
             <ErrorIndicator entityName="subscription details" />
           ) : (
-            <Typography variant="caption">{startDate}</Typography>
+            <Typography variant="body2">{startDate}</Typography>
           )}
         </Box>
 
@@ -131,7 +131,7 @@ const SubscriptionDetails = ({
           ) : isDateInvalid ? (
             <ErrorIndicator entityName="subscription status" />
           ) : (
-            <Typography variant="caption">
+            <Typography variant="body2">
               {subscriptionStatus === SUBSCRIPTION_STATUS.EXPIRED
                 ? "Expired on"
                 : "Expires on"}{" "}
@@ -150,7 +150,7 @@ const SubscriptionDetails = ({
           ) : isDateInvalid ? (
             <ErrorIndicator entityName="subscription details" />
           ) : (
-            <Typography variant="caption">{endDate}</Typography>
+            <Typography variant="body2">{endDate}</Typography>
           )}
         </Box>
       </Box>

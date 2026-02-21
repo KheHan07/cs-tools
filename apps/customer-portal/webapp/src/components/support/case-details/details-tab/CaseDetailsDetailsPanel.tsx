@@ -34,10 +34,11 @@ import {
   formatSlaResponseTime,
   formatUtcToLocal,
   getAssignedEngineerLabel,
-  resolveColorFromTheme,
-  getStatusIconElement,
   getSeverityColor,
   getStatusColor,
+  getStatusIconElement,
+  mapSeverityToDisplay,
+  resolveColorFromTheme,
 } from "@utils/support";
 
 export interface CaseDetailsDetailsPanelProps {
@@ -153,7 +154,7 @@ export default function CaseDetailsDetailsPanel({
                 }}
               />
               <Typography variant="caption" color="text.secondary">
-                {formatValue(severityLabel)}
+                {mapSeverityToDisplay(severityLabel ?? undefined)}
               </Typography>
             </Box>
           </Box>

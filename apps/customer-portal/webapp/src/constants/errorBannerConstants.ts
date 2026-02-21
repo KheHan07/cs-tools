@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Auto-dismiss timeout in milliseconds.
-export const ERROR_BANNER_TIMEOUT_MS = 2800;
+// Auto-dismiss timeout in milliseconds (error and success banners).
+export const ERROR_BANNER_TIMEOUT_MS = 5000;
 
 // Footer height in pixels.
 export const FOOTER_HEIGHT_PX = 64;

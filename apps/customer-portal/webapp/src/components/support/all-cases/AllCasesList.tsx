@@ -28,11 +28,12 @@ import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
 import {
   formatDateTime,
+  getAssignedEngineerLabel,
   getSeverityColor,
   getStatusColor,
-  getAssignedEngineerLabel,
-  resolveColorFromTheme,
   getStatusIcon,
+  mapSeverityToDisplay,
+  resolveColorFromTheme,
   stripHtml,
 } from "@utils/support";
 import AllCasesListSkeleton from "@components/support/all-cases/AllCasesListSkeleton";
@@ -121,7 +122,7 @@ export default function AllCasesList({
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      {caseItem.severity?.label || "--"}
+                      {mapSeverityToDisplay(caseItem.severity?.label)}
                     </Typography>
                   </Box>
                   <Chip

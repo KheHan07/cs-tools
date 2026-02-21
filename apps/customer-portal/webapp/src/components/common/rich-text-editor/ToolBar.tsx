@@ -93,13 +93,18 @@ import {
 } from "@lexical/rich-text";
 import { $createParagraphNode } from "lexical";
 
+export type ToolbarVariant = "full" | "describeIssue";
+
 const Toolbar = ({
   onAttachmentClick,
   disabled = false,
+  variant = "full",
 }: {
   onAttachmentClick?: () => void;
   disabled?: boolean;
+  variant?: ToolbarVariant;
 }) => {
+  const isDescribeIssue = variant === "describeIssue";
   const [editor] = useLexicalComposerContext();
   const theme = useTheme();
   const { showError } = useErrorBanner();
@@ -250,26 +255,26 @@ const Toolbar = ({
   };
 
   const onBlockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const variant = e.target.value;
-    setBlockVariant(variant);
+    const blockType = e.target.value;
+    setBlockVariant(blockType);
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        if (variant.startsWith("h")) {
-          const level = parseInt(variant.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6;
+        if (blockType.startsWith("h")) {
+          const level = parseInt(blockType.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6;
           $setBlocksType(selection, () =>
             $createHeadingNode(
               `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
             ),
           );
           $patchStyleText(selection, { "font-size": null });
-        } else if (variant === "quote") {
+        } else if (blockType === "quote") {
           $setBlocksType(selection, () => $createQuoteNode());
           $patchStyleText(selection, { "font-size": null });
         } else {
           $setBlocksType(selection, () => $createParagraphNode());
           const typo = theme.typography[
-            variant as keyof typeof theme.typography
+            blockType as keyof typeof theme.typography
           ] as { fontSize?: string | number };
           const fontSize = typo?.fontSize ?? theme.typography.body1.fontSize;
           $patchStyleText(selection, { "font-size": String(fontSize) });
@@ -427,53 +432,57 @@ const Toolbar = ({
             </ToggleButton>
           </Tooltip>
 
-          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+          {!isDescribeIssue && (
+            <>
+              <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
-          <Tooltip title="Font variant">
-            <Box
-              component="span"
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-              }}
-            >
-              <select
-                aria-label="Font variant"
-                value={blockVariant}
-                onChange={onBlockChange}
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  height: 28,
-                  padding: "0 4px",
-                  fontSize: theme.typography.body2.fontSize as string,
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: 4,
-                  backgroundColor: "transparent",
-                  color: "inherit",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-              >
-                {[
-                  ...RICH_TEXT_BLOCK_TAGS,
-                  { value: "quote", label: "Quote", variant: "quote" as const },
-                ].map(({ value, label }) => (
-                  <option
-                    key={value}
-                    value={value}
+              <Tooltip title="Font variant">
+                <Box
+                  component="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <select
+                    aria-label="Font variant"
+                    value={blockVariant}
+                    onChange={onBlockChange}
+                    onClick={(e) => e.stopPropagation()}
                     style={{
-                      backgroundColor: theme.palette.background.paper,
-                      color: theme.palette.text.primary,
+                      height: 28,
+                      padding: "0 4px",
+                      fontSize: theme.typography.body2.fontSize as string,
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: 4,
+                      backgroundColor: "transparent",
+                      color: "inherit",
+                      cursor: "pointer",
+                      outline: "none",
                     }}
                   >
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </Box>
-          </Tooltip>
+                    {[
+                      ...RICH_TEXT_BLOCK_TAGS,
+                      { value: "quote", label: "Quote", variant: "quote" as const },
+                    ].map(({ value, label }) => (
+                      <option
+                        key={value}
+                        value={value}
+                        style={{
+                          backgroundColor: theme.palette.background.paper,
+                          color: theme.palette.text.primary,
+                        }}
+                      >
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </Box>
+              </Tooltip>
 
-          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+              <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+            </>
+          )}
 
           <Tooltip title="Bold">
             <ToggleButton
@@ -693,29 +702,33 @@ const Toolbar = ({
             </ToggleButton>
           </Tooltip>
 
-          <Tooltip title="Upload Image">
-            <ToggleButton size="small" component="label" value="image">
-              <ImageIcon size={16} />
-              <input
-                ref={imageInputRef}
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={onImageUpload}
-              />
-            </ToggleButton>
-          </Tooltip>
+          {!isDescribeIssue && (
+            <>
+              <Tooltip title="Upload Image">
+                <ToggleButton size="small" component="label" value="image">
+                  <ImageIcon size={16} />
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={onImageUpload}
+                  />
+                </ToggleButton>
+              </Tooltip>
 
-          <Tooltip title="Attach File">
-            <ToggleButton
-              size="small"
-              value="attachment"
-              disabled={!onAttachmentClick}
-              onClick={() => onAttachmentClick?.()}
-            >
-              <Paperclip size={16} />
-            </ToggleButton>
-          </Tooltip>
+              <Tooltip title="Attach File">
+                <ToggleButton
+                  size="small"
+                  value="attachment"
+                  disabled={!onAttachmentClick}
+                  onClick={() => onAttachmentClick?.()}
+                >
+                  <Paperclip size={16} />
+                </ToggleButton>
+              </Tooltip>
+            </>
+          )}
         </Stack>
       </Box>
 

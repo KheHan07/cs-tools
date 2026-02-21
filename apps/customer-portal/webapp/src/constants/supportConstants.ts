@@ -85,6 +85,9 @@ export const CallRequestStatus = {
 export type CallRequestStatus =
   (typeof CallRequestStatus)[keyof typeof CallRequestStatus];
 
+/** API stateKey value for cancelling a call request (PATCH). */
+export const CALL_REQUEST_STATE_CANCELLED = 6;
+
 // Case severity types matching API labels.
 export const CaseSeverity = {
   CATASTROPHIC: "Catastrophic (P0)",

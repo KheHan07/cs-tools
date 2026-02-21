@@ -24,6 +24,7 @@ import {
   resolveColorFromTheme,
   getStatusIconElement,
   getInitials,
+  mapSeverityToDisplay,
 } from "@utils/support";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CaseDetailsBackButton from "@case-details/CaseDetailsBackButton";
@@ -92,7 +93,10 @@ export default function CaseDetailsContent({
 
   const resolvedProjectId = data?.project?.id ?? projectId;
   const callsQuery = useGetCallRequests(resolvedProjectId, caseId);
-  const callCount = callsQuery.data?.callRequests?.length;
+  const callCount =
+    callsQuery.data?.pages?.[0]?.totalRecords ??
+    callsQuery.data?.pages?.flatMap((p) => p.callRequests ?? []).length ??
+    0;
 
   const assignedEngineer = data?.assignedEngineer;
   const engineerInitials = getInitials(assignedEngineer);
@@ -160,7 +164,7 @@ export default function CaseDetailsContent({
               <CaseDetailsHeader
                 caseNumber={data?.number}
                 title={data?.title}
-                severityLabel={severityLabel}
+                severityLabel={mapSeverityToDisplay(severityLabel ?? undefined)}
                 statusLabel={statusLabel}
                 statusChipIcon={statusChipIcon}
                 statusChipSx={statusChipSx}

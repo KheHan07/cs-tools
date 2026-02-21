@@ -546,7 +546,7 @@ export function getCallRequestStatusColor(status?: string): string {
  * @returns {string} Mapped display name (S0, S1, S2, S3, S4) or original if no match.
  */
 export function mapSeverityToDisplay(label?: string): string {
-  if (!label) return "--";
+  if (!label) return "—";
   return SEVERITY_LABEL_TO_DISPLAY[label] ?? label;
 }
 

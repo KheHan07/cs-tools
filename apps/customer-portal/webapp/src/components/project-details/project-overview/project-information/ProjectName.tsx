@@ -50,7 +50,7 @@ const ProjectName = ({
           <ErrorIndicator entityName="project name" />
         ) : (
           <>
-            <Typography variant="caption">{name}</Typography>
+            <Typography variant="body2">{name}</Typography>
             <Chip
               label={projectKey}
               size="small"

@@ -25,6 +25,7 @@ const mockCallRequestsResponse = { callRequests: [] };
 const mockLogger = {
   debug: vi.fn(),
   error: vi.fn(),
+  warn: vi.fn(),
 };
 vi.mock("@/hooks/useLogger", () => ({
   useLogger: () => mockLogger,
@@ -89,7 +90,7 @@ describe("useGetCallRequests", () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual(mockResponse);
+    expect(result.current.data?.pages?.[0]).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
       `https://api.test/cases/${caseId}/call-requests/search`,
       expect.objectContaining({

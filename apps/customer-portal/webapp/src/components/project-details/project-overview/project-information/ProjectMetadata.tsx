@@ -57,7 +57,7 @@ const ProjectMetadata = ({
           ) : isError ? (
             <ErrorIndicator entityName="project metadata" />
           ) : (
-            <Typography variant="caption">{createdDate}</Typography>
+            <Typography variant="body2">{createdDate}</Typography>
           )}
         </Grid>
 

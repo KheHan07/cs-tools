@@ -29,7 +29,7 @@ vi.mock("react-router", () => ({
 }));
 
 vi.mock("@api/useGetProjectCasesPage");
-vi.mock("@/api/useGetCasesFilters");
+vi.mock("@api/useGetCasesFilters");
 
 vi.mock("@asgardeo/react", () => ({
   useAsgardeo: () => ({
@@ -136,12 +136,12 @@ describe("CasesTable", () => {
       data: { cases: [], totalRecords: 0, offset: 0, limit: 10 },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
     mockUseGetCasesFilters.mockReturnValue({
       data: undefined,
       isFetching: false,
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof useGetCasesFilters>);
   });
 
   it("should render correctly", () => {
@@ -194,7 +194,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -223,7 +223,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -249,8 +249,9 @@ describe("CasesTable", () => {
     await waitFor(() => {
       const calls = mockUseGetProjectCasesPage.mock.calls;
       const lastCall = calls[calls.length - 1];
-      expect(lastCall[2]).toBe(20); // offset for page 2
-      expect(lastCall[3]).toBe(10); // limit
+      const rowsPerPage = 5;
+      expect(lastCall[2]).toBe(2 * rowsPerPage); // offset for page 2
+      expect(lastCall[3]).toBe(rowsPerPage); // limit
     });
   });
 
@@ -281,7 +282,7 @@ describe("CasesTable", () => {
       },
       isFetching: false,
       isError: false,
-    } as ReturnType<typeof useGetProjectCasesPage>);
+    } as unknown as ReturnType<typeof useGetProjectCasesPage>);
 
     render(
       <ThemeProvider theme={theme}>
@@ -325,7 +326,7 @@ describe("CasesTable", () => {
     mockUseGetCasesFilters.mockReturnValue({
       isFetching: true,
       isError: true,
-    } as any);
+    } as unknown as ReturnType<typeof useGetCasesFilters>);
 
     render(
       <ThemeProvider theme={theme}>

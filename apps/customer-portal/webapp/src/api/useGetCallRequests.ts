@@ -2,8 +2,8 @@
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
+// in compliance with the License. You may obtain a copy of the License
+// at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -14,34 +14,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  type UseInfiniteQueryResult,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { ApiQueryKeys } from "@constants/apiConstants";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CallRequestsResponse } from "@models/responses";
 
+const LIMIT = 10;
+
 /**
- * Hook to fetch call requests for a specific case.
- * Uses POST /cases/:caseId/call-requests/search with pagination.
+ * Hook to fetch call requests for a specific case using infinite query.
+ * Uses POST /cases/:caseId/call-requests/search with pagination (max limit 10).
  *
  * @param {string} projectId - The ID of the project (used for query key only).
  * @param {string} caseId - The ID of the case.
- * @returns {UseQueryResult<CallRequestsResponse, Error>} Query result.
+ * @returns {UseInfiniteQueryResult<InfiniteData<CallRequestsResponse>, Error>} Infinite query result.
  */
 export function useGetCallRequests(
   projectId: string,
   caseId: string,
-): UseQueryResult<CallRequestsResponse, Error> {
+): UseInfiniteQueryResult<InfiniteData<CallRequestsResponse>, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
-  return useQuery<CallRequestsResponse, Error>({
+  return useInfiniteQuery<
+    CallRequestsResponse,
+    Error,
+    InfiniteData<CallRequestsResponse>,
+    readonly (string | number)[],
+    number
+  >({
     queryKey: [ApiQueryKeys.CASE_CALL_REQUESTS, projectId, caseId],
-    queryFn: async (): Promise<CallRequestsResponse> => {
+    queryFn: async ({ pageParam }): Promise<CallRequestsResponse> => {
       logger.debug(
-        `[useGetCallRequests] Fetching call requests for case: ${caseId}`,
+        `[useGetCallRequests] Fetching call requests for case: ${caseId}, offset: ${pageParam}`,
       );
 
       try {
@@ -56,7 +68,7 @@ export function useGetCallRequests(
 
         const requestUrl = `${baseUrl}/cases/${caseId}/call-requests/search`;
         const body = JSON.stringify({
-          pagination: { limit: 10, offset: 0 },
+          pagination: { limit: LIMIT, offset: pageParam },
         });
 
         const response = await fetchFn(requestUrl, {
@@ -82,6 +94,19 @@ export function useGetCallRequests(
         logger.error("[useGetCallRequests] Error:", error);
         throw error;
       }
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const { offset, limit, totalRecords } = lastPage;
+      if (offset === undefined || limit === undefined || totalRecords === undefined) {
+        logger.warn(
+          "[useGetCallRequests] Missing pagination metadata: offset, limit, or totalRecords undefined. Stopping pagination.",
+          { offset, limit, totalRecords },
+        );
+        return undefined;
+      }
+      const nextOffset = offset + limit;
+      return nextOffset < totalRecords ? nextOffset : undefined;
     },
     enabled: !!caseId && !isAuthLoading && isSignedIn,
     staleTime: 5 * 60 * 1000,

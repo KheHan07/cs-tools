@@ -16,16 +16,20 @@
 
 import { Button, Stack } from "@wso2/oxygen-ui";
 import { PhoneCall } from "@wso2/oxygen-ui-icons-react";
-import { useState, useCallback, type JSX } from "react";
+import { useState, useCallback, useEffect, type JSX } from "react";
 import type { CallRequest } from "@models/responses";
 import { useGetCallRequests } from "@api/useGetCallRequests";
+import { usePatchCallRequest } from "@api/usePatchCallRequest";
 import CallsListSkeleton from "@case-details-calls/CallsListSkeleton";
 import CallRequestList from "@case-details-calls/CallRequestList";
 import CallsEmptyState from "@case-details-calls/CallsEmptyState";
 import CallsErrorState from "@case-details-calls/CallsErrorState";
 import RequestCallModal from "@case-details-calls/RequestCallModal";
+import DeleteCallRequestModal from "@case-details-calls/DeleteCallRequestModal";
 import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 import SuccessBanner from "@components/common/success-banner/SuccessBanner";
+import { CALL_REQUEST_STATE_CANCELLED } from "@constants/supportConstants";
+import { ERROR_BANNER_TIMEOUT_MS } from "@constants/errorBannerConstants";
 
 export interface CallsPanelProps {
   projectId: string;
@@ -44,15 +48,22 @@ export default function CallsPanel({
 }: CallsPanelProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editCall, setEditCall] = useState<CallRequest | null>(null);
+  const [deleteCall, setDeleteCall] = useState<CallRequest | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { data, isPending, isError, refetch } = useGetCallRequests(
-    projectId,
-    caseId,
-  );
+  const {
+    data,
+    isPending,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetCallRequests(projectId, caseId);
+  const patchCallRequest = usePatchCallRequest(projectId, caseId);
 
-  const callRequests = data?.callRequests ?? [];
+  const callRequests = data?.pages?.flatMap((p) => p.callRequests ?? []) ?? [];
 
   const handleOpenModal = () => {
     setEditCall(null);
@@ -68,6 +79,34 @@ export default function CallsPanel({
     setEditCall(call);
     setIsModalOpen(true);
   };
+  const handleDeleteClick = useCallback((call: CallRequest) => {
+    setDeleteCall(call);
+  }, []);
+  const handleCloseDeleteModal = useCallback(() => {
+    setDeleteCall(null);
+    setErrorMessage(null);
+  }, []);
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteCall) return;
+    patchCallRequest.mutate(
+      {
+        callRequestId: deleteCall.id,
+        reason: "",
+        stateKey: CALL_REQUEST_STATE_CANCELLED,
+      },
+      {
+        onSuccess: () => {
+          handleCloseDeleteModal();
+          setSuccessMessage("Call request cancelled successfully.");
+          refetch();
+        },
+        onError: (error) => {
+          handleCloseDeleteModal();
+          setErrorMessage(error.message || "Failed to cancel call request.");
+        },
+      },
+    );
+  }, [deleteCall, patchCallRequest, handleCloseDeleteModal, refetch]);
   const handleSuccess = useCallback(() => {
     setSuccessMessage("Call request submitted successfully.");
     refetch();
@@ -75,6 +114,18 @@ export default function CallsPanel({
   const handleError = useCallback((message: string) => {
     setErrorMessage(message);
   }, []);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const t = setTimeout(() => setSuccessMessage(null), ERROR_BANNER_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    const t = setTimeout(() => setErrorMessage(null), ERROR_BANNER_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [errorMessage]);
 
   return (
     <Stack spacing={3}>
@@ -108,11 +159,32 @@ export default function CallsPanel({
       ) : callRequests.length === 0 ? (
         <CallsEmptyState />
       ) : (
-        <CallRequestList
-          requests={callRequests}
-          onEditClick={handleEditClick}
-        />
+        <>
+          <CallRequestList
+            requests={callRequests}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+          />
+          {hasNextPage && (
+            <Button
+              variant="outlined"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              {isFetchingNextPage ? "Loading..." : "Load more"}
+            </Button>
+          )}
+        </>
       )}
+
+      <DeleteCallRequestModal
+        open={!!deleteCall}
+        call={deleteCall}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        isDeleting={patchCallRequest.isPending}
+      />
 
       <RequestCallModal
         open={isModalOpen}
