@@ -107,6 +107,8 @@ public type ProjectResponse record {|
     *Project;
     # Project type
     string 'type;
+    # Salesforce ID
+    string sfId;
     # Subscription information
     Subscription? subscription;
     json...;
