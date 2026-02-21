@@ -109,19 +109,22 @@ public type ProjectResponse record {|
     string 'type;
     # Salesforce ID
     string sfId;
-    # Subscription information
-    Subscription? subscription;
-    json...;
-|};
-
-# Project subscription information.
-public type Subscription record {|
-    # Subscription start date
-    string? startDate;
-    # Subscription end date
-    string? endDate;
-    # Support tier
-    string? supportTier;
+    # Account information
+    record {|
+        # System ID of the account
+        IdString id;
+        # Name of the account
+        string? name;
+        # Activation date
+        string? activationDate;
+        # Deactivation date
+        string? deactivationDate;
+        # Support tier
+        string? supportTier;
+        # Region
+        string? region;
+        json...;
+    |}? account;
     json...;
 |};
 
