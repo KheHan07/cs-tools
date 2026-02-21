@@ -32,7 +32,8 @@ public enum CaseSortField {
 public enum ReferenceType {
     CASE = "case",
     CHANGE_REQUEST = "change_request",
-    CONVERSATION = "conversation"
+    CONVERSATION = "conversation",
+    DEPLOYMENT = "deployment"
 }
 
 # Valid comment type values.
