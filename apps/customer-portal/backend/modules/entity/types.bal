@@ -27,16 +27,9 @@ type ClientCredentialsOauth2Config record {|
     string[] scopes = [];
 |};
 
-# Valid sort order values.
-public enum SortOrder {
-    ASC = "asc",
-    DESC = "desc"
-}
-
 # Common ID string type with length constraint.
 @constraint:String {
-    length: 32,
-    pattern: re `^[A-Za-z0-9]{32}$`
+    pattern: re `^[A-Fa-f0-9]{32}$`
 }
 public type IdString string;
 
@@ -59,7 +52,7 @@ public type Pagination record {|
 # User data.
 public type UserResponse record {|
     # ID
-    string id;
+    IdString id;
     # Email address
     string email;
     # Last name
@@ -74,7 +67,7 @@ public type UserResponse record {|
 # Project data.
 public type Project record {|
     # ID
-    string id;
+    IdString id;
     # Name
     string name;
     # Project key
@@ -162,8 +155,8 @@ public type CaseCreateResponse record {|
 
 # Created case details.
 public type CreatedCase record {|
-    # System ID of the created case
-    string id;
+    # ID of the created case
+    IdString id;
     # WSO2 internal ID of the case
     string internalId;
     # Case number
@@ -196,7 +189,7 @@ public type CaseUpdateResponse record {|
 # Updated case details.
 public type UpdatedCase record {|
     # System ID of the updated case
-    string id;
+    IdString id;
     # Updated date and time
     string updatedOn;
     # User who updated the case
@@ -211,7 +204,7 @@ public type UpdatedCase record {|
 # Base case.
 public type Case record {|
     # Case ID
-    string id;
+    IdString id;
     # Internal ID of the case
     string internalId;
     # Case number
@@ -366,6 +359,8 @@ public type ProjectMetadataResponse record {|
     ChoiceListItem[] changeRequestStates;
     # List of available change request impacts
     ChoiceListItem[] changeRequestImpacts;
+    # List of available chat states
+    ChoiceListItem[] chatStates;
     # List of available case types
     ReferenceTableItem[] caseTypes;
     # Severity based allocation time mapping (severity ID to allocation time in minutes)
@@ -471,7 +466,7 @@ public type ProjectDeploymentStatsResponse record {|
 # Comment information.
 public type Comment record {|
     # ID
-    string id;
+    IdString id;
     # Reference ID associated with the comment(query ID, incident ID, service request ID, etc.)
     string referenceId;
     # Content of the comment
@@ -519,7 +514,7 @@ public type ReferenceSearchPayload record {|
 # Attachment data.
 public type Attachment record {|
     # ID of the attachment
-    string id;
+    IdString id;
     # Reference ID associated with the attachment(query ID, incident ID, service request ID, etc.)
     string referenceId;
     # File name
@@ -549,7 +544,7 @@ public type AttachmentsResponse record {|
 # Deployed product data.
 public type DeployedProduct record {|
     # ID
-    string id;
+    IdString id;
     # Created date and time
     string createdOn;
     # Updated date and time
@@ -609,7 +604,7 @@ public type DeployedProductCreateResponse record {|
 # Created deployed product details.
 public type CreatedDeployedProduct record {|
     # ID
-    string id;
+    IdString id;
     # Created date and time
     string createdOn;
     # User who created the deployed product
@@ -637,7 +632,7 @@ public type DeployedProductUpdateResponse record {|
 # Updated deployed product details.
 public type UpdatedDeployedProduct record {|
     # ID of the updated deployed product
-    string id;
+    IdString id;
     # Updated date and time
     string updatedOn;
     # User who updated the deployed product
@@ -648,7 +643,7 @@ public type UpdatedDeployedProduct record {|
 # Deployment data.
 public type Deployment record {|
     # ID
-    string id;
+    IdString id;
     # Name
     string name;
     # Created date and time
@@ -690,7 +685,7 @@ public type DeploymentCreateResponse record {|
 # Created deployment details.
 public type CreatedDeployment record {|
     # ID of the created deployment
-    string id;
+    IdString id;
     # Created date and time
     string createdOn;
     # User who created the deployment
@@ -703,26 +698,6 @@ public type DeploymentsResponse record {|
     # List of deployments
     Deployment[] deployments;
 |};
-
-# Valid case sort field values.
-public enum CaseSortField {
-    CREATED_ON = "createdOn",
-    UPDATED_ON = "updatedOn",
-    SEVERITY = "severity",
-    STATE = "state"
-}
-
-# Valid reference type values.
-public enum ReferenceType {
-    CASE = "case",
-    CHANGE_REQUEST = "change_request"
-}
-
-# Valid comment type values.
-public enum CommentType {
-    COMMENT = "comments",
-    WORK_NOTE = "work_note"
-}
 
 # Payload for creating a comment.
 public type CommentCreatePayload record {|
@@ -740,7 +715,7 @@ public type CommentCreatePayload record {|
 # Created comment details.
 public type CreatedComment record {|
     # System ID of the created comment
-    string id;
+    IdString id;
     # Created date and time
     string createdOn;
     # User who created the comment
@@ -776,8 +751,8 @@ public type AttachmentCreateResponse record {|
 
 # Created attachment details.
 public type CreatedAttachment record {|
-    # System ID of the created attachment
-    string id;
+    # ID of the created attachment
+    IdString id;
     # File size
     int sizeBytes;
     # Created date and time
@@ -904,7 +879,7 @@ public type CallRequestSearchPayload record {|
 # Call request data.
 public type CallRequest record {|
     # ID
-    string id;
+    IdString id;
     # Associated case information
     ReferenceTableItem case;
     # Reason for the call request
@@ -957,7 +932,7 @@ public type CallRequestCreatePayload record {|
 # Created call request details.
 public type CreatedCallRequest record {|
     # ID
-    string id;
+    IdString id;
     # Created date and time
     string createdOn;
     # User who created the call request
@@ -989,7 +964,7 @@ public type CallRequestUpdatePayload record {|
 # Updated call request details.
 public type UpdatedCallRequest record {|
     # ID
-    string id;
+    IdString id;
     # Updated date and time
     string updatedOn;
     # User who updated the call request
@@ -1029,7 +1004,7 @@ public type DeploymentUpdateResponse record {|
 # Updated deployment details.
 public type UpdatedDeployment record {|
     # ID of the updated deployment
-    string id;
+    IdString id;
     # Updated date and time
     string updatedOn;
     # User who updated the deployment
@@ -1046,7 +1021,7 @@ public type ProductSearchPayload record {|
 # Product data.
 public type Product record {|
     # ID
-    string id;
+    IdString id;
     # Name
     string name;
     json...;
@@ -1068,7 +1043,7 @@ public type ProductVersionSearchPayload record {|
 # Product version data.
 public type ProductVersion record {|
     # ID
-    string id;
+    IdString id;
     # Version number
     string version;
     # Current support status
@@ -1111,6 +1086,26 @@ public type TimeCardSearchPayload record {|
         # End date for filtering time cards (ISO 8601 format)
         Date endDate?;
     } filters?;
+|};
+
+# Payload for searching chats.
+public type ChatSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of project IDs to filter
+        IdString[] projectIds?;
+        # List of state keys to filter
+        int[] stateKeys?;
+        # Search query for chat messages
+        string searchQuery?;
+    } filters?;
+    # Sort configuration
+    record {
+        # Field to sort by
+        ChatSortField 'field;
+        # Sort order
+        SortOrder 'order;
+    } sortBy?;
     # Pagination details
     Pagination pagination?;
 |};
@@ -1147,7 +1142,96 @@ public type TimeCardCase record {|
 public type TimeCardsResponse record {|
     # List of time cards
     TimeCard[] timeCards;
+|};
+
+# Chat data.
+public type Chat record {|
+    # ID of the chat
+    IdString id;
+    # Chat number
+    string? number;
+    # Initial message of the chat
+    string? initialMessage;
+    # Message count
+    int messageCount;
+    # Created date and time
+    string createdOn;
+    # User who created the chat
+    string createdBy;
+    # Associated project
+    ReferenceTableItem? project;
+    # Associated case
+    ReferenceTableItem? case;
+    # State information
+    ChoiceListItem? state;
+    json...;
+|};
+
+# Chats response.
+public type ChatsResponse record {|
+    # List of chats
+    Chat[] chats;
     # Total records count
     int totalRecords;
     *Pagination;
+|};
+
+# Request payload for creating a chat.
+public type ChatCreatePayload record {|
+    # Project ID
+    IdString projectId;
+    # Initial message of the chat
+    string initialMessage;
+|};
+
+# Created chat details.
+public type CreatedChat record {|
+    # System ID of the created chat
+    IdString id;
+    # Chat number
+    string? number;
+    # User who created the chat
+    string createdBy;
+    # Created date and time
+    string createdOn;
+    # State information
+    ChoiceListItem state;
+    json...;
+|};
+
+# Response from creating a chat.
+public type ChatCreateResponse record {|
+    # Success message
+    string message;
+    # Created chat details
+    CreatedChat chat;
+|};
+
+# Request payload for updating a chat.
+public type ChatUpdatePayload record {|
+    # State key to update
+    int stateKey;
+|};
+
+# Updated chat details.
+public type UpdatedChat record {|
+    # System ID of the updated chat
+    IdString id;
+    # Chat number
+    string? number;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the chat
+    string updatedBy;
+    # State information
+    ChoiceListItem state;
+    json...;
+|};
+
+# Response from updating a chat.
+public type ChatUpdateResponse record {|
+    # Success message
+    string message;
+    # Updated chat details
+    UpdatedChat chat;
 |};

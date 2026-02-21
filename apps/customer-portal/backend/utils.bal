@@ -106,6 +106,8 @@ public isolated function getProjectFilters(entity:ProjectMetadataResponse projec
         select {id: item.id.toString(), label: item.label};
     types:ReferenceItem[] caseTypes = from entity:ReferenceTableItem item in projectMetadata.caseTypes
         select {id: item.id, label: item.name};
+    types:ReferenceItem[] chatStates = from entity:ChoiceListItem item in projectMetadata.chatStates
+        select {id: item.id.toString(), label: item.label};
 
     return {
         caseStates,
@@ -116,6 +118,7 @@ public isolated function getProjectFilters(entity:ProjectMetadataResponse projec
         changeRequestStates,
         changeRequestImpacts,
         caseTypes,
+        chatStates,
         severityBasedAllocationTime: projectMetadata.severityBasedAllocationTime
     };
 }

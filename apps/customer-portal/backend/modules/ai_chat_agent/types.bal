@@ -26,6 +26,11 @@ type ClientCredentialsOauth2Config record {|
     string[] scopes = [];
 |};
 
+public enum Role {
+    USER = "user",
+    ASSISTANT = "assistant"
+};
+
 # Case classification payload.
 public type CaseClassificationPayload record {|
     # Chat history
@@ -152,7 +157,7 @@ public type Action record {|
 |};
 
 # Recommendation item.
-public type RecommendationItem record {| 
+public type RecommendationItem record {|
     # Article title
     string title;
     # Article ID
@@ -163,7 +168,7 @@ public type RecommendationItem record {|
 |};
 
 # Recommendation response.
-public type RecommendationResponse record {| 
+public type RecommendationResponse record {|
     # Original query (shortDescription from classification)
     string query;
     # Top matching articles
@@ -219,9 +224,6 @@ public type ConversationListResponse record {|
     json...;
 |};
 
-# Supported chat message roles.
-public type Role "user"|"assistant";
-
 # Single chat message for UI rendering.
 public type Message record {|
     # Message role: 'user' or 'assistant'
@@ -258,7 +260,7 @@ public type ChatHistoryResponse record {|
 |};
 
 # Conversation data for recommendations.
-public type ConversationData record {| 
+public type ConversationData record {|
     # Chat history as a string
     string chatHistory;
     # Environment products
@@ -271,7 +273,7 @@ public type ConversationData record {|
 |};
 
 # Recommendation request.
-public type RecommendationRequest record {| 
+public type RecommendationRequest record {|
     # Chat history
     Message[] chatHistory;
     # Customer question or issue description

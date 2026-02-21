@@ -335,4 +335,34 @@ public isolated function searchTimeCards(string idToken, TimeCardSearchPayload p
     returns TimeCardsResponse|error {
 
     return csEntityClient->/time\-cards/search.post(payload, generateHeaders(idToken));
+    }
+    
+# Search chats of a project.
+#
+# + idToken - ID token for authorization
+# + payload - Chat search payload containing search criteria for chats
+# + return - Chats response containing matching chats or error
+public isolated function searchChats(string idToken, ChatSearchPayload payload) returns ChatsResponse|error {
+    return csEntityClient->/chats/search.post(payload, generateHeaders(idToken));
+}
+
+# Create a chat message.
+#
+# + idToken - ID token for authorization
+# + payload - Chat creation payload containing details of the chat message to be created
+# + return - Chat creation response containing details of the created chat message or error
+public isolated function createChat(string idToken, ChatCreatePayload payload) returns ChatCreateResponse|error {
+    return csEntityClient->/chats.post(payload, generateHeaders(idToken));
+}
+
+# Update a chat message.
+#
+# + idToken - ID token for authorization
+# + chatId - Unique ID of the chat message to be updated
+# + payload - Chat update payload containing details to be updated in the chat message
+# + return - Chat update response containing details of the updated chat message or error
+public isolated function updateChat(string idToken, string chatId, ChatUpdatePayload payload)
+    returns ChatUpdateResponse|error {
+
+    return csEntityClient->/chats/[chatId].patch(payload, generateHeaders(idToken));
 }

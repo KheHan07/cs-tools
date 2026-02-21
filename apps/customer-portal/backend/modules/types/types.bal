@@ -157,6 +157,8 @@ public type ProjectFilterOptions record {|
     ReferenceItem[] changeRequestStates;
     # List of available change request impacts
     ReferenceItem[] changeRequestImpacts;
+    # List of available chat states
+    ReferenceItem[] chatStates;
     # List of available case types
     ReferenceItem[] caseTypes;
     # Severity based allocation time mapping (severity ID to allocation time in minutes)
@@ -755,6 +757,35 @@ public type TimeCard record {|
 public type TimeCardsResponse record {|
     # List of time cards
     TimeCard[] timeCards;
+|};
+
+# Chat data.
+public type Chat record {|
+    # ID of the chat
+    entity:IdString id;
+    # Chat number
+    string? number;
+    # Initial message of the chat
+    string? initialMessage;
+    # Message count
+    int messageCount;
+    # Created date and time
+    string createdOn;
+    # User who created the chat
+    string createdBy;
+    # Project information
+    ReferenceItem? project;
+    # Case information
+    ReferenceItem? case;
+    # State information
+    ReferenceItem? state;
+    json...;
+|};
+
+# Chats response.
+public type ChatsResponse record {|
+    # List of chats
+    Chat[] chats;
     # Total records count
     int totalRecords;
     *entity:Pagination;

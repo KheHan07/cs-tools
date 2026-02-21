@@ -271,7 +271,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project details or error response
-    resource function get projects/[string id](http:RequestContext ctx)
+    resource function get projects/[entity:IdString id](http:RequestContext ctx)
         returns entity:ProjectResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -318,7 +318,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Deployments response or error response
-    resource function get projects/[string id]/deployments(http:RequestContext ctx)
+    resource function get projects/[entity:IdString id]/deployments(http:RequestContext ctx)
         returns types:Deployment[]|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -357,7 +357,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Deployment creation payload
     # + return - Created deployment or error response
-    resource function post projects/[string id]/deployments(http:RequestContext ctx,
+    resource function post projects/[entity:IdString id]/deployments(http:RequestContext ctx,
             types:DeploymentCreatePayload payload)
         returns entity:CreatedDeployment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
@@ -473,7 +473,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project statistics response or error
-    resource function get projects/[string id]/stats(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectStatsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -567,7 +567,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project statistics overview or error response
-    resource function get projects/[string id]/stats/cases(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats/cases(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectCaseStats|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -626,7 +626,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project support statistics or error response
-    resource function get projects/[string id]/stats/support(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats/support(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectSupportStats|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -694,7 +694,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the case
     # + return - Case details or error
-    resource function get cases/[string id](http:RequestContext ctx)
+    resource function get cases/[entity:IdString id](http:RequestContext ctx)
         returns entity:CaseResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -793,7 +793,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case to be updated
     # + payload - Case update payload
     # + return - Updated case details or error response
-    resource function patch cases/[string id](http:RequestContext ctx, entity:CaseUpdatePayload payload)
+    resource function patch cases/[entity:IdString id](http:RequestContext ctx, entity:CaseUpdatePayload payload)
         returns entity:UpdatedCase|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -869,7 +869,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Case search request body
     # + return - Paginated cases or error
-    resource function post projects/[string id]/cases/search(http:RequestContext ctx, types:CaseSearchPayload payload)
+    resource function post projects/[entity:IdString id]/cases/search(http:RequestContext ctx,
+            types:CaseSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -910,7 +911,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Case filters or error
-    resource function get projects/[string id]/filters(http:RequestContext ctx)
+    resource function get projects/[entity:IdString id]/filters(http:RequestContext ctx)
         returns types:ProjectFilterOptions|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1125,7 +1126,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + limit - Number of comments to retrieve
     # + offset - Offset for pagination
     # + return - Comments response or error
-    resource function get cases/[string id]/comments(http:RequestContext ctx, int? 'limit, int? offset)
+    resource function get cases/[entity:IdString id]/comments(http:RequestContext ctx, int? 'limit, int? offset)
         returns types:CommentsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1164,7 +1165,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + limit - Number of attachments to retrieve
     # + offset - Offset for pagination
     # + return - Attachments response or error
-    resource function get cases/[string id]/attachments(http:RequestContext ctx, int? 'limit, int? offset)
+    resource function get cases/[entity:IdString id]/attachments(http:RequestContext ctx, int? 'limit, int? offset)
         returns types:AttachmentsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1203,7 +1204,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Comment creation payload
     # + return - Created comment or error response
-    resource function post cases/[string id]/comments(http:RequestContext ctx, types:CommentCreatePayload payload)
+    resource function post cases/[entity:IdString id]/comments(http:RequestContext ctx, types:CommentCreatePayload payload)
         returns entity:CreatedComment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1258,7 +1259,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the case
     # + return - Created attachment or error response
-    resource function post cases/[string id]/attachments(http:RequestContext ctx, types:AttachmentPayload payload)
+    resource function post cases/[entity:IdString id]/attachments(http:RequestContext ctx, types:AttachmentPayload payload)
         returns types:CreatedAttachment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1320,7 +1321,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the deployment
     # + return - Deployed products response or error response
-    resource function get deployments/[string id]/products(http:RequestContext ctx)
+    resource function get deployments/[entity:IdString id]/products(http:RequestContext ctx)
         returns types:DeployedProduct[]|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1360,7 +1361,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the deployment
     # + payload - Deployed product creation payload
     # + return - Created deployed product or error response
-    resource function post deployments/[string id]/products(http:RequestContext ctx,
+    resource function post deployments/[entity:IdString id]/products(http:RequestContext ctx,
             types:DeployedProductCreatePayload payload) returns
         entity:CreatedDeployedProduct|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
@@ -1652,7 +1653,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the product vulnerability
     # + return - Product vulnerability details or error
-    resource function get products/vulnerabilities/[string id](http:RequestContext ctx)
+    resource function get products/vulnerabilities/[entity:IdString id](http:RequestContext ctx)
             returns types:ProductVulnerabilityResponse|http:Forbidden|http:NotFound|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -2114,7 +2115,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Call request search payload containing filters and pagination info
     # + return - List of call requests matching the criteria or an error
-    resource function post cases/[string id]/call\-requests/search(http:RequestContext ctx,
+    resource function post cases/[entity:IdString id]/call\-requests/search(http:RequestContext ctx,
             types:CallRequestSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Forbidden|http:InternalServerError {
 
@@ -2170,7 +2171,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Call request creation payload
     # + return - Created call request details or an error
-    resource function post cases/[string id]/call\-requests(http:RequestContext ctx,
+    resource function post cases/[entity:IdString id]/call\-requests(http:RequestContext ctx,
             types:CallRequestCreatePayload payload)
         returns entity:CreatedCallRequest|http:BadRequest|http:Forbidden|http:InternalServerError {
 
@@ -2342,7 +2343,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the product
     # + payload - Product version search payload containing filters and pagination info
     # + return - List of product versions matching the criteria or an error
-    resource function post products/[string id]/versions/search(http:RequestContext ctx,
+    resource function post products/[entity:IdString id]/versions/search(http:RequestContext ctx,
             entity:ProductVersionSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Forbidden|http:InternalServerError {
 
