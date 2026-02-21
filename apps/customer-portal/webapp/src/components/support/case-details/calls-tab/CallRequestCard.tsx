@@ -34,6 +34,7 @@ import {
   getCallRequestStatusColor,
   resolveColorFromTheme,
 } from "@utils/support";
+import { CallRequestStatus } from "@constants/supportConstants";
 
 export interface CallRequestCardProps {
   call: CallRequest;
@@ -63,6 +64,9 @@ export default function CallRequestCard({
 }: CallRequestCardProps): JSX.Element {
   const theme = useTheme();
   const statusLabel = call.state?.label ?? "--";
+  const isTerminal =
+    statusLabel === CallRequestStatus.CANCELLED ||
+    statusLabel === CallRequestStatus.COMPLETED;
   const colorPath = getCallRequestStatusColor(statusLabel);
   const resolvedColor = resolveColorFromTheme(colorPath, theme);
 
@@ -148,7 +152,8 @@ export default function CallRequestCard({
             <Button
               variant="contained"
               color="warning"
-              onClick={() => onEditClick?.(call)}
+              onClick={() => !isTerminal && onEditClick?.(call)}
+              disabled={isTerminal}
               sx={{
                 minWidth: "auto",
                 px: 1,
@@ -163,7 +168,8 @@ export default function CallRequestCard({
             <Button
               variant="contained"
               color="error"
-              onClick={() => onDeleteClick?.(call)}
+              onClick={() => !isTerminal && onDeleteClick?.(call)}
+              disabled={isTerminal}
               sx={{
                 minWidth: "auto",
                 px: 1,

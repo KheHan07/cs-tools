@@ -25,7 +25,7 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
-import { type JSX } from "react";
+import { useCallback, type JSX } from "react";
 import type { CallRequest } from "@models/responses";
 import { formatUtcToLocal } from "@utils/support";
 
@@ -39,7 +39,7 @@ export interface DeleteCallRequestModalProps {
 
 /**
  * Confirmation modal before deleting (cancelling) a call request.
- * Delete is implemented as PATCH with stateKey 6.
+ * Delete is implemented as PATCH with CALL_REQUEST_STATE_CANCELLED.
  *
  * @param {DeleteCallRequestModalProps} props - open, call, onClose, onConfirm, isDeleting.
  * @returns {JSX.Element} The confirmation modal.
@@ -51,10 +51,18 @@ export default function DeleteCallRequestModal({
   onConfirm,
   isDeleting = false,
 }: DeleteCallRequestModalProps): JSX.Element {
+  const handleDialogClose = useCallback(
+    (_event: object, _reason: string) => {
+      if (isDeleting) return;
+      onClose();
+    },
+    [isDeleting, onClose],
+  );
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleDialogClose}
       maxWidth="sm"
       fullWidth
       aria-labelledby="delete-call-request-modal-title"
@@ -91,7 +99,7 @@ export default function DeleteCallRequestModal({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button variant="outlined" onClick={onClose} disabled={isDeleting}>
-          Cancel
+          Go Back
         </Button>
         <Button
           variant="contained"
