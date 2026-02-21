@@ -117,6 +117,7 @@ public type SlotOption record {|
     string[] options = [];
     # Input type: 'select' for dropdown, 'text' for free input
     string 'type = "select";
+    json...;
 |};
 
 # Current slot-filling progress for UI rendering.
