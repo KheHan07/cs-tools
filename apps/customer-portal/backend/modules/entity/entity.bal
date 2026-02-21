@@ -326,12 +326,12 @@ public isolated function searchProductVersions(string idToken, string productId,
     return csEntityClient->/products/[productId]/versions/search.post(payload, generateHeaders(idToken));
 }
 
-# Search timecards.
+# Search time cards.
 #
 # + idToken - ID token for authorization
-# + payload - Timecard search payload containing search criteria for timecards
-# + return - Timecards response containing matching timecards or error
-public isolated function searchTimecards(string idToken, TimeCardSearchPayload payload)
+# + payload - Payload containing search criteria for time cards
+# + return - Response containing matching time cards or error
+public isolated function searchTimeCards(string idToken, TimeCardSearchPayload payload)
     returns TimeCardsResponse|error {
 
     return csEntityClient->/time\-cards/search.post(payload, generateHeaders(idToken));

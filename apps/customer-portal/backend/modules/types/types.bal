@@ -674,31 +674,13 @@ public type CallRequestsResponse record {|
     // TODO: Remove after adding pagination
 |};
 
-# Date-time (UTC).
-@constraint:String {
-    pattern: {
-        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
-        message: "Invalid date provided. Please provide a valid date value."
-    }
-}
-public type DateTime string;
-
-# Date.
-@constraint:String {
-    pattern: {
-        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`,
-        message: "Invalid date format."
-    }
-}
-public type Date string;
-
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
     # Reason for the call request
     string reason;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
-    DateTime[] utcTimes;
+    entity:DateTime[] utcTimes;
     # Duration in minutes
     @constraint:Int {minValue: 1}
     int durationInMinutes;
@@ -711,7 +693,7 @@ public type CallRequestUpdatePayload record {|
     # Reason for the update
     string reason?;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
-    DateTime[] utcTimes?;
+    entity:DateTime[] utcTimes?;
 |};
 
 # Product version data.
@@ -779,9 +761,9 @@ public type TimeCardSearchPayload record {|
     # Filter criteria
     record {
         # Start date for filtering time cards (ISO 8601 format)
-        Date startDate?;
+        entity:Date startDate?;
         # End date for filtering time cards (ISO 8601 format)
-        Date endDate?;
+        entity:Date endDate?;
     } filters?;
     # Pagination details
     entity:Pagination pagination?;

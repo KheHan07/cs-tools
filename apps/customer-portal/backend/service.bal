@@ -2135,7 +2135,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:TimeCardsResponse|error response = entity:searchTimecards(userInfo.idToken,
+        entity:TimeCardsResponse|error response = entity:searchTimeCards(userInfo.idToken,
                 {
                     filters: {
                         projectIds: [id],
