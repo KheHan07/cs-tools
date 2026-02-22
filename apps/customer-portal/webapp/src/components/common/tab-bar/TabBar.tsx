@@ -15,7 +15,7 @@
 // under the License.
 
 import React, { type JSX } from "react";
-import { Box, Button, Card } from "@wso2/oxygen-ui";
+import { Box, Button, Card, type SxProps, type Theme } from "@wso2/oxygen-ui";
 
 export interface TabOption {
   id: string;
@@ -30,9 +30,11 @@ export interface TabBarProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   className?: string;
+  /** Optional sx to merge with default styles (e.g. reduce margin) */
+  sx?: SxProps<Theme>;
 }
 
-const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps): JSX.Element => {
+const TabBar = ({ tabs, activeTab, onTabChange, sx }: TabBarProps): JSX.Element => {
   return (
     <Card
       role="tablist"
@@ -41,9 +43,10 @@ const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps): JSX.Element => {
         alignItems: "center",
         justifyContent: "center",
         p: 0.5,
-        mb: 3,
+        mb: 2,
         height: 36,
         width: "fit-content",
+        ...sx,
       }}
     >
       {tabs.map((tab) => {

@@ -104,3 +104,12 @@ export interface PatchCallRequest {
   stateKey: number;
   utcTimes?: string[];
 }
+
+// Request body for creating a project contact (POST /projects/:projectId/contacts).
+export interface CreateProjectContactRequest {
+  contactEmail: string;
+  contactFirstName: string;
+  contactLastName: string;
+  isCsIntegrationUser: boolean;
+  isSecurityContact: boolean;
+}

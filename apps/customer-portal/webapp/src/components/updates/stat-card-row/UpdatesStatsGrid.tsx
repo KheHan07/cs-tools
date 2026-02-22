@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Badge, Box, Grid, Skeleton, Typography } from "@wso2/oxygen-ui";
+import { Box, Chip, Grid, Skeleton, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import { UPDATES_STATS } from "@constants/updatesConstants";
 import type {
@@ -45,6 +45,7 @@ export function UpdatesStatsGrid({
   isLoading,
   isError,
 }: UpdatesStatsGridProps): JSX.Element {
+  const theme = useTheme();
   const aggregatedData = aggregateUpdateStats(data);
   const isEffectiveLoading = isLoading || (!data && !isError);
 
@@ -119,19 +120,19 @@ export function UpdatesStatsGrid({
       }
 
       if (securityPending && securityPending > 0) {
+        const resolvedColor = theme.palette.error.main;
         return (
-          <Badge
-            color="error"
-            badgeContent="Action Required"
+          <Chip
+            size="small"
+            variant="outlined"
+            label="Action Required"
             sx={{
-              "& .MuiBadge-badge": {
-                position: "static",
-                transform: "none",
-                fontSize: "0.65rem",
-                height: "20px",
-                padding: "0 6px",
-                fontWeight: 500,
-              },
+              bgcolor: alpha(resolvedColor, 0.1),
+              color: resolvedColor,
+              borderColor: alpha(resolvedColor, 0.3),
+              height: 20,
+              fontSize: "0.75rem",
+              fontWeight: 500,
             }}
           />
         );
