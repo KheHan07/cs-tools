@@ -710,6 +710,8 @@ public type CommentCreatePayload record {|
     string content;
     # Comment type
     CommentType 'type;
+    # User who created the comment
+    string createdBy;
 |};
 
 # Created comment details.

@@ -448,7 +448,7 @@ public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse resp
 }
 
 # Map conversation search response to the desired structure.
-# 
+#
 # + response - Conversation search response from the entity service
 # + return - Mapped conversation search response
 public isolated function mapConversationSearchResponse(entity:ConversationResponse response)
@@ -475,5 +475,69 @@ public isolated function mapConversationSearchResponse(entity:ConversationRespon
         totalRecords: response.totalRecords,
         'limit: response.'limit,
         offset: response.offset
+    };
+}
+
+# Map case response to the desired structure.
+# 
+# + response - Case response from the entity service
+# + return - Mapped case response
+public isolated function mapCaseResponse(entity:CaseResponse response) returns types:CaseResponse {
+    entity:ReferenceTableItem? project = response.project;
+    entity:ReferenceTableItem? caseType = response.caseType;
+    entity:ReferenceTableItem? deployedProduct = response.deployedProduct;
+    entity:ChoiceListItem? issueType = response.issueType;
+    entity:ReferenceTableItem? deployment = response.deployment;
+    entity:ReferenceTableItem? assignedEngineer = response.assignedEngineer;
+    entity:ReferenceTableItem? parentCase = response.parentCase;
+    entity:ReferenceTableItem? conversation = response.conversation;
+    entity:ChoiceListItem? severity = response.severity;
+    entity:ChoiceListItem? state = response.state;
+
+    return {
+        id: response.id,
+        internalId: response.internalId,
+        number: response.number,
+        title: response.title,
+        description: response.description,
+        createdOn: response.createdOn,
+        slaResponseTime: response.slaResponseTime,
+        project: project != () ? {id: project.id, label: project.name} : (),
+        'type: caseType != () ? {id: caseType.id, label: caseType.name} : (),
+        deployedProduct: deployedProduct != () ? {id: deployedProduct.id, label: deployedProduct.name} : (),
+        issueType: issueType != () ? {id: issueType.id.toString(), label: issueType.label} : (),
+        deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
+        assignedEngineer: assignedEngineer != () ? {id: assignedEngineer.id, label: assignedEngineer.name} : (),
+        parentCase: parentCase != () ? {id: parentCase.id, label: parentCase.name} : (),
+        conversation: conversation != () ? {id: conversation.id, label: conversation.name} : (),
+        severity: severity != () ? {id: severity.id.toString(), label: severity.label} : (),
+        status: state != () ? {id: state.id.toString(), label: state.label} : (),
+        updatedOn: response.updatedOn,
+        product: {
+            id: response.product?.id ?: "",
+            label: response?.product?.name ?: "",
+            count: response.product?.count,
+            version: response.product?.version
+        },
+        account: {
+            id: response.account?.id ?: "",
+            label: response.account?.name ?: "",
+            count: response.account?.count,
+            'type: response.account?.'type
+        },
+        csManager: {
+            id: response.csManager?.id ?: "",
+            label: response.csManager?.name ?: "",
+            count: response.csManager?.count,
+            email: response.csManager?.email
+        },
+        closeNotes: response?.closeNotes,
+        closedOn: response?.closedOn,
+        closedBy: {
+            id: response?.closedBy?.id ?: "",
+            label: response?.closedBy?.name ?: "",
+            count: response?.closedBy?.count
+        },
+        hasAutoClosed: response?.hasAutoClosed
     };
 }
