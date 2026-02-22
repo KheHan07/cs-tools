@@ -1194,25 +1194,25 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 log:printWarn("Failed to retrieve recommendations for the first chat invocation",
                         recommendationResponse);
             }
+        }
 
-            // Save the agent response under comments
-            entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
-                    {
-                        referenceId: id,
-                        referenceType: entity:CONVERSATION,
-                        content: chatResponse.message,
-                        'type: entity:COMMENTS,
-                        createdBy: entity:CHAT_SENT_AGENT // Identify the comment is created from chat agent.
-                    });
-            if createdCaseResponse is error {
-                string customError = "Failed to save chat response as comment.";
-                log:printError(customError, createdCaseResponse);
-                return <http:InternalServerError>{
-                    body: {
-                        message: customError
-                    }
-                };
-            }
+        // Save the agent response under comments
+        entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
+                {
+                    referenceId: conversationResponse.conversation.id,
+                    referenceType: entity:CONVERSATION,
+                    content: chatResponse.message,
+                    'type: entity:COMMENTS,
+                    createdBy: entity:CHAT_SENT_AGENT // Identify the comment is created from chat agent.
+                });
+        if createdCaseResponse is error {
+            string customError = "Failed to save chat response as comment.";
+            log:printError(customError, createdCaseResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
         }
 
         boolean? isIssueResolved = chatResponse.resolved;
@@ -1255,7 +1255,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         // Save the user query under comments
         entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
                 {
-                    referenceId: projectId,
+                    referenceId: conversationId,
                     referenceType: entity:CONVERSATION, // Indicate that the comment is related to a conversation.
                     content: payload.message,
                     'type: entity:COMMENTS,
@@ -1312,7 +1312,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         // Save the agent response under comments
         entity:CommentCreateResponse|error createdAgentResponse = entity:createComment(userInfo.idToken,
                 {
-                    referenceId: projectId,
+                    referenceId: conversationId,
                     referenceType: entity:CONVERSATION, // Indicate that the comment is related to a conversation.
                     content: chatResponse.message,
                     'type: entity:COMMENTS,

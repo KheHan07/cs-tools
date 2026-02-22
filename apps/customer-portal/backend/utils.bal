@@ -479,7 +479,7 @@ public isolated function mapConversationSearchResponse(entity:ConversationRespon
 }
 
 # Map case response to the desired structure.
-# 
+#
 # + response - Case response from the entity service
 # + return - Mapped case response
 public isolated function mapCaseResponse(entity:CaseResponse response) returns types:CaseResponse {
@@ -513,31 +513,31 @@ public isolated function mapCaseResponse(entity:CaseResponse response) returns t
         severity: severity != () ? {id: severity.id.toString(), label: severity.label} : (),
         status: state != () ? {id: state.id.toString(), label: state.label} : (),
         updatedOn: response.updatedOn,
-        product: {
-            id: response.product?.id ?: "",
-            label: response?.product?.name ?: "",
-            count: response.product?.count,
-            version: response.product?.version
-        },
-        account: {
-            id: response.account?.id ?: "",
-            label: response.account?.name ?: "",
-            count: response.account?.count,
-            'type: response.account?.'type
-        },
-        csManager: {
-            id: response.csManager?.id ?: "",
-            label: response.csManager?.name ?: "",
-            count: response.csManager?.count,
-            email: response.csManager?.email
-        },
+        product: response.product != () ? {
+                id: response.product?.id ?: "",
+                label: response?.product?.name ?: "",
+                count: response.product?.count,
+                version: response.product?.version
+            } : (),
+        account: response.account != () ? {
+                id: response?.account?.id ?: "",
+                label: response?.account?.name ?: "",
+                count: response?.account?.count,
+                'type: response?.account?.'type
+            } : (),
+        csManager: response?.csManager != () ? {
+                id: response?.csManager?.id ?: "",
+                label: response?.csManager?.name ?: "",
+                count: response?.csManager?.count,
+                email: response?.csManager?.email ?: ""
+            } : (),
         closeNotes: response?.closeNotes,
         closedOn: response?.closedOn,
-        closedBy: {
-            id: response?.closedBy?.id ?: "",
-            label: response?.closedBy?.name ?: "",
-            count: response?.closedBy?.count
-        },
+        closedBy: response?.closedBy != () ? {
+                id: response?.closedBy?.id ?: "",
+                label: response?.closedBy?.name ?: "",
+                count: response?.closedBy?.count
+            } : (),
         hasAutoClosed: response?.hasAutoClosed
     };
 }
