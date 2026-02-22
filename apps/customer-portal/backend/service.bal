@@ -1248,7 +1248,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + conversationId - ID of the conversation
     # + payload - Conversation message payload
     # + return - Chat response or an error
-    resource function post projects/[entity:IdString projectId]/conversations/[entity:IdString conversationId](
+    resource function post projects/[entity:IdString projectId]/conversations/[entity:IdString conversationId]/messages(
             http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
