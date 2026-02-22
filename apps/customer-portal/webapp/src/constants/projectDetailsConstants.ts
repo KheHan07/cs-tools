@@ -26,7 +26,6 @@ import type { ElementType } from "react";
 import type { TabOption } from "@components/common/tab-bar/TabBar";
 import { colors } from "@wso2/oxygen-ui";
 import type { ProjectStatsResponse } from "@models/responses";
-import { getSystemHealthColor } from "@utils/projectDetails";
 
 export interface Contact {
   role: string;
@@ -57,11 +56,6 @@ export const PROJECT_DETAILS_TABS: TabOption[] = [
     id: "time-tracking",
     label: "Time Tracking",
     icon: Clock,
-  },
-  {
-    id: "users",
-    label: "Users",
-    icon: User,
   },
 ];
 
@@ -133,12 +127,6 @@ export const getRecentActivityItems = (
       ? new Date(activity.lastDeploymentOn).toLocaleDateString()
       : "N/A",
     type: "text",
-  },
-  {
-    label: "System Health",
-    value: activity?.systemHealth || "N/A",
-    type: "chip",
-    chipColor: getSystemHealthColor(activity?.systemHealth || ""),
   },
 ];
 

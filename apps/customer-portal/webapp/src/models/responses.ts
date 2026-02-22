@@ -73,6 +73,24 @@ export interface ProjectUser {
   status: "Invited" | "Registered";
 }
 
+// Project contact from GET /projects/:projectId/contacts.
+export interface ProjectContact {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  isCsAdmin: boolean;
+  isCsIntegrationUser: boolean;
+  isSecurityContact: boolean;
+  membershipStatus: string;
+  account?: {
+    id: string;
+    domainList?: string[] | null;
+    classification: string;
+    isPartner: boolean;
+  };
+}
+
 // Case creation form metadata (projects, products, severity levels, conversation summary, etc.).
 export interface CaseCreationMetadata {
   projects: string[];
