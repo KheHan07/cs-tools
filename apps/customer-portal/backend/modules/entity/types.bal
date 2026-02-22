@@ -1086,6 +1086,8 @@ public type TimeCardSearchPayload record {|
         # End date for filtering time cards (ISO 8601 format)
         Date endDate?;
     } filters?;
+    # Pagination details
+    Pagination pagination?;
 |};
 
 # Payload for searching conversations.
@@ -1142,6 +1144,9 @@ public type TimeCardCase record {|
 public type TimeCardsResponse record {|
     # List of time cards
     TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *Pagination;
 |};
 
 # Conversation data.

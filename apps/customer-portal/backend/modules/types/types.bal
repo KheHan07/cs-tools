@@ -757,6 +757,9 @@ public type TimeCard record {|
 public type TimeCardsResponse record {|
     # List of time cards
     TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *entity:Pagination;
 |};
 
 # Conversation data.
