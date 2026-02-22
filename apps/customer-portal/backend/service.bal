@@ -1261,6 +1261,21 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
+        // Save the conversation message in agent and get the agent response for the conversation
+        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(projectId, conversationId, payload);
+        if chatResponse is error {
+            string customError = "Failed to process conversation message.";
+            log:printError(customError, chatResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
+                conversationId} for follow-up message`);
+
         // Save the user query under comments
         entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
                 {
@@ -1307,21 +1322,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         log:printDebug(string `Saved user message as comment for conversation ID: ${
-                conversationId} for follow-up message`);
-
-        // Save the conversation message in agent and get the agent response for the conversation
-        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(projectId, conversationId, payload);
-        if chatResponse is error {
-            string customError = "Failed to process conversation message.";
-            log:printError(customError, chatResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
                 conversationId} for follow-up message`);
 
         // Save the agent response under comments
