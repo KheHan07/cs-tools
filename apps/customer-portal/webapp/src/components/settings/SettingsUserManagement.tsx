@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useState, useMemo, useCallback, type JSX, type ComponentType } from "react";
+import { useState, useMemo, useCallback, type JSX } from "react";
 import {
   Box,
   Button,
@@ -35,6 +35,7 @@ import {
   Tooltip,
   Typography,
   alpha,
+  colors,
   useTheme,
 } from "@wso2/oxygen-ui";
 import {
@@ -47,120 +48,23 @@ import {
   ShieldCheck,
   Trash2,
 } from "@wso2/oxygen-ui-icons-react";
-import { colors } from "@wso2/oxygen-ui";
 import useGetProjectContacts from "@api/useGetProjectContacts";
 import { usePostProjectContact } from "@api/usePostProjectContact";
+import { NULL_PLACEHOLDER, ROLE_CONFIG } from "@constants/settingsConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
-import AddSettingsUserModal from "@components/settings/AddSettingsUserModal";
+import AddUserModal from "@components/settings/AddUserModal";
+import {
+  getAvatarColor,
+  getInitials,
+  getRoleChipColor,
+  getRoleChipSx,
+  getRoleIcon,
+  getRoleLabel,
+} from "@utils/settings";
 import { getUserStatusColor } from "@utils/projectDetails";
-import type { ProjectContact } from "@models/responses";
 import type { CreateProjectContactRequest } from "@models/requests";
-
-const NULL_PLACEHOLDER = "--";
-
-const ROLE_CONFIG = [
-  {
-    id: "admin",
-    label: "Admin",
-    Icon: Crown,
-    paletteKey: "secondary" as const,
-    permissions: [
-      "Full portal access",
-      "Manage users and settings",
-      "View all cases and requests",
-    ],
-  },
-  {
-    id: "developer",
-    label: "Developer",
-    Icon: Code,
-    paletteKey: "info" as const,
-    permissions: [
-      "Create and manage cases",
-      "Access technical resources",
-      "View project details",
-    ],
-  },
-  {
-    id: "security",
-    label: "Security",
-    Icon: ShieldCheck,
-    paletteKey: "error" as const,
-    permissions: [
-      "Access security advisories",
-      "Create security cases",
-      "View vulnerability reports",
-    ],
-  },
-] as const;
-
-function getRoleLabel(contact: ProjectContact): string {
-  if (contact.isCsAdmin) return "Admin";
-  if (contact.isCsIntegrationUser) return "Developer";
-  if (contact.isSecurityContact) return "Security";
-  return NULL_PLACEHOLDER;
-}
-
-function getRoleIcon(contact: ProjectContact): ComponentType<{ size?: number }> | null {
-  if (contact.isCsAdmin) return Crown;
-  if (contact.isCsIntegrationUser) return Code;
-  if (contact.isSecurityContact) return ShieldCheck;
-  return null;
-}
-
-function getRoleChipColor(
-  contact: ProjectContact,
-): "primary" | "info" | "error" | "default" {
-  if (contact.isCsAdmin) return "primary";
-  if (contact.isCsIntegrationUser) return "info";
-  if (contact.isSecurityContact) return "error";
-  return "default";
-}
-
-function getRoleChipSx(contact: ProjectContact): object {
-  const purple = colors.purple?.[600] ?? "#7c3aed";
-  const iconPadding = {
-    "& .MuiChip-icon": { ml: 0.75, mr: 0.5 },
-    "& .MuiChip-label": { pl: 0.5 },
-  };
-  if (contact.isCsAdmin) {
-    return {
-      font: "caption",
-      color: purple,
-      borderColor: purple,
-      "& .MuiChip-icon": { ml: 0.75, mr: 0.5, color: purple },
-      "& .MuiChip-label": { pl: 0.5 },
-    };
-  }
-  return { font: "caption", ...iconPadding };
-}
-
-function getInitials(firstName?: string, lastName?: string, email?: string): string {
-  if (firstName || lastName) {
-    const first = (firstName ?? "").charAt(0).toUpperCase();
-    const last = (lastName ?? "").charAt(0).toUpperCase();
-    if (first || last) return `${first}${last}`.trim() || NULL_PLACEHOLDER;
-  }
-  if (email) {
-    const parts = email.split("@")[0];
-    return parts.length >= 2 ? parts.slice(0, 2).toUpperCase() : parts.toUpperCase();
-  }
-  return "?";
-}
-
-const AVATAR_COLORS = [
-  colors.purple?.[600] ?? "#7c3aed",
-  colors.blue?.[600] ?? "#2563eb",
-  colors.green?.[600] ?? "#16a34a",
-  colors.orange?.[600] ?? "#ea580c",
-  colors.pink?.[500] ?? "#ec4899",
-] as const;
-
-function getAvatarColor(index: number): string {
-  return AVATAR_COLORS[index % AVATAR_COLORS.length] as string;
-}
 
 export interface SettingsUserManagementProps {
   projectId: string;
@@ -179,7 +83,7 @@ export default function SettingsUserManagement({
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const { data: contacts = [], isFetching, error } = useGetProjectContacts(projectId);
+  const { data: contacts = [], isLoading, error } = useGetProjectContacts(projectId);
   const postContact = usePostProjectContact(projectId);
   const { showError } = useErrorBanner();
   const { showSuccess } = useSuccessBanner();
@@ -216,7 +120,7 @@ export default function SettingsUserManagement({
     [postContact, showSuccess, showError],
   );
 
-  const isEffectiveLoading = isFetching || (!contacts.length && !error);
+  const isEffectiveLoading = isLoading;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -385,7 +289,7 @@ export default function SettingsUserManagement({
             </TableRow>
           </TableHead>
           <TableBody>
-            {isFetching ? (
+            {isEffectiveLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <TableRow key={i}>
                   <TableCell>
@@ -424,7 +328,7 @@ export default function SettingsUserManagement({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredContacts.map((contact, idx) => (
+              filteredContacts.map((contact) => (
                 <TableRow key={contact.id} hover>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -433,7 +337,7 @@ export default function SettingsUserManagement({
                           width: 40,
                           height: 40,
                           borderRadius: "50%",
-                          bgcolor: getAvatarColor(idx),
+                          bgcolor: getAvatarColor(contact.id ?? contact.email ?? ""),
                           color: "white",
                           display: "flex",
                           alignItems: "center",
@@ -467,7 +371,7 @@ export default function SettingsUserManagement({
                           label={label}
                           variant="outlined"
                           color={getRoleChipColor(contact)}
-                          sx={RoleIcon ? getRoleChipSx(contact) : { font: "caption" }}
+                          sx={RoleIcon ? getRoleChipSx(contact) : { typography: "caption" }}
                         />
                       );
                     })()}
@@ -478,21 +382,25 @@ export default function SettingsUserManagement({
                       label={contact.membershipStatus ?? NULL_PLACEHOLDER}
                       variant="outlined"
                       color={getUserStatusColor(contact.membershipStatus ?? "")}
-                      sx={{ font: "caption" }}
+                      sx={{ typography: "caption" }}
                     />
                   </TableCell>
                   <TableCell>{NULL_PLACEHOLDER}</TableCell>
                   <TableCell>{NULL_PLACEHOLDER}</TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Edit">
-                      <IconButton size="small" aria-label="Edit user">
-                        <Pencil size={16} />
-                      </IconButton>
+                    <Tooltip title="Edit (coming soon)">
+                      <span>
+                        <IconButton size="small" aria-label="Edit user" disabled>
+                          <Pencil size={16} />
+                        </IconButton>
+                      </span>
                     </Tooltip>
-                    <Tooltip title="Remove">
-                      <IconButton size="small" color="error" aria-label="Remove user">
-                        <Trash2 size={16} />
-                      </IconButton>
+                    <Tooltip title="Remove (coming soon)">
+                      <span>
+                        <IconButton size="small" color="error" aria-label="Remove user" disabled>
+                          <Trash2 size={16} />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                   </TableCell>
                 </TableRow>
@@ -511,7 +419,7 @@ export default function SettingsUserManagement({
           borderColor: alpha(theme.palette.info.main, 0.2),
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography variant="h6" sx={{ mb: 4, display: "flex", alignItems: "center", gap: 1 }}>
           <Shield size={20} color={theme.palette.info.main} />
           Role Permissions
         </Typography>
@@ -525,7 +433,7 @@ export default function SettingsUserManagement({
             return (
               <Grid key={role.id} size={{ xs: 12, md: 4 }}>
                 <Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                     <RoleIcon size={18} color={roleColor} />
                     <Typography variant="subtitle2">{role.label}</Typography>
                   </Box>
@@ -545,7 +453,7 @@ export default function SettingsUserManagement({
         </Grid>
       </Paper>
 
-      <AddSettingsUserModal
+      <AddUserModal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddUser}

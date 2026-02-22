@@ -47,7 +47,7 @@ export default function SettingsPage(): JSX.Element {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
       <TabBar
         tabs={SETTINGS_TABS.map((t) => ({
           id: t.id,
@@ -56,6 +56,7 @@ export default function SettingsPage(): JSX.Element {
         }))}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        sx={{ mb: 0 }}
       />
 
       {activeTab === "users" && <SettingsUserManagement projectId={projectId} />}
