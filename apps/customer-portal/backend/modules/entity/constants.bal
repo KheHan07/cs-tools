@@ -26,3 +26,7 @@ public const CANCELED = 6;
 const WAITING_ON_WSO2 = 1003;
 const CLOSED = 3;
 const REOPENED = 1006;
+
+# Valid conversation state values
+const ACTIVE = 2;
+const RESOLVED = 3;

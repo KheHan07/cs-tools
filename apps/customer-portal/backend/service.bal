@@ -33,13 +33,6 @@ final cache:Cache userCache = new ({
     cleanupInterval: 1800
 });
 
-final cache:Cache recommendationsCache = new ({
-    capacity: 5000,
-    defaultMaxAge: 2592000, // 30 days
-    evictionFactor: 0.2,
-    cleanupInterval: 3600
-});
-
 service class ErrorInterceptor {
     *http:ResponseErrorInterceptor;
 
@@ -271,7 +264,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project details or error response
-    resource function get projects/[string id](http:RequestContext ctx)
+    resource function get projects/[entity:IdString id](http:RequestContext ctx)
         returns entity:ProjectResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -318,7 +311,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Deployments response or error response
-    resource function get projects/[string id]/deployments(http:RequestContext ctx)
+    resource function get projects/[entity:IdString id]/deployments(http:RequestContext ctx)
         returns types:Deployment[]|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -357,7 +350,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Deployment creation payload
     # + return - Created deployment or error response
-    resource function post projects/[string id]/deployments(http:RequestContext ctx,
+    resource function post projects/[entity:IdString id]/deployments(http:RequestContext ctx,
             types:DeploymentCreatePayload payload)
         returns entity:CreatedDeployment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
@@ -469,11 +462,76 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return response.deployment;
     }
 
+    # Add an attachment to a deployment.
+    #
+    # + id - ID of the deployment
+    # + payload - Attachment creation payload
+    # + return - Created attachment or error response
+    resource function post deployments/[entity:IdString id]/attachments(http:RequestContext ctx,
+            types:AttachmentPayload payload)
+        returns types:CreatedAttachment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:AttachmentCreateResponse|error createdAttachmentResponse = entity:createAttachment(userInfo.idToken,
+                {
+                    referenceId: id,
+                    referenceType: entity:DEPLOYMENT,
+                    name: payload.name,
+                    'type: payload.'type,
+                    file: payload.content
+                });
+        if createdAttachmentResponse is error {
+            if getStatusCode(createdAttachmentResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(createdAttachmentResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to add attachment to deployment with ID: ${
+                        id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to add attachments to the requested deployment. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
+
+            string customError = "Failed to create a new attachment.";
+            log:printError(customError, createdAttachmentResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return {
+            id: createdAttachmentResponse.attachment.id,
+            size: createdAttachmentResponse.attachment.sizeBytes,
+            createdOn: createdAttachmentResponse.attachment.createdOn,
+            createdBy: createdAttachmentResponse.attachment.createdBy,
+            downloadUrl: createdAttachmentResponse.attachment.downloadUrl
+        };
+    }
+
     # Get overall project statistics by ID.
     #
     # + id - ID of the project
     # + return - Project statistics response or error
-    resource function get projects/[string id]/stats(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectStatsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -522,11 +580,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             // To return other stats even if case stats retrieval fails, error will not be returned.
         }
 
-        // Fetch chat stats
-        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-        if chatStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, chatStats);
-            // To return other stats even if chat stats retrieval fails, error will not be returned.
+        // Fetch conversation stats
+        entity:ProjectConversationStatsResponse|error conversationStats =
+            entity:getConversationStatsForProject(userInfo.idToken, id);
+        if conversationStats is error {
+            log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
+            // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
 
         // Fetch deployment stats
@@ -548,7 +607,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             projectStats: {
                 openCases: caseStats is entity:ProjectCaseStatsResponse ?
                     getOpenCasesCountFromProjectCasesStats(caseStats) : (),
-                activeChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.activeCount : (),
+                activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                    conversationStats.activeCount : (),
                 deployments: deploymentStats is entity:ProjectDeploymentStatsResponse ? deploymentStats.totalCount : (),
                 slaStatus: projectActivityStats is entity:ProjectStatsResponse ? projectActivityStats.slaStatus : ()
             },
@@ -567,7 +627,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project statistics overview or error response
-    resource function get projects/[string id]/stats/cases(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats/cases(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectCaseStats|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -626,7 +686,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Project support statistics or error response
-    resource function get projects/[string id]/stats/support(http:RequestContext ctx, string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats/support(http:RequestContext ctx, string[]? caseTypes)
         returns types:ProjectSupportStats|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -675,18 +735,22 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             // To return other stats even if case stats retrieval fails, error will not be returned.
         }
 
-        // Fetch chat stats
-        entity:ProjectChatStatsResponse|error chatStats = entity:getChatStatsForProject(userInfo.idToken, id);
-        if chatStats is error {
-            log:printError(ERR_MSG_CHATS_STATISTICS, chatStats);
-            // To return other stats even if chat stats retrieval fails, error will not be returned.
+        // Fetch conversation stats
+        entity:ProjectConversationStatsResponse|error conversationStats =
+            entity:getConversationStatsForProject(userInfo.idToken, id);
+        if conversationStats is error {
+            log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
+            // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
 
         return {
             totalCases: caseStats is entity:ProjectCaseStatsResponse ? caseStats.totalCount : (),
-            activeChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.activeCount : (),
-            sessionChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.sessionCount : (),
-            resolvedChats: chatStats is entity:ProjectChatStatsResponse ? chatStats.resolvedCount : ()
+            activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.activeCount : (),
+            sessionChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.sessionCount : (),
+            resolvedChats: conversationStats is entity:ProjectConversationStatsResponse ?
+                conversationStats.resolvedCount : ()
         };
     }
 
@@ -694,7 +758,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the case
     # + return - Case details or error
-    resource function get cases/[string id](http:RequestContext ctx)
+    resource function get cases/[entity:IdString id](http:RequestContext ctx)
         returns entity:CaseResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -793,7 +857,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case to be updated
     # + payload - Case update payload
     # + return - Updated case details or error response
-    resource function patch cases/[string id](http:RequestContext ctx, entity:CaseUpdatePayload payload)
+    resource function patch cases/[entity:IdString id](http:RequestContext ctx, entity:CaseUpdatePayload payload)
         returns entity:UpdatedCase|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -869,7 +933,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Case search request body
     # + return - Paginated cases or error
-    resource function post projects/[string id]/cases/search(http:RequestContext ctx, types:CaseSearchPayload payload)
+    resource function post projects/[entity:IdString id]/cases/search(http:RequestContext ctx,
+            types:CaseSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -910,7 +975,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Case filters or error
-    resource function get projects/[string id]/filters(http:RequestContext ctx)
+    resource function get projects/[entity:IdString id]/filters(http:RequestContext ctx)
         returns types:ProjectFilterOptions|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -971,7 +1036,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // TODO: Need to persist the chat history
         ai_chat_agent:CaseClassificationResponse|error classificationResponse =
             ai_chat_agent:createCaseClassification(payload);
         if classificationResponse is error {
@@ -986,21 +1050,14 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return classificationResponse;
     }
 
-    # TODO
-    # Call ServiceNow chat saving endpoint and get the sysID as conversationId and then invoke the redis.
-
-    # TODO
-    # Call Service now cases endpoint to save conversation as journal entries.
-
-    # AI chat agent.
+    # Search conversations for a specific project with filters and pagination.
     #
-    # + Id - ID of the project
-    # + conversationId - ID of the conversation
-    # + payload - Conversation payload
-    # + return - Chat response or an error
-    resource function post projects/[string Id]/conversations/[string conversationId](
-            http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
-        returns ai_chat_agent:ChatResponse|http:InternalServerError {
+    # + id - ID of the project
+    # + payload - Conversation search request body
+    # + return - Paginated conversations or error
+    resource function post projects/[entity:IdString id]/conversations/search(http:RequestContext ctx,
+            types:ConversationSearchPayload payload)
+        returns http:Ok|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -1011,82 +1068,47 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        string recommendationsCacheKey = string `${Id}:${conversationId}:recommendationsReturned`;
-        boolean includeRecommendations = !recommendationsCache.hasKey(recommendationsCacheKey);
-        if includeRecommendations {
-            ai_chat_agent:ChatHistoryResponse|error history =
-                ai_chat_agent:getChatHistory(Id, conversationId);
-            if history is ai_chat_agent:ChatHistoryResponse && history.messageCount > 0 {
-                includeRecommendations = false;
-                error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
-                if cacheError is error {
-                    log:printWarn("Error updating recommendationsReturned cache", cacheError);
-                }
-            }
-        }
-
-        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(Id, conversationId, payload);
-        if chatResponse is error {
-            string customError = "Failed to process chat message.";
-            log:printError(customError, chatResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
-        }
-
-        if includeRecommendations {
-            if payload.region.length() == 0 || payload.tier.length() == 0 {
-                log:printWarn("Skipping recommendations due to missing region/tier in chat payload");
-            } else {
-                map<string[]> envProducts = payload.envProducts ?: {};
-                ai_chat_agent:RecommendationResponse|error recommendationResponse =
-                    ai_chat_agent:getRecommendationsForExchange(payload.message, chatResponse.message, envProducts,
-                        payload.region, payload.tier);
-                if recommendationResponse is ai_chat_agent:RecommendationResponse {
-                    chatResponse.recommendations = recommendationResponse;
-                    error? cacheError = recommendationsCache.put(recommendationsCacheKey, true);
-                    if cacheError is error {
-                        log:printWarn("Error updating recommendationsReturned cache", cacheError);
+        entity:ConversationResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
+                {
+                    filters: {
+                        projectIds: [id],
+                        stateKeys: payload.filters?.stateKeys,
+                        searchQuery: payload.filters?.searchQuery
+                    },
+                    sortBy: payload.sortBy,
+                    pagination: payload.pagination
+                });
+        if conversationResponse is error {
+            if getStatusCode(conversationResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
                     }
-                } else {
-                    log:printWarn("Failed to retrieve recommendations for the first chat invocation",
-                            recommendationResponse);
-                }
+                };
             }
-        }
-        return chatResponse;
-    }
+            if getStatusCode(conversationResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to search conversations for project: ${
+                        id}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to search conversations for the selected project."
+                    }
+                };
+            }
 
-    # List conversations for the given account ID.
-    #
-    # + Id - ID of the project
-    # + return - List of conversations or error
-    resource function get projects/[string Id]/conversations(http:RequestContext ctx)
-        returns ai_chat_agent:ConversationListResponse|http:InternalServerError {
-
-        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
-        if userInfo is error {
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        ai_chat_agent:ConversationListResponse|error conversationListResponse =
-            ai_chat_agent:listConversations(Id);
-        if conversationListResponse is error {
             string customError = "Failed to retrieve conversations.";
-            log:printError(customError, conversationListResponse);
+            log:printError(customError, conversationResponse);
             return <http:InternalServerError>{
                 body: {
                     message: customError
                 }
             };
         }
-        return conversationListResponse;
+
+        return <http:Ok>{
+            body: mapConversationSearchResponse(conversationResponse)
+        };
     }
 
     # Get chat history for a specific conversation.
@@ -1125,7 +1147,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + limit - Number of comments to retrieve
     # + offset - Offset for pagination
     # + return - Comments response or error
-    resource function get cases/[string id]/comments(http:RequestContext ctx, int? 'limit, int? offset)
+    resource function get cases/[entity:IdString id]/comments(http:RequestContext ctx, int? 'limit, int? offset)
         returns types:CommentsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1164,7 +1186,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + limit - Number of attachments to retrieve
     # + offset - Offset for pagination
     # + return - Attachments response or error
-    resource function get cases/[string id]/attachments(http:RequestContext ctx, int? 'limit, int? offset)
+    resource function get cases/[entity:IdString id]/attachments(http:RequestContext ctx, int? 'limit, int? offset)
         returns types:AttachmentsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1203,7 +1225,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Comment creation payload
     # + return - Created comment or error response
-    resource function post cases/[string id]/comments(http:RequestContext ctx, types:CommentCreatePayload payload)
+    resource function post cases/[entity:IdString id]/comments(http:RequestContext ctx,
+            types:CommentCreatePayload payload)
         returns entity:CreatedComment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1220,7 +1243,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     referenceId: id,
                     referenceType: entity:CASE,
                     content: payload.content,
-                    'type: payload.'type
+                    'type: entity:COMMENTS
                 });
         if createdCaseResponse is error {
             if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
@@ -1258,7 +1281,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the case
     # + return - Created attachment or error response
-    resource function post cases/[string id]/attachments(http:RequestContext ctx, types:AttachmentPayload payload)
+    resource function post cases/[entity:IdString id]/attachments(http:RequestContext ctx, types:AttachmentPayload payload)
         returns types:CreatedAttachment|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1320,7 +1343,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the deployment
     # + return - Deployed products response or error response
-    resource function get deployments/[string id]/products(http:RequestContext ctx)
+    resource function get deployments/[entity:IdString id]/products(http:RequestContext ctx)
         returns types:DeployedProduct[]|http:BadRequest|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1360,7 +1383,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the deployment
     # + payload - Deployed product creation payload
     # + return - Created deployed product or error response
-    resource function post deployments/[string id]/products(http:RequestContext ctx,
+    resource function post deployments/[entity:IdString id]/products(http:RequestContext ctx,
             types:DeployedProductCreatePayload payload) returns
         entity:CreatedDeployedProduct|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
@@ -1652,7 +1675,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the product vulnerability
     # + return - Product vulnerability details or error
-    resource function get products/vulnerabilities/[string id](http:RequestContext ctx)
+    resource function get products/vulnerabilities/[entity:IdString id](http:RequestContext ctx)
             returns types:ProductVulnerabilityResponse|http:Forbidden|http:NotFound|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -2114,7 +2137,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Call request search payload containing filters and pagination info
     # + return - List of call requests matching the criteria or an error
-    resource function post cases/[string id]/call\-requests/search(http:RequestContext ctx,
+    resource function post cases/[entity:IdString id]/call\-requests/search(http:RequestContext ctx,
             types:CallRequestSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Forbidden|http:InternalServerError {
 
@@ -2170,7 +2193,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + payload - Call request creation payload
     # + return - Created call request details or an error
-    resource function post cases/[string id]/call\-requests(http:RequestContext ctx,
+    resource function post cases/[entity:IdString id]/call\-requests(http:RequestContext ctx,
             types:CallRequestCreatePayload payload)
         returns entity:CreatedCallRequest|http:BadRequest|http:Forbidden|http:InternalServerError {
 
@@ -2342,7 +2365,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the product
     # + payload - Product version search payload containing filters and pagination info
     # + return - List of product versions matching the criteria or an error
-    resource function post products/[string id]/versions/search(http:RequestContext ctx,
+    resource function post products/[entity:IdString id]/versions/search(http:RequestContext ctx,
             entity:ProductVersionSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Forbidden|http:InternalServerError {
 

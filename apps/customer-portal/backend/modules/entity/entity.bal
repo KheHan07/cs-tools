@@ -65,13 +65,15 @@ public isolated function getCaseStatsForProject(string idToken, string id, strin
     return csEntityClient->/projects/[id]/cases/stats.get(generateHeaders(idToken));
 }
 
-# Get chats statistics of a project by ID.
+# Get conversation statistics of a project by ID.
 #
 # + idToken - ID token for authorization
 # + id - Unique ID of the project
-# + return - Project chats statistics or error
-public isolated function getChatStatsForProject(string idToken, string id) returns ProjectChatStatsResponse|error {
-    return csEntityClient->/projects/[id]/chats/stats.get(generateHeaders(idToken));
+# + return - Project conversations statistics or error
+public isolated function getConversationStatsForProject(string idToken, string id)
+    returns ProjectConversationStatsResponse|error {
+
+    return csEntityClient->/projects/[id]/conversations/stats.get(generateHeaders(idToken));
 }
 
 # Get deployments statistics of a project by ID.
@@ -335,4 +337,38 @@ public isolated function searchTimeCards(string idToken, TimeCardSearchPayload p
     returns TimeCardsResponse|error {
 
     return csEntityClient->/time\-cards/search.post(payload, generateHeaders(idToken));
+}
+
+# Search conversations of a project.
+#
+# + idToken - ID token for authorization
+# + payload - Conversation search payload containing search criteria
+# + return - Conversations response containing matching conversations or error
+public isolated function searchConversations(string idToken, ConversationSearchPayload payload)
+    returns ConversationResponse|error {
+
+    return csEntityClient->/conversations/search.post(payload, generateHeaders(idToken));
+}
+
+# Create a conversation.
+#
+# + idToken - ID token for authorization
+# + payload - Conversation creation payload containing details of the conversation to be created
+# + return - Conversation creation response containing details of the created conversation or error
+public isolated function createConversation(string idToken, ConversationCreatePayload payload)
+    returns ConversationCreateResponse|error {
+
+    return csEntityClient->/conversations.post(payload, generateHeaders(idToken));
+}
+
+# Update a conversation.
+#
+# + idToken - ID token for authorization
+# + conversationId - Unique ID of the conversation to be updated
+# + payload - Conversation update payload containing details to be updated in the conversation
+# + return - Conversation update response containing details of the updated conversation or error
+public isolated function updateConversation(string idToken, string conversationId, ConversationUpdatePayload payload)
+    returns ConversationUpdateResponse|error {
+
+    return csEntityClient->/conversations/[conversationId].patch(payload, generateHeaders(idToken));
 }

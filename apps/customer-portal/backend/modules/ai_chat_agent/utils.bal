@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Build a recommendation request from a single user/assistant exchange and fetch recommendations.
+# Build a recommendation request from a single user/assistant and fetch recommendations.
 #
 # + userMessage - User's message
 # + assistantMessage - Assistant's response
@@ -22,24 +22,11 @@
 # + region - Customer region
 # + tier - Support tier
 # + return - Recommendation response or error
-public isolated function getRecommendationsForExchange(
-    string userMessage,
-    string assistantMessage,
-    map<string[]> envProducts,
-    string region,
-    string tier
-) returns RecommendationResponse|error {
-    Message user = {
-        role: "user",
-        content: userMessage,
-        timestamp: ""
-    };
-    Message assistant = {
-        role: "assistant",
-        content: assistantMessage,
-        timestamp: ""
-    };
+public isolated function getRecommendations(string userMessage, string assistantMessage,
+        map<string[]> envProducts, string region, string tier) returns RecommendationResponse|error {
 
+    Message user = {role: USER, content: userMessage, timestamp: ""};
+    Message assistant = {role: ASSISTANT, content: assistantMessage, timestamp: ""};
     ConversationData conversationData = {
         chatHistory: string `${user.role}: ${user.content}\n${assistant.role}: ${assistant.content}`,
         envProducts,
@@ -47,11 +34,7 @@ public isolated function getRecommendationsForExchange(
         tier
     };
 
-    RecommendationRequest recommendationRequest = {
-        chatHistory: [user, assistant],
-        conversationData
-    };
-
+    RecommendationRequest recommendationRequest = {chatHistory: [user, assistant], conversationData};
     return getRecommendation(recommendationRequest);
 }
 

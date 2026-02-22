@@ -81,8 +81,8 @@ public type Case record {|
     ReferenceItem? deployedProduct;
     # Related case information (if the case is related to an existing case)
     ReferenceItem? parentCase;
-    # Related chat information (if the case is related to a chat)
-    ReferenceItem? chat;
+    # Related conversation information (if the case is related to a conversation)
+    ReferenceItem? conversation;
     # issueType of the case
     ReferenceItem? issueType;
     # Deployment
@@ -157,6 +157,8 @@ public type ProjectFilterOptions record {|
     ReferenceItem[] changeRequestStates;
     # List of available change request impacts
     ReferenceItem[] changeRequestImpacts;
+    # List of available conversation states
+    ReferenceItem[] conversationStates;
     # List of available case types
     ReferenceItem[] caseTypes;
     # Severity based allocation time mapping (severity ID to allocation time in minutes)
@@ -760,6 +762,38 @@ public type TimeCardsResponse record {|
     *entity:Pagination;
 |};
 
+# Conversation data.
+public type Conversation record {|
+    # ID
+    entity:IdString id;
+    # Conversation number
+    string? number;
+    # Initial message of the conversation
+    string? initialMessage;
+    # Message count
+    int messageCount;
+    # Created date and time
+    string createdOn;
+    # User who created the conversation
+    string createdBy;
+    # Project information
+    ReferenceItem? project;
+    # Case information
+    ReferenceItem? case;
+    # State information
+    ReferenceItem? state;
+    json...;
+|};
+
+# Conversations response.
+public type ConversationResponse record {|
+    # List of conversations
+    Conversation[] conversations;
+    # Total records count
+    int totalRecords;
+    *entity:Pagination;
+|};
+
 # Request payload for searching time cards.
 public type TimeCardSearchPayload record {|
     # Filter criteria
@@ -849,4 +883,24 @@ public type DependantRelease record {|
     string repository;
     # Release version
     string releaseVersion;
+|};
+
+# Payload for searching conversations.
+public type ConversationSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of state keys to filter
+        int[] stateKeys?;
+        # Search query for conversations
+        string searchQuery?;
+    } filters?;
+    # Sort configuration
+    record {
+        # Field to sort by
+        entity:ConversationSortField 'field;
+        # Sort order
+        entity:SortOrder 'order;
+    } sortBy?;
+    # Pagination details
+    entity:Pagination pagination?;
 |};
