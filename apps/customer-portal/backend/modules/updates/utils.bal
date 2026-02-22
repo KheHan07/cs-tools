@@ -37,80 +37,6 @@ public isolated function processRecommendedUpdateLevels(string email) returns ty
         };
 }
 
-# Process list updates based on the provided parameters.
-#
-# + payload - Payload for listing updates
-# + return - List of updates, or an error if the operation fails
-public isolated function processListUpdates(types:ListUpdatePayload payload)
-    returns types:UpdateResponse|error {
-
-    ListUpdatePayload requestPayload = {
-        product\-name: payload.productName,
-        product\-version: payload.productVersion,
-        channel: payload.channel,
-        start\-update\-level: payload.startUpdateLevel,
-        end\-update\-level: payload.endUpdateLevel,
-        hot\-fixes: payload.hotFixes
-    };
-
-    UpdateResponse response = check listUpdates(requestPayload);
-    types:BasicFileInfo[] addedFiles = from BasicFileInfo info in response.file\-changes.added\-files
-        select {
-            filePath: info.file\-path,
-            md5sum: info.md5sum,
-            sha256: info.sha256,
-            jwt: info.jwt,
-            downloadUrl: info.download\-url
-        };
-
-    types:ModifiedFileInfo[] modifiedFiles = from ModifiedFileInfo info in response.file\-changes.modified\-files
-        select {
-            'type: info.'type,
-            originalFile: {
-                filePath: info.original\-file.file\-path,
-                md5sum: info.original\-file.md5sum,
-                sha256: info.original\-file.sha256,
-                jwt: info.original\-file.jwt,
-                downloadUrl: info.original\-file.download\-url
-            },
-            newFile: {
-                filePath: info.new\-file.file\-path,
-                md5sum: info.new\-file.md5sum,
-                sha256: info.new\-file.sha256,
-                jwt: info.new\-file.jwt,
-                downloadUrl: info.new\-file.download\-url
-            }
-        };
-
-    types:BundlesInfoChange[] bundlesInfoChanges =
-    from BundlesInfoChange info in response.file\-changes.bundles\-info\-changes
-    select {
-        bundlesInfoPath: info.bundles\-info\-path,
-        contentChange: info.content\-change,
-        changeType: {value: info.change\-type.value},
-        'order: info.'order
-    };
-
-    return {
-        fileChanges: {
-            addedFiles,
-            modifiedFiles,
-            removedFiles: response.file\-changes.removed\-files,
-            bundlesInfoChanges
-        },
-        productName: response.product\-name,
-        productVersion: response.product\-version,
-        startingUpdateLevel: response.starting\-update\-level,
-        endingUpdateLevel: response.ending\-update\-level,
-        environment: response.environment,
-        updateSummaryMessage: response.update\-summary\-message,
-        updateSecurityMessage: response.update\-security\-message,
-        totalUpdates: response.total\-updates,
-        totalSecurityUpdates: response.total\-security\-updates,
-        appliedUpdatesNumbers: response.applied\-updates\-numbers
-    };
-}
-
 # Process product update levels based on the provided parameters.
 #
 # + return - List of product update levels, or an error if the operation fails
@@ -125,5 +51,59 @@ public isolated function processProductUpdateLevels() returns types:ProductUpdat
                     channel: updateLevel.channel,
                     updateLevels: updateLevel.update\-levels
                 }
+        };
+}
+
+# Process search for updates between specified update levels.
+#
+# + email - Email of the user
+# + payload - Payload containing the update levels to search between
+# + return - Update description for the specified update levels, or an error if the operation fails
+public isolated function processSearchUpdatesBetweenUpdateLevels(string email, types:UpdateDescriptionPayload payload)
+    returns types:UpdateDescription[]|error {
+
+    UpdateDescriptionRequest requestPayload = {
+        product\-name: payload.productName,
+        product\-version: payload.productVersion,
+        channel: payload.channel,
+        starting\-update\-level: payload.startingUpdateLevel,
+        ending\-update\-level: payload.endingUpdateLevel,
+        user\-email: email
+    };
+
+    UpdateDescription[] response = check searchUpdatesBetweenUpdateLevels(requestPayload);
+    return from UpdateDescription description in response
+        let DependantRelease[]? dependantReleases = description?.dependant\-releases
+        select {
+            productName: description.product\-name,
+            productVersion: description.product\-version,
+            channel: description.channel,
+            updateLevel: description.update\-level,
+            updateNumber: description.update\-number,
+            description: description?.description,
+            instructions: description?.instructions,
+            bugFixes: description?.bug\-fixes,
+            filesAdded: description?.files\-added,
+            filesModified: description?.files\-modified,
+            filesRemoved: description?.files\-removed,
+            bundlesInfoChanges: description?.bundles\-info\-changes,
+            updateType: description?.update\-type,
+            timestamp: description.timestamp,
+            securityAdvisories: from SecurityAdvisoryDescription advisory in description.security\-advisories
+                select {
+                    id: advisory.id,
+                    overview: advisory.overview,
+                    severity: advisory.severity,
+                    description: advisory.description,
+                    impact: advisory.impact,
+                    solution: advisory.solution,
+                    notes: advisory.notes,
+                    credits: advisory.credits
+                },
+            dependantReleases: dependantReleases is () ? () : from DependantRelease release in dependantReleases
+                    select {
+                        repository: release.repository,
+                        releaseVersion: release.release\-version
+                    }
         };
 }

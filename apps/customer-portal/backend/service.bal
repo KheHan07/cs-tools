@@ -988,13 +988,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
 
     # TODO
     # Call ServiceNow chat saving endpoint and get the sysID as conversationId and then invoke the redis.
-    
+
     # TODO
     # Call Service now cases endpoint to save conversation as journal entries.
-    
 
     # AI chat agent.
-    # 
+    #
     # + Id - ID of the project
     # + conversationId - ID of the conversation
     # + payload - Conversation payload
@@ -1053,7 +1052,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     }
                 } else {
                     log:printWarn("Failed to retrieve recommendations for the first chat invocation",
-                        recommendationResponse);
+                            recommendationResponse);
                 }
             }
         }
@@ -1061,7 +1060,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # List conversations for the given account ID.
-    # 
+    #
     # + Id - ID of the project
     # + return - List of conversations or error
     resource function get projects/[string Id]/conversations(http:RequestContext ctx)
@@ -1091,7 +1090,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get chat history for a specific conversation.
-    # 
+    #
     # + Id - ID of the project
     # + conversationId - ID of the conversation
     # + return - Chat history response or error 
@@ -1118,7 +1117,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
         return chatHistoryResponse;
-    }   
+    }
 
     # Get comments for a specific case.
     #
@@ -1521,7 +1520,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + payload - Update search payload containing filters
     # + return - List of updates matching or an error
-    resource function post updates/search(http:RequestContext ctx, types:ListUpdatePayload payload)
+    resource function post updates/levels/search(http:RequestContext ctx, types:UpdateDescriptionPayload payload)
         returns http:Ok|http:BadRequest|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -1533,9 +1532,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        types:UpdateResponse|error updateResponse = updates:processListUpdates(payload);
+        types:UpdateDescription[]|error updateResponse =
+            updates:processSearchUpdatesBetweenUpdateLevels(userInfo.email, payload);
         if updateResponse is error {
-            string customError = "Failed to search updates.";
+            string customError = "Failed to search updates based on the provided filters.";
             log:printError(customError, updateResponse);
             return <http:InternalServerError>{
                 body: {

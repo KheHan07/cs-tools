@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/constraint;
 
 # [Configurable] Client credentials grant type oauth2 configuration.
 type ClientCredentialsOauth2Config record {|
@@ -135,27 +134,6 @@ public type UpdateResponse record {|
     json...;
 |};
 
-# Update payload for listing updates.
-public type ListUpdatePayload record {|
-    # Product name
-    @constraint:String {minLength: 1}
-    string product\-name;
-    # Product version
-    @constraint:String {minLength: 1}
-    string product\-version;
-    # Channel
-    @constraint:String {minLength: 1}
-    string channel;
-    # Starting update level
-    @constraint:String {minLength: 1}
-    string start\-update\-level;
-    # Ending update level
-    @constraint:String {minLength: 1}
-    string end\-update\-level;
-    # Hotfixes
-    string[] hot\-fixes;
-|};
-
 # Product update level.
 public type ProductUpdateLevel record {|
     # Product name
@@ -173,5 +151,88 @@ public type UpdateLevel record {|
     string channel;
     # Update level
     int[] update\-levels;
+    json...;
+|};
+
+# Update description payload.
+public type UpdateDescriptionRequest record {|
+    # Product name
+    string product\-name;
+    # Product version
+    string product\-version;
+    # Channel
+    string channel;
+    # Starting update level
+    int starting\-update\-level;
+    # Ending update level
+    int ending\-update\-level;
+    # User email
+    string user\-email;
+|};
+
+# Update description.
+public type UpdateDescription record {|
+    # Product name
+    string product\-name;
+    # Product version
+    string product\-version;
+    # Channel
+    string channel;
+    # Update level
+    int update\-level;
+    # Update number
+    int update\-number;
+    # Description
+    string? description?;
+    # Instructions
+    string? instructions?;
+    # Bug fixes
+    string? bug\-fixes?;
+    # Files added
+    string? files\-added?;
+    # Files modified
+    string? files\-modified?;
+    # Files removed
+    string? files\-removed?;
+    # Bundles info changes
+    string? bundles\-info\-changes?;
+    # Dependant releases
+    DependantRelease[]? dependant\-releases?;
+    # Update type
+    string? update\-type?;
+    # Timestamp
+    int timestamp;
+    # Security advisories
+    SecurityAdvisoryDescription[] security\-advisories;
+    json...;
+|};
+
+# Dependant release information.
+public type DependantRelease record {|
+    # Repository
+    string repository;
+    # Release version
+    string release\-version;
+    json...;
+|};
+
+# Security advisory description.
+public type SecurityAdvisoryDescription record {|
+    # Advisory ID
+    string id;
+    # Overview
+    string overview;
+    # Severity
+    string severity;
+    # Description
+    string description;
+    # Impact
+    string impact;
+    # Solution
+    string solution;
+    # Notes
+    string notes;
+    # Credits
+    string credits;
     json...;
 |};
