@@ -15,7 +15,7 @@
 // under the License.
 
 import React, { type JSX } from "react";
-import { Box, Button, Card } from "@wso2/oxygen-ui";
+import { Box, Button, Card, type SxProps, type Theme } from "@wso2/oxygen-ui";
 
 export interface TabOption {
   id: string;
@@ -31,7 +31,7 @@ export interface TabBarProps {
   onTabChange: (tabId: string) => void;
   className?: string;
   /** Optional sx to merge with default styles (e.g. reduce margin) */
-  sx?: object;
+  sx?: SxProps<Theme>;
 }
 
 const TabBar = ({ tabs, activeTab, onTabChange, sx }: TabBarProps): JSX.Element => {

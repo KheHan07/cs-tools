@@ -109,17 +109,19 @@ export function getInitials(
   }
   if (email) {
     const parts = email.split("@")[0];
-    return parts.length >= 2 ? parts.slice(0, 2).toUpperCase() : parts.toUpperCase();
+    return parts.length >= 2
+      ? parts.slice(0, 2).toUpperCase()
+      : parts.toUpperCase();
   }
   return "?";
 }
 
 const AVATAR_COLORS = [
-  colors.purple?.[600] ?? "#7c3aed",
-  colors.blue?.[600] ?? "#2563eb",
-  colors.green?.[600] ?? "#16a34a",
-  colors.orange?.[600] ?? "#ea580c",
-  colors.pink?.[500] ?? "#ec4899",
+  colors.purple[600],
+  colors.blue[600],
+  colors.green[600],
+  colors.orange[600],
+  colors.pink[500],
 ] as const;
 
 /**
