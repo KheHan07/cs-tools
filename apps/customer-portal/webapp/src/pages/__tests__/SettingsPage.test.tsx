@@ -14,50 +14,79 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
+import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
+import { SuccessBannerProvider } from "@context/success-banner/SuccessBannerContext";
+import LoggerProvider from "@context/logger/LoggerProvider";
 import SettingsPage from "@pages/SettingsPage";
 
+vi.mock("react-router", () => ({
+  useParams: () => ({ projectId: "project-1" }),
+}));
+
+vi.mock("@api/useGetProjectContacts", () => ({
+  default: () => ({
+    data: [],
+    isFetching: false,
+    error: null,
+  }),
+}));
+
+vi.mock("@api/usePostProjectContact", () => ({
+  usePostProjectContact: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
 function renderWithTheme(ui: React.ReactElement) {
-  return render(<ThemeProvider theme={createTheme({})}>{ui}</ThemeProvider>);
+  const queryClient = createTestQueryClient();
+  return render(
+    <ThemeProvider theme={createTheme({})}>
+      <QueryClientProvider client={queryClient}>
+        <LoggerProvider>
+          <ErrorBannerProvider>
+            <SuccessBannerProvider>{ui}</SuccessBannerProvider>
+          </ErrorBannerProvider>
+        </LoggerProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
+  );
 }
 
 describe("SettingsPage", () => {
-  it("renders page title and subtitle", () => {
+  it("renders User Management and AI Assistant tabs", () => {
     renderWithTheme(<SettingsPage />);
-    expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(
-      screen.getByText("Manage AI support capabilities and preferences"),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /User Management/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /AI Assistant/i })).toBeInTheDocument();
   });
 
-  it("renders AI-Powered Support Assistant header", () => {
+  it("renders Add User button when User Management tab is active", () => {
     renderWithTheme(<SettingsPage />);
+    expect(screen.getByRole("button", { name: /Add User/i })).toBeInTheDocument();
+  });
+
+  it("renders Role Permissions section when User Management tab is active", () => {
+    renderWithTheme(<SettingsPage />);
+    expect(screen.getByText("Role Permissions")).toBeInTheDocument();
+  });
+
+  it("renders AI content when AI Assistant tab is clicked", () => {
+    renderWithTheme(<SettingsPage />);
+    const aiTab = screen.getByRole("tab", { name: /AI Assistant/i });
+    fireEvent.click(aiTab);
     expect(
       screen.getByText("AI-Powered Support Assistant"),
     ).toBeInTheDocument();
-  });
-
-  it("renders Support Capabilities section", () => {
-    renderWithTheme(<SettingsPage />);
-    expect(screen.getByText("Support Capabilities")).toBeInTheDocument();
-  });
-
-  it("renders Novera chat toggle", () => {
-    renderWithTheme(<SettingsPage />);
-    expect(screen.getByText("AI Chat Assistant (Novera)")).toBeInTheDocument();
-  });
-
-  it("renders Smart Knowledge Base toggle", () => {
-    renderWithTheme(<SettingsPage />);
-    expect(
-      screen.getByText("Smart Knowledge Base Suggestions"),
-    ).toBeInTheDocument();
-  });
-
-  it("renders AI Best Practices section", () => {
-    renderWithTheme(<SettingsPage />);
-    expect(screen.getByText("AI Best Practices")).toBeInTheDocument();
   });
 });
