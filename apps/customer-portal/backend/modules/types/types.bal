@@ -822,7 +822,7 @@ public type Conversation record {|
 |};
 
 # Conversations response.
-public type ConversationResponse record {|
+public type ConversationSearchResponse record {|
     # List of conversations
     Conversation[] conversations;
     # Total records count
@@ -939,4 +939,14 @@ public type ConversationSearchPayload record {|
     } sortBy?;
     # Pagination details
     entity:Pagination pagination?;
+|};
+
+# Conversation information.
+public type ConversationResponse record {|
+    *Conversation;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the conversation
+    string updatedBy;
+    json...;
 |};

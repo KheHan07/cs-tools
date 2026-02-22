@@ -451,8 +451,8 @@ public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse resp
 #
 # + response - Conversation search response from the entity service
 # + return - Mapped conversation search response
-public isolated function mapConversationSearchResponse(entity:ConversationResponse response)
-    returns types:ConversationResponse {
+public isolated function mapConversationSearchResponse(entity:ConversationSearchResponse response)
+    returns types:ConversationSearchResponse {
 
     types:Conversation[] conversations = from entity:Conversation conversation in response.conversations
         let entity:ReferenceTableItem? project = conversation.project
@@ -539,5 +539,28 @@ public isolated function mapCaseResponse(entity:CaseResponse response) returns t
                 count: response?.closedBy?.count
             } : (),
         hasAutoClosed: response?.hasAutoClosed
+    };
+}
+
+# Map conversation response to the desired structure.
+#
+# + response - Conversation response from the entity service
+# + return - Mapped conversation response
+public isolated function mapConversationResponse(entity:ConversationResponse response)
+    returns types:ConversationResponse {
+
+    return {
+        id: response.id,
+        number: response.number,
+        initialMessage: response.initialMessage,
+        messageCount: response.messageCount,
+        createdOn: response.createdOn,
+        createdBy: response.createdBy,
+        project: response.project != () ? {id: response.project?.id ?: "", label: response.project?.name ?: ""} : (),
+        case: response.case != () ? {id: response.case?.id ?: "", label: response.case?.name ?: ""} : (),
+        state: response.state != () ?
+            {id: response.state?.id.toString(), label: response.state?.label ?: ""} : (),
+        updatedBy: response.updatedBy,
+        updatedOn: response.updatedOn
     };
 }

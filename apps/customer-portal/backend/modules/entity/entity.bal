@@ -345,7 +345,7 @@ public isolated function searchTimeCards(string idToken, TimeCardSearchPayload p
 # + payload - Conversation search payload containing search criteria
 # + return - Conversations response containing matching conversations or error
 public isolated function searchConversations(string idToken, ConversationSearchPayload payload)
-    returns ConversationResponse|error {
+    returns ConversationSearchResponse|error {
 
     return csEntityClient->/conversations/search.post(payload, generateHeaders(idToken));
 }
@@ -371,4 +371,13 @@ public isolated function updateConversation(string idToken, string conversationI
     returns ConversationUpdateResponse|error {
 
     return csEntityClient->/conversations/[conversationId].patch(payload, generateHeaders(idToken));
+}
+
+# Get a conversation by ID.
+#
+# + idToken - ID token for authorization
+# + conversationId - Unique ID of the conversation to be retrieved
+# + return - Conversation response containing details of the retrieved conversation or error
+public isolated function getConversation(string idToken, string conversationId) returns ConversationResponse|error {
+    return csEntityClient->/conversations/[conversationId].get(generateHeaders(idToken));
 }

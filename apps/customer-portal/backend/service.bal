@@ -1068,7 +1068,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:ConversationResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
+        entity:ConversationSearchResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
                 {
                     filters: {
                         projectIds: [id],
@@ -1361,6 +1361,53 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return <http:Ok>{
             body: chatResponse
         };
+    }
+
+    # Get conversation details by ID.
+    # 
+    # + id - ID of the conversation
+    # + return - Conversation details or error
+    resource function get conversations/[entity:IdString id](http:RequestContext ctx)
+        returns types:ConversationResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+        
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ConversationResponse|error conversationResponse = entity:getConversation(userInfo.idToken, id);
+        if conversationResponse is error {
+            if getStatusCode(conversationResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(conversationResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access conversation with ID: ${id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the requested conversation."
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve conversation details.";
+            log:printError(customError, conversationResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapConversationResponse(conversationResponse);
     }
 
     # Get comments for a specific case.
