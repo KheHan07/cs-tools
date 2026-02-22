@@ -1169,6 +1169,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
+        log:printDebug(string `Created conversation with ID: ${conversationResponse.conversation.id} for project: ${
+                id}`);
+
         // Save the conversation message in agent and get the agent response for the conversation
         ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(id,
                 conversationResponse.conversation.id, payload);
@@ -1181,6 +1184,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 }
             };
         }
+
+        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
+                conversationResponse.conversation.id}`);
 
         if payload.region.length() == 0 || payload.tier.length() == 0 {
             log:printWarn("Skipping recommendations due to missing region/tier in chat payload");
@@ -1214,6 +1220,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 }
             };
         }
+
+        log:printDebug(string `Saved AI agent response as comment for conversation ID: ${
+                conversationResponse.conversation.id}`);
 
         boolean? isIssueResolved = chatResponse.resolved;
         if isIssueResolved is boolean && isIssueResolved {
@@ -1297,6 +1306,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
+        log:printDebug(string `Saved user message as comment for conversation ID: ${
+                conversationId} for follow-up message`);
+
         // Save the conversation message in agent and get the agent response for the conversation
         ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(projectId, conversationId, payload);
         if chatResponse is error {
@@ -1308,6 +1320,9 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 }
             };
         }
+
+        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
+                conversationId} for follow-up message`);
 
         // Save the agent response under comments
         entity:CommentCreateResponse|error createdAgentResponse = entity:createComment(userInfo.idToken,
@@ -1328,9 +1343,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
+        log:printDebug(string `Saved AI agent response as comment for conversation ID: ${
+                conversationId} for follow-up message`);
+
         boolean? isIssueResolved = chatResponse.resolved;
         if isIssueResolved is boolean && isIssueResolved {
-            // If the issue is resolved in the initial conversation, update the conversation state to resolved.
+            // If the issue is resolved in the follow-up message, update the conversation state to resolved.
             entity:ConversationUpdateResponse|error conversationUpdateResponse =
                     entity:updateConversation(userInfo.idToken, conversationId, {stateKey: entity:RESOLVED});
             if conversationUpdateResponse is error {
