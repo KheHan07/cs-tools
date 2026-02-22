@@ -931,14 +931,14 @@ public type CallRequestsResponse record {|
     json...;
 |};
 
-# Date Constraint.
+# Date-time (UTC).
 @constraint:String {
     pattern: {
         value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
         message: "Invalid date provided. Please provide a valid date value."
     }
 }
-public type Date string;
+public type DateTime string;
 
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
@@ -948,7 +948,7 @@ public type CallRequestCreatePayload record {|
     string reason?;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
-    Date[] utcTimes;
+    DateTime[] utcTimes;
     # Duration in minutes
     @constraint:Int {minValue: 1}
     int durationInMinutes;
@@ -981,9 +981,9 @@ public type CallRequestUpdatePayload record {|
     # State key
     int stateKey;
     # Reason for the update
-    string? reason;
+    string reason?;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
-    Date[] utcTimes?;
+    DateTime[] utcTimes?;
 |};
 
 # Updated call request details.
@@ -1089,4 +1089,65 @@ public type ProductVersionsResponse record {|
     # List of product versions
     ProductVersion[] versions;
     json...; // TODO: Add pagination
+|};
+
+# Date.
+@constraint:String {
+    pattern: {
+        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`,
+        message: "Invalid date format."
+    }
+}
+public type Date string;
+
+# Request payload for searching time cards.
+public type TimeCardSearchPayload record {|
+    # Filter criteria
+    record {
+        # List of project IDs to filter
+        string[] projectIds?;
+        # Start date for filtering time cards (ISO 8601 format)
+        Date startDate?;
+        # End date for filtering time cards (ISO 8601 format)
+        Date endDate?;
+    } filters?;
+    # Pagination details
+    Pagination pagination?;
+|};
+
+# Time card data.
+public type TimeCard record {|
+    # ID
+    string id;
+    # Total time logged
+    decimal totalTime;
+    # Created date and time
+    string createdOn;
+    # Indicates if the time card has billable hours
+    boolean hasBillable;
+    # State information (e.g., "Approved", "Submitted")
+    string state;
+    # User who approved the time card
+    ReferenceTableItem? approvedBy;
+    # Associated project
+    ReferenceTableItem? project;
+    # Associated case
+    TimeCardCase? case;
+    json...;
+|};
+
+# Time card information associated with a case.
+public type TimeCardCase record {|
+    *ReferenceTableItem;
+    # Case number
+    string number;
+|};
+
+# Time cards response.
+public type TimeCardsResponse record {|
+    # List of time cards
+    TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *Pagination;
 |};

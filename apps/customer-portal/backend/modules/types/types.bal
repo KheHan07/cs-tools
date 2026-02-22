@@ -678,22 +678,13 @@ public type CallRequestsResponse record {|
     // TODO: Remove after adding pagination
 |};
 
-# Date Constraint.
-@constraint:String {
-    pattern: {
-        value: re `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,9})?)?(Z|[+-]([01]\d|2[0-3]):?[0-5]\d)$`,
-        message: "Invalid date provided. Please provide a valid date value."
-    }
-}
-public type Date string;
-
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
     # Reason for the call request
     string reason;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
-    Date[] utcTimes;
+    entity:DateTime[] utcTimes;
     # Duration in minutes
     @constraint:Int {minValue: 1}
     int durationInMinutes;
@@ -704,9 +695,9 @@ public type CallRequestUpdatePayload record {|
     # State key
     int stateKey;
     # Reason for the update
-    string? reason;
+    string reason?;
     # New preferred UTC times for the call (mandatory when stateKey is 2)
-    Date[] utcTimes?;
+    entity:DateTime[] utcTimes?;
 |};
 
 # Product version data.
@@ -733,4 +724,51 @@ public type ProductVersionsResponse record {|
     # List of product versions
     ProductVersion[] versions;
     json...; // TODO: Add pagination
+|};
+
+# Time card data.
+public type TimeCard record {|
+    # ID
+    string id;
+    # Total time logged
+    decimal totalTime;
+    # Created date and time
+    string createdOn;
+    # Indicates if the time card has billable hours
+    boolean hasBillable;
+    # State information (e.g., "Approved", "Submitted")
+    string state;
+    # User who approved the time card
+    ReferenceItem? approvedBy;
+    # Associated project
+    ReferenceItem? project;
+    # Associated case
+    record {|
+        *ReferenceItem;
+        # Case number
+        string number;
+    |}? case;
+    json...;
+|};
+
+# Time cards response.
+public type TimeCardsResponse record {|
+    # List of time cards
+    TimeCard[] timeCards;
+    # Total records count
+    int totalRecords;
+    *entity:Pagination;
+|};
+
+# Request payload for searching time cards.
+public type TimeCardSearchPayload record {|
+    # Filter criteria
+    record {
+        # Start date for filtering time cards (ISO 8601 format)
+        entity:Date startDate?;
+        # End date for filtering time cards (ISO 8601 format)
+        entity:Date endDate?;
+    } filters?;
+    # Pagination details
+    entity:Pagination pagination?;
 |};

@@ -420,3 +420,26 @@ public isolated function mapProductVersionsResponse(entity:ProductVersionsRespon
         };
     return {versions};
 }
+
+# Map time cards search response to the desired structure.
+#
+# + response - Time cards search response from the entity service
+# + return - Mapped time cards search response
+public isolated function mapTimeCardSearchResponse(entity:TimeCardsResponse response) returns types:TimeCardsResponse {
+    types:TimeCard[] timeCards = from entity:TimeCard timeCard in response.timeCards
+        let entity:ReferenceTableItem? approvedBy = timeCard.approvedBy
+        let entity:ReferenceTableItem? project = timeCard.project
+        let entity:TimeCardCase? case = timeCard.case
+        select {
+            id: timeCard.id,
+            totalTime: timeCard.totalTime,
+            createdOn: timeCard.createdOn,
+            hasBillable: timeCard.hasBillable,
+            state: timeCard.state,
+            approvedBy: approvedBy != () ? {id: approvedBy.id, label: approvedBy.name} : (),
+            project: project != () ? {id: project.id, label: project.name} : (),
+            case: case != () ? {id: case.id, label: case.name, number: case.number} : ()
+        };
+
+    return {timeCards, totalRecords: response.totalRecords, 'limit: response.'limit, offset: response.offset};
+}
