@@ -28,5 +28,7 @@ const CLOSED = 3;
 const REOPENED = 1006;
 
 # Valid conversation state values
-const ACTIVE = 2;
-const RESOLVED = 3;
+public const ACTIVE = 2;
+public const RESOLVED = 3;
+
+public const CHAT_SENT_AGENT = "agent";

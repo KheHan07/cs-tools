@@ -710,6 +710,8 @@ public type CommentCreatePayload record {|
     string content;
     # Comment type
     CommentType 'type;
+    # User who created the comment
+    string createdBy;
 |};
 
 # Created comment details.
@@ -1173,7 +1175,7 @@ public type Conversation record {|
 |};
 
 # Conversation response.
-public type ConversationResponse record {|
+public type ConversationSearchResponse record {|
     # List of conversations
     Conversation[] conversations;
     # Total records count
@@ -1210,6 +1212,7 @@ public type ConversationCreateResponse record {|
     string message;
     # Created conversation details
     CreatedConversation conversation;
+    json...;
 |};
 
 # Request payload for updating a conversation.
@@ -1239,4 +1242,15 @@ public type ConversationUpdateResponse record {|
     string message;
     # Updated conversation details
     UpdatedConversation conversation;
+    json...;
+|};
+
+# Conversation information.
+public type ConversationResponse record {|
+    *Conversation;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the conversation
+    string updatedBy;
+    json...;
 |};

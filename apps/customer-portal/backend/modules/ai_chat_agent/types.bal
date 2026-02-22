@@ -97,9 +97,6 @@ public type ConversationPayload record {|
     string region = "";
     # Support tier (optional context for recommendations)
     string tier = "";
-    # True if this is the first message that starts the conversation thread
-    boolean isFirstMessage;
-    json...;
 |};
 
 # Intent classification result for UI rendering.

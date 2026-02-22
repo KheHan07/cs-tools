@@ -93,6 +93,42 @@ public type Case record {|
     ReferenceItem? status;
 |};
 
+# Case information.
+public type CaseResponse record {|
+    *Case;
+    # Last updated date and time
+    string updatedOn;
+    # SLA response time
+    string slaResponseTime;
+    # Product information
+    record {
+        *ReferenceItem;
+        # Product version
+        string? version;
+    }? product;
+    # Account information
+    record {
+        *ReferenceItem;
+        # Account type
+        string? 'type;
+    }? account;
+    # CS Manager information
+    record {
+        *ReferenceItem;
+        # Email address
+        string? email;
+    }? csManager;
+    # Case closed date and time
+    string? closedOn?;
+    # User who closed the case
+    ReferenceItem? closedBy?;
+    # Close notes for the case closure
+    string? closeNotes?;
+    # Indicates if the case is auto closed
+    boolean? hasAutoClosed?;
+    json...;
+|};
+
 # Reference item.
 public type ReferenceItem record {|
     # ID
@@ -786,7 +822,7 @@ public type Conversation record {|
 |};
 
 # Conversations response.
-public type ConversationResponse record {|
+public type ConversationSearchResponse record {|
     # List of conversations
     Conversation[] conversations;
     # Total records count
@@ -903,4 +939,14 @@ public type ConversationSearchPayload record {|
     } sortBy?;
     # Pagination details
     entity:Pagination pagination?;
+|};
+
+# Conversation information.
+public type ConversationResponse record {|
+    *Conversation;
+    # Updated date and time
+    string updatedOn;
+    # User who updated the conversation
+    string updatedBy;
+    json...;
 |};

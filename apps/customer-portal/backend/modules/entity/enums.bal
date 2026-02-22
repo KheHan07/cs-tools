@@ -44,6 +44,6 @@ public enum CommentType {
 
 # Valid conversation sort field values.
 public enum ConversationSortField {
-    CHAT_CREATED_ON = "createdOn",
-    CHAT_UPDATED_ON = "updatedOn"
+    CONVERSATION_CREATED_ON = "createdOn",
+    CONVERSATION_UPDATED_ON = "updatedOn"
 }

@@ -759,7 +759,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the case
     # + return - Case details or error
     resource function get cases/[entity:IdString id](http:RequestContext ctx)
-        returns entity:CaseResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+        returns types:CaseResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -798,7 +798,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 }
             };
         }
-        return caseResponse;
+        return mapCaseResponse(caseResponse);
     }
 
     # Create a new case.
@@ -1068,7 +1068,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:ConversationResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
+        entity:ConversationSearchResponse|error conversationResponse = entity:searchConversations(userInfo.idToken,
                 {
                     filters: {
                         projectIds: [id],
@@ -1111,13 +1111,15 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         };
     }
 
-    # Get chat history for a specific conversation.
+    # Create a new conversation for a project and get response using AI chat agent.
     #
-    # + Id - ID of the project
-    # + conversationId - ID of the conversation
-    # + return - Chat history response or error 
-    resource function get projects/[string Id]/conversations/[string conversationId](http:RequestContext ctx)
-        returns ai_chat_agent:ChatHistoryResponse|http:InternalServerError {
+    # + id - ID of the project
+    # + payload - Conversation payload
+    # + return - Chat response or an error
+    resource function post projects/[entity:IdString id]/conversations(
+            http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
+        returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
@@ -1127,18 +1129,285 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        ai_chat_agent:ChatHistoryResponse|error chatHistoryResponse =
-            ai_chat_agent:getChatHistory(Id, conversationId);
-        if chatHistoryResponse is error {
-            string customError = "Failed to retrieve chat history.";
-            log:printError(customError, chatHistoryResponse);
+        entity:ConversationCreateResponse|error conversationResponse = entity:createConversation(userInfo.idToken,
+                {
+                    projectId: id,
+                    initialMessage: payload.message
+                });
+        if conversationResponse is error {
+            if getStatusCode(conversationResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(conversationResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to create conversations for project: ${
+                        id}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to create conversations for the selected project."
+                    }
+                };
+            }
+            if getStatusCode(conversationResponse) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for creating a conversation."
+                    }
+                };
+            }
+
+            string customError = "Failed to create a new conversation.";
+            log:printError(customError, conversationResponse);
             return <http:InternalServerError>{
                 body: {
                     message: customError
                 }
             };
         }
-        return chatHistoryResponse;
+
+        log:printDebug(string `Created conversation with ID: ${conversationResponse.conversation.id} for project: ${
+                id}`);
+
+        // Save the conversation message in agent and get the agent response for the conversation
+        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(id,
+                conversationResponse.conversation.id, payload);
+        if chatResponse is error {
+            string customError = "Failed to process chat message.";
+            log:printError(customError, chatResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
+                conversationResponse.conversation.id}`);
+
+        if payload.region.length() == 0 || payload.tier.length() == 0 {
+            log:printWarn("Skipping recommendations due to missing region/tier in chat payload");
+        } else {
+            ai_chat_agent:RecommendationResponse|error recommendationResponse =
+                    ai_chat_agent:getRecommendations(payload.message, chatResponse.message, payload.envProducts ?: {},
+                    payload.region, payload.tier);
+            if recommendationResponse is ai_chat_agent:RecommendationResponse {
+                chatResponse.recommendations = recommendationResponse;
+            } else {
+                log:printWarn("Failed to retrieve recommendations for the first chat invocation",
+                        recommendationResponse);
+            }
+        }
+
+        // Save the agent response under comments
+        entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
+                {
+                    referenceId: conversationResponse.conversation.id,
+                    referenceType: entity:CONVERSATION,
+                    content: chatResponse.message,
+                    'type: entity:COMMENTS,
+                    createdBy: entity:CHAT_SENT_AGENT // Identify the comment is created from chat agent.
+                });
+        if createdCaseResponse is error {
+            string customError = "Failed to save chat response as comment.";
+            log:printError(customError, createdCaseResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Saved AI agent response as comment for conversation ID: ${
+                conversationResponse.conversation.id}`);
+
+        boolean? isIssueResolved = chatResponse.resolved;
+        if isIssueResolved is boolean && isIssueResolved {
+            // If the issue is resolved in the initial conversation, update the conversation state to resolved.
+            entity:ConversationUpdateResponse|error conversationUpdateResponse =
+                    entity:updateConversation(userInfo.idToken, conversationResponse.conversation.id,
+                    {stateKey: entity:RESOLVED});
+            if conversationUpdateResponse is error {
+                string customError = "Failed to update conversation state to resolved.";
+                log:printError(customError, conversationUpdateResponse);
+                // Not returning error response since the main flow of creating conversation and getting chat response is successful.
+            }
+        }
+
+        return <http:Ok>{
+            body: chatResponse
+        };
+    }
+
+    # Add a message to an existing conversation and get response using AI chat agent.
+    #
+    # + projectId - ID of the project
+    # + conversationId - ID of the conversation
+    # + payload - Conversation message payload
+    # + return - Chat response or an error
+    resource function post projects/[entity:IdString projectId]/conversations/[entity:IdString conversationId]/messages(
+            http:RequestContext ctx, ai_chat_agent:ConversationPayload payload)
+        returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        // Save the conversation message in agent and get the agent response for the conversation
+        ai_chat_agent:ChatResponse|error chatResponse = ai_chat_agent:createChat(projectId, conversationId, payload);
+        if chatResponse is error {
+            string customError = "Failed to process conversation message.";
+            log:printError(customError, chatResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Received chat response from AI agent for conversation ID: ${
+                conversationId} for follow-up message`);
+
+        // Save the user query under comments
+        entity:CommentCreateResponse|error createdCaseResponse = entity:createComment(userInfo.idToken,
+                {
+                    referenceId: conversationId,
+                    referenceType: entity:CONVERSATION, // Indicate that the comment is related to a conversation.
+                    content: payload.message,
+                    'type: entity:COMMENTS,
+                    createdBy: userInfo.email
+                });
+        if createdCaseResponse is error {
+            if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(createdCaseResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to add comments to conversation with ID: ${
+                        conversationId}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to add comments to the requested conversation. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
+            if getStatusCode(createdCaseResponse) == http:STATUS_BAD_REQUEST {
+                return <http:BadRequest>{
+                    body: {
+                        message: "Invalid request parameters for adding a comment to the conversation."
+                    }
+                };
+            }
+
+            string customError = "Failed to save user message as comment.";
+            log:printError(customError, createdCaseResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Saved user message as comment for conversation ID: ${
+                conversationId} for follow-up message`);
+
+        // Save the agent response under comments
+        entity:CommentCreateResponse|error createdAgentResponse = entity:createComment(userInfo.idToken,
+                {
+                    referenceId: conversationId,
+                    referenceType: entity:CONVERSATION, // Indicate that the comment is related to a conversation.
+                    content: chatResponse.message,
+                    'type: entity:COMMENTS,
+                    createdBy: entity:CHAT_SENT_AGENT // Identify the comment is created from chat agent.
+                });
+        if createdAgentResponse is error {
+            string customError = "Failed to save chat response as comment.";
+            log:printError(customError, createdAgentResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        log:printDebug(string `Saved AI agent response as comment for conversation ID: ${
+                conversationId} for follow-up message`);
+
+        boolean? isIssueResolved = chatResponse.resolved;
+        if isIssueResolved is boolean && isIssueResolved {
+            // If the issue is resolved in the follow-up message, update the conversation state to resolved.
+            entity:ConversationUpdateResponse|error conversationUpdateResponse =
+                    entity:updateConversation(userInfo.idToken, conversationId, {stateKey: entity:RESOLVED});
+            if conversationUpdateResponse is error {
+                string customError = "Failed to update conversation state to resolved.";
+                log:printError(customError, conversationUpdateResponse);
+                // Not returning error response since the main flow of creating conversation and getting chat response is successful.
+            }
+        }
+
+        return <http:Ok>{
+            body: chatResponse
+        };
+    }
+
+    # Get conversation details by ID.
+    # 
+    # + id - ID of the conversation
+    # + return - Conversation details or error
+    resource function get conversations/[entity:IdString id](http:RequestContext ctx)
+        returns types:ConversationResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+        
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ConversationResponse|error conversationResponse = entity:getConversation(userInfo.idToken, id);
+        if conversationResponse is error {
+            if getStatusCode(conversationResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(conversationResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access conversation with ID: ${id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the requested conversation."
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve conversation details.";
+            log:printError(customError, conversationResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapConversationResponse(conversationResponse);
     }
 
     # Get comments for a specific case.
@@ -1243,7 +1512,8 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                     referenceId: id,
                     referenceType: entity:CASE,
                     content: payload.content,
-                    'type: entity:COMMENTS
+                    'type: entity:COMMENTS,
+                    createdBy: userInfo.email
                 });
         if createdCaseResponse is error {
             if getStatusCode(createdCaseResponse) == http:STATUS_UNAUTHORIZED {
