@@ -36,6 +36,7 @@ import { LoaderProvider } from "@context/linear-loader/LoaderContext";
 import LoginPage from "@pages/LoginPage";
 import AuthGuard from "./AuthGuard";
 import SecurityPage from "@pages/SecurityPage";
+import SettingsPage from "@pages/SettingsPage";
 import VulnerabilityDetailsPage from "@pages/VulnerabilityDetailsPage";
 
 export default function App(): JSX.Element {
@@ -131,7 +132,7 @@ export default function App(): JSX.Element {
                       {/* Settings */}
                       <Route
                         path="settings"
-                        element={<ProjectPage title="Settings" />}
+                        element={<SettingsPage />}
                       />
                     </Route>
                   </Route>
