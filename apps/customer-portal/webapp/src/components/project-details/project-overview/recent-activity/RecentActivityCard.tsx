@@ -70,7 +70,7 @@ const RecentActivityCard = ({
             justifyContent: "center",
           }}
         >
-          {activities.map((activityItem, index) => (
+          {activities.map((activityItem) => (
             <Box
               key={activityItem.label}
               sx={{
@@ -84,11 +84,7 @@ const RecentActivityCard = ({
               </Typography>
 
               {isLoading ? (
-                index === 3 ? (
-                  <Skeleton variant="rounded" width={80} height={24} />
-                ) : (
-                  <Skeleton variant="text" width={100} height={24} />
-                )
+                <Skeleton variant="text" width={100} height={24} />
               ) : isError ? (
                 <ErrorIndicator entityName={activityItem.label} />
               ) : activityItem.type === "chip" ? (
