@@ -381,3 +381,32 @@ public isolated function updateConversation(string idToken, string conversationI
 public isolated function getConversation(string idToken, string conversationId) returns ConversationResponse|error {
     return csEntityClient->/conversations/[conversationId].get(generateHeaders(idToken));
 }
+
+# Get project time card statistics.
+#
+# + idToken - ID token for authorization
+# + projectId - Unique ID of the project for which time card statistics are to be retrieved
+# + startDate - Optional start date to filter time cards for statistics (inclusive)
+# + endDate - Optional end date to filter time cards for statistics (inclusive)
+# + return - Project time card statistics response containing aggregated time card data for the project or error
+public isolated function getProjectTimeCardStats(string idToken, string projectId, string? startDate, string? endDate)
+    returns ProjectTimeCardStatsResponse|error {
+
+    if startDate is string && endDate is string {
+        return csEntityClient->/projects/[projectId]/time\-cards/stats.get(generateHeaders(idToken),
+            startDate = startDate, endDate = endDate
+        );
+    }
+    if startDate is string {
+        return csEntityClient->/projects/[projectId]/time\-cards/stats.get(generateHeaders(idToken),
+            startDate = startDate
+        );
+    }
+    if endDate is string {
+        return csEntityClient->/projects/[projectId]/time\-cards/stats.get(generateHeaders(idToken),
+            endDate = endDate
+        );
+    }
+
+    return csEntityClient->/projects/[projectId]/time\-cards/stats.get(generateHeaders(idToken));
+}
