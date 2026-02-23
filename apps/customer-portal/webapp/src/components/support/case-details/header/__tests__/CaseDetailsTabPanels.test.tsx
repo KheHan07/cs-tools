@@ -16,11 +16,16 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CaseDetailsTabPanels from "@case-details/CaseDetailsTabPanels";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
 import LoggerProvider from "@context/logger/LoggerProvider";
 import type { CaseDetails } from "@models/responses";
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
 
 const mockCaseDetails = {
   id: "case-001",
@@ -32,15 +37,22 @@ const mockCaseDetails = {
   description: "Desc",
   slaResponseTime: "129671000",
   product: null,
-  account: { type: null, id: "acc-1", name: "Account" },
+  account: { type: null, id: "acc-1", label: "Account" },
   csManager: null,
   assignedEngineer: null,
-  project: { id: "p1", name: "Project" },
+  project: { id: "p1", label: "Project" },
+  type: { id: "1", label: "Incident" },
   deployment: { id: "d1", label: "Production" },
   deployedProduct: null,
+  parentCase: null,
+  conversation: null,
   issueType: null,
-  state: { id: 1, label: "Open" },
-  severity: { id: 60, label: "S0" },
+  status: { id: "1", label: "Open" },
+  severity: { id: "60", label: "S0" },
+  closedOn: null,
+  closedBy: null,
+  closeNotes: null,
+  hasAutoClosed: null,
 };
 
 const mockCaseComments = [
@@ -121,18 +133,20 @@ function renderTabPanels(
   options?: { data?: CaseDetails; isError?: boolean },
 ) {
   return render(
-    <ThemeProvider theme={createTheme()}>
-      <LoggerProvider>
-        <ErrorBannerProvider>
-          <CaseDetailsTabPanels
-            activeTab={activeTab}
-            caseId={caseId}
-            data={options?.data ?? (mockCaseDetails as CaseDetails)}
-            isError={options?.isError ?? false}
-          />
-        </ErrorBannerProvider>
-      </LoggerProvider>
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={createTheme()}>
+        <LoggerProvider>
+          <ErrorBannerProvider>
+            <CaseDetailsTabPanels
+              activeTab={activeTab}
+              caseId={caseId}
+              data={options?.data ?? (mockCaseDetails as CaseDetails)}
+              isError={options?.isError ?? false}
+            />
+          </ErrorBannerProvider>
+        </LoggerProvider>
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -169,8 +183,10 @@ describe("CaseDetailsTabPanels", () => {
     expect(screen.getAllByRole("button", { name: /download/i }).length).toBeGreaterThan(0);
   });
 
-  it("should show Calls placeholder when activeTab is 3", () => {
-    renderTabPanels(3);
+  it("should show Calls placeholder when activeTab is 3 and project is missing", () => {
+    renderTabPanels(3, "case-1", {
+      data: { ...mockCaseDetails, project: null } as CaseDetails,
+    });
     expect(screen.getByText("Call requests will appear here.")).toBeInTheDocument();
   });
 

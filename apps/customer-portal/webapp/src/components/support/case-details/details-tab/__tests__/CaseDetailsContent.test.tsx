@@ -29,15 +29,22 @@ const mockCaseDetails = {
   description: "Desc",
   slaResponseTime: "129671000",
   product: null,
-  account: { type: null, id: "acc-1", name: "Account" },
+  account: { type: null, id: "acc-1", label: "Account" },
   csManager: null,
   assignedEngineer: null,
-  project: { id: "p1", name: "Project" },
+  project: { id: "p1", label: "Project" },
+  type: { id: "1", label: "Incident" },
   deployment: { id: "d1", label: "Production" },
   deployedProduct: null,
+  parentCase: null,
+  conversation: null,
   issueType: null,
-  state: { id: 1, label: "Open" },
-  severity: { id: 60, label: "S0" },
+  severity: { id: "60", label: "S0" },
+  status: { id: "1", label: "Open" },
+  closedOn: null,
+  closedBy: null,
+  closeNotes: null,
+  hasAutoClosed: null,
 };
 
 vi.mock("@api/useGetCaseAttachments", () => ({
@@ -90,14 +97,14 @@ describe("CaseDetailsContent", () => {
   it("should render header and action row when not in focus mode", () => {
     renderContent();
     expect(screen.getByText("CS0001001")).toBeInTheDocument();
-    expect(screen.getByText("Support Engineer")).toBeInTheDocument();
+    expect(screen.getByText("Manage case status")).toBeInTheDocument();
   });
 
   it("should hide header and action row when focus mode is on", () => {
     renderContent();
     const focusButton = screen.getByRole("button", { name: /focus mode/i });
     fireEvent.click(focusButton);
-    expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
+    expect(screen.queryByText("Manage case status")).not.toBeInTheDocument();
   });
 
   it("should show attachment count in Attachments tab label when available", () => {

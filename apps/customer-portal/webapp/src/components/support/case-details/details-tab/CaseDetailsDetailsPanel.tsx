@@ -77,7 +77,7 @@ export default function CaseDetailsDetailsPanel({
     );
   }
 
-  const statusLabel = data?.state?.label ?? null;
+  const statusLabel = data?.status?.label ?? null;
   const severityLabel = data?.severity?.label ?? null;
   const statusColorPath = getStatusColor(statusLabel ?? undefined);
   const resolvedStatusColor = resolveColorFromTheme(statusColorPath, theme);
@@ -278,7 +278,7 @@ export default function CaseDetailsDetailsPanel({
           <Box>
             <Typography {...labelSx}>Organization</Typography>
             <Typography {...valueSx}>
-              {formatValue(data?.account?.name)}
+              {formatValue(data?.account?.label)}
             </Typography>
           </Box>
           <Box>
@@ -298,7 +298,7 @@ export default function CaseDetailsDetailsPanel({
           <Box>
             <Typography {...labelSx}>Project</Typography>
             <Typography {...valueSx}>
-              {formatValue(data?.project?.name)}
+              {formatValue(data?.project?.label)}
             </Typography>
           </Box>
           {getAssignedEngineerLabel(assignedEngineer) && (

@@ -29,6 +29,9 @@ export const ApiQueryKeys = {
   CASE_ATTACHMENTS: "case-attachments",
   CHAT_HISTORY: "chat-history",
   DEPLOYMENTS: "deployments",
+  DEPLOYMENT_ATTACHMENTS: "deployment-attachments",
+  PRODUCTS: "products",
+  PRODUCT_VERSIONS_SEARCH: "product-versions-search",
   DEPLOYMENT_PRODUCTS: "deployment-products",
   TIME_TRACKING_STATS: "time-tracking-stats",
   RECOMMENDED_UPDATE_LEVELS: "recommended-update-levels",
@@ -39,5 +42,6 @@ export const ApiQueryKeys = {
   CASE_CALL_REQUESTS: "case-call-requests",
   PROJECT_CONTACTS: "project-contacts",
   TIME_TRACKING_DETAILS: "time-tracking-details",
+  TIME_CARDS_SEARCH: "time-cards-search",
   PROJECT_DEPLOYMENT_DETAILS: "project-deployment-details",
 } as const;
