@@ -24,22 +24,23 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { ArrowLeft, Send } from "@wso2/oxygen-ui-icons-react";
-import { useState, useCallback, useMemo, type JSX } from "react";
+import { useState, useRef, useCallback, useMemo, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import Editor from "@components/common/rich-text-editor/Editor";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { usePostConversations } from "@api/usePostConversations";
 import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import {
+  DEFAULT_CONVERSATION_REGION,
+  DEFAULT_CONVERSATION_TIER,
+} from "@constants/conversationConstants";
+import type { ChatNavState } from "@models/chatNavState";
 import { buildEnvProducts } from "@utils/caseCreation";
 import { htmlToPlainText } from "@utils/richTextEditor";
 
 const ISSUE_PLACEHOLDER =
   "Example: I'm experiencing API Gateway timeout issues in our production environment. The errors started appearing yesterday around 3 PM, and we're seeing 504 errors intermittently...";
-
-/** Hardcoded for conversations API per requirements. */
-const REGION = "EU";
-const TIER = "Tier 1";
 
 /**
  * DescribeIssuePage lets users describe their issue before navigating to chat.
@@ -57,9 +58,8 @@ export default function DescribeIssuePage(): JSX.Element {
   const { data: projectDeployments } = useGetProjectDeployments(
     projectId || "",
   );
-  const { productsByDeploymentId } = useAllDeploymentProducts(
-    projectDeployments,
-  );
+  const { productsByDeploymentId, isLoading: isProductsLoading } =
+    useAllDeploymentProducts(projectDeployments);
   const envProducts = useMemo(
     () => buildEnvProducts(productsByDeploymentId, projectDeployments),
     [productsByDeploymentId, projectDeployments],
@@ -67,6 +67,7 @@ export default function DescribeIssuePage(): JSX.Element {
 
   const { mutateAsync: postConversation, isPending: isSubmitting } =
     usePostConversations();
+  const submittingRef = useRef(false);
 
   const handleBack = useCallback(() => {
     if (projectId) {
@@ -80,24 +81,27 @@ export default function DescribeIssuePage(): JSX.Element {
 
   const handleSubmit = useCallback(async () => {
     if (!plainText.trim() || !projectId) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     try {
       const conversationResponse = await postConversation({
         projectId,
         message: plainText.trim(),
         envProducts,
-        region: REGION,
-        tier: TIER,
+        region: DEFAULT_CONVERSATION_REGION,
+        tier: DEFAULT_CONVERSATION_TIER,
       });
 
-      navigate(`/${projectId}/support/chat`, {
-        state: {
-          initialUserMessage: plainText.trim(),
-          conversationResponse,
-        },
-      });
+      const state: ChatNavState = {
+        initialUserMessage: plainText.trim(),
+        conversationResponse,
+      };
+      navigate(`/${projectId}/support/chat`, { state });
     } catch {
       showError("Could not get help. Please try again or create a support case.");
+    } finally {
+      submittingRef.current = false;
     }
   }, [
     plainText,
@@ -109,7 +113,7 @@ export default function DescribeIssuePage(): JSX.Element {
   ]);
 
   const isSubmitDisabled =
-    !projectId || !plainText.trim() || isSubmitting;
+    !projectId || !plainText.trim() || isSubmitting || isProductsLoading;
 
   return (
     <Box

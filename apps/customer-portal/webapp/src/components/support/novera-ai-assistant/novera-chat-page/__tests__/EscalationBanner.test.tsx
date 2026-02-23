@@ -20,12 +20,14 @@ import EscalationBanner from "@components/support/novera-ai-assistant/novera-cha
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div data-testid="box">{children}</div>,
-  Button: ({ children, onClick, variant }: any) => (
-    <button data-testid="button" onClick={onClick} data-variant={variant}>
+  Button: ({ children, onClick }: any) => (
+    <button data-testid="button" onClick={onClick}>
       {children}
     </button>
   ),
+  CircularProgress: () => <span data-testid="circular-progress" />,
   Paper: ({ children }: any) => <div data-testid="paper">{children}</div>,
+  Stack: ({ children }: any) => <div>{children}</div>,
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
@@ -38,16 +40,17 @@ vi.mock("@wso2/oxygen-ui", () => ({
 
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
-  CircleAlert: () => <svg data-testid="icon-alert" />,
+  Sparkles: () => <svg data-testid="icon-sparkles" />,
+  FileText: () => <svg data-testid="icon-file-text" />,
 }));
 
 describe("EscalationBanner", () => {
   it("should render correctly when visible", () => {
     render(<EscalationBanner visible={true} onCreateCase={vi.fn()} />);
 
-    expect(screen.getByText(/Need more help?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Thank you for describing the issue/i)).toBeInTheDocument();
     expect(screen.getByText("Create Case")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-alert")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-sparkles")).toBeInTheDocument();
   });
 
   it("should not render when not visible", () => {

@@ -26,7 +26,12 @@ import {
 import { useNavigate, useParams, useLocation } from "react-router";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { usePostCaseClassifications } from "@api/usePostCaseClassifications";
+import type { ChatNavState } from "@models/chatNavState";
 import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
+import {
+  DEFAULT_CONVERSATION_REGION,
+  DEFAULT_CONVERSATION_TIER,
+} from "@constants/conversationConstants";
 import {
   formatChatHistoryForClassification,
   buildEnvProducts,
@@ -52,10 +57,7 @@ export default function NoveraChatPage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const location = useLocation();
-  const navState = location.state as {
-    initialUserMessage?: string;
-    conversationResponse?: { message: string; actions: unknown };
-  } | null;
+  const navState = location.state as ChatNavState | null;
   const initialUserMessage = navState?.initialUserMessage;
   const conversationResponse = navState?.conversationResponse;
 
@@ -89,13 +91,8 @@ export default function NoveraChatPage(): JSX.Element {
     };
     // Coming from describe-issue with API response: show only user message + bot response (no welcome).
     if (conversationResponse?.message) {
-      return [
-        {
-          id: "2",
-          text: initialUserMessage?.trim() ?? "",
-          sender: "user",
-          timestamp: new Date(),
-        },
+      const userMsg = initialUserMessage?.trim();
+      const msgs: Message[] = [
         {
           id: "3",
           text: conversationResponse.message,
@@ -104,6 +101,15 @@ export default function NoveraChatPage(): JSX.Element {
           showCreateCaseAction: conversationResponse.actions != null,
         },
       ];
+      if (userMsg) {
+        msgs.unshift({
+          id: "2",
+          text: userMsg,
+          sender: "user",
+          timestamp: new Date(),
+        });
+      }
+      return msgs;
     }
     if (initialUserMessage?.trim()) {
       return [
@@ -136,8 +142,8 @@ export default function NoveraChatPage(): JSX.Element {
           const classificationResponse = await classifyCase({
             chatHistory,
             envProducts,
-            region: "EU",
-            tier: "Tier 1",
+            region: DEFAULT_CONVERSATION_REGION,
+            tier: DEFAULT_CONVERSATION_TIER,
           });
           navigate(`/${projectId}/support/chat/create-case`, {
             state: { messages, classificationResponse },

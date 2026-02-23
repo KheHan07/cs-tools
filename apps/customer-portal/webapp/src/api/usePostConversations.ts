@@ -46,17 +46,17 @@ export function usePostConversations(): UseMutationResult<
     ): Promise<ConversationResponse> => {
       const { projectId, message, envProducts, region, tier } = params;
 
+      if (!isSignedIn || isAuthLoading) {
+        throw new Error("User must be signed in to send messages");
+      }
+
       logger.debug("[usePostConversations] Request:", {
         projectId,
-        messageLength: message?.length,
+        messageLength: message.length,
         envProducts: Object.keys(envProducts || {}),
         region,
         tier,
       });
-
-      if (!isSignedIn || isAuthLoading) {
-        throw new Error("User must be signed in to send messages");
-      }
 
       const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
       if (!baseUrl) {

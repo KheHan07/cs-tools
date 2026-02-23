@@ -44,20 +44,21 @@ export interface CaseSearchRequest {
   };
 }
 
-// Request body for case classification.
-export interface CaseClassificationRequest {
-  chatHistory: string;
+/** Shared env context for conversations and case classification APIs. */
+export interface SharedEnvContext {
   envProducts: Record<string, string[]>;
   region: string;
   tier: string;
 }
 
+// Request body for case classification.
+export interface CaseClassificationRequest extends SharedEnvContext {
+  chatHistory: string;
+}
+
 // Request body for POST /projects/:projectId/conversations (Novera chat).
-export interface ConversationRequest {
+export interface ConversationRequest extends SharedEnvContext {
   message: string;
-  envProducts: Record<string, string[]>;
-  region: string;
-  tier: string;
 }
 
 // Request body for creating a support case (POST /cases).

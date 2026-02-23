@@ -26,6 +26,19 @@ import ReactMarkdown from "react-markdown";
 import { type JSX } from "react";
 import type { Message } from "@pages/NoveraChatPage";
 
+/** Safe URL protocols for markdown links. Blocks javascript:, data:, etc. */
+const SAFE_PROTOCOLS = ["http:", "https:"];
+
+function isSafeHref(href: string | undefined): href is string {
+  if (!href || typeof href !== "string") return false;
+  try {
+    const parsed = new URL(href, "https://invalid.invalid");
+    return SAFE_PROTOCOLS.includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 interface ChatMessageBubbleProps {
   message: Message;
   onCreateCase?: () => void;
@@ -76,18 +89,23 @@ const markdownComponents: React.ComponentProps<
       {children}
     </Box>
   ),
-  a: ({ href, children }) => (
-    <Typography
-      component="a"
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      variant="body2"
-      sx={{ color: "primary.main", textDecoration: "underline" }}
-    >
-      {children}
-    </Typography>
-  ),
+  a: ({ href, children }) =>
+    isSafeHref(href) ? (
+      <Typography
+        component="a"
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        variant="body2"
+        sx={{ color: "primary.main", textDecoration: "underline" }}
+      >
+        {children}
+      </Typography>
+    ) : (
+      <Typography variant="body2" component="span">
+        {children}
+      </Typography>
+    ),
 };
 
 /**
