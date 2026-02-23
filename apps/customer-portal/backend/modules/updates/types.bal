@@ -199,7 +199,7 @@ public type UpdateDescription record {|
     # Dependant releases
     DependantRelease[]? dependant\-releases?;
     # Update type
-    string? update\-type?;
+    string update\-type;
     # Timestamp
     int timestamp;
     # Security advisories

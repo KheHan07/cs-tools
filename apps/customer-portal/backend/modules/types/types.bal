@@ -849,8 +849,6 @@ public type UpdateDescriptionPayload record {|
     string productName;
     # Product version
     string productVersion;
-    # Channel
-    string channel;
     # Starting update level
     int startingUpdateLevel;
     # Ending update level
@@ -877,16 +875,18 @@ public type SecurityAdvisoryDescription record {|
     string credits;
 |};
 
-# Update description.
+# Update description information.
 public type UpdateDescription record {|
+    # Update level
+    int updateLevel;
     # Product name
     string productName;
     # Product version
     string productVersion;
     # Channel
     string channel;
-    # Update level
-    int updateLevel;
+    # Update type
+    string updateType;
     # Update number
     int updateNumber;
     # Description
@@ -905,12 +905,18 @@ public type UpdateDescription record {|
     string? bundlesInfoChanges?;
     # Dependant releases
     DependantRelease[]? dependantReleases?;
-    # Update type
-    string? updateType?;
     # Timestamp
     int timestamp;
     # Security advisories
     SecurityAdvisoryDescription[] securityAdvisories;
+|};
+
+# Group of update descriptions by update level.
+public type UpdateLevelGroup record {|
+    # Update type
+    string updateType;
+    # Update description levels
+    UpdateDescription[] updateDescriptionLevels;
 |};
 
 # Dependant release information.
