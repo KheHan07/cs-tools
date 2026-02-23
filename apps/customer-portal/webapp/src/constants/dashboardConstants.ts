@@ -123,7 +123,7 @@ export const SEVERITY_API_LABELS = SEVERITY_LEGEND_ORDER.map((item) => item.labe
 
 /** Case type entries for Outstanding Engagements chart (from caseTypeCount). */
 export const OUTSTANDING_CASE_TYPE_ENTRIES = [
-  { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.grey?.[500] ?? "#6B7280" },
+  { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.purple[500] },
   { key: "securityReportAnalysis", label: "Security Report Analysis", displayName: "Security Report Analysis", color: colors.purple[500] },
 ] as const;
 
@@ -197,18 +197,18 @@ export function getCaseTypeChipConfig(
     return {
       displayLabel: "Service Request",
       Icon: Server,
-      bgColor: colors.grey?.[100] ?? "#F1F5F9", 
-      textColor: colors.grey?.[800] ?? "#1E293B",
-      borderColor: colors.grey?.[200] ?? "#E2E8F0",
+      bgColor: colors.yellow?.[100] ?? "#F3E8FF",
+      textColor: colors.yellow?.[800] ?? "#6B21A8",
+      borderColor: colors.yellow?.[200] ?? "#E9D5FF",
     };
   }
   if (/change\s*request/i.test(normalized)) {
     return {
       displayLabel: "Change Request",
       Icon: CalendarDays,
-      bgColor: colors.indigo?.[100] ?? colors.purple?.[100] ?? "#E0E7FF",
-      textColor: colors.indigo?.[800] ?? colors.purple?.[800] ?? "#3730A3",
-      borderColor: colors.indigo?.[200] ?? colors.purple?.[200] ?? "#C7D2FE",
+      bgColor: colors.blue?.[100] ?? "#DBEAFE",
+      textColor: colors.blue?.[800] ?? "#1E40AF",
+      borderColor: colors.blue?.[200] ?? "#BFDBFE",
     };
   }
   return {

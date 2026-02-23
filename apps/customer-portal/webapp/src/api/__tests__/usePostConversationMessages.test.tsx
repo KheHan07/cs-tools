@@ -58,7 +58,7 @@ describe("usePostConversationMessages", () => {
     vi.clearAllMocks();
     window.config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.example.com",
-    };
+    } as typeof window.config;
     mockAuthFetch.mockResolvedValue(
       new Response(JSON.stringify({ message: "AI response", conversationId: "conv-1" }), {
         status: 200,
@@ -96,7 +96,7 @@ describe("usePostConversationMessages", () => {
   });
 
   it("should throw when base URL is not configured", async () => {
-    window.config = {};
+    window.config = {} as typeof window.config;
     const { result } = renderHook(() => usePostConversationMessages(), {
       wrapper,
     });
