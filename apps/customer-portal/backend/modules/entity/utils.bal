@@ -46,15 +46,16 @@ public isolated function getComments(string idToken, string id, int? 'limit, int
 #
 # + idToken - ID token for authorization
 # + id - Entity ID to filter attachments
+# + referenceType - Reference type (e.g., CASE, DEPLOYMENT)
 # + limit - Number of attachments to retrieve
 # + offset - Offset for pagination
 # + return - Attachments response or error
-public isolated function getAttachments(string idToken, string id, int? 'limit, int? offset)
+public isolated function getAttachments(string idToken, string id, ReferenceType referenceType, int? 'limit, int? offset)
     returns AttachmentsResponse|error {
 
     ReferenceSearchPayload payload = {
         referenceId: id,
-        referenceType: CASE,
+        referenceType: referenceType,
         pagination: {
             'limit: 'limit ?: DEFAULT_LIMIT,
             offset: offset ?: DEFAULT_OFFSET

@@ -462,6 +462,55 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return response.deployment;
     }
 
+    # Get attachments for a specific deployment.
+    #
+    # + id - ID of the deployment
+    # + limit - Number of attachments to retrieve
+    # + offset - Offset for pagination
+    # + return - Attachments response or error
+    resource function get deployments/[entity:IdString id]/attachments(http:RequestContext ctx, int? 'limit,
+            int? offset) returns types:AttachmentsResponse|http:BadRequest|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isInvalidLimitOffset('limit, offset) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_LIMIT_OFFSET_INVALID
+                }
+            };
+        }
+
+        entity:AttachmentsResponse|error attachmentResponse =
+            entity:getAttachments(userInfo.idToken, id, entity:DEPLOYMENT, 'limit, offset);
+        if attachmentResponse is error {
+            if getStatusCode(attachmentResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to deployment attachments is forbidden for user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to deployment attachments is forbidden!"
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve attachments.";
+            log:printError(customError, attachmentResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapAttachmentsResponse(attachmentResponse);
+    }
+
     # Add an attachment to a deployment.
     #
     # + id - ID of the deployment
@@ -1364,12 +1413,12 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get conversation details by ID.
-    # 
+    #
     # + id - ID of the conversation
     # + return - Conversation details or error
     resource function get conversations/[entity:IdString id](http:RequestContext ctx)
         returns types:ConversationResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
-        
+
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
             return <http:InternalServerError>{
@@ -1476,7 +1525,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
 
         entity:AttachmentsResponse|error attachmentResponse =
-            entity:getAttachments(userInfo.idToken, id, 'limit, offset);
+            entity:getAttachments(userInfo.idToken, id, entity:CASE, 'limit, offset);
         if attachmentResponse is error {
             string customError = "Failed to retrieve attachments.";
             log:printError(customError, attachmentResponse);
