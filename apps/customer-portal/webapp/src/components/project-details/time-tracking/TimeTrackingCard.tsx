@@ -14,22 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Card, Box, Typography, Chip, useTheme, alpha } from "@wso2/oxygen-ui";
-import { User, Shield, Calendar } from "@wso2/oxygen-ui-icons-react";
-import type { JSX } from "react";
-import type { TimeTrackingLog } from "@models/responses";
-import { getTimeTrackingBadgePaletteKey } from "@utils/projectDetails";
-import { TIME_TRACKING_BADGE_TYPES } from "@constants/projectDetailsConstants";
+import { Card, Box, Typography, Chip, useTheme } from "@wso2/oxygen-ui";
+import { type JSX } from "react";
+import type { TimeCard } from "@models/responses";
+import { getTimeCardStateColorPath } from "@utils/projectDetails";
+import {
+  getSupportOverviewChipSx,
+  getPlainChipSx,
+} from "@utils/support";
 
 interface TimeTrackingCardProps {
-  log: TimeTrackingLog;
+  card: TimeCard;
 }
 
+/**
+ * TimeTrackingCard displays a single time card with case label, state, billable, case number, total time, and approver.
+ *
+ * @param {TimeTrackingCardProps} props - Time card data.
+ * @returns {JSX.Element} The rendered time card.
+ */
 export default function TimeTrackingCard({
-  log,
+  card,
 }: TimeTrackingCardProps): JSX.Element {
-  const { badges, description, user, role, date, hours } = log;
   const theme = useTheme();
+  const { case: caseData, state, hasBillable, totalTime, approvedBy } = card;
+
+  const label = caseData?.label?.trim() || "--";
+  const caseNumber = caseData?.number?.trim() || "--";
+  const approvedByName = approvedBy?.label?.trim() || "--";
+
+  const stateColorPath = getTimeCardStateColorPath(state);
 
   return (
     <Card
@@ -55,39 +69,29 @@ export default function TimeTrackingCard({
               alignItems: "center",
               gap: "8px",
               mb: "8px",
+              flexWrap: "wrap",
             }}
           >
-            {badges.map((badge, index) => {
-              const rawPaletteKey = getTimeTrackingBadgePaletteKey(badge.type);
-              const paletteKey =
-                rawPaletteKey === "default" ? "primary" : rawPaletteKey;
-              const mainColor = theme.palette[paletteKey].main;
-
-              return (
-                <Chip
-                  key={`${badge.type}-${badge.text}-${index}`}
-                  label={badge.text}
-                  size="small"
-                  sx={{
-                    height: "auto",
-                    py: "2px",
-                    px: "4px",
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    bgcolor: alpha(mainColor, 0.1),
-                    color: mainColor,
-                    border: 0,
-                    "& .MuiChip-label": {
-                      px: "4px",
-                    },
-                    ...(badge.type === TIME_TRACKING_BADGE_TYPES.CASE && {
-                      cursor: "pointer",
-                      "&:hover": { bgcolor: alpha(mainColor, 0.2) },
-                    }),
-                  }}
-                />
-              );
-            })}
+            <Chip
+              label={caseNumber}
+              size="small"
+              variant="outlined"
+              sx={getPlainChipSx()}
+            />
+            <Chip
+              label={state || "--"}
+              size="small"
+              variant="outlined"
+              sx={getSupportOverviewChipSx(stateColorPath, theme)}
+            />
+            {hasBillable && (
+              <Chip
+                label="Billable"
+                size="small"
+                variant="outlined"
+                sx={getSupportOverviewChipSx("success.main", theme)}
+              />
+            )}
           </Box>
           <Typography
             variant="body2"
@@ -97,30 +101,11 @@ export default function TimeTrackingCard({
               fontSize: "0.875rem",
             }}
           >
-            {description || "--"}
+            {label}
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              color: "text.secondary",
-              fontSize: "0.75rem",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <User size={12} />
-              <Typography variant="caption">{user || "--"}</Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Shield size={12} />
-              <Typography variant="caption">{role || "--"}</Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Calendar size={12} />
-              <Typography variant="caption">{date || "--"}</Typography>
-            </Box>
-          </Box>
+          <Typography variant="caption" color="text.secondary">
+            Approved by: {approvedByName}
+          </Typography>
         </Box>
         <Box sx={{ textAlign: "right" }}>
           <Typography
@@ -131,7 +116,9 @@ export default function TimeTrackingCard({
               color: "text.primary",
             }}
           >
-            {hours !== undefined && hours !== null ? `${hours}h` : "--"}
+            {totalTime !== undefined && totalTime !== null
+              ? `${totalTime}h`
+              : "--"}
           </Typography>
         </Box>
       </Box>

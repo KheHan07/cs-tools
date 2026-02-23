@@ -14,23 +14,73 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AddProductModal from "@components/project-details/deployments/AddProductModal";
+import { useGetProducts } from "@api/useGetProducts";
+import { useSearchProductVersions } from "@api/useSearchProductVersions";
+import { usePostDeploymentProduct } from "@api/usePostDeploymentProduct";
+
+vi.mock("@api/useGetProducts");
+vi.mock("@api/useSearchProductVersions");
+vi.mock("@api/usePostDeploymentProduct");
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+function renderWithProviders(
+  ui: React.ReactElement,
+  options?: { queryClient?: QueryClient },
+) {
+  const client = options?.queryClient ?? queryClient;
+  return render(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+}
+
+const mockProducts = [
+  { id: "prod-api-mgr", label: "WSO2 API Manager", name: "API Manager" },
+  { id: "prod-id", label: "WSO2 Identity Server", name: "Identity Server" },
+];
+
+const mockVersions = [
+  { id: "ver-781", version: "7.8.0", product: { id: "prod-api-mgr", label: "WSO2 API Manager" } },
+  { id: "ver-450", version: "4.5.0", product: { id: "prod-api-mgr", label: "WSO2 API Manager" } },
+];
 
 describe("AddProductModal", () => {
   const mockOnClose = vi.fn();
   const mockOnSuccess = vi.fn();
+  const mockMutateAsync = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useGetProducts).mockReturnValue({
+      data: mockProducts,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetProducts>);
+    vi.mocked(useSearchProductVersions).mockReturnValue({
+      data: mockVersions,
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useSearchProductVersions>);
+    vi.mocked(usePostDeploymentProduct).mockReturnValue({
+      mutateAsync: mockMutateAsync,
+      isPending: false,
+    } as unknown as ReturnType<typeof usePostDeploymentProduct>);
   });
 
   it("should not render when open is false", () => {
-    render(
+    renderWithProviders(
       <AddProductModal
         open={false}
         deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
       />,
     );
@@ -38,10 +88,11 @@ describe("AddProductModal", () => {
   });
 
   it("should render correctly when open is true", () => {
-    render(
+    renderWithProviders(
       <AddProductModal
         open={true}
         deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
       />,
     );
@@ -52,109 +103,161 @@ describe("AddProductModal", () => {
     expect(screen.getByLabelText(/Version/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Core Count/)).toBeInTheDocument();
     expect(screen.getByLabelText(/TPS/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Support Status/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Description/)).toBeInTheDocument();
+    expect(screen.getByText("Initial Update Information")).toBeInTheDocument();
   });
 
-  it("should validate required fields", () => {
-    render(
+  it("should disable version dropdown until product is selected", () => {
+    renderWithProviders(
       <AddProductModal
         open={true}
         deploymentId="dep-1"
+        projectId="proj-1"
+        onClose={mockOnClose}
+      />,
+    );
+
+    const versionSelect = screen.getByLabelText(/Version/);
+    expect(versionSelect).toHaveAttribute("aria-disabled", "true");
+  });
+
+  it("should validate required fields", () => {
+    renderWithProviders(
+      <AddProductModal
+        open={true}
+        deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
       />,
     );
 
     const submitButton = screen.getByRole("button", { name: "Add Product" });
     expect(submitButton).toBeDisabled();
-
-    // Fill some fields but not all
-    fireEvent.change(screen.getByLabelText(/Version/), {
-      target: { value: "4.2.0" },
-    });
-    expect(submitButton).toBeDisabled();
   });
 
-  it("should enable submit button when form is valid and call onSuccess on submit", async () => {
-    render(
+  it("should enable submit and call API when product and version selected", async () => {
+    mockMutateAsync.mockResolvedValue(undefined);
+    renderWithProviders(
       <AddProductModal
         open={true}
         deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
         onSuccess={mockOnSuccess}
       />,
     );
 
-    // For Material UI Select, we need to click the select to open options, then click an option.
-    const nameSelect = screen.getByLabelText(/Product Name/);
-    fireEvent.mouseDown(nameSelect);
-    const apiManagerOption = screen.getByText("API Manager");
-    fireEvent.click(apiManagerOption);
+    const productSelect = screen.getByLabelText(/Product Name/);
+    fireEvent.mouseDown(productSelect);
+    fireEvent.click(screen.getByText("WSO2 API Manager"));
 
-    fireEvent.change(screen.getByLabelText(/Version/), {
-      target: { value: "4.2.0" },
+    const versionSelect = screen.getByLabelText(/Version/);
+    fireEvent.mouseDown(versionSelect);
+    fireEvent.click(screen.getByText("7.8.0"));
+
+    const submitButton = screen.getByRole("button", { name: "Add Product" });
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        deploymentId: "dep-1",
+        body: {
+          productId: "prod-api-mgr",
+          versionId: "ver-781",
+          projectId: "proj-1",
+          cores: undefined,
+          tps: undefined,
+        },
+      });
     });
+    expect(mockOnSuccess).toHaveBeenCalled();
+  });
+
+  it("should include cores and tps when provided", async () => {
+    mockMutateAsync.mockResolvedValue(undefined);
+    renderWithProviders(
+      <AddProductModal
+        open={true}
+        deploymentId="dep-1"
+        projectId="proj-1"
+        onClose={mockOnClose}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    fireEvent.mouseDown(screen.getByLabelText(/Product Name/));
+    fireEvent.click(screen.getByText("WSO2 API Manager"));
+
+    fireEvent.mouseDown(screen.getByLabelText(/Version/));
+    fireEvent.click(screen.getByText("7.8.0"));
+
     fireEvent.change(screen.getByLabelText(/Core Count/), {
       target: { value: "8" },
     });
     fireEvent.change(screen.getByLabelText(/TPS/), {
       target: { value: "5000" },
     });
-    fireEvent.change(screen.getByLabelText(/Current Update Level/), {
-      target: { value: "U10" },
-    });
-    fireEvent.change(screen.getByLabelText(/Release Date/), {
-      target: { value: "2023-01-01" },
-    });
-    fireEvent.change(screen.getByLabelText(/Support EOL Date/), {
-      target: { value: "2026-01-01" },
-    });
-
-    // Support Status has default value "Active Support", so it should be fine.
 
     const submitButton = screen.getByRole("button", { name: "Add Product" });
-    expect(submitButton).not.toBeDisabled();
-
-    vi.useFakeTimers();
     fireEvent.click(submitButton);
 
-    // Advance timers to trigger the setTimeout callback
-    await vi.advanceTimersByTimeAsync(1000);
-
-    expect(mockOnSuccess).toHaveBeenCalled();
-
-    vi.useRealTimers();
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        deploymentId: "dep-1",
+        body: {
+          productId: "prod-api-mgr",
+          versionId: "ver-781",
+          projectId: "proj-1",
+          cores: 8,
+          tps: 5000,
+        },
+      });
+    });
   });
 
-  it("should reset form on close", async () => {
-    const { rerender } = render(
+  it("should reset form on close", () => {
+    const { rerender } = renderWithProviders(
       <AddProductModal
         open={true}
         deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
       />,
     );
 
-    const versionInput = screen.getByLabelText(/Version/);
-    fireEvent.change(versionInput, {
-      target: { value: "4.2.0" },
+    const productCombobox = screen.getByRole("combobox", {
+      name: /Product Name/,
     });
-    expect(versionInput).toHaveValue("4.2.0");
+    fireEvent.mouseDown(productCombobox);
+    fireEvent.click(screen.getByText("WSO2 API Manager"));
+    expect(productCombobox).toHaveTextContent(/WSO2 API Manager/);
 
-    const closeButton = screen.getByRole("button", { name: "Cancel" });
-    fireEvent.click(closeButton);
-
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(mockOnClose).toHaveBeenCalled();
 
-    // Re-render to check if reset
+    // Simulate parent closing and reopening modal; form should be reset.
+    rerender(
+      <AddProductModal
+        open={false}
+        deploymentId="dep-1"
+        projectId="proj-1"
+        onClose={mockOnClose}
+      />,
+    );
     rerender(
       <AddProductModal
         open={true}
         deploymentId="dep-1"
+        projectId="proj-1"
         onClose={mockOnClose}
       />,
     );
 
-    // Version should be empty (initial value)
-    expect(screen.getByLabelText(/Version/)).toHaveValue("");
+    // After reset, Product Name should be cleared (empty selection)
+    expect(
+      screen.getByRole("combobox", { name: /Product Name/ }),
+    ).not.toHaveTextContent("WSO2 API Manager");
   });
 });

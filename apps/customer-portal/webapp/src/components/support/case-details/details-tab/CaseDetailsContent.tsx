@@ -63,7 +63,7 @@ export default function CaseDetailsContent({
   const [activeTab, setActiveTab] = useState(0);
   const [focusMode, setFocusMode] = useState(false);
 
-  const statusLabel = data?.state?.label;
+  const statusLabel = data?.status?.label;
   const severityLabel = data?.severity?.label;
   const statusColorPath = getStatusColor(statusLabel ?? undefined);
   const resolvedStatusColor = resolveColorFromTheme(statusColorPath, theme);

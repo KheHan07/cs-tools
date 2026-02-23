@@ -15,7 +15,7 @@
 // under the License.
 
 import type { ReactElement } from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentCard from "@components/project-details/deployments/DeploymentCard";
@@ -38,6 +38,45 @@ vi.mock("@api/useGetDeploymentsProducts", () => ({
     isLoading: false,
     isError: false,
   }),
+}));
+
+vi.mock("@api/useGetProducts", () => ({
+  useGetProducts: () => ({ data: [], isLoading: false, isError: false }),
+}));
+vi.mock("@api/useSearchProductVersions", () => ({
+  useSearchProductVersions: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+vi.mock("@api/usePostDeploymentProduct", () => ({
+  usePostDeploymentProduct: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+vi.mock("@api/usePatchDeploymentProduct", () => ({
+  usePatchDeploymentProduct: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
+vi.mock("@api/useGetDeploymentDocuments", () => ({
+  useGetDeploymentDocuments: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
+  default: () => null,
+}));
+
+vi.mock("@components/project-details/deployments/EditDeploymentModal", () => ({
+  default: () => null,
 }));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -69,11 +108,18 @@ describe("DeploymentCard", () => {
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
-  it("should render documents section with error state", () => {
+  it("should render documents section with Upload button", () => {
     renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(screen.getByText("Documents (?)")).toBeInTheDocument();
-    expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Production/ }));
+    fireEvent.click(screen.getByText(/Documents/));
+    expect(screen.getByRole("button", { name: /Upload/ })).toBeInTheDocument();
+  });
+
+  it("should render documents section", () => {
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
+
+    expect(screen.getByText("Documents (0)")).toBeInTheDocument();
   });
 
   it("should display -- for null description", () => {
@@ -85,5 +131,13 @@ describe("DeploymentCard", () => {
     renderWithProviders(<DeploymentCard deployment={deploymentNoDesc} />);
 
     expect(screen.getByText("--")).toBeInTheDocument();
+  });
+
+  it("should display Edit deployment button", () => {
+    renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
+
+    expect(
+      screen.getByRole("button", { name: "Edit deployment" }),
+    ).toBeInTheDocument();
   });
 });

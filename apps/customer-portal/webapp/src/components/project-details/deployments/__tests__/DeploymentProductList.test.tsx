@@ -15,14 +15,22 @@
 // under the License.
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactElement } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentProductList from "@components/project-details/deployments/DeploymentProductList";
 import { useGetDeploymentsProducts } from "@api/useGetDeploymentsProducts";
+import { useGetProducts } from "@api/useGetProducts";
+import { useSearchProductVersions } from "@api/useSearchProductVersions";
+import { usePostDeploymentProduct } from "@api/usePostDeploymentProduct";
+import { usePatchDeploymentProduct } from "@api/usePatchDeploymentProduct";
 import type { DeploymentProductItem } from "@models/responses";
 
 vi.mock("@api/useGetDeploymentsProducts");
+vi.mock("@api/useGetProducts");
+vi.mock("@api/useSearchProductVersions");
+vi.mock("@api/usePostDeploymentProduct");
+vi.mock("@api/usePatchDeploymentProduct");
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
@@ -52,6 +60,27 @@ const mockProducts: DeploymentProductItem[] = [
 ];
 
 describe("DeploymentProductList", () => {
+  beforeEach(() => {
+    vi.mocked(useGetProducts).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useGetProducts>);
+    vi.mocked(useSearchProductVersions).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useSearchProductVersions>);
+    vi.mocked(usePostDeploymentProduct).mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof usePostDeploymentProduct>);
+    vi.mocked(usePatchDeploymentProduct).mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof usePatchDeploymentProduct>);
+  });
+
   it("should render products count and Add Product button", () => {
     vi.mocked(useGetDeploymentsProducts).mockReturnValue({
       data: mockProducts,
@@ -59,7 +88,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getByText("WSO2 Products (2)")).toBeInTheDocument();
     expect(
@@ -74,7 +105,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getByText("WSO2 API Manager")).toBeInTheDocument();
     expect(screen.getByText("API Gateway")).toBeInTheDocument();
@@ -89,7 +122,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
@@ -111,7 +146,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getAllByText("--").length).toBeGreaterThan(0);
   });
@@ -123,7 +160,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
@@ -135,7 +174,9 @@ describe("DeploymentProductList", () => {
       isError: true,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     expect(screen.getByText("Failed to load products")).toBeInTheDocument();
   });
@@ -147,7 +188,9 @@ describe("DeploymentProductList", () => {
       isError: false,
     } as unknown as ReturnType<typeof useGetDeploymentsProducts>);
 
-    renderWithProviders(<DeploymentProductList deploymentId="dep-123" />);
+    renderWithProviders(
+      <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
+    );
 
     const addButton = screen.getByRole("button", { name: /Add Product/i });
     fireEvent.click(addButton);

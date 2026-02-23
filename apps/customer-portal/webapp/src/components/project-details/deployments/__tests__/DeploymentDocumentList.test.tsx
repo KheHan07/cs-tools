@@ -14,8 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import type { ReactElement } from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DeploymentDocumentList from "@components/project-details/deployments/DeploymentDocumentList";
 import type { DeploymentDocument } from "@models/responses";
 
@@ -38,15 +40,68 @@ const mockDocuments: DeploymentDocument[] = [
   },
 ];
 
+vi.mock("@api/useGetDeploymentDocuments", () => ({
+  useGetDeploymentDocuments: (deploymentId: string) => {
+    if (deploymentId === "error-id") {
+      return {
+        data: undefined,
+        isLoading: false,
+        isError: true,
+      };
+    }
+    if (deploymentId === "loading-id") {
+      return {
+        data: undefined,
+        isLoading: true,
+        isError: false,
+      };
+    }
+    if (deploymentId === "empty-id") {
+      return {
+        data: [],
+        isLoading: false,
+        isError: false,
+      };
+    }
+    if (deploymentId === "single-id") {
+      return {
+        data: [mockDocuments[0]],
+        isLoading: false,
+        isError: false,
+      };
+    }
+    return {
+      data: mockDocuments,
+      isLoading: false,
+      isError: false,
+    };
+  },
+}));
+
+vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
+  default: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="upload-modal">Upload Modal</div> : null,
+}));
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+}
+
 describe("DeploymentDocumentList", () => {
   it("should render documents count in accordion summary", () => {
-    render(<DeploymentDocumentList documents={mockDocuments} />);
+    renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
 
     expect(screen.getByText("Documents (2)")).toBeInTheDocument();
   });
 
   it("should render document list with names, sizes, dates, and uploaders", () => {
-    render(<DeploymentDocumentList documents={mockDocuments} />);
+    renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
 
     expect(screen.getByText("Architecture.pdf")).toBeInTheDocument();
     expect(screen.getByText("Deployment-Guide.pdf")).toBeInTheDocument();
@@ -54,44 +109,54 @@ describe("DeploymentDocumentList", () => {
     expect(screen.getByText(/Jane Smith/)).toBeInTheDocument();
   });
 
+  it("should display Upload button", () => {
+    renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
+
+    fireEvent.click(screen.getByText(/Documents/));
+    expect(screen.getByRole("button", { name: /Upload/ })).toBeInTheDocument();
+  });
+
   it("should display 'No documents uploaded' when documents array is empty", () => {
-    render(<DeploymentDocumentList documents={[]} />);
+    renderWithProviders(<DeploymentDocumentList deploymentId="empty-id" />);
 
     expect(screen.getByText("Documents (0)")).toBeInTheDocument();
     expect(screen.getByText("No documents uploaded")).toBeInTheDocument();
   });
 
   it("should render download and delete icons for each document", () => {
-    const { container } = render(
-      <DeploymentDocumentList documents={mockDocuments} />,
+    const { container } = renderWithProviders(
+      <DeploymentDocumentList deploymentId="dep-1" />,
     );
 
-    // Each document should have 2 icon buttons (download and delete)
     const iconButtons = container.querySelectorAll("button");
-    expect(iconButtons.length).toBeGreaterThanOrEqual(4); // 2 documents × 2 buttons
+    expect(iconButtons.length).toBeGreaterThanOrEqual(4);
   });
 
   it("should properly format file sizes", () => {
-    render(<DeploymentDocumentList documents={mockDocuments} />);
+    renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
 
-    // formatBytes should convert bytes to readable format like "1 MB"
     const sizeElements = screen.getAllByText(/MB|KB|GB/);
     expect(sizeElements.length).toBeGreaterThan(0);
   });
 
   it("should render single document correctly", () => {
-    const singleDoc: DeploymentDocument[] = [mockDocuments[0]];
-    render(<DeploymentDocumentList documents={singleDoc} />);
+    renderWithProviders(<DeploymentDocumentList deploymentId="single-id" />);
 
     expect(screen.getByText("Documents (1)")).toBeInTheDocument();
     expect(screen.getByText("Architecture.pdf")).toBeInTheDocument();
   });
 
-  it("should show error state when hasError is true", () => {
-    render(<DeploymentDocumentList hasError />);
+  it("should show error state when fetch fails", () => {
+    renderWithProviders(<DeploymentDocumentList deploymentId="error-id" />);
 
     expect(screen.getByText("Documents (?)")).toBeInTheDocument();
     expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
-    expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
+  });
+
+  it("should show loading state while fetching documents", () => {
+    renderWithProviders(<DeploymentDocumentList deploymentId="loading-id" />);
+
+    fireEvent.click(screen.getByText(/Documents/));
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 });

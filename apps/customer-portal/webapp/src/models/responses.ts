@@ -250,26 +250,28 @@ export interface CaseSearchResponse {
   }[];
 }
 
+// Id-label reference used across case details response.
+export interface IdLabelRef {
+  id: string;
+  label: string;
+}
+
 // Case details
 export interface CaseDetailsAccount {
   type: string | null;
   id: string;
-  name: string | null;
+  label: string;
 }
 
 export interface CaseDetailsProject {
   id: string;
-  name: string | null;
+  label: string;
 }
 
 export interface CaseDetailsClosedBy {
   id: string;
-  name: string | null;
-}
-
-export interface CaseStatus {
-  id: number;
-  label: string | null;
+  label?: string | null;
+  name?: string | null;
 }
 
 export interface CaseDetails {
@@ -281,23 +283,26 @@ export interface CaseDetails {
   title: string | null;
   description: string | null;
   slaResponseTime: string | null;
-  product: string | null;
+  product: IdLabelRef | null;
   account: CaseDetailsAccount | null;
-  csManager: string | null;
+  csManager: IdLabelRef | string | null;
   assignedEngineer:
     | string
     | { id: string; label?: string; name?: string }
     | null;
   project: CaseDetailsProject | null;
-  deployment: { id: string; label: string } | null;
-  deployedProduct: string | null;
-  issueType: string | null;
-  state: CaseStatus | null;
-  severity: CaseStatus | null;
-  closedOn?: string | null;
-  closedBy?: CaseDetailsClosedBy | null;
-  closeNotes?: string | null;
-  hasAutoClosed?: boolean;
+  type: IdLabelRef | null;
+  deployedProduct: IdLabelRef | null;
+  parentCase: IdLabelRef | null;
+  conversation: unknown;
+  issueType: IdLabelRef | null;
+  deployment: IdLabelRef | null;
+  severity: IdLabelRef | null;
+  status: IdLabelRef | null;
+  closedOn: string | null;
+  closedBy: CaseDetailsClosedBy | null;
+  closeNotes: string | null;
+  hasAutoClosed: boolean | null;
 }
 
 // Inline attachment for comment images (API shape).
@@ -408,6 +413,30 @@ export interface TimeTrackingDetailsResponse {
   timeLogs: TimeTrackingLog[];
 }
 
+// Time card from projects/:projectId/time-cards/search.
+export interface TimeCard {
+  id: string;
+  totalTime: number;
+  createdOn: string;
+  hasBillable: boolean;
+  state: string;
+  approvedBy: { id: string; label: string } | null;
+  project: { id: string; label: string };
+  case: {
+    number: string;
+    id: string;
+    label: string;
+  };
+}
+
+// Response for project time cards search.
+export interface TimeCardSearchResponse {
+  timeCards: TimeCard[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
+}
+
 // Interface for all cases filters state
 export interface AllCasesFilterValues {
   statusId?: string;
@@ -435,10 +464,23 @@ export interface DeploymentProduct {
 export interface DeploymentDocument {
   id: string;
   name: string;
-  category: string;
-  sizeBytes: number;
-  uploadedAt: string;
-  uploadedBy: string;
+  category?: string;
+  sizeBytes?: number;
+  size?: number;
+  uploadedAt?: string;
+  createdOn?: string;
+  uploadedBy?: string;
+  createdBy?: string;
+  downloadUrl?: string;
+}
+
+// Response for POST /deployments/:deploymentId/attachments.
+export interface PostDeploymentAttachmentResponse {
+  id: string;
+  createdBy: string;
+  createdOn: string;
+  downloadUrl: string;
+  size: number;
 }
 
 // Single deployment environment.
@@ -463,6 +505,37 @@ export interface DeploymentsResponse {
 // Response for GET /projects/:projectId/deployments (real API).
 export interface ProjectDeploymentsListResponse {
   deployments: ProjectDeploymentItem[];
+}
+
+// Product from GET /products.
+export interface ProductItem {
+  id: string;
+  label?: string;
+  name?: string;
+}
+
+// Product version from POST /products/:productId/versions/search.
+export interface ProductVersionItem {
+  id: string;
+  version: string;
+  currentSupportStatus?: string | null;
+  releaseDate?: string;
+  supportEolDate?: string;
+  earliestPossibleSupportEolDate?: string;
+  product?: { id: string; label: string };
+}
+
+// Response for GET /products.
+export interface ProductsResponse {
+  products?: ProductItem[];
+  totalRecords?: number;
+  offset?: number;
+  limit?: number;
+}
+
+// Response for POST /products/:productId/versions/search.
+export interface ProductVersionsSearchResponse {
+  versions: ProductVersionItem[];
 }
 
 // Single item from GET /projects/:projectId/deployments (array response).

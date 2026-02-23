@@ -38,6 +38,8 @@ import {
   getAttachmentFileCategory,
   stripHtml,
   resolveColorFromTheme,
+  getSupportOverviewChipSx,
+  getPlainChipSx,
   stripCodeWrapper,
   replaceInlineImageSources,
   formatCommentDate,
@@ -147,6 +149,33 @@ describe("support utils", () => {
       expect(resolveColorFromTheme("non.existent.color", theme)).toBe(
         "non.existent.color",
       );
+    });
+  });
+
+  describe("getSupportOverviewChipSx", () => {
+    const theme = createTheme();
+
+    it("should return sx with bgcolor, color, height, fontSize", () => {
+      const sx = getSupportOverviewChipSx("success.main", theme);
+      expect(sx).toHaveProperty("bgcolor");
+      expect(sx).toHaveProperty("color");
+      expect(sx).toHaveProperty("height", 20);
+      expect(sx).toHaveProperty("fontSize", "0.75rem");
+    });
+
+    it("should use resolved color from theme", () => {
+      const sx = getSupportOverviewChipSx("primary.main", theme);
+      expect(sx.color).toBe(theme.palette.primary.main);
+    });
+  });
+
+  describe("getPlainChipSx", () => {
+    it("should return sx with height and fontSize only", () => {
+      const sx = getPlainChipSx();
+      expect(sx).toHaveProperty("height", 20);
+      expect(sx).toHaveProperty("fontSize", "0.75rem");
+      expect(sx).not.toHaveProperty("bgcolor");
+      expect(sx).not.toHaveProperty("color");
     });
   });
 

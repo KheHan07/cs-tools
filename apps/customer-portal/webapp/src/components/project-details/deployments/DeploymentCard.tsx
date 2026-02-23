@@ -23,14 +23,21 @@ import {
   Box,
   Card,
   Divider,
+  IconButton,
   Link,
   Typography,
 } from "@wso2/oxygen-ui";
-import { Activity, Calendar, ChevronDown } from "@wso2/oxygen-ui-icons-react";
-import type { JSX } from "react";
+import {
+  Activity,
+  Calendar,
+  ChevronDown,
+  PencilLine,
+} from "@wso2/oxygen-ui-icons-react";
+import { useState, type JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import DeploymentDocumentList from "./DeploymentDocumentList";
 import DeploymentProductList from "./DeploymentProductList";
+import EditDeploymentModal from "./EditDeploymentModal";
 
 export interface DeploymentCardProps {
   deployment: ProjectDeploymentItem;
@@ -46,6 +53,8 @@ export default function DeploymentCard({
   deployment,
 }: DeploymentCardProps): JSX.Element {
   const { name, url, description, createdOn } = deployment;
+  const projectId = deployment.project?.id ?? "";
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const deployedAtStr = formatProjectDate(createdOn);
 
@@ -53,7 +62,7 @@ export default function DeploymentCard({
     <Card>
       <Accordion defaultExpanded={false}>
         <AccordionSummary expandIcon={<ChevronDown size={20} />} sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
             <Box sx={{ flex: 1 }}>
               <Box
                 sx={{
@@ -71,6 +80,23 @@ export default function DeploymentCard({
                   entityName="status and version"
                   size="small"
                 />
+                <IconButton
+                  component="div"
+                  size="small"
+                  role="button"
+                  aria-label="Edit deployment"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditModalOpen(true);
+                  }}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                    "&.Mui-focusVisible": { color: "primary.main" },
+                  }}
+                >
+                  <PencilLine size={16} aria-hidden />
+                </IconButton>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 {url ? (
@@ -102,11 +128,14 @@ export default function DeploymentCard({
           </Typography>
           <Divider />
 
-          <DeploymentProductList deploymentId={deployment.id} />
+          <DeploymentProductList
+            deploymentId={deployment.id}
+            projectId={deployment.project?.id ?? ""}
+          />
 
           <Divider />
 
-          <DeploymentDocumentList hasError />
+          <DeploymentDocumentList deploymentId={deployment.id} />
 
           <Divider />
           <Box sx={{ display: "flex", gap: 3 }}>
@@ -148,6 +177,14 @@ export default function DeploymentCard({
           </Box>
         </AccordionDetails>
       </Accordion>
+
+      <EditDeploymentModal
+        open={isEditModalOpen}
+        deployment={deployment}
+        projectId={projectId}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={() => setIsEditModalOpen(false)}
+      />
     </Card>
   );
 }

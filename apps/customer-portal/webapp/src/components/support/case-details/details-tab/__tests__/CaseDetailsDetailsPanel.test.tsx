@@ -30,15 +30,22 @@ const mockCaseDetails: Partial<CaseDetails> = {
   description: "Desc",
   slaResponseTime: "129671000",
   product: null,
-  account: { type: null, id: "acc-1", name: "Account" },
+  account: { type: null, id: "acc-1", label: "Account" },
   csManager: null,
   assignedEngineer: null,
-  project: { id: "p1", name: "Project" },
+  project: { id: "p1", label: "Project" },
+  type: { id: "1", label: "Incident" },
   deployment: { id: "d1", label: "Production" },
   deployedProduct: null,
+  parentCase: null,
+  conversation: null,
   issueType: null,
-  state: { id: 1, label: "Open" },
-  severity: { id: 60, label: "S0" },
+  severity: { id: "60", label: "S0" },
+  status: { id: "1", label: "Open" },
+  closedOn: null,
+  closedBy: null,
+  closeNotes: null,
+  hasAutoClosed: null,
 };
 
 vi.mock("@utils/casesTable", () => ({
@@ -116,7 +123,7 @@ describe("CaseDetailsDetailsPanel", () => {
     renderDetailsPanel({
       data: {
         ...mockCaseDetails,
-        state: { id: 3, label: "Closed" },
+        status: { id: "3", label: "Closed" },
         closedOn: "2026-02-20 01:34:44",
         closedBy: { id: "bcc4881f", name: "Anuradha Basnayake" },
         closeNotes: "Resolved successfully",

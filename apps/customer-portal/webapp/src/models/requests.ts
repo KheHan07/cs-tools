@@ -61,6 +61,8 @@ export interface CreateCaseRequest {
   projectId: string;
   severityKey: number;
   title: string;
+  /** Parent case ID when creating a related case from closed state. */
+  parentCaseId?: string;
 }
 
 // Request body for product vulnerabilities search.
@@ -82,6 +84,34 @@ export interface PostCaseAttachmentRequest {
   name: string;
   type: string;
   content: string;
+  referenceType?: string;
+}
+
+// Request body for posting a deployment attachment (POST /deployments/:deploymentId/attachments).
+export interface PostDeploymentAttachmentRequest {
+  name: string;
+  type: string;
+  content: string;
+}
+
+// Request body for PATCH /deployments/:deploymentId/products/:productId.
+export interface PatchDeploymentProductRequest {
+  cores?: number;
+  tps?: number;
+}
+
+// Request body for POST /deployments/:deploymentId/products.
+export interface PostDeploymentProductRequest {
+  productId: string;
+  versionId: string;
+  projectId: string;
+  cores?: number;
+  tps?: number;
+}
+
+// Request body for POST /products/:productId/versions/search.
+export interface ProductVersionsSearchRequest {
+  pagination?: { limit?: number; offset?: number };
 }
 
 // Request body for creating a deployment.
@@ -89,6 +119,14 @@ export interface CreateDeploymentRequest {
   deploymentTypeKey: number;
   description: string;
   name: string;
+}
+
+// Request body for PATCH /projects/:projectId/deployments/:deploymentId.
+export interface PatchDeploymentRequest {
+  active?: boolean;
+  description?: string;
+  name?: string;
+  typeKey?: number;
 }
 
 // Request body for creating a call request.
@@ -112,4 +150,16 @@ export interface CreateProjectContactRequest {
   contactLastName: string;
   isCsIntegrationUser: boolean;
   isSecurityContact: boolean;
+}
+
+// Request body for project time cards search (POST /projects/:projectId/time-cards/search).
+export interface TimeCardSearchRequest {
+  filters?: {
+    startDate?: string;
+    endDate?: string;
+  };
+  pagination?: {
+    limit?: number;
+    offset?: number;
+  };
 }

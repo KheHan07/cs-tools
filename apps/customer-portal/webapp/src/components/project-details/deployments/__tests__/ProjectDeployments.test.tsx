@@ -44,6 +44,39 @@ vi.mock("@api/useGetDeploymentsProducts", () => ({
     isError: false,
   }),
 }));
+vi.mock("@api/useGetProducts", () => ({
+  useGetProducts: () => ({ data: [], isLoading: false, isError: false }),
+}));
+vi.mock("@api/useSearchProductVersions", () => ({
+  useSearchProductVersions: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+vi.mock("@api/usePostDeploymentProduct", () => ({
+  usePostDeploymentProduct: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+vi.mock("@api/usePatchDeploymentProduct", () => ({
+  usePatchDeploymentProduct: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+vi.mock("@api/useGetDeploymentDocuments", () => ({
+  useGetDeploymentDocuments: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
+  default: () => null,
+}));
 
 // Mock AddDeploymentModal so we can test open/close without full modal rendering
 vi.mock("@components/project-details/deployments/AddDeploymentModal", () => ({
@@ -65,6 +98,10 @@ vi.mock("@components/project-details/deployments/AddDeploymentModal", () => ({
         <button onClick={() => onError?.("API error")}>Trigger Error</button>
       </div>
     ) : null,
+}));
+
+vi.mock("@components/project-details/deployments/EditDeploymentModal", () => ({
+  default: () => null,
 }));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
