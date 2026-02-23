@@ -270,6 +270,10 @@ describe("caseCreation utils", () => {
       expect(findMatchingDeploymentLabel("", baseOptions)).toBeUndefined();
     });
 
+    it("returns undefined for whitespace-only label", () => {
+      expect(findMatchingDeploymentLabel("   ", baseOptions)).toBeUndefined();
+    });
+
     it("returns matching option (exact match)", () => {
       expect(findMatchingDeploymentLabel("Production", baseOptions)).toBe(
         "Production",
@@ -298,6 +302,10 @@ describe("caseCreation utils", () => {
 
     it("returns undefined for empty label", () => {
       expect(findMatchingProductLabel("", baseOptions)).toBeUndefined();
+    });
+
+    it("returns undefined for whitespace-only label", () => {
+      expect(findMatchingProductLabel("   ", baseOptions)).toBeUndefined();
     });
 
     it("returns matching base option (exact match)", () => {
