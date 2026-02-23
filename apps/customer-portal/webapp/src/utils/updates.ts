@@ -15,11 +15,24 @@
 // under the License.
 
 import { UPDATES_STATS } from "@constants/updatesConstants";
+import type { StatCardColor } from "@constants/dashboardConstants";
 import type {
   ProductUpdateLevelsResponse,
   RecommendedUpdateLevelItem,
   UpdatesStats,
 } from "@models/responses";
+
+/**
+ * Returns the StatCard-compatible chip colour for an update type.
+ * "security" maps to "error" (red); all other types (e.g. "regular") map to "success" (green).
+ *
+ * @param {string} updateType - The update type string from the API.
+ * @returns {StatCardColor} The chip colour token.
+ */
+export const getUpdateTypeChipColor = (updateType: string): StatCardColor => {
+  if (updateType === "security") return "error";
+  return "success";
+};
 
 /** Pending update level row for display. */
 export interface PendingUpdateLevelRow {
