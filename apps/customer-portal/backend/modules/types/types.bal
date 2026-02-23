@@ -719,7 +719,7 @@ public type CallRequestsResponse record {|
 # Request payload for creating a call request.
 public type CallRequestCreatePayload record {|
     # Reason for the call request
-    string reason;
+    string reason?;
     # Preferred UTC times for the call
     @constraint:Array {minLength: 1}
     entity:DateTime[] utcTimes;
