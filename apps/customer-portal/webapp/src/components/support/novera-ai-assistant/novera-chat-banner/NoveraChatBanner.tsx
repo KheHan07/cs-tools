@@ -69,7 +69,7 @@ export default function NoveraChatBanner(): JSX.Element {
       <Button
         variant="contained"
         color="warning"
-        onClick={() => navigate("chat")}
+        onClick={() => navigate("chat/describe-issue")}
       >
         Start New Chat
       </Button>

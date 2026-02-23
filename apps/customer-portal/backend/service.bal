@@ -592,35 +592,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
-                }
-            };
-        }
-
         // Fetch case stats
         entity:ProjectCaseStatsResponse|error caseStats =
             entity:getCaseStatsForProject(userInfo.idToken, id, caseTypes);
@@ -688,35 +659,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
-                }
-            };
-        }
-
         entity:ProjectCaseStatsResponse|error caseStats =
             entity:getCaseStatsForProject(userInfo.idToken, id, caseTypes);
         if caseStats is error {
@@ -743,35 +685,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
                 }
             };
         }
@@ -2794,5 +2707,57 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return <http:Ok>{
             body: mapTimeCardSearchResponse(response)
         };
+    }
+
+    # Get time card statistics for a project based on provided date range.
+    # 
+    # + id - ID of the project
+    # + startDate - Start date for the statistics (optional)
+    # + endDate - End date for the statistics (optional)
+    # + return - Time card statistics for the project or an error
+    resource function get projects/[string id]/time\-cards/stats(http:RequestContext ctx, entity:Date? startDate,
+            entity:Date? endDate)
+        returns entity:ProjectTimeCardStatsResponse|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProjectTimeCardStatsResponse|error response =
+            entity:getProjectTimeCardStats(userInfo.idToken, id, startDate, endDate);
+        if response is error {
+            if getStatusCode(response) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access project time card stats!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to project time card stats is forbidden for user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to project time card stats is forbidden for the user!"
+                    }
+                };
+            }
+
+            string customError = "Failed to retrieve project time card stats.";
+            log:printError(customError, response);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        return response;
     }
 }

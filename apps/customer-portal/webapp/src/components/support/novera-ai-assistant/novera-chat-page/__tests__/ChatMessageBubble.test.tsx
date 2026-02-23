@@ -25,11 +25,30 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
+  Button: ({ children, onClick }: any) => (
+    <button onClick={onClick} data-testid="button">
+      {children}
+    </button>
+  ),
+  IconButton: ({ children, onClick }: any) => (
+    <button onClick={onClick} data-testid="icon-button">
+      {children}
+    </button>
+  ),
+  CircularProgress: () => <span data-testid="circular-progress" />,
 }));
 
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   Bot: () => <svg data-testid="icon-bot" />,
+  User: () => <svg data-testid="icon-user" />,
+  FileText: () => <svg data-testid="icon-filetext" />,
+  Copy: () => <svg data-testid="icon-copy" />,
+}));
+
+// Mock ReactMarkdown
+vi.mock("react-markdown", () => ({
+  default: ({ children }: any) => <span data-testid="markdown">{children}</span>,
 }));
 
 describe("ChatMessageBubble", () => {
@@ -43,7 +62,9 @@ describe("ChatMessageBubble", () => {
     render(<ChatMessageBubble message={userMsg} />);
 
     expect(screen.getByText("Hello Bot")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-user")).toBeInTheDocument();
     expect(screen.queryByTestId("icon-bot")).not.toBeInTheDocument();
+    expect(screen.getByTestId("icon-button")).toBeInTheDocument();
   });
 
   it("should render bot message with avatar correctly", () => {
@@ -57,5 +78,19 @@ describe("ChatMessageBubble", () => {
 
     expect(screen.getByText("Hello User")).toBeInTheDocument();
     expect(screen.getByTestId("icon-bot")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-button")).toBeInTheDocument();
+  });
+
+  it("should render error state", () => {
+    const botMsg: any = {
+      id: "2",
+      text: "",
+      sender: "bot",
+      timestamp: new Date(),
+      isError: true,
+    };
+    render(<ChatMessageBubble message={botMsg} />);
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
   });
 });
