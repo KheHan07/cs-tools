@@ -360,6 +360,7 @@ public isolated function mapCaseStats(entity:ProjectCaseStatsResponse response) 
         totalCases: response.totalCount,
         averageResponseTime: response.averageResponseTime,
         resolvedCases: response.resolvedCount,
+        changeRate: response.changeRate,
         stateCount,
         severityCount,
         outstandingSeverityCount,

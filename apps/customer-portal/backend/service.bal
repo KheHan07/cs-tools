@@ -592,35 +592,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
-                }
-            };
-        }
-
         // Fetch case stats
         entity:ProjectCaseStatsResponse|error caseStats =
             entity:getCaseStatsForProject(userInfo.idToken, id, caseTypes);
@@ -688,35 +659,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
-                }
-            };
-        }
-
         entity:ProjectCaseStatsResponse|error caseStats =
             entity:getCaseStatsForProject(userInfo.idToken, id, caseTypes);
         if caseStats is error {
@@ -743,35 +685,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
-                }
-            };
-        }
-
-        // Verify project access
-        entity:ProjectResponse|error projectResponse = entity:getProject(userInfo.idToken, id);
-        if projectResponse is error {
-            if getStatusCode(projectResponse) == http:STATUS_UNAUTHORIZED {
-                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
-                return <http:Unauthorized>{
-                    body: {
-                        message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-
-            if getStatusCode(projectResponse) == http:STATUS_FORBIDDEN {
-                logForbiddenProjectAccess(id, userInfo.userId);
-                return <http:Forbidden>{
-                    body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
-                    }
-                };
-            }
-
-            log:printError(ERR_MSG_FETCHING_PROJECT_DETAILS, projectResponse);
-            return <http:InternalServerError>{
-                body: {
-                    message: ERR_MSG_FETCHING_PROJECT_DETAILS
                 }
             };
         }
