@@ -80,6 +80,7 @@ export default function RemoveUserModal({
         aria-label="Close"
         size="small"
         onClick={onClose}
+        disabled={isDeleting}
         sx={{
           position: "absolute",
           right: 8,
