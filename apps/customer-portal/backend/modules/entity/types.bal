@@ -1254,3 +1254,14 @@ public type ConversationResponse record {|
     string updatedBy;
     json...;
 |};
+
+# Project time cards statistics response.
+public type ProjectTimeCardStatsResponse record {|
+    # Total hours logged
+    decimal totalHours;
+    # Billable hours
+    decimal billableHours;
+    # Non-billable hours
+    decimal nonBillableHours;
+    json...;
+|};
