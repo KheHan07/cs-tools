@@ -22,113 +22,131 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
-import { useCallback, useState, type ChangeEvent, type JSX } from "react";
-import type { SelectChangeEvent } from "@wso2/oxygen-ui";
+import { useCallback, useEffect, useState, type ChangeEvent, type JSX } from "react";
+import { useGetProducts } from "@api/useGetProducts";
+import { useSearchProductVersions } from "@api/useSearchProductVersions";
+import { usePostDeploymentProduct } from "@api/usePostDeploymentProduct";
 
 export interface AddProductModalProps {
   open: boolean;
   deploymentId: string;
+  projectId: string;
   onClose: () => void;
   onSuccess?: () => void;
   onError?: (message: string) => void;
 }
 
 const INITIAL_FORM = {
-  name: "",
-  version: "",
+  productId: "",
+  versionId: "",
   cores: "",
   tps: "",
-  description: "",
-  supportStatus: "Active Support",
-  updateLevel: "",
-  releaseDate: "",
-  eolDate: "",
 };
-
-const PRODUCT_OPTIONS = [
-  "API Manager",
-  "Identity Server",
-  "Micro Integrator",
-  "Streaming",
-];
-
-const SUPPORT_STATUS_OPTIONS = ["Active Support", "End of Life", "Deprecated"];
 
 /**
  * Modal for adding a WSO2 product to a deployment environment.
+ * Product Name and Version come from APIs; Description and Initial Update Info are disabled.
  *
- * @param {AddProductModalProps} props - open, deploymentId, onClose, optional onSuccess/onError.
+ * @param {AddProductModalProps} props - open, deploymentId, projectId, onClose, optional onSuccess/onError.
  * @returns {JSX.Element} The add product modal.
  */
 export default function AddProductModal({
   open,
   deploymentId,
+  projectId,
   onClose,
   onSuccess,
   onError,
 }: AddProductModalProps): JSX.Element {
   const [form, setForm] = useState(INITIAL_FORM);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { data: products = [], isLoading: isLoadingProducts } =
+    useGetProducts({ offset: 0, limit: 10 });
+  const { data: versions = [], isLoading: isLoadingVersions } =
+    useSearchProductVersions(form.productId, { limit: 10, offset: 0 });
+
+  const postProduct = usePostDeploymentProduct();
+
+  const isSubmitting = postProduct.isPending;
   const isValid =
-    form.name !== "" &&
-    form.version.trim() !== "" &&
-    Number(form.cores) > 0 &&
-    Number(form.tps) >= 0 &&
-    form.cores.trim() !== "" &&
-    form.tps.trim() !== "" &&
-    form.supportStatus !== "" &&
-    form.updateLevel.trim() !== "" &&
-    form.releaseDate !== "" &&
-    form.eolDate !== "";
+    !!form.productId &&
+    !!form.versionId &&
+    !!projectId &&
+    deploymentId.length > 0;
 
   const handleClose = useCallback(() => {
     setForm(INITIAL_FORM);
     onClose();
   }, [onClose]);
 
-  const handleTextChange =
-    (field: keyof typeof INITIAL_FORM) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
+  useEffect(() => {
+    if (!open) {
+      setForm(INITIAL_FORM);
+    }
+  }, [open]);
 
-  const handleSelectChange =
-    (field: keyof typeof INITIAL_FORM) =>
-    (event: SelectChangeEvent<string>) => {
+  const handleProductChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const productId = event.target.value;
+      setForm((prev) => ({
+        ...prev,
+        productId,
+        versionId: "",
+      }));
+    },
+    [],
+  );
+
+  const handleVersionChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, versionId: event.target.value }));
+  }, []);
+
+  const handleTextChange =
+    (field: "cores" | "tps") =>
+    (event: ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
   const handleSubmit = useCallback(async () => {
     if (!isValid) return;
 
-    setIsSubmitting(true);
-
     try {
-      // TODO: Integrate actual API hook here using deploymentId
-
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      await postProduct.mutateAsync({
+        deploymentId,
+        body: {
+          productId: form.productId,
+          versionId: form.versionId,
+          projectId,
+          cores: form.cores ? Number(form.cores) : undefined,
+          tps: form.tps ? Number(form.tps) : undefined,
+        },
+      });
       handleClose();
       onSuccess?.();
     } catch (error) {
       onError?.(
         error instanceof Error ? error.message : "Failed to add product",
       );
-    } finally {
-      setIsSubmitting(false);
     }
-  }, [isValid, handleClose, onSuccess, onError, deploymentId]);
+  }, [
+    isValid,
+    form.productId,
+    form.versionId,
+    form.cores,
+    form.tps,
+    deploymentId,
+    projectId,
+    postProduct,
+    handleClose,
+    onSuccess,
+    onError,
+  ]);
 
   return (
     <Dialog
@@ -162,25 +180,38 @@ export default function AddProductModal({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 1 }}>
-        <Box sx={{ mt: 4, mb: 2 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="product-name-label">Product Name *</InputLabel>
-            <Select
-              labelId="product-name-label"
-              id="product-name"
-              value={form.name}
-              label="Product Name *"
-              onChange={handleSelectChange("name")}
-              disabled={isSubmitting}
-            >
-              {PRODUCT_OPTIONS.map((name) => (
-                <MenuItem key={name} value={name}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+      <DialogContent
+        sx={{
+          pt: 1,
+          "& .MuiInputBase-input::placeholder": {
+            color: "text.secondary",
+            opacity: 1,
+          },
+        }}
+      >
+        <Box sx={{ mt: 2, mb: 2 }}>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            id="product-name"
+            label="Product Name *"
+            value={form.productId}
+            onChange={handleProductChange}
+            disabled={isSubmitting || isLoadingProducts}
+            sx={{
+              "& .MuiSelect-select": {
+                color: !form.productId ? "text.secondary" : undefined,
+              },
+            }}
+          >
+            <MenuItem value="">Select</MenuItem>
+            {products.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.label ?? p.name ?? p.id}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
 
         <Box
@@ -192,18 +223,32 @@ export default function AddProductModal({
           }}
         >
           <TextField
-            id="product-version"
-            label="Version *"
-            placeholder="e.g., 4.2.0"
-            value={form.version}
-            onChange={handleTextChange("version")}
+            select
             fullWidth
             size="small"
-            disabled={isSubmitting}
-          />
+            id="product-version"
+            label="Version *"
+            value={form.versionId}
+            onChange={handleVersionChange}
+            disabled={
+              isSubmitting || !form.productId || isLoadingVersions
+            }
+            sx={{
+              "& .MuiSelect-select": {
+                color: !form.versionId ? "text.secondary" : undefined,
+              },
+            }}
+          >
+            <MenuItem value="">Select</MenuItem>
+            {versions.map((v) => (
+              <MenuItem key={v.id} value={v.id}>
+                {v.version}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             id="product-cores"
-            label="Core Count *"
+            label="Core Count"
             placeholder="e.g., 8"
             type="number"
             value={form.cores}
@@ -211,13 +256,13 @@ export default function AddProductModal({
             fullWidth
             size="small"
             disabled={isSubmitting}
-            inputProps={{ min: 1 }}
+            inputProps={{ min: 0 }}
           />
         </Box>
 
         <TextField
           id="product-tps"
-          label="TPS (Transactions Per Second) *"
+          label="TPS (Transactions Per Second)"
           placeholder="e.g., 5000"
           type="number"
           value={form.tps}
@@ -233,78 +278,54 @@ export default function AddProductModal({
           id="product-description"
           label="Description"
           placeholder="Optional description..."
-          value={form.description}
-          onChange={handleTextChange("description")}
           fullWidth
           size="small"
           multiline
           rows={2}
           sx={{ mb: 2 }}
-          disabled={isSubmitting}
+          disabled
         />
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          <FormControl fullWidth size="small">
-            <InputLabel id="product-support-status-label">
-              Support Status *
-            </InputLabel>
-            <Select
-              labelId="product-support-status-label"
-              id="product-support-status"
-              value={form.supportStatus}
-              label="Support Status *"
-              onChange={handleSelectChange("supportStatus")}
-              disabled={isSubmitting}
+        <Box sx={{ borderTop: 1, borderColor: "divider", pt: 2, mt: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+            Initial Update Information
+          </Typography>
+          <Box
+            sx={{
+              bgcolor: "action.hover",
+              p: 2,
+              borderRadius: 1,
+              border: 1,
+              borderColor: "divider",
+            }}
+          >
+            <TextField
+              select
+              fullWidth
+              size="small"
+              id="product-update-level"
+              label="Update Level"
+              value=""
+              disabled
+              sx={{
+                mb: 2,
+                "& .MuiSelect-select": {
+                  color: "text.secondary",
+                },
+              }}
             >
-              {SUPPORT_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            id="product-update-level"
-            label="Current Update Level *"
-            placeholder="e.g., U22"
-            value={form.updateLevel}
-            onChange={handleTextChange("updateLevel")}
-            fullWidth
-            size="small"
-            disabled={isSubmitting}
-          />
-        </Box>
-
-        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-          <TextField
-            id="product-release-date"
-            label="Release Date *"
-            type="date"
-            value={form.releaseDate}
-            onChange={handleTextChange("releaseDate")}
-            fullWidth
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-            disabled={isSubmitting}
-          />
-          <TextField
-            id="product-eol-date"
-            label="Support EOL Date *"
-            type="date"
-            value={form.eolDate}
-            onChange={handleTextChange("eolDate")}
-            fullWidth
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-            disabled={isSubmitting}
-          />
+              <MenuItem value="">Select</MenuItem>
+            </TextField>
+            <TextField
+              id="product-applied-on"
+              label="Applied On"
+              type="date"
+              fullWidth
+              size="small"
+              slotProps={{ inputLabel: { shrink: true } }}
+              disabled
+            />
+          </Box>
         </Box>
       </DialogContent>
 

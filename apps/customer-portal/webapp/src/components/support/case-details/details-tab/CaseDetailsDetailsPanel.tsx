@@ -256,7 +256,11 @@ export default function CaseDetailsDetailsPanel({
             <Box>
               <Typography {...labelSx}>Closed By</Typography>
               <Typography {...valueSx}>
-                {formatValue(data?.closedBy)}
+                {formatValue(
+                  data?.closedBy?.label ??
+                    data?.closedBy?.name ??
+                    null,
+                )}
               </Typography>
             </Box>
             <Box sx={{ gridColumn: { xs: "1", md: "1 / -1" } }}>

@@ -22,40 +22,80 @@ import {
   AccordionSummary,
   Box,
   Button,
+  CircularProgress,
   Typography,
   alpha,
 } from "@wso2/oxygen-ui";
-import { ChevronDown, Download, Trash2 } from "@wso2/oxygen-ui-icons-react";
-import type { JSX } from "react";
+import { ChevronDown, Download, Trash2, Upload } from "@wso2/oxygen-ui-icons-react";
+import { useState, type JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
+import UploadAttachmentModal from "@case-details-attachments/UploadAttachmentModal";
+import { useGetDeploymentDocuments } from "@api/useGetDeploymentDocuments";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiQueryKeys } from "@constants/apiConstants";
 
 interface DeploymentDocumentListProps {
-  documents?: DeploymentDocument[];
-  hasError?: boolean;
+  deploymentId: string;
 }
 
 /**
- * Renders the list of documents for a deployment.
+ * Renders the list of documents for a deployment with Add Document button.
  *
- * @param {DeploymentDocumentListProps} props - Props containing documents list or hasError.
+ * @param {DeploymentDocumentListProps} props - Props containing deploymentId.
  * @returns {JSX.Element} The document list component.
  */
 export default function DeploymentDocumentList({
-  documents = [],
-  hasError = false,
+  deploymentId,
 }: DeploymentDocumentListProps): JSX.Element {
+  const queryClient = useQueryClient();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const {
+    data: documents = [],
+    isLoading,
+    isError: hasError,
+  } = useGetDeploymentDocuments(deploymentId);
+
+  const handleAddSuccess = () => {
+    setIsAddModalOpen(false);
+    queryClient.invalidateQueries({
+      queryKey: [ApiQueryKeys.DEPLOYMENT_ATTACHMENTS, deploymentId],
+    });
+  };
+
   return (
     <Box>
       <Accordion>
         <AccordionSummary expandIcon={<ChevronDown />}>
           <Typography>
-            Documents {hasError ? "(?)" : `(${documents.length})`}
+            Documents {hasError ? "(?)" : isLoading ? "…" : `(${documents.length})`}
           </Typography>
         </AccordionSummary>
         <AccordionDetails
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
-          {hasError ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span />
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Upload size={16} aria-hidden />}
+              sx={{ height: 32, fontSize: "0.75rem" }}
+              onClick={() => setIsAddModalOpen(true)}
+            >
+              Upload
+            </Button>
+          </Box>
+          {isLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : hasError ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 2 }}>
               <ErrorIndicator entityName="documents" size="small" />
               <Typography variant="body2" color="text.secondary">
@@ -75,6 +115,13 @@ export default function DeploymentDocumentList({
           )}
         </AccordionDetails>
       </Accordion>
+
+      <UploadAttachmentModal
+        open={isAddModalOpen}
+        deploymentId={deploymentId}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={handleAddSuccess}
+      />
     </Box>
   );
 }
@@ -84,10 +131,11 @@ interface DocumentRowProps {
 }
 
 function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
-  const sizeStr = formatBytes(doc.sizeBytes);
-  const dateStr = formatProjectDate(doc.uploadedAt);
+  const sizeBytes = doc.sizeBytes ?? doc.size ?? 0;
+  const dateStr = formatProjectDate(doc.uploadedAt ?? doc.createdOn ?? "");
   const name = displayValue(doc.name);
-  const uploadedBy = displayValue(doc.uploadedBy);
+  const uploadedBy = displayValue(doc.uploadedBy ?? doc.createdBy);
+  const sizeStr = formatBytes(sizeBytes);
 
   return (
     <Box
@@ -109,9 +157,22 @@ function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
         </Box>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Button size="small" aria-label={`Download ${name}`}>
-          <Download size={16} />
-        </Button>
+        {doc.downloadUrl ? (
+          <Button
+            component="a"
+            href={doc.downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+            aria-label={`Download ${name}`}
+          >
+            <Download size={16} />
+          </Button>
+        ) : (
+          <Button size="small" aria-label={`Download ${name}`} disabled>
+            <Download size={16} />
+          </Button>
+        )}
         <Button size="small" aria-label={`Delete ${name}`}>
           <Trash2 size={16} />
         </Button>

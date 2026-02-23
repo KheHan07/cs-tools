@@ -84,6 +84,7 @@ export interface PostCaseAttachmentRequest {
   name: string;
   type: string;
   content: string;
+  referenceType?: string;
 }
 
 // Request body for posting a deployment attachment (POST /deployments/:deploymentId/attachments).
