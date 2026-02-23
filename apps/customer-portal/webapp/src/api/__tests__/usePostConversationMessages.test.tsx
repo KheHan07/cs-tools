@@ -121,6 +121,20 @@ describe("usePostConversationMessages", () => {
     );
   });
 
+  it("should throw when auth is loading", async () => {
+    mockUseAsgardeo.mockReturnValueOnce({
+      isSignedIn: false,
+      isLoading: true,
+    });
+    const { result } = renderHook(() => usePostConversationMessages(), {
+      wrapper,
+    });
+
+    await expect(result.current.mutateAsync(requestParams)).rejects.toThrow(
+      "User must be signed in to send messages",
+    );
+  });
+
   it("should throw when API returns error response", async () => {
     mockAuthFetch.mockResolvedValueOnce(
       new Response("Internal Server Error", {

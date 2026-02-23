@@ -191,9 +191,15 @@ export default function NoveraChatPage(): JSX.Element {
     }
   }, [isWaitingForClassification, isAllProductsLoading, performClassification]);
   const [inputValue, setInputValue] = useState("");
+  const inputValueRef = useRef("");
   const [resetTrigger, setResetTrigger] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const setInputValueAndRef = useCallback((v: string) => {
+    inputValueRef.current = v;
+    setInputValue(v);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -228,7 +234,7 @@ export default function NoveraChatPage(): JSX.Element {
   );
 
   const handleSendMessage = useCallback(async () => {
-    const text = htmlToPlainText(inputValue).trim();
+    const text = htmlToPlainText(inputValueRef.current).trim();
     if (!text || isSending || !projectId) return;
 
     const userMessage: Message = {
@@ -247,7 +253,7 @@ export default function NoveraChatPage(): JSX.Element {
     };
 
     setMessages((prev) => [...prev, userMessage, loadingBot]);
-    setInputValue("");
+    setInputValueAndRef("");
     setResetTrigger((prev) => prev + 1);
     setIsSending(true);
 
@@ -285,7 +291,7 @@ export default function NoveraChatPage(): JSX.Element {
     } finally {
       setIsSending(false);
     }
-  }, [inputValue, isSending, projectId, sendToApi]);
+  }, [isSending, projectId, sendToApi, setInputValueAndRef]);
 
   return (
     <Box
@@ -326,7 +332,7 @@ export default function NoveraChatPage(): JSX.Element {
           <ChatInput
             onSend={handleSendMessage}
             inputValue={inputValue}
-            setInputValue={setInputValue}
+            setInputValue={setInputValueAndRef}
             isSending={isSending}
             resetTrigger={resetTrigger}
           />

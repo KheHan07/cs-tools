@@ -148,6 +148,15 @@ describe("caseCreation utils", () => {
       );
       expect(result).toEqual({ id: "dep-1" });
     });
+
+    it("matches by filter deployment label (case-insensitive)", () => {
+      const result = resolveDeploymentMatch(
+        "production",
+        projectDeployments,
+        filterDeployments,
+      );
+      expect(result).toEqual({ id: "f1" });
+    });
   });
 
   describe("resolveProductId", () => {

@@ -90,13 +90,6 @@ export default function ActivityCommentInput({
           placeholder="Write a comment..."
           onSubmitKeyDown={handleSend}
         />
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mt: 0.5 }}
-        >
-          Press Enter to send, Shift+Enter for newline
-        </Typography>
         <Box
           sx={{
             position: "absolute",
@@ -128,6 +121,13 @@ export default function ActivityCommentInput({
           </IconButton>
         </Box>
       </Box>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block", mt: 0.5 }}
+      >
+        Press Enter to send, Shift+Enter for newline
+      </Typography>
     </Box>
   );
 }

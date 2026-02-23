@@ -26,6 +26,7 @@ import { Bot, FileText, Copy, User } from "@wso2/oxygen-ui-icons-react";
 import ReactMarkdown from "react-markdown";
 import { type JSX, useState, useCallback, useRef, useEffect } from "react";
 import type { Message } from "@pages/NoveraChatPage";
+import { AVATAR_ICON_COLOR } from "./chatConstants";
 
 /** Safe URL protocols for markdown links. Blocks javascript:, data:, etc. */
 const SAFE_PROTOCOLS = ["http:", "https:"];
@@ -176,9 +177,9 @@ export default function ChatMessageBubble({
       }}
     >
       {isUser ? (
-        <User size={16} color="#C2410C" />
+        <User size={16} color={AVATAR_ICON_COLOR} />
       ) : (
-        <Bot size={16} color="#C2410C" />
+        <Bot size={16} color={AVATAR_ICON_COLOR} />
       )}
     </Paper>
   );

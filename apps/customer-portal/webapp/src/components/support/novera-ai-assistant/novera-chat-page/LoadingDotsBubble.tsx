@@ -16,9 +16,10 @@
 import { Box, Paper } from "@wso2/oxygen-ui";
 import { Bot } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
+import { AVATAR_ICON_COLOR } from "./chatConstants";
 
 /**
- * Animated loading dots (orange, yellow, orange) for bot response.
+ * Three warning-colored pulsing dots for bot loading state.
  *
  * @returns {JSX.Element} Loading dots chat bubble.
  */
@@ -36,7 +37,7 @@ export default function LoadingDotsBubble(): JSX.Element {
           flexShrink: 0,
         }}
       >
-        <Bot size={16} color="#C2410C" />
+        <Bot size={16} color={AVATAR_ICON_COLOR} />
       </Paper>
       <Box sx={{ maxWidth: "80%" }}>
         <Paper
