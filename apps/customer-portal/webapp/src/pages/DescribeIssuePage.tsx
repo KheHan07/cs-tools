@@ -162,6 +162,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 showToolbar
                 toolbarVariant="describeIssue"
                 onSubmitKeyDown={handleSubmit}
+                disabled={isSubmitting}
               />
               <Typography
                 variant="caption"
