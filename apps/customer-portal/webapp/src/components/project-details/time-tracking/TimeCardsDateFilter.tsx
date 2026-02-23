@@ -79,13 +79,15 @@ export default function TimeCardsDateFilter({
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography
-              variant="body2"
               component="label"
+              htmlFor="time-cards-start-date"
+              variant="body2"
               sx={{ fontWeight: 500, color: "text.secondary", whiteSpace: "nowrap" }}
             >
               From:
             </Typography>
             <TextField
+              id="time-cards-start-date"
               type="date"
               size="small"
               value={startDate}
@@ -102,13 +104,15 @@ export default function TimeCardsDateFilter({
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography
-              variant="body2"
               component="label"
+              htmlFor="time-cards-end-date"
+              variant="body2"
               sx={{ fontWeight: 500, color: "text.secondary", whiteSpace: "nowrap" }}
             >
               To:
             </Typography>
             <TextField
+              id="time-cards-end-date"
               type="date"
               size="small"
               value={endDate}

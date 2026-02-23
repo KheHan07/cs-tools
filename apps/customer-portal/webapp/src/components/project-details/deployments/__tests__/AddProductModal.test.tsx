@@ -35,9 +35,11 @@ function renderWithProviders(
   options?: { queryClient?: QueryClient },
 ) {
   const client = options?.queryClient ?? queryClient;
-  return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
-  );
+  return render(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
 }
 
 const mockProducts = [

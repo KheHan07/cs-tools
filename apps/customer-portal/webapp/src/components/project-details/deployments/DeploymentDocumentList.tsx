@@ -173,7 +173,12 @@ function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
             <Download size={16} />
           </Button>
         )}
-        <Button size="small" aria-label={`Delete ${name}`}>
+        <Button
+          size="small"
+          aria-label={`Delete ${name}`}
+          disabled
+          title="Delete not yet implemented"
+        >
           <Trash2 size={16} />
         </Button>
       </Box>

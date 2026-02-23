@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import EditDeploymentModal from "@components/project-details/deployments/EditDeploymentModal";
 import useGetCasesFilters from "@api/useGetCasesFilters";
@@ -85,7 +85,9 @@ describe("EditDeploymentModal", () => {
 
     render(<EditDeploymentModal {...defaultProps} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Update" }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Update" }));
+    });
 
     expect(mutateAsync).toHaveBeenCalledWith({
       projectId: "proj-1",

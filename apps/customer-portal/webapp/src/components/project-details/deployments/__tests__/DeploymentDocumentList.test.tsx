@@ -152,4 +152,11 @@ describe("DeploymentDocumentList", () => {
     expect(screen.getByText("Documents (?)")).toBeInTheDocument();
     expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
   });
+
+  it("should show loading state while fetching documents", () => {
+    renderWithProviders(<DeploymentDocumentList deploymentId="loading-id" />);
+
+    fireEvent.click(screen.getByText(/Documents/));
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+  });
 });

@@ -74,6 +74,7 @@ export default function UploadAttachmentModal({
   const [name, setName] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [fileSizeErrorVisible, setFileSizeErrorVisible] = useState(false);
+  const [readErrorVisible, setReadErrorVisible] = useState(false);
 
   const fileTooLarge = file ? file.size > MAX_ATTACHMENT_SIZE_BYTES : false;
   const displayName = name.trim() || (file?.name ?? "");
@@ -87,6 +88,7 @@ export default function UploadAttachmentModal({
     setFile(null);
     setName("");
     setFileSizeErrorVisible(false);
+    setReadErrorVisible(false);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -165,9 +167,9 @@ export default function UploadAttachmentModal({
         content,
       };
 
-      if (deploymentId) {
+      if (isDeploymentMode) {
         postDeploymentAttachment.mutate(
-          { deploymentId, body },
+          { deploymentId: deploymentId!, body },
           {
             onSuccess: () => {
               handleClose();
@@ -187,6 +189,9 @@ export default function UploadAttachmentModal({
         );
       }
     };
+    reader.onerror = () => {
+      setReadErrorVisible(true);
+    };
     reader.readAsDataURL(file);
   }, [
     caseId,
@@ -194,6 +199,7 @@ export default function UploadAttachmentModal({
     file,
     name,
     fileTooLarge,
+    isDeploymentMode,
     postAttachments,
     postDeploymentAttachment,
     handleClose,
@@ -231,6 +237,15 @@ export default function UploadAttachmentModal({
             sx={{ mb: 2 }}
           >
             File size exceeds 15 MB limit.
+          </Alert>
+        )}
+        {readErrorVisible && (
+          <Alert
+            severity="error"
+            onClose={() => setReadErrorVisible(false)}
+            sx={{ mb: 2 }}
+          >
+            Failed to read file. Please try again.
           </Alert>
         )}
         <input

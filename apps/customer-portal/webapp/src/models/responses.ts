@@ -294,7 +294,7 @@ export interface CaseDetails {
   type: IdLabelRef | null;
   deployedProduct: IdLabelRef | null;
   parentCase: IdLabelRef | null;
-  conversation: unknown | null;
+  conversation: unknown;
   issueType: IdLabelRef | null;
   deployment: IdLabelRef | null;
   severity: IdLabelRef | null;
