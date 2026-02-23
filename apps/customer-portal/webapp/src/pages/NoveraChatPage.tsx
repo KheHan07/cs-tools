@@ -87,10 +87,9 @@ export default function NoveraChatPage(): JSX.Element {
       sender: "bot",
       timestamp: new Date(),
     };
-    // Coming from describe-issue with API response: show user message + bot response.
+    // Coming from describe-issue with API response: show only user message + bot response (no welcome).
     if (conversationResponse?.message) {
       return [
-        botWelcome,
         {
           id: "2",
           text: initialUserMessage?.trim() ?? "",
