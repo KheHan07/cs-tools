@@ -57,12 +57,12 @@ describe("NoveraChatBanner", () => {
     expect(screen.getByTestId("icon-bot")).toBeInTheDocument();
   });
 
-  it("should navigate to chat page when clicking 'Start New Chat'", () => {
+  it("should navigate to describe-issue page when clicking 'Start New Chat'", () => {
     render(<NoveraChatBanner />);
 
     const button = screen.getByRole("button", { name: /Start New Chat/i });
     fireEvent.click(button);
 
-    expect(mockNavigate).toHaveBeenCalledWith("chat");
+    expect(mockNavigate).toHaveBeenCalledWith("chat/describe-issue");
   });
 });

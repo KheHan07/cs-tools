@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, CircularProgress, IconButton } from "@wso2/oxygen-ui";
+import { Box, CircularProgress, IconButton, Typography } from "@wso2/oxygen-ui";
 import { Send } from "@wso2/oxygen-ui-icons-react";
 import { useState } from "react";
 import { usePostComment } from "@api/usePostComment";
@@ -87,7 +87,7 @@ export default function ActivityCommentInput({
           resetTrigger={resetTrigger}
           minHeight={40}
           showToolbar={true}
-          placeholder="Write a comment... (Enter to send, Shift+Enter for new line)"
+          placeholder="Write a comment..."
           onSubmitKeyDown={handleSend}
         />
         <Box
@@ -121,6 +121,13 @@ export default function ActivityCommentInput({
           </IconButton>
         </Box>
       </Box>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block", mt: 0.5 }}
+      >
+        Press Enter to send, Shift+Enter for newline
+      </Typography>
     </Box>
   );
 }
