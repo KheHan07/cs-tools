@@ -20,6 +20,8 @@ import {
   resolveDeploymentMatch,
   resolveProductId,
   resolveIssueTypeKey,
+  findMatchingProductLabel,
+  findMatchingDeploymentLabel,
   shouldAddClassificationProductToOptions,
   getBaseProductOptions,
   getBaseDeploymentOptions,
@@ -137,6 +139,15 @@ describe("caseCreation utils", () => {
         ),
       ).toBeNull();
     });
+
+    it("matches by project deployment name (case-insensitive)", () => {
+      const result = resolveDeploymentMatch(
+        "development",
+        projectDeployments,
+        filterDeployments,
+      );
+      expect(result).toEqual({ id: "dep-1" });
+    });
   });
 
   describe("resolveProductId", () => {
@@ -240,6 +251,62 @@ describe("caseCreation utils", () => {
           "WSO2 API Manager 3.2.0",
         ]),
       ).toBe(true);
+    });
+  });
+
+  describe("findMatchingDeploymentLabel", () => {
+    const baseOptions = ["Production", "Staging", "Development"];
+
+    it("returns undefined for empty label", () => {
+      expect(findMatchingDeploymentLabel("", baseOptions)).toBeUndefined();
+    });
+
+    it("returns matching option (exact match)", () => {
+      expect(findMatchingDeploymentLabel("Production", baseOptions)).toBe(
+        "Production",
+      );
+    });
+
+    it("returns matching option (case-insensitive)", () => {
+      expect(findMatchingDeploymentLabel("production", baseOptions)).toBe(
+        "Production",
+      );
+      expect(findMatchingDeploymentLabel("STAGING", baseOptions)).toBe(
+        "Staging",
+      );
+    });
+
+    it("returns undefined when no match", () => {
+      expect(findMatchingDeploymentLabel("QA", baseOptions)).toBeUndefined();
+    });
+  });
+
+  describe("findMatchingProductLabel", () => {
+    const baseOptions = [
+      "WSO2 API Manager 3.2.0",
+      "WSO2 Identity Server - 6.0.0",
+    ];
+
+    it("returns undefined for empty label", () => {
+      expect(findMatchingProductLabel("", baseOptions)).toBeUndefined();
+    });
+
+    it("returns matching base option (exact match)", () => {
+      expect(
+        findMatchingProductLabel("WSO2 API Manager 3.2.0", baseOptions),
+      ).toBe("WSO2 API Manager 3.2.0");
+    });
+
+    it("returns matching base option when label format differs (hyphen vs space)", () => {
+      expect(
+        findMatchingProductLabel("WSO2 Identity Server 6.0.0", baseOptions),
+      ).toBe("WSO2 Identity Server - 6.0.0");
+    });
+
+    it("returns undefined when no match", () => {
+      expect(
+        findMatchingProductLabel("WSO2 Choreo 1.0", baseOptions),
+      ).toBeUndefined();
     });
   });
 

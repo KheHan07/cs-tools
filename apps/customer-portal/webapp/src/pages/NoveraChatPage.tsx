@@ -26,6 +26,8 @@ import {
 import { useNavigate, useParams, useLocation } from "react-router";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { usePostCaseClassifications } from "@api/usePostCaseClassifications";
+import { usePostConversations } from "@api/usePostConversations";
+import { usePostConversationMessages } from "@api/usePostConversationMessages";
 import type { ChatNavState } from "@models/chatNavState";
 import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
 import {
@@ -36,6 +38,7 @@ import {
   formatChatHistoryForClassification,
   buildEnvProducts,
 } from "@utils/caseCreation";
+import { htmlToPlainText } from "@utils/richTextEditor";
 import ChatHeader from "@components/support/novera-ai-assistant/novera-chat-page/ChatHeader";
 import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/ChatInput";
 import ChatMessageList from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageList";
@@ -46,6 +49,8 @@ export interface Message {
   sender: "user" | "bot";
   timestamp: Date;
   showCreateCaseAction?: boolean;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 /**
@@ -79,6 +84,11 @@ export default function NoveraChatPage(): JSX.Element {
     [productsByDeploymentId, projectDeployments],
   );
   const { mutateAsync: classifyCase } = usePostCaseClassifications();
+  const { mutateAsync: postConversation } = usePostConversations();
+  const { mutateAsync: postConversationMessages } = usePostConversationMessages();
+  const [conversationId, setConversationId] = useState<string | null>(
+    () => conversationResponse?.conversationId ?? null,
+  );
   const [isCreateCaseLoading, setIsCreateCaseLoading] = useState(false);
   const [isWaitingForClassification, setIsWaitingForClassification] =
     useState(false);
@@ -181,50 +191,100 @@ export default function NoveraChatPage(): JSX.Element {
     }
   }, [isWaitingForClassification, isAllProductsLoading, performClassification]);
   const [inputValue, setInputValue] = useState("");
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const pendingTimeoutsRef = useRef<number[]>([]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    return () => {
-      pendingTimeoutsRef.current.forEach((id) => {
-        clearTimeout(id);
-      });
-      pendingTimeoutsRef.current = [];
-    };
-  }, []);
+  const sendToApi = useCallback(
+    async (userText: string) => {
+      if (!projectId) return null;
+      const payload = {
+        projectId,
+        message: userText,
+        envProducts,
+        region: DEFAULT_CONVERSATION_REGION,
+        tier: DEFAULT_CONVERSATION_TIER,
+      };
+      if (conversationId) {
+        return postConversationMessages({
+          ...payload,
+          conversationId,
+        });
+      }
+      return postConversation(payload);
+    },
+    [
+      projectId,
+      conversationId,
+      envProducts,
+      postConversation,
+      postConversationMessages,
+    ],
+  );
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = useCallback(async () => {
+    const text = htmlToPlainText(inputValue).trim();
+    if (!text || isSending || !projectId) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
+      id: `user-${Date.now()}`,
+      text,
       sender: "user",
       timestamp: new Date(),
     };
+    const botMessageId = `bot-${Date.now()}`;
+    const loadingBot: Message = {
+      id: botMessageId,
+      text: "",
+      sender: "bot",
+      timestamp: new Date(),
+      isLoading: true,
+    };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage, loadingBot]);
     setInputValue("");
+    setResetTrigger((prev) => prev + 1);
+    setIsSending(true);
 
-    const timeoutId = window.setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "Response from support assistant will appear here when the API is connected.",
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botMessage]);
-      pendingTimeoutsRef.current = pendingTimeoutsRef.current.filter(
-        (id) => id !== timeoutId,
+    try {
+      const response = await sendToApi(text);
+      if (response?.conversationId) {
+        setConversationId(response.conversationId);
+      }
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === botMessageId
+            ? {
+                ...m,
+                text: response?.message ?? "",
+                isLoading: false,
+                isError: false,
+                showCreateCaseAction: response?.actions != null,
+              }
+            : m,
+        ),
       );
-    }, 1000);
-
-    pendingTimeoutsRef.current.push(timeoutId);
-  };
+    } catch {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === botMessageId
+            ? {
+                ...m,
+                text: "",
+                isLoading: false,
+                isError: true,
+              }
+            : m,
+        ),
+      );
+    } finally {
+      setIsSending(false);
+    }
+  }, [inputValue, isSending, projectId, sendToApi]);
 
   return (
     <Box
@@ -266,13 +326,8 @@ export default function NoveraChatPage(): JSX.Element {
             onSend={handleSendMessage}
             inputValue={inputValue}
             setInputValue={setInputValue}
-            showEscalationBanner={
-              messages.length -
-                (initialUserMessage?.trim() ? 1 : 0) >
-              4
-            }
-            onCreateCase={handleCreateCase}
-            isCreateCaseLoading={isCreateCaseLoading}
+            isSending={isSending}
+            resetTrigger={resetTrigger}
           />
         </Paper>
       </Box>

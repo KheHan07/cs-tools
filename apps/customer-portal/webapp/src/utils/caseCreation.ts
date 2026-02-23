@@ -76,6 +76,25 @@ export function buildClassificationProductLabel(
 }
 
 /**
+ * Finds a base deployment option matching the given label (case-insensitive).
+ * Returns the actual option string so form state uses the API's exact value.
+ *
+ * @param {string} deploymentLabel - Classification or selected deployment label.
+ * @param {string[]} baseDeploymentOptions - Deployment names from project deployments.
+ * @returns {string | undefined} Matching option or undefined.
+ */
+export function findMatchingDeploymentLabel(
+  deploymentLabel: string,
+  baseDeploymentOptions: string[],
+): string | undefined {
+  if (!deploymentLabel?.trim()) return undefined;
+  const labelLower = deploymentLabel.trim().toLowerCase();
+  return baseDeploymentOptions.find(
+    (opt) => opt?.trim().toLowerCase() === labelLower,
+  );
+}
+
+/**
  * Resolves deployment ID from the selected deployment label by matching against project deployments.
  *
  * @param {string} deploymentLabel - Selected deployment name/label from the form.
@@ -91,13 +110,26 @@ export function resolveDeploymentMatch(
   const label = deploymentLabel?.trim();
   if (!label) return null;
 
-  const fromProject = projectDeployments?.find(
-    (d) => d.type?.label === label || d.name === label,
-  );
+  const labelLower = label.toLowerCase();
+
+  const fromProject = projectDeployments?.find((d) => {
+    const typeLabel = d.type?.label?.trim();
+    const depName = d.name?.trim();
+    return (
+      typeLabel === label ||
+      depName === label ||
+      typeLabel?.toLowerCase() === labelLower ||
+      depName?.toLowerCase() === labelLower
+    );
+  });
   if (fromProject) return { id: fromProject.id };
 
   const fromFilters = filterDeployments?.find(
-    (d) => d.id === label || d.label === label,
+    (d) =>
+      d.id === label ||
+      d.label === label ||
+      d.id?.toLowerCase() === labelLower ||
+      d.label?.toLowerCase() === labelLower,
   );
   if (fromFilters) return { id: fromFilters.id };
 
@@ -140,6 +172,26 @@ export function resolveIssueTypeKey(
     (t) => t.id === issueTypeLabel || t.label === issueTypeLabel,
   );
   return parseInt(item?.id ?? issueTypeLabel, 10) || 0;
+}
+
+/**
+ * Finds a base product option that matches the given label (normalized comparison).
+ * Use when the classification label format may differ from deployment product labels.
+ *
+ * @param {string} productLabel - Selected or classification product label.
+ * @param {string[]} baseProductOptions - Product labels from deployment products.
+ * @returns {string | undefined} Matching base option label, or undefined if no match.
+ */
+export function findMatchingProductLabel(
+  productLabel: string,
+  baseProductOptions: string[],
+): string | undefined {
+  if (!productLabel?.trim()) return undefined;
+  const normalized = normalizeProductLabel(productLabel);
+  if (!normalized) return undefined;
+  return baseProductOptions.find(
+    (opt) => normalizeProductLabel(opt) === normalized,
+  );
 }
 
 /**
