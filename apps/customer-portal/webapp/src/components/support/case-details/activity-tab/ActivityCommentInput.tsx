@@ -87,7 +87,7 @@ export default function ActivityCommentInput({
           resetTrigger={resetTrigger}
           minHeight={40}
           showToolbar={true}
-          placeholder="Write a comment... (Enter to send, Shift+Enter for new line)"
+          placeholder="Write a comment..."
           onSubmitKeyDown={handleSend}
         />
         <Box
