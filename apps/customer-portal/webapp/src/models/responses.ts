@@ -642,6 +642,21 @@ export interface CaseClassificationResponse {
   };
 }
 
+/** Response from POST /projects/:projectId/conversations (Novera chat). */
+export interface ConversationResponse {
+  message: string;
+  sessionId: string;
+  conversationId: string;
+  intent: unknown;
+  slotState: unknown;
+  actions: unknown;
+  recommendations?: {
+    query: string;
+    recommendations: Array<{ title: string; articleId: string; score: number }>;
+  } | null;
+  resolved: unknown;
+}
+
 // Response for creating a support case. Used to navigate to case details.
 export interface CreateCaseResponse {
   id: string;

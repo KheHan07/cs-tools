@@ -19,13 +19,24 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Stack,
   Typography,
 } from "@wso2/oxygen-ui";
 import { ArrowLeft, Send } from "@wso2/oxygen-ui-icons-react";
-import { useState, useCallback, useMemo, type JSX } from "react";
+import { useState, useRef, useCallback, useMemo, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import Editor from "@components/common/rich-text-editor/Editor";
+import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
+import { usePostConversations } from "@api/usePostConversations";
+import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import {
+  DEFAULT_CONVERSATION_REGION,
+  DEFAULT_CONVERSATION_TIER,
+} from "@constants/conversationConstants";
+import type { ChatNavState } from "@models/chatNavState";
+import { buildEnvProducts } from "@utils/caseCreation";
 import { htmlToPlainText } from "@utils/richTextEditor";
 
 const ISSUE_PLACEHOLDER =
@@ -33,14 +44,30 @@ const ISSUE_PLACEHOLDER =
 
 /**
  * DescribeIssuePage lets users describe their issue before navigating to chat.
- * On submit, navigates to chat with the description as the initial user message.
+ * On submit, calls POST /projects/:projectId/conversations and navigates to
+ * chat with the API response.
  *
  * @returns {JSX.Element} The describe issue page.
  */
 export default function DescribeIssuePage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
+  const { showError } = useErrorBanner();
   const [value, setValue] = useState("");
+
+  const { data: projectDeployments } = useGetProjectDeployments(
+    projectId || "",
+  );
+  const { productsByDeploymentId, isLoading: isProductsLoading } =
+    useAllDeploymentProducts(projectDeployments);
+  const envProducts = useMemo(
+    () => buildEnvProducts(productsByDeploymentId, projectDeployments),
+    [productsByDeploymentId, projectDeployments],
+  );
+
+  const { mutateAsync: postConversation, isPending: isSubmitting } =
+    usePostConversations();
+  const submittingRef = useRef(false);
 
   const handleBack = useCallback(() => {
     if (projectId) {
@@ -52,15 +79,41 @@ export default function DescribeIssuePage(): JSX.Element {
 
   const plainText = useMemo(() => htmlToPlainText(value), [value]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!plainText.trim() || !projectId) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
-    navigate(`/${projectId}/support/chat`, {
-      state: { initialUserMessage: plainText.trim() },
-    });
-  }, [plainText, navigate, projectId]);
+    try {
+      const conversationResponse = await postConversation({
+        projectId,
+        message: plainText.trim(),
+        envProducts,
+        region: DEFAULT_CONVERSATION_REGION,
+        tier: DEFAULT_CONVERSATION_TIER,
+      });
 
-  const isSubmitDisabled = !projectId || !plainText.trim();
+      const state: ChatNavState = {
+        initialUserMessage: plainText.trim(),
+        conversationResponse,
+      };
+      navigate(`/${projectId}/support/chat`, { state });
+    } catch {
+      showError("Could not get help. Please try again or create a support case.");
+    } finally {
+      submittingRef.current = false;
+    }
+  }, [
+    plainText,
+    projectId,
+    envProducts,
+    postConversation,
+    navigate,
+    showError,
+  ]);
+
+  const isSubmitDisabled =
+    !projectId || !plainText.trim() || isSubmitting || isProductsLoading;
 
   return (
     <Box
@@ -113,6 +166,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 showToolbar
                 toolbarVariant="describeIssue"
                 onSubmitKeyDown={handleSubmit}
+                disabled={isSubmitting}
               />
               <Typography
                 variant="caption"
@@ -128,11 +182,17 @@ export default function DescribeIssuePage(): JSX.Element {
               <Button
                 variant="contained"
                 color="warning"
-                startIcon={<Send size={18} />}
+                startIcon={
+                  isSubmitting ? (
+                    <CircularProgress color="inherit" size={18} />
+                  ) : (
+                    <Send size={18} />
+                  )
+                }
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
               >
-                Submit & Get Help
+                {isSubmitting ? "Getting help…" : "Submit & Get Help"}
               </Button>
             </Box>
           </Stack>

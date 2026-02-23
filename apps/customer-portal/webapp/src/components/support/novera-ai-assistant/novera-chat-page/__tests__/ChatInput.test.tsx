@@ -21,6 +21,10 @@ import ChatInput from "@components/support/novera-ai-assistant/novera-chat-page/
 // Mock @wso2/oxygen-ui components
 vi.mock("@wso2/oxygen-ui", () => ({
   Box: ({ children }: any) => <div data-testid="box">{children}</div>,
+  Button: ({ children, onClick }: any) => (
+    <button onClick={onClick}>{children}</button>
+  ),
+  CircularProgress: () => <span data-testid="circular-progress" />,
   IconButton: ({ children, onClick, disabled }: any) => (
     <button data-testid="icon-button" onClick={onClick} disabled={disabled}>
       {children}
@@ -39,9 +43,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
-  Button: ({ children, onClick }: any) => (
-    <button onClick={onClick}>{children}</button>
-  ),
+  Stack: ({ children }: any) => <div>{children}</div>,
   colors: {
     orange: {
       700: "#C2410C",
@@ -52,7 +54,8 @@ vi.mock("@wso2/oxygen-ui", () => ({
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   Send: () => <svg data-testid="icon-send" />,
-  CircleAlert: () => <svg data-testid="icon-alert" />,
+  Sparkles: () => <svg data-testid="icon-sparkles" />,
+  FileText: () => <svg data-testid="icon-file-text" />,
 }));
 
 describe("ChatInput", () => {
@@ -108,7 +111,7 @@ describe("ChatInput", () => {
       />,
     );
 
-    expect(screen.getByText(/Need more help?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Thank you for describing the issue/i)).toBeInTheDocument();
     const createCaseButton = screen.getByText("Create Case");
     expect(createCaseButton).toBeInTheDocument();
 
