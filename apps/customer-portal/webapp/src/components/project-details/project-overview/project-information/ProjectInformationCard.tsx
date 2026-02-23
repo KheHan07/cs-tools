@@ -44,14 +44,14 @@ const ProjectInformationCard = ({
   const getCreatedDate = () =>
     project?.createdOn ? formatProjectDate(project.createdOn) : "--";
   const getType = () => project?.type || "--";
-  const getSupportTier = () => project?.subscription?.supportTier || "--";
+  const getSupportTier = () => project?.account?.supportTier || "--";
   const getStartDate = () =>
-    project?.subscription?.startDate
-      ? formatProjectDate(project.subscription.startDate)
+    project?.account?.activationDate
+      ? formatProjectDate(project.account.activationDate)
       : "--";
   const getEndDate = () =>
-    project?.subscription?.endDate
-      ? formatProjectDate(project.subscription.endDate)
+    project?.account?.deactivationDate
+      ? formatProjectDate(project.account.deactivationDate)
       : "--";
 
   return (

@@ -21,17 +21,22 @@ import useGetProjectDetails from "@api/useGetProjectDetails";
 import type { ReactNode } from "react";
 
 const mockProjectDetail = {
+  type: "Subscription",
+  sfId: "a0dE200000CMR4HIAX",
+  account: {
+    id: "9460f8a91bfaa694a002c9d3604bcbbb",
+    name: "Customer Portal Account",
+    activationDate: "2025-08-25",
+    deactivationDate: "2030-01-01",
+    supportTier: "Enterprise",
+    region: "Asia",
+  },
   id: "1890347890",
   name: "WSO2 Con App",
   key: "CON2026",
-  description: "Official conference management app",
   createdOn: "2025-07-17 09:06:14",
-  type: "FREE",
-  subscription: {
-    startDate: "2025-07-01",
-    endDate: "2026-07-01",
-    supportTier: "ENTERPRISE",
-  },
+  description: "Official conference management app",
+  hasSR: false,
 };
 
 vi.mock("@asgardeo/react", () => ({

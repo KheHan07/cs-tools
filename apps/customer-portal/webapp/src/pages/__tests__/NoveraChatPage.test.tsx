@@ -159,7 +159,9 @@ vi.mock("@asgardeo/react", () => ({
 
 vi.mock("@api/useGetProjectDetails", () => ({
   default: () => ({
-    data: { subscription: { supportTier: "" } },
+    data: {
+      account: { supportTier: "", activationDate: "", deactivationDate: "", id: "", name: "", region: "" },
+    },
     isLoading: false,
     error: null,
   }),
