@@ -18,12 +18,13 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Paper,
   Typography,
 } from "@wso2/oxygen-ui";
-import { Bot, FileText } from "@wso2/oxygen-ui-icons-react";
+import { Bot, FileText, Copy, User } from "@wso2/oxygen-ui-icons-react";
 import ReactMarkdown from "react-markdown";
-import { type JSX } from "react";
+import { type JSX, useState, useCallback } from "react";
 import type { Message } from "@pages/NoveraChatPage";
 
 /** Safe URL protocols for markdown links. Blocks javascript:, data:, etc. */
@@ -34,6 +35,15 @@ function isSafeHref(href: string | undefined): href is string {
   try {
     const parsed = new URL(href, "https://invalid.invalid");
     return SAFE_PROTOCOLS.includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
   } catch {
     return false;
   }
@@ -112,8 +122,9 @@ const markdownComponents: React.ComponentProps<
  * Renders a single chat message bubble.
  *
  * Supports both user and bot messages with appropriate styling,
- * avatar display, markdown formatting for bot messages, and
- * optional Create Case action when actions is not null.
+ * avatar display, markdown formatting for bot messages,
+ * optional Create Case action when actions is not null,
+ * copy button, and error state with retry.
  *
  * @returns The ChatMessageBubble JSX element.
  */
@@ -123,6 +134,40 @@ export default function ChatMessageBubble({
   isCreateCaseLoading = false,
 }: ChatMessageBubbleProps): JSX.Element {
   const isUser = message.sender === "user";
+  const [copyLabel, setCopyLabel] = useState<"Copy" | "Copied">("Copy");
+
+  const handleCopy = useCallback(async () => {
+    const ok = await copyToClipboard(message.text);
+    if (ok) {
+      setCopyLabel("Copied");
+      setTimeout(() => setCopyLabel("Copy"), 1500);
+    }
+  }, [message.text]);
+
+  const displayText = message.isError ? "Something went wrong" : message.text;
+  const showCopy = !message.isLoading;
+
+  const avatarIcon = (
+    <Paper
+      sx={{
+        width: (theme) => theme.spacing(4),
+        height: (theme) => theme.spacing(4),
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      {isUser ? (
+        <User size={16} color="#C2410C" />
+      ) : (
+        <Bot size={16} color="#C2410C" />
+      )}
+    </Paper>
+  );
+
+  const actionButtonsJustify = isUser ? "flex-end" : "flex-start";
 
   return (
     <Box
@@ -130,23 +175,10 @@ export default function ChatMessageBubble({
         display: "flex",
         flexDirection: isUser ? "row-reverse" : "row",
         gap: 1.5,
+        alignItems: isUser ? "flex-end" : "flex-start",
       }}
     >
-      {!isUser && (
-        <Paper
-          sx={{
-            width: (theme) => theme.spacing(4),
-            height: (theme) => theme.spacing(4),
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <Bot size={16} color="#C2410C" />
-        </Paper>
-      )}
+      {avatarIcon}
       <Box sx={{ maxWidth: "80%" }}>
         <Paper
           sx={{
@@ -164,7 +196,11 @@ export default function ChatMessageBubble({
         >
           {isUser ? (
             <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
-              {message.text}
+              {displayText}
+            </Typography>
+          ) : message.isError ? (
+            <Typography variant="body2" color="error.main">
+              {displayText}
             </Typography>
           ) : (
             <Box
@@ -174,12 +210,13 @@ export default function ChatMessageBubble({
               }}
             >
               <ReactMarkdown components={markdownComponents}>
-                {message.text}
+                {displayText}
               </ReactMarkdown>
             </Box>
           )}
           {!isUser &&
             message.showCreateCaseAction &&
+            !message.isError &&
             onCreateCase &&
             (isCreateCaseLoading ? (
               <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
@@ -213,6 +250,53 @@ export default function ChatMessageBubble({
               </Box>
             ))}
         </Paper>
+        {showCopy && (
+          <Box
+            sx={{
+              mt: 0.5,
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              justifyContent: actionButtonsJustify,
+              flexDirection: "row",
+            }}
+          >
+            {isUser && (
+              <>
+                <IconButton
+                  size="small"
+                  onClick={handleCopy}
+                  aria-label={copyLabel}
+                  sx={{ p: 0.25, minWidth: 0 }}
+                >
+                  <Copy size={12} />
+                </IconButton>
+                {copyLabel === "Copied" && (
+                  <Typography variant="caption" color="text.secondary">
+                    Copied
+                  </Typography>
+                )}
+              </>
+            )}
+            {!isUser && (
+              <>
+                <IconButton
+                  size="small"
+                  onClick={handleCopy}
+                  aria-label={copyLabel}
+                  sx={{ p: 0.25, minWidth: 0 }}
+                >
+                  <Copy size={12} />
+                </IconButton>
+                {copyLabel === "Copied" && (
+                  <Typography variant="caption" color="text.secondary">
+                    Copied
+                  </Typography>
+                )}
+              </>
+            )}
+          </Box>
+        )}
       </Box>
     </Box>
   );

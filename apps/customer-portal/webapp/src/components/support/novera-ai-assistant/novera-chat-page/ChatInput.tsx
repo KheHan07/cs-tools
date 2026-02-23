@@ -14,26 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, IconButton, TextField } from "@wso2/oxygen-ui";
+import { Box, IconButton } from "@wso2/oxygen-ui";
 import { Send } from "@wso2/oxygen-ui-icons-react";
 import { type JSX } from "react";
-import EscalationBanner from "@components/support/novera-ai-assistant/novera-chat-page/EscalationBanner";
+import Editor from "@components/common/rich-text-editor/Editor";
+import { htmlToPlainText } from "@utils/richTextEditor";
 
 interface ChatInputProps {
   inputValue: string;
   setInputValue: (value: string) => void;
   onSend: () => void;
-  showEscalationBanner: boolean;
-  onCreateCase: () => void;
-  isCreateCaseLoading?: boolean;
-  isCreateCaseDisabled?: boolean;
+  isSending?: boolean;
+  resetTrigger?: number;
 }
 
+const CHAT_PLACEHOLDER = "Type your message...";
+
 /**
- * Renders the input area for the Novera Chat page.
- *
- * Handles message input, sending messages, and optionally displays
- * an escalation banner for creating support cases.
+ * Renders the input area for the Novera Chat page with rich text editor.
+ * Single line by default, extends on Shift+Enter. Same toolbar as describe-issue.
  *
  * @returns The ChatInput JSX element.
  */
@@ -41,38 +40,34 @@ export default function ChatInput({
   inputValue,
   setInputValue,
   onSend,
-  showEscalationBanner,
-  onCreateCase,
-  isCreateCaseLoading,
-  isCreateCaseDisabled,
+  isSending = false,
+  resetTrigger = 0,
 }: ChatInputProps): JSX.Element {
+  const plainText = htmlToPlainText(inputValue).trim();
+  const isSendDisabled = !plainText || isSending;
+
   return (
     <Box sx={{ p: 2, bgcolor: "background.paper", flexShrink: 0 }}>
-      <EscalationBanner
-        visible={showEscalationBanner}
-        onCreateCase={onCreateCase}
-        isLoading={isCreateCaseLoading}
-        isCreateCaseDisabled={isCreateCaseDisabled}
-      />
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <TextField
-          fullWidth
-          placeholder="Type your message..."
-          size="small"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              if (!inputValue.trim()) return;
-              e.preventDefault();
-              onSend();
-            }
-          }}
-        />
+      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Editor
+            id="novera-chat-input-editor"
+            value={inputValue}
+            onChange={setInputValue}
+            placeholder={CHAT_PLACEHOLDER}
+            minHeight={40}
+            showToolbar
+            toolbarVariant="describeIssue"
+            onSubmitKeyDown={() => !isSendDisabled && onSend()}
+            disabled={isSending}
+            resetTrigger={resetTrigger}
+          />
+        </Box>
         <IconButton
-          disabled={!inputValue.trim()}
+          disabled={isSendDisabled}
           onClick={onSend}
           color="warning"
+          sx={{ flexShrink: 0 }}
         >
           <Send size={18} />
         </IconButton>
