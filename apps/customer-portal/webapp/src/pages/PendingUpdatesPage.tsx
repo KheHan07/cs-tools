@@ -17,16 +17,15 @@
 import { Box, IconButton, Paper, Stack, Typography } from "@wso2/oxygen-ui";
 import { ArrowLeft, RefreshCw } from "@wso2/oxygen-ui-icons-react";
 import { useParams, useSearchParams, useNavigate } from "react-router";
-import { useMemo, type JSX } from "react";
-import { useGetRecommendedUpdateLevels } from "@api/useGetRecommendedUpdateLevels";
-import { useGetProductUpdateLevels } from "@api/useGetProductUpdateLevels";
-import { getPendingUpdateLevels } from "@utils/updates";
+import { useCallback, useMemo, type JSX } from "react";
+import { usePostUpdateLevelsSearch } from "@api/usePostUpdateLevelsSearch";
 import { PendingUpdatesList } from "@components/updates/pending-updates/PendingUpdatesList";
 import PendingUpdatesListSkeleton from "@components/updates/pending-updates/PendingUpdatesListSkeleton";
 
 /**
- * PendingUpdatesPage displays pending update levels for a product.
- * Matches productName and productBaseVersion from recommended vs product-update-levels APIs.
+ * PendingUpdatesPage displays pending update level descriptions for a product.
+ * Reads productName, productBaseVersion, startingUpdateLevel and endingUpdateLevel
+ * from URL search params and calls POST /updates/levels/search.
  *
  * @returns {JSX.Element} The rendered Pending Updates page.
  */
@@ -37,28 +36,22 @@ export default function PendingUpdatesPage(): JSX.Element {
 
   const productName = searchParams.get("productName") ?? "";
   const productBaseVersion = searchParams.get("productBaseVersion") ?? "";
+  const startingUpdateLevel = Number(searchParams.get("startingUpdateLevel") ?? "0");
+  const endingUpdateLevel = Number(searchParams.get("endingUpdateLevel") ?? "0");
 
-  const { data: recommendedData } = useGetRecommendedUpdateLevels();
-  const { data: productLevelsData, isLoading: isProductLevelsLoading } =
-    useGetProductUpdateLevels();
+  const searchRequest = useMemo(() => {
+    if (!productName || !productBaseVersion || !startingUpdateLevel || !endingUpdateLevel) {
+      return null;
+    }
+    return {
+      productName,
+      productVersion: productBaseVersion,
+      startingUpdateLevel,
+      endingUpdateLevel,
+    };
+  }, [productName, productBaseVersion, startingUpdateLevel, endingUpdateLevel]);
 
-  const recommendedItem = useMemo(
-    () =>
-      recommendedData?.find(
-        (r) =>
-          r.productName === productName &&
-          r.productBaseVersion === productBaseVersion,
-      ),
-    [recommendedData, productName, productBaseVersion],
-  );
-
-  const pendingRows = useMemo(
-    () =>
-      recommendedItem
-        ? getPendingUpdateLevels(recommendedItem, productLevelsData)
-        : [],
-    [recommendedItem, productLevelsData],
-  );
+  const { data, isLoading, isError } = usePostUpdateLevelsSearch(searchRequest);
 
   const displayTitle = useMemo(() => {
     const name = productName || "Product";
@@ -66,10 +59,14 @@ export default function PendingUpdatesPage(): JSX.Element {
     return ver ? `${name} ${ver}` : name;
   }, [productName, productBaseVersion]);
 
-  const levelRange =
-    pendingRows.length > 0
-      ? `${pendingRows[0].updateLevel} to ${pendingRows[pendingRows.length - 1].updateLevel}`
-      : null;
+  const levelRange = useMemo(() => {
+    if (!data) return null;
+    const levels = Object.keys(data).map(Number).sort((a, b) => a - b);
+    if (levels.length === 0) return null;
+    return levels.length === 1
+      ? `Update level ${levels[0]}`
+      : `Update levels ${levels[0]} to ${levels[levels.length - 1]}`;
+  }, [data]);
 
   const handleBack = () => {
     if (projectId) {
@@ -78,6 +75,19 @@ export default function PendingUpdatesPage(): JSX.Element {
       navigate(-1);
     }
   };
+
+  const handleView = useCallback(
+    (levelKey: string) => {
+      const params = new URLSearchParams({
+        productName,
+        productBaseVersion,
+        startingUpdateLevel: String(startingUpdateLevel),
+        endingUpdateLevel: String(endingUpdateLevel),
+      });
+      navigate(`/${projectId}/updates/pending/level/${levelKey}?${params}`);
+    },
+    [navigate, projectId, productName, productBaseVersion, startingUpdateLevel, endingUpdateLevel],
+  );
 
   if (!productName || !productBaseVersion) {
     return (
@@ -93,9 +103,6 @@ export default function PendingUpdatesPage(): JSX.Element {
       </Box>
     );
   }
-
-  const isLoading =
-    isProductLevelsLoading || (recommendedData === undefined && !pendingRows.length);
 
   return (
     <Box
@@ -139,7 +146,7 @@ export default function PendingUpdatesPage(): JSX.Element {
             </Typography>
             {levelRange && (
               <Typography variant="body2" color="text.secondary">
-                Update levels {levelRange}
+                {levelRange}
               </Typography>
             )}
           </Box>
@@ -159,8 +166,9 @@ export default function PendingUpdatesPage(): JSX.Element {
           <PendingUpdatesListSkeleton />
         ) : (
           <PendingUpdatesList
-            pendingRows={pendingRows}
-            recommendedItem={recommendedItem}
+            data={data ?? null}
+            isError={isError}
+            onView={handleView}
           />
         )}
       </Box>
