@@ -308,6 +308,12 @@ describe("caseCreation utils", () => {
         findMatchingProductLabel("WSO2 Choreo 1.0", baseOptions),
       ).toBeUndefined();
     });
+
+    it("returns matching base option (case-insensitive)", () => {
+      expect(
+        findMatchingProductLabel("wso2 api manager 3.2.0", baseOptions),
+      ).toBe("WSO2 API Manager 3.2.0");
+    });
   });
 
   describe("getBaseProductOptions", () => {

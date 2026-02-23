@@ -112,26 +112,36 @@ export function resolveDeploymentMatch(
 
   const labelLower = label.toLowerCase();
 
-  const fromProject = projectDeployments?.find((d) => {
+  const fromProjectExact = projectDeployments?.find((d) => {
+    const typeLabel = d.type?.label?.trim();
+    const depName = d.name?.trim();
+    return typeLabel === label || depName === label;
+  });
+  if (fromProjectExact) return { id: fromProjectExact.id };
+
+  const fromProjectCaseInsensitive = projectDeployments?.find((d) => {
     const typeLabel = d.type?.label?.trim();
     const depName = d.name?.trim();
     return (
-      typeLabel === label ||
-      depName === label ||
       typeLabel?.toLowerCase() === labelLower ||
       depName?.toLowerCase() === labelLower
     );
   });
-  if (fromProject) return { id: fromProject.id };
+  if (fromProjectCaseInsensitive)
+    return { id: fromProjectCaseInsensitive.id };
 
-  const fromFilters = filterDeployments?.find(
+  const fromFiltersExact = filterDeployments?.find(
+    (d) => d.id === label || d.label === label,
+  );
+  if (fromFiltersExact) return { id: fromFiltersExact.id };
+
+  const fromFiltersCaseInsensitive = filterDeployments?.find(
     (d) =>
-      d.id === label ||
-      d.label === label ||
       d.id?.toLowerCase() === labelLower ||
       d.label?.toLowerCase() === labelLower,
   );
-  if (fromFilters) return { id: fromFilters.id };
+  if (fromFiltersCaseInsensitive)
+    return { id: fromFiltersCaseInsensitive.id };
 
   return null;
 }

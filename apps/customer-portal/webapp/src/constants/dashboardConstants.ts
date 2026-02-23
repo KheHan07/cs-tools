@@ -123,7 +123,7 @@ export const SEVERITY_API_LABELS = SEVERITY_LEGEND_ORDER.map((item) => item.labe
 
 /** Case type entries for Outstanding Engagements chart (from caseTypeCount). */
 export const OUTSTANDING_CASE_TYPE_ENTRIES = [
-  { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.purple[500] },
+  { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.yellow[500] },
   { key: "securityReportAnalysis", label: "Security Report Analysis", displayName: "Security Report Analysis", color: colors.purple[500] },
 ] as const;
 
@@ -197,9 +197,9 @@ export function getCaseTypeChipConfig(
     return {
       displayLabel: "Service Request",
       Icon: Server,
-      bgColor: colors.yellow?.[100] ?? "#F3E8FF",
-      textColor: colors.yellow?.[800] ?? "#6B21A8",
-      borderColor: colors.yellow?.[200] ?? "#E9D5FF",
+      bgColor: colors.yellow?.[100] ?? "#FEF9C3",
+      textColor: colors.yellow?.[800] ?? "#854D0E",
+      borderColor: colors.yellow?.[200] ?? "#FDE68A",
     };
   }
   if (/change\s*request/i.test(normalized)) {

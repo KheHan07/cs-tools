@@ -75,7 +75,9 @@ export function usePostConversationMessages(): UseMutationResult<
         );
       }
 
-      return response.json();
+      const data: ConversationResponse = await response.json();
+      logger.debug("[usePostConversationMessages] Data received");
+      return data;
     },
   });
 }

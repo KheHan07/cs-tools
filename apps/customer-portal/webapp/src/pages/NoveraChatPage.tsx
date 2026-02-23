@@ -202,10 +202,11 @@ export default function NoveraChatPage(): JSX.Element {
   const sendToApi = useCallback(
     async (userText: string) => {
       if (!projectId) return null;
+      const hasEnvProducts = Object.keys(envProducts).length > 0;
       const payload = {
         projectId,
         message: userText,
-        envProducts,
+        envProducts: hasEnvProducts ? envProducts : {},
         region: DEFAULT_CONVERSATION_REGION,
         tier: DEFAULT_CONVERSATION_TIER,
       };

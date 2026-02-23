@@ -24,7 +24,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { Bot, FileText, Copy, User } from "@wso2/oxygen-ui-icons-react";
 import ReactMarkdown from "react-markdown";
-import { type JSX, useState, useCallback } from "react";
+import { type JSX, useState, useCallback, useRef, useEffect } from "react";
 import type { Message } from "@pages/NoveraChatPage";
 
 /** Safe URL protocols for markdown links. Blocks javascript:, data:, etc. */
@@ -135,16 +135,32 @@ export default function ChatMessageBubble({
 }: ChatMessageBubbleProps): JSX.Element {
   const isUser = message.sender === "user";
   const [copyLabel, setCopyLabel] = useState<"Copy" | "Copied">("Copy");
-
-  const handleCopy = useCallback(async () => {
-    const ok = await copyToClipboard(message.text);
-    if (ok) {
-      setCopyLabel("Copied");
-      setTimeout(() => setCopyLabel("Copy"), 1500);
-    }
-  }, [message.text]);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const displayText = message.isError ? "Something went wrong" : message.text;
+
+  const handleCopy = useCallback(async () => {
+    const ok = await copyToClipboard(displayText);
+    if (ok) {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      setCopyLabel("Copied");
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopyLabel("Copy");
+        copyTimeoutRef.current = null;
+      }, 1500);
+    }
+  }, [displayText]);
+
+  useEffect(
+    () => () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    },
+    [],
+  );
   const showCopy = !message.isLoading;
 
   const avatarIcon = (
@@ -261,39 +277,18 @@ export default function ChatMessageBubble({
               flexDirection: "row",
             }}
           >
-            {isUser && (
-              <>
-                <IconButton
-                  size="small"
-                  onClick={handleCopy}
-                  aria-label={copyLabel}
-                  sx={{ p: 0.25, minWidth: 0 }}
-                >
-                  <Copy size={12} />
-                </IconButton>
-                {copyLabel === "Copied" && (
-                  <Typography variant="caption" color="text.secondary">
-                    Copied
-                  </Typography>
-                )}
-              </>
-            )}
-            {!isUser && (
-              <>
-                <IconButton
-                  size="small"
-                  onClick={handleCopy}
-                  aria-label={copyLabel}
-                  sx={{ p: 0.25, minWidth: 0 }}
-                >
-                  <Copy size={12} />
-                </IconButton>
-                {copyLabel === "Copied" && (
-                  <Typography variant="caption" color="text.secondary">
-                    Copied
-                  </Typography>
-                )}
-              </>
+            <IconButton
+              size="small"
+              onClick={handleCopy}
+              aria-label={copyLabel}
+              sx={{ p: 0.25, minWidth: 0 }}
+            >
+              <Copy size={12} />
+            </IconButton>
+            {copyLabel === "Copied" && (
+              <Typography variant="caption" color="text.secondary">
+                Copied
+              </Typography>
             )}
           </Box>
         )}

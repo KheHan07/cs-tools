@@ -25,7 +25,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { ArrowLeft, Send } from "@wso2/oxygen-ui-icons-react";
 import { useState, useRef, useCallback, useMemo, type JSX } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import Editor from "@components/common/rich-text-editor/Editor";
 import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
 import { usePostConversations } from "@api/usePostConversations";
@@ -51,6 +51,7 @@ const ISSUE_PLACEHOLDER =
  */
 export default function DescribeIssuePage(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
   const { showError } = useErrorBanner();
   const [value, setValue] = useState("");
@@ -70,8 +71,15 @@ export default function DescribeIssuePage(): JSX.Element {
   const submittingRef = useRef(false);
 
   const handleBack = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
+    if (
+      location.key === "default" ||
+      (typeof window !== "undefined" && window.history.length <= 1)
+    ) {
+      navigate(projectId ? `/${projectId}/dashboard` : "/");
+    } else {
+      navigate(-1);
+    }
+  }, [navigate, location.key, projectId]);
 
   const plainText = useMemo(() => htmlToPlainText(value), [value]);
 
@@ -118,20 +126,21 @@ export default function DescribeIssuePage(): JSX.Element {
         display: "flex",
         flexDirection: "column",
         width: "100%",
+        minHeight: 0,
       }}
     >
       <Button
         startIcon={<ArrowLeft size={18} />}
         onClick={handleBack}
-        sx={{ mb: 3, textTransform: "none", alignSelf: "flex-start" }}
+        sx={{ mb: 3, textTransform: "none", alignSelf: "flex-start", flexShrink: 0 }}
         variant="text"
       >
         Back
       </Button>
 
-      <Card variant="outlined" sx={{ flex: 1 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Stack spacing={3}>
+      <Card variant="outlined" sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+        <CardContent sx={{ p: 3, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <Stack spacing={3} sx={{ flex: 1, minHeight: 0 }}>
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }} component="h1">
                 What can we help you with?
@@ -149,7 +158,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 color="text.primary"
                 component="label"
                 htmlFor="describe-issue-editor"
-                sx={{ display: "block", mb: 1 }}
+                sx={{ display: "block", mb: 1, flexShrink: 0 }}
               >
                 Describe your issue
               </Typography>
@@ -158,7 +167,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 value={value}
                 onChange={setValue}
                 placeholder={ISSUE_PLACEHOLDER}
-                minHeight={400}
+                minHeight={300}
                 showToolbar
                 toolbarVariant="describeIssue"
                 onSubmitKeyDown={handleSubmit}
@@ -167,14 +176,14 @@ export default function DescribeIssuePage(): JSX.Element {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ display: "block", mt: 1 }}
+                sx={{ display: "block", mt: 1, flexShrink: 0 }}
               >
                 Tip: Include details like error messages, when the issue started,
                 affected systems, and what you&apos;ve already tried.
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
               <Button
                 variant="contained"
                 color="warning"

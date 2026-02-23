@@ -73,7 +73,7 @@ export default function LoadingDotsBubble(): JSX.Element {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                bgcolor: "#EAB308",
+                bgcolor: "warning.main",
                 animation: "loadingDotPulse 1.4s ease-in-out infinite both",
                 animationDelay: "0.2s",
               }}

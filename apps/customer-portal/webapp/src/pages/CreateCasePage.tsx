@@ -301,9 +301,10 @@ export default function CreateCasePage(): JSX.Element {
 
     setDeployment((prev) => {
       if (!deploymentLabel) return prev;
-      const matched =
-        findMatchingDeploymentLabel(deploymentLabel, baseDeploymentOptions) ??
-        (baseDeploymentOptions.includes(deploymentLabel) ? deploymentLabel : null);
+      const matched = findMatchingDeploymentLabel(
+        deploymentLabel,
+        baseDeploymentOptions,
+      );
       return matched ?? prev;
     });
     setProduct((prev) => (productLabel ? productLabel : prev));

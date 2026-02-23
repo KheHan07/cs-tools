@@ -27,11 +27,12 @@ vi.mock("@context/AuthApiContext", () => ({
   useAuthApiClient: () => mockAuthFetch,
 }));
 
+const mockUseAsgardeo = vi.fn(() => ({
+  isSignedIn: true,
+  isLoading: false,
+}));
 vi.mock("@asgardeo/react", () => ({
-  useAsgardeo: () => ({
-    isSignedIn: true,
-    isLoading: false,
-  }),
+  useAsgardeo: () => mockUseAsgardeo(),
 }));
 
 describe("usePostConversationMessages", () => {
@@ -103,6 +104,36 @@ describe("usePostConversationMessages", () => {
 
     await expect(result.current.mutateAsync(requestParams)).rejects.toThrow(
       "CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured",
+    );
+  });
+
+  it("should throw when user is not signed in", async () => {
+    mockUseAsgardeo.mockReturnValueOnce({
+      isSignedIn: false,
+      isLoading: false,
+    });
+    const { result } = renderHook(() => usePostConversationMessages(), {
+      wrapper,
+    });
+
+    await expect(result.current.mutateAsync(requestParams)).rejects.toThrow(
+      "User must be signed in to send messages",
+    );
+  });
+
+  it("should throw when API returns error response", async () => {
+    mockAuthFetch.mockResolvedValueOnce(
+      new Response("Internal Server Error", {
+        status: 500,
+        statusText: "Internal Server Error",
+      }),
+    );
+    const { result } = renderHook(() => usePostConversationMessages(), {
+      wrapper,
+    });
+
+    await expect(result.current.mutateAsync(requestParams)).rejects.toThrow(
+      "Conversation messages API error: 500 Internal Server Error",
     );
   });
 });
