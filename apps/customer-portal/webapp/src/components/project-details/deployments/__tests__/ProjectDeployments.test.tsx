@@ -66,12 +66,16 @@ vi.mock("@api/usePatchDeploymentProduct", () => ({
     isPending: false,
   }),
 }));
-vi.mock("@api/useGetDeploymentDocuments", () => ({
-  useGetDeploymentDocuments: () => ({
-    data: [],
+vi.mock("@api/useInfiniteDeploymentDocuments", () => ({
+  useInfiniteDeploymentDocuments: () => ({
+    data: { pages: [{ attachments: [], totalRecords: 0 }], pageParams: [0] },
     isLoading: false,
     isError: false,
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isFetchingNextPage: false,
   }),
+  flattenDeploymentDocuments: () => [],
 }));
 
 vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({

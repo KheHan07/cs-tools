@@ -61,30 +61,11 @@ describe("DeploymentCardSkeleton", () => {
     expect(card).toBeInTheDocument();
   });
 
-  it("should render within an Accordion component", () => {
+  it("should render within CardContent", () => {
     const { container } = render(<DeploymentCardSkeleton />);
 
-    // Should contain an Accordion
-    const accordion = container.querySelector(".MuiAccordion-root");
-    expect(accordion).toBeInTheDocument();
-  });
-
-  it("should have AccordionSummary section", () => {
-    const { container } = render(<DeploymentCardSkeleton />);
-
-    const accordionSummary = container.querySelector(
-      ".MuiAccordionSummary-root",
-    );
-    expect(accordionSummary).toBeInTheDocument();
-  });
-
-  it("should have AccordionDetails section", () => {
-    const { container } = render(<DeploymentCardSkeleton />);
-
-    const accordionDetails = container.querySelector(
-      ".MuiAccordionDetails-root",
-    );
-    expect(accordionDetails).toBeInTheDocument();
+    const cardContent = container.querySelector(".MuiCardContent-root");
+    expect(cardContent).toBeInTheDocument();
   });
 
   it("should match the layout structure of the actual DeploymentCard", () => {

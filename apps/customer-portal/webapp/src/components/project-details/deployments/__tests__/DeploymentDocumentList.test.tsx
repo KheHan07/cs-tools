@@ -40,13 +40,23 @@ const mockDocuments: DeploymentDocument[] = [
   },
 ];
 
-vi.mock("@api/useGetDeploymentDocuments", () => ({
-  useGetDeploymentDocuments: (deploymentId: string) => {
+function makeInfiniteData(attachments: DeploymentDocument[]) {
+  return {
+    pages: [{ limit: 10, offset: 0, attachments, totalRecords: attachments.length }],
+    pageParams: [0],
+  };
+}
+
+vi.mock("@api/useInfiniteDeploymentDocuments", () => ({
+  useInfiniteDeploymentDocuments: (deploymentId: string) => {
     if (deploymentId === "error-id") {
       return {
         data: undefined,
         isLoading: false,
         isError: true,
+        fetchNextPage: vi.fn(),
+        hasNextPage: false,
+        isFetchingNextPage: false,
       };
     }
     if (deploymentId === "loading-id") {
@@ -54,28 +64,42 @@ vi.mock("@api/useGetDeploymentDocuments", () => ({
         data: undefined,
         isLoading: true,
         isError: false,
+        fetchNextPage: vi.fn(),
+        hasNextPage: false,
+        isFetchingNextPage: false,
       };
     }
     if (deploymentId === "empty-id") {
       return {
-        data: [],
+        data: makeInfiniteData([]),
         isLoading: false,
         isError: false,
+        fetchNextPage: vi.fn(),
+        hasNextPage: false,
+        isFetchingNextPage: false,
       };
     }
     if (deploymentId === "single-id") {
       return {
-        data: [mockDocuments[0]],
+        data: makeInfiniteData([mockDocuments[0]]),
         isLoading: false,
         isError: false,
+        fetchNextPage: vi.fn(),
+        hasNextPage: false,
+        isFetchingNextPage: false,
       };
     }
     return {
-      data: mockDocuments,
+      data: makeInfiniteData(mockDocuments),
       isLoading: false,
       isError: false,
+      fetchNextPage: vi.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
     };
   },
+  flattenDeploymentDocuments: (data: { pages: { attachments: DeploymentDocument[] }[] } | undefined) =>
+    data?.pages?.flatMap((p) => p.attachments ?? []) ?? [],
 }));
 
 vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
@@ -94,10 +118,11 @@ function renderWithProviders(ui: ReactElement) {
 }
 
 describe("DeploymentDocumentList", () => {
-  it("should render documents count in accordion summary", () => {
+  it("should render documents count in header", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
 
-    expect(screen.getByText("Documents (2)")).toBeInTheDocument();
+    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getByText("(2)")).toBeInTheDocument();
   });
 
   it("should render document list with names, sizes, dates, and uploaders", () => {
@@ -112,14 +137,14 @@ describe("DeploymentDocumentList", () => {
   it("should display Upload button", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="dep-1" />);
 
-    fireEvent.click(screen.getByText(/Documents/));
     expect(screen.getByRole("button", { name: /Upload/ })).toBeInTheDocument();
   });
 
   it("should display 'No documents uploaded' when documents array is empty", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="empty-id" />);
 
-    expect(screen.getByText("Documents (0)")).toBeInTheDocument();
+    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getByText("(0)")).toBeInTheDocument();
     expect(screen.getByText("No documents uploaded")).toBeInTheDocument();
   });
 
@@ -142,21 +167,23 @@ describe("DeploymentDocumentList", () => {
   it("should render single document correctly", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="single-id" />);
 
-    expect(screen.getByText("Documents (1)")).toBeInTheDocument();
+    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getByText("(1)")).toBeInTheDocument();
     expect(screen.getByText("Architecture.pdf")).toBeInTheDocument();
   });
 
   it("should show error state when fetch fails", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="error-id" />);
 
-    expect(screen.getByText("Documents (?)")).toBeInTheDocument();
+    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getByText("(?)")).toBeInTheDocument();
     expect(screen.getByText("Failed to load documents")).toBeInTheDocument();
   });
 
   it("should show loading state while fetching documents", () => {
     renderWithProviders(<DeploymentDocumentList deploymentId="loading-id" />);
 
-    fireEvent.click(screen.getByText(/Documents/));
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    const skeletons = document.querySelectorAll(".MuiSkeleton-root");
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 });
