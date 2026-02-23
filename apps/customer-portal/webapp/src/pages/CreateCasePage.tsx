@@ -43,10 +43,12 @@ import { ConversationSummary } from "@components/support/case-creation-layout/fo
 import { RelatedCaseSummary } from "@components/support/case-creation-layout/form-sections/conversation-summary-section/RelatedCaseSummary";
 import {
   buildClassificationProductLabel,
+  findMatchingDeploymentLabel,
   getBaseDeploymentOptions,
   getBaseProductOptions,
   resolveDeploymentMatch,
   resolveIssueTypeKey,
+  findMatchingProductLabel,
   resolveProductId,
   shouldAddClassificationProductToOptions,
 } from "@utils/caseCreation";
@@ -297,11 +299,13 @@ export default function CreateCasePage(): JSX.Element {
 
     hasClassificationAppliedRef.current = true;
 
-    setDeployment((prev) =>
-      deploymentLabel && baseDeploymentOptions.includes(deploymentLabel)
-        ? deploymentLabel
-        : prev,
-    );
+    setDeployment((prev) => {
+      if (!deploymentLabel) return prev;
+      const matched =
+        findMatchingDeploymentLabel(deploymentLabel, baseDeploymentOptions) ??
+        (baseDeploymentOptions.includes(deploymentLabel) ? deploymentLabel : null);
+      return matched ?? prev;
+    });
     setProduct((prev) => (productLabel ? productLabel : prev));
     setIssueType((prev) =>
       issueTypeLabel &&
@@ -342,9 +346,11 @@ export default function CreateCasePage(): JSX.Element {
 
   useEffect(() => {
     if (!selectedDeploymentId || !baseProductOptions.length) return;
-    setProduct((current) =>
-      baseProductOptions.includes(current) ? current : baseProductOptions[0],
-    );
+    setProduct((current) => {
+      if (!current?.trim()) return baseProductOptions[0] ?? "";
+      const match = findMatchingProductLabel(current, baseProductOptions);
+      return match ?? baseProductOptions[0] ?? "";
+    });
   }, [baseProductOptions, selectedDeploymentId]);
 
   const handleBack = () => {
@@ -403,7 +409,12 @@ export default function CreateCasePage(): JSX.Element {
       return;
     }
 
-    const productId = resolveProductId(product, allDeploymentProducts);
+    const resolvedProductLabel =
+      findMatchingProductLabel(product, baseProductOptions) ?? product;
+    const productId = resolveProductId(
+      resolvedProductLabel,
+      allDeploymentProducts,
+    );
     if (!productId) {
       showError("Please select a valid product.");
       return;

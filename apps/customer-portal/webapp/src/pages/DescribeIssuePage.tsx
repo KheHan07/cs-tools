@@ -70,12 +70,8 @@ export default function DescribeIssuePage(): JSX.Element {
   const submittingRef = useRef(false);
 
   const handleBack = useCallback(() => {
-    if (projectId) {
-      navigate(`/${projectId}/dashboard`);
-    } else {
-      navigate(-1);
-    }
-  }, [navigate, projectId]);
+    navigate(-1);
+  }, [navigate]);
 
   const plainText = useMemo(() => htmlToPlainText(value), [value]);
 
@@ -130,7 +126,7 @@ export default function DescribeIssuePage(): JSX.Element {
         sx={{ mb: 3, textTransform: "none", alignSelf: "flex-start" }}
         variant="text"
       >
-        Back to Dashboard
+        Back
       </Button>
 
       <Card variant="outlined" sx={{ flex: 1 }}>
@@ -162,7 +158,7 @@ export default function DescribeIssuePage(): JSX.Element {
                 value={value}
                 onChange={setValue}
                 placeholder={ISSUE_PLACEHOLDER}
-                minHeight={250}
+                minHeight={400}
                 showToolbar
                 toolbarVariant="describeIssue"
                 onSubmitKeyDown={handleSubmit}
