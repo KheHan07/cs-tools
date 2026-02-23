@@ -48,6 +48,11 @@ type FilterType = "all" | "security" | "regular";
  * @param {string} raw - The raw JSON string.
  * @returns {string[]} Parsed string items.
  */
+/** Returns true only for http/https URLs to prevent javascript: or data: URIs. */
+function isSafeUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url.trim());
+}
+
 function parseJsonStringArray(raw: string): string[] {
   try {
     const parsed = JSON.parse(raw);
@@ -161,27 +166,33 @@ function UpdateDetailCard({ desc }: { desc: UpdateDescriptionLevel }): JSX.Eleme
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
                 {bugFixes
                   .filter((f) => f !== "N/A")
-                  .map((fix, i) => (
-                    <Box
-                      key={i}
-                      component="a"
-                      href={fix}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.75,
-                        color: "warning.main",
-                        fontSize: "0.875rem",
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "underline", color: "warning.dark" },
-                      }}
-                    >
-                      <ExternalLink size={14} aria-hidden />
-                      {fix}
-                    </Box>
-                  ))}
+                  .map((fix, i) =>
+                    isSafeUrl(fix) ? (
+                      <Box
+                        key={i}
+                        component="a"
+                        href={fix}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.75,
+                          color: "warning.main",
+                          fontSize: "0.875rem",
+                          textDecoration: "none",
+                          "&:hover": { textDecoration: "underline", color: "warning.dark" },
+                        }}
+                      >
+                        <ExternalLink size={14} aria-hidden />
+                        {fix}
+                      </Box>
+                    ) : (
+                      <Typography key={i} variant="body2" color="text.secondary">
+                        {fix}
+                      </Typography>
+                    ),
+                  )}
               </Box>
             </Box>
           )}
@@ -297,15 +308,31 @@ export default function UpdateLevelDetailsPage(): JSX.Element {
 
   const productName = searchParams.get("productName") ?? "";
   const productBaseVersion = searchParams.get("productBaseVersion") ?? "";
-  const startingUpdateLevel = Number(searchParams.get("startingUpdateLevel") ?? "0");
-  const endingUpdateLevel = Number(searchParams.get("endingUpdateLevel") ?? "0");
+  const startParam = searchParams.get("startingUpdateLevel");
+  const endParam = searchParams.get("endingUpdateLevel");
+  const startingUpdateLevel = Number(startParam ?? "0");
+  const endingUpdateLevel = Number(endParam ?? "0");
 
   const searchRequest = useMemo(() => {
-    if (!productName || !productBaseVersion || !startingUpdateLevel || !endingUpdateLevel) {
+    if (
+      !productName ||
+      !productBaseVersion ||
+      startParam === null ||
+      endParam === null ||
+      Number.isNaN(startingUpdateLevel) ||
+      Number.isNaN(endingUpdateLevel)
+    ) {
       return null;
     }
     return { productName, productVersion: productBaseVersion, startingUpdateLevel, endingUpdateLevel };
-  }, [productName, productBaseVersion, startingUpdateLevel, endingUpdateLevel]);
+  }, [
+    productName,
+    productBaseVersion,
+    startParam,
+    endParam,
+    startingUpdateLevel,
+    endingUpdateLevel,
+  ]);
 
   const { data, isLoading, isError } = usePostUpdateLevelsSearch(searchRequest);
 
@@ -385,7 +412,7 @@ export default function UpdateLevelDetailsPage(): JSX.Element {
       <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 3, pt: 2 }}>
         {isLoading ? (
           <PendingUpdatesListSkeleton />
-        ) : isError || !entry ? (
+        ) : isError ? (
           <Box
             sx={{
               display: "flex",
@@ -396,6 +423,24 @@ export default function UpdateLevelDetailsPage(): JSX.Element {
             }}
           >
             <ErrorStateIcon style={{ width: 200, height: "auto" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              Failed to load updates. Please try again.
+            </Typography>
+          </Box>
+        ) : !entry ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              py: 5,
+            }}
+          >
+            <ErrorStateIcon style={{ width: 200, height: "auto" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              Level not found.
+            </Typography>
           </Box>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>

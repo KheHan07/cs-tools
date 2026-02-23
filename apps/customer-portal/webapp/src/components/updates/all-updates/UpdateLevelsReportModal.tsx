@@ -59,7 +59,7 @@ export default function UpdateLevelsReportModal({
   }, [reportData]);
 
   if (!reportData) {
-    return <Dialog open={open} onClose={onClose} />;
+    return null;
   }
 
   return (

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { PendingUpdatesList } from "@components/updates/pending-updates/PendingUpdatesList";
 import type { UpdateLevelsSearchResponse } from "@models/responses";
@@ -120,5 +120,16 @@ describe("PendingUpdatesList", () => {
     expect(screen.getByText("Regular")).toBeDefined();
     expect(screen.getByText("Security")).toBeDefined();
     expect(screen.getAllByText("View").length).toBe(2);
+  });
+
+  it("invokes onView with the correct levelKey when View button is clicked", () => {
+    const onView = vi.fn();
+    render(<PendingUpdatesList data={mockData} isError={false} onView={onView} />);
+    const viewButtons = screen.getAllByText("View");
+    expect(viewButtons).toHaveLength(2);
+    fireEvent.click(viewButtons[0]);
+    expect(onView).toHaveBeenCalledWith("7");
+    fireEvent.click(viewButtons[1]);
+    expect(onView).toHaveBeenCalledWith("8");
   });
 });

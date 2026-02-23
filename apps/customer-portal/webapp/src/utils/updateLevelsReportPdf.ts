@@ -50,7 +50,7 @@ export interface UpdateLevelsReportData {
 }
 
 /**
- * Formats a Unix timestamp (ms) as "MMM DD, YYYY".
+ * Formats a Unix timestamp (ms) as "MMM DD, YYYY" in UTC.
  *
  * @param {number} ts - Timestamp in milliseconds.
  * @returns {string} Formatted date string.
@@ -61,9 +61,9 @@ function formatReleaseDate(ts: number): string {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
-  const m = months[d.getMonth()];
-  const day = d.getDate();
-  const year = d.getFullYear();
+  const m = months[d.getUTCMonth()];
+  const day = d.getUTCDate();
+  const year = d.getUTCFullYear();
   return `${m} ${day}, ${year}`;
 }
 
@@ -97,7 +97,7 @@ export function getUpdateLevelsReportData(params: UpdateLevelsReportParams): Upd
 
   const securityCount = entries.filter(([, e]) => e.updateType === "security").length;
   const regularCount = entries.filter(([, e]) => e.updateType === "regular").length;
-  const mixedCount = 0;
+  const mixedCount = entries.filter(([, e]) => e.updateType === "mixed").length;
   const totalUpdates = entries.reduce(
     (sum, [, e]) => sum + e.updateDescriptionLevels.length,
     0,
@@ -116,12 +116,13 @@ export function getUpdateLevelsReportData(params: UpdateLevelsReportParams): Upd
       : "N/A";
     const typeLabel =
       entry.updateType.charAt(0).toUpperCase() + entry.updateType.slice(1);
+    // TODO: Applied status not available from API; use N/A until source field is added.
     return {
       levelKey,
       typeLabel,
       updatesCount: entry.updateDescriptionLevels.length,
       releaseDate,
-      applied: "No",
+      applied: "N/A",
     };
   });
 
@@ -200,16 +201,18 @@ export function generateUpdateLevelsReportPdf(reportData: UpdateLevelsReportData
       4: { cellWidth: 25 },
     },
     margin: { left: 14 },
-    didDrawPage: () => {
-      const pageCount = doc.getNumberOfPages();
-      doc.setFontSize(8);
-      doc.text(
-        `${reportData.productName} ${reportData.productVersion} - Update Levels Report Page ${pageCount} of ${pageCount}`,
-        14,
-        doc.internal.pageSize.getHeight() - 10,
-      );
-    },
   });
+
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.text(
+      `${reportData.productName} ${reportData.productVersion} - Update Levels Report Page ${i} of ${totalPages}`,
+      14,
+      doc.internal.pageSize.getHeight() - 10,
+    );
+  }
 
   const fileName = `Update-Levels-Report-${reportData.productName}-${reportData.productVersion}-${reportData.startLevel}-${reportData.endLevel}.pdf`;
   doc.save(fileName);

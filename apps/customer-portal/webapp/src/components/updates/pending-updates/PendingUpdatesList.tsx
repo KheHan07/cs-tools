@@ -67,6 +67,9 @@ export function PendingUpdatesList({
         }}
       >
         <ErrorStateIcon style={{ width: 200, height: "auto" }} />
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Failed to load pending updates.
+        </Typography>
       </Box>
     );
   }
@@ -163,19 +166,20 @@ export function PendingUpdatesList({
                       }}
                     >
                       <Chip
-                      label={
-                        entry.updateType.charAt(0).toUpperCase() + entry.updateType.slice(1)
-                      }
-                      size="small"
-                      sx={{
-                        height: 22,
-                        fontSize: "0.72rem",
-                        fontWeight: 600,
-                        bgcolor: alpha(theme.palette[chipColor].main, 0.15),
-                        color: theme.palette[chipColor].dark,
-                        border: `1px solid ${alpha(theme.palette[chipColor].main, 0.35)}`,
-                      }}
-                    />
+                        label={
+                          entry.updateType.charAt(0).toUpperCase() +
+                          entry.updateType.slice(1)
+                        }
+                        size="small"
+                        sx={{
+                          height: 22,
+                          fontSize: "0.72rem",
+                          fontWeight: 600,
+                          bgcolor: alpha(theme.palette[chipColor].main, 0.15),
+                          color: theme.palette[chipColor].dark,
+                          border: `1px solid ${alpha(theme.palette[chipColor].main, 0.35)}`,
+                        }}
+                      />
                     </Box>
                   </TableCell>
                   <TableCell align="right" sx={{ textAlign: "right" }}>

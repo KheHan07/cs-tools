@@ -54,6 +54,7 @@ vi.mock("react-router", async (importOriginal) => {
   return {
     ...orig,
     useNavigate: () => vi.fn(),
+    useParams: () => ({ projectId: "test-project-id" }),
   };
 });
 

@@ -174,7 +174,18 @@ export default function AllUpdatesTab(): JSX.Element {
   const handleSearch = useCallback(() => {
     const start = Number(filter.startLevel);
     const end = Number(filter.endLevel);
-    if (!filter.productName || !filter.productVersion || !start || !end || start > end) return;
+    if (
+      !filter.productName ||
+      !filter.productVersion ||
+      filter.startLevel === "" ||
+      filter.endLevel === "" ||
+      !Number.isFinite(start) ||
+      !Number.isFinite(end) ||
+      start < 0 ||
+      end < 0 ||
+      start > end
+    )
+      return;
     setSearchParams({
       productName: filter.productName,
       productVersion: filter.productVersion,
@@ -217,12 +228,18 @@ export default function AllUpdatesTab(): JSX.Element {
     setReportModalOpen(true);
   }, [reportData]);
 
+  const startNum = Number(filter.startLevel);
+  const endNum = Number(filter.endLevel);
   const canSearch =
     !!filter.productName &&
     !!filter.productVersion &&
-    !!filter.startLevel &&
-    !!filter.endLevel &&
-    Number(filter.startLevel) <= Number(filter.endLevel);
+    filter.startLevel !== "" &&
+    filter.endLevel !== "" &&
+    Number.isFinite(startNum) &&
+    Number.isFinite(endNum) &&
+    startNum >= 0 &&
+    endNum >= 0 &&
+    startNum <= endNum;
 
   const canViewReport = !!reportData;
 

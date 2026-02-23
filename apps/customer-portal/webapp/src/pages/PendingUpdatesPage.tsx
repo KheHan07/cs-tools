@@ -36,11 +36,20 @@ export default function PendingUpdatesPage(): JSX.Element {
 
   const productName = searchParams.get("productName") ?? "";
   const productBaseVersion = searchParams.get("productBaseVersion") ?? "";
-  const startingUpdateLevel = Number(searchParams.get("startingUpdateLevel") ?? "0");
-  const endingUpdateLevel = Number(searchParams.get("endingUpdateLevel") ?? "0");
+  const startParam = searchParams.get("startingUpdateLevel");
+  const endParam = searchParams.get("endingUpdateLevel");
+  const startingUpdateLevel = Number(startParam ?? "0");
+  const endingUpdateLevel = Number(endParam ?? "0");
 
   const searchRequest = useMemo(() => {
-    if (!productName || !productBaseVersion || !startingUpdateLevel || !endingUpdateLevel) {
+    if (
+      !productName ||
+      !productBaseVersion ||
+      startParam === null ||
+      endParam === null ||
+      Number.isNaN(startingUpdateLevel) ||
+      Number.isNaN(endingUpdateLevel)
+    ) {
       return null;
     }
     return {
@@ -49,7 +58,14 @@ export default function PendingUpdatesPage(): JSX.Element {
       startingUpdateLevel,
       endingUpdateLevel,
     };
-  }, [productName, productBaseVersion, startingUpdateLevel, endingUpdateLevel]);
+  }, [
+    productName,
+    productBaseVersion,
+    startParam,
+    endParam,
+    startingUpdateLevel,
+    endingUpdateLevel,
+  ]);
 
   const { data, isLoading, isError } = usePostUpdateLevelsSearch(searchRequest);
 

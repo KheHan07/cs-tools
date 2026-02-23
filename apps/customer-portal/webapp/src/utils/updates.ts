@@ -24,7 +24,7 @@ import type {
 
 /**
  * Returns the StatCard-compatible chip colour for an update type.
- * "security" maps to "error" (red) and "regular" maps to "info" (blue).
+ * "security" maps to "error" (red); all other types (e.g. "regular") map to "success" (green).
  *
  * @param {string} updateType - The update type string from the API.
  * @returns {StatCardColor} The chip colour token.

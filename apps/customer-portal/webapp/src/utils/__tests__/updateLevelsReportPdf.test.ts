@@ -88,7 +88,7 @@ describe("getUpdateLevelsReportData", () => {
     expect(result.tableRows).toHaveLength(2);
   });
 
-  it("formats release dates correctly", () => {
+  it("formats release dates correctly in UTC", () => {
     const result = getUpdateLevelsReportData({
       productName: "Product",
       productVersion: "1.0",
@@ -97,9 +97,10 @@ describe("getUpdateLevelsReportData", () => {
       data: mockData,
     });
 
-    expect(result.tableRows[0].releaseDate).toMatch(/Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/);
-    expect(result.tableRows[0].releaseDate).toMatch(/\d{1,2}/);
-    expect(result.tableRows[0].releaseDate).toMatch(/\d{4}/);
+    // mockData level 2 has timestamp 1705939200000 = Jan 22, 2024 UTC
+    expect(result.tableRows[0].releaseDate).toBe("Jan 22, 2024");
+    // mockData level 3 has timestamp 1706025600000 = Jan 23, 2024 UTC
+    expect(result.tableRows[1].releaseDate).toBe("Jan 23, 2024");
   });
 
   it("throws when data is empty", () => {
