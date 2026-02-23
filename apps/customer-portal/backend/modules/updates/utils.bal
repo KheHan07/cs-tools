@@ -85,8 +85,12 @@ isolated function groupByUpdateLevel(types:UpdateDescription[] updateDescription
         }
 
         if isSecurityUpdate(description) {
-            groupedUpdateLevels[levelKey].updateType = UPDATE_TYPE_SECURITY;
+            types:UpdateLevelGroup? group = groupedUpdateLevels[levelKey];
+            if group is types:UpdateLevelGroup {
+                group.updateType = UPDATE_TYPE_SECURITY;
+            }
         }
+
     }
 
     return groupedUpdateLevels;
