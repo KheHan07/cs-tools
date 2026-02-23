@@ -22,7 +22,7 @@ import NoveraChatPage from "@pages/NoveraChatPage";
 
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
-  Box: ({ children }: any) => <div>{children}</div>,
+  Box: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children, onClick, startIcon }: any) => (
     <button onClick={onClick}>
       {startIcon}
@@ -30,8 +30,8 @@ vi.mock("@wso2/oxygen-ui", () => ({
     </button>
   ),
   CircularProgress: () => <div data-testid="circular-progress" />,
-  Paper: ({ children }: any) => <div>{children}</div>,
-  Typography: ({ children }: any) => <div>{children}</div>,
+  Paper: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  Typography: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
   TextField: ({ value, onChange, placeholder, onKeyPress }: any) => (
     <input
       value={value}
@@ -46,6 +46,7 @@ vi.mock("@wso2/oxygen-ui", () => ({
     </button>
   ),
   Divider: () => <hr />,
+  Stack: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
   colors: {
     orange: {
       700: "#C2410C",
@@ -59,6 +60,8 @@ vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   ArrowLeft: () => <svg data-testid="back-icon" />,
   Send: () => <svg data-testid="send-icon" />,
   CircleAlert: () => <svg data-testid="alert-icon" />,
+  Sparkles: () => <svg data-testid="sparkles-icon" />,
+  FileText: () => <svg data-testid="file-text-icon" />,
 }));
 
 const { useAllDeploymentProductsMock } = vi.hoisted(() => ({
@@ -206,7 +209,9 @@ describe("NoveraChatPage", () => {
 
     // Now messages container has 5 items. Escalation banner should appear.
     await waitFor(() => {
-      expect(screen.getByText(/Need more help\?/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Thank you for describing the issue/i),
+      ).toBeInTheDocument();
       expect(screen.getByText("Create Case")).toBeInTheDocument();
     });
 

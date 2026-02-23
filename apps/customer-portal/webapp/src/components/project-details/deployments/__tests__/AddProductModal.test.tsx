@@ -173,6 +173,7 @@ describe("AddProductModal", () => {
       });
     });
     expect(mockOnSuccess).toHaveBeenCalled();
+    expect(mockOnClose).toHaveBeenCalled();
   });
 
   it("should include cores and tps when provided", async () => {
@@ -201,6 +202,7 @@ describe("AddProductModal", () => {
     });
 
     const submitButton = screen.getByRole("button", { name: "Add Product" });
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
     fireEvent.click(submitButton);
 
     await waitFor(() => {
