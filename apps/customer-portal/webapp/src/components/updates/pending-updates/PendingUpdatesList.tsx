@@ -78,6 +78,7 @@ export function PendingUpdatesList({
 
   const securityCount = entries.filter(([, e]) => e.updateType === "security").length;
   const regularCount = entries.filter(([, e]) => e.updateType === "regular").length;
+  const mixedCount = entries.filter(([, e]) => e.updateType === "mixed").length;
 
   if (entries.length === 0) {
     return (
@@ -89,8 +90,13 @@ export function PendingUpdatesList({
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         There are <strong>{entries.length}</strong> updates with{" "}
-        <strong>{securityCount}</strong> security updates and{" "}
-        <strong>{regularCount}</strong> regular updates.
+        <strong>{securityCount}</strong> security, <strong>{regularCount}</strong> regular
+        {mixedCount > 0 && (
+          <>
+            , and <strong>{mixedCount}</strong> mixed
+          </>
+        )}{" "}
+        updates.
       </Typography>
 
       <TableContainer component={Paper}>

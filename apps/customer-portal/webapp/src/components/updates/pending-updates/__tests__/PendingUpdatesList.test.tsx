@@ -102,8 +102,9 @@ describe("PendingUpdatesList", () => {
   it("renders summary text with correct counts", () => {
     render(<PendingUpdatesList data={mockData} isError={false} onView={vi.fn()} />);
     expect(screen.getByText(/updates with/)).toBeDefined();
-    expect(screen.getByText(/security updates and/)).toBeDefined();
-    expect(screen.getByText(/regular updates\./)).toBeDefined();
+    expect(screen.getByText(/security/)).toBeDefined();
+    expect(screen.getByText(/regular/)).toBeDefined();
+    expect(screen.getByText(/updates\./)).toBeDefined();
   });
 
   it("renders table header columns", () => {

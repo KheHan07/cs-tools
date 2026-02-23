@@ -41,6 +41,17 @@ import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 
 type FilterType = "all" | "security" | "regular";
 
+const FILTER_BUTTONS: { key: FilterType; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "security", label: "Security" },
+  { key: "regular", label: "Regular" },
+];
+
+/** Returns true only for http/https URLs to prevent javascript: or data: URIs. */
+function isSafeUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url.trim());
+}
+
 /**
  * Parses a JSON-stringified array string into a plain string array.
  * Returns empty array on parse failure.
@@ -48,11 +59,6 @@ type FilterType = "all" | "security" | "regular";
  * @param {string} raw - The raw JSON string.
  * @returns {string[]} Parsed string items.
  */
-/** Returns true only for http/https URLs to prevent javascript: or data: URIs. */
-function isSafeUrl(url: string): boolean {
-  return /^https?:\/\//i.test(url.trim());
-}
-
 function parseJsonStringArray(raw: string): string[] {
   try {
     const parsed = JSON.parse(raw);
@@ -358,12 +364,6 @@ export default function UpdateLevelDetailsPage(): JSX.Element {
     }
   };
 
-  const filterButtons: { key: FilterType; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "security", label: "Security" },
-    { key: "regular", label: "Regular" },
-  ];
-
   return (
     <Box
       sx={{
@@ -485,7 +485,7 @@ export default function UpdateLevelDetailsPage(): JSX.Element {
             {/* Filter buttons */}
             <Box>
               <ButtonGroup variant="outlined" size="small" aria-label="Filter update type">
-                {filterButtons.map(({ key, label }) => (
+                {FILTER_BUTTONS.map(({ key, label }) => (
                   <Button
                     key={key}
                     variant={filter === key ? "contained" : "outlined"}

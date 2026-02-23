@@ -116,7 +116,6 @@ export function getUpdateLevelsReportData(params: UpdateLevelsReportParams): Upd
       : "N/A";
     const typeLabel =
       entry.updateType.charAt(0).toUpperCase() + entry.updateType.slice(1);
-    // TODO: Applied status not available from API; use N/A until source field is added.
     return {
       levelKey,
       typeLabel,

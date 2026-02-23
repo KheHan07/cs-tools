@@ -46,13 +46,13 @@ export interface UpdateLevelsReportModalProps {
  * User can click "Download PDF" to generate and download the report via jspdf-autotable.
  *
  * @param {UpdateLevelsReportModalProps} props - open, reportData, onClose.
- * @returns {JSX.Element} The report modal.
+ * @returns {JSX.Element | null} The report modal or null when reportData is missing.
  */
 export default function UpdateLevelsReportModal({
   open,
   reportData,
   onClose,
-}: UpdateLevelsReportModalProps): JSX.Element {
+}: UpdateLevelsReportModalProps): JSX.Element | null {
   const handleDownloadPdf = useCallback(() => {
     if (!reportData) return;
     generateUpdateLevelsReportPdf(reportData);

@@ -56,6 +56,27 @@ const INITIAL_FILTER: AllUpdatesTabFilterState = {
   endLevel: "",
 };
 
+function isValidFilter(
+  f: AllUpdatesTabFilterState,
+): { valid: true; start: number; end: number } | { valid: false } {
+  const start = Number(f.startLevel);
+  const end = Number(f.endLevel);
+  if (
+    !f.productName ||
+    !f.productVersion ||
+    f.startLevel === "" ||
+    f.endLevel === "" ||
+    !Number.isFinite(start) ||
+    !Number.isFinite(end) ||
+    start < 0 ||
+    end < 0 ||
+    start > end
+  ) {
+    return { valid: false };
+  }
+  return { valid: true, start, end };
+}
+
 /**
  * Derives unique product names from recommended update level data.
  *
@@ -105,17 +126,7 @@ export default function AllUpdatesTab(): JSX.Element {
 
   const { data: recommendedData, isLoading: isRecommendedLoading, isError: isRecommendedError } = useGetRecommendedUpdateLevels();
 
-  const searchRequest = useMemo(() => {
-    if (!searchParams) return null;
-    return {
-      productName: searchParams.productName,
-      productVersion: searchParams.productVersion,
-      startingUpdateLevel: searchParams.startingUpdateLevel,
-      endingUpdateLevel: searchParams.endingUpdateLevel,
-    };
-  }, [searchParams]);
-
-  const { data: searchData, isLoading: isSearchLoading, isError: isSearchError } = usePostUpdateLevelsSearch(searchRequest);
+  const { data: searchData, isLoading: isSearchLoading, isError: isSearchError } = usePostUpdateLevelsSearch(searchParams);
 
   const productNames = useMemo(() => getProductNames(recommendedData), [recommendedData]);
 
@@ -172,25 +183,13 @@ export default function AllUpdatesTab(): JSX.Element {
   );
 
   const handleSearch = useCallback(() => {
-    const start = Number(filter.startLevel);
-    const end = Number(filter.endLevel);
-    if (
-      !filter.productName ||
-      !filter.productVersion ||
-      filter.startLevel === "" ||
-      filter.endLevel === "" ||
-      !Number.isFinite(start) ||
-      !Number.isFinite(end) ||
-      start < 0 ||
-      end < 0 ||
-      start > end
-    )
-      return;
+    const result = isValidFilter(filter);
+    if (!result.valid) return;
     setSearchParams({
       productName: filter.productName,
       productVersion: filter.productVersion,
-      startingUpdateLevel: start,
-      endingUpdateLevel: end,
+      startingUpdateLevel: result.start,
+      endingUpdateLevel: result.end,
     });
   }, [filter]);
 
@@ -228,18 +227,7 @@ export default function AllUpdatesTab(): JSX.Element {
     setReportModalOpen(true);
   }, [reportData]);
 
-  const startNum = Number(filter.startLevel);
-  const endNum = Number(filter.endLevel);
-  const canSearch =
-    !!filter.productName &&
-    !!filter.productVersion &&
-    filter.startLevel !== "" &&
-    filter.endLevel !== "" &&
-    Number.isFinite(startNum) &&
-    Number.isFinite(endNum) &&
-    startNum >= 0 &&
-    endNum >= 0 &&
-    startNum <= endNum;
+  const canSearch = isValidFilter(filter).valid;
 
   const canViewReport = !!reportData;
 
