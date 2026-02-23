@@ -468,6 +468,14 @@ export interface DeploymentProduct {
   updateLevel: string;
 }
 
+/** Response for GET /deployments/:deploymentId/attachments. */
+export interface DeploymentAttachmentsResponse {
+  limit: number;
+  offset: number;
+  attachments: DeploymentDocument[];
+  totalRecords: number;
+}
+
 // Document attached to a deployment.
 export interface DeploymentDocument {
   id: string;
