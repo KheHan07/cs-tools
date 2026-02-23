@@ -15,7 +15,10 @@
 // under the License.
 
 import {
+  alpha,
   Box,
+  Button,
+  Chip,
   Paper,
   Table,
   TableBody,
@@ -24,95 +27,193 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
-import type { RecommendedUpdateLevelItem } from "@models/responses";
-import type { PendingUpdateLevelRow } from "@utils/updates";
+import type { UpdateLevelsSearchResponse } from "@models/responses";
+import { getUpdateTypeChipColor } from "@utils/updates";
+import EmptyState from "@components/common/empty-state/EmptyState";
+import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 
 export interface PendingUpdatesListProps {
-  pendingRows: PendingUpdateLevelRow[];
-  recommendedItem: RecommendedUpdateLevelItem | undefined;
+  data: UpdateLevelsSearchResponse | null;
+  isError: boolean;
+  onView: (levelKey: string) => void;
 }
 
 /**
- * Component to display pending update levels in a table.
+ * Displays pending update levels as a simple table.
+ * Each row shows the update level number, update type chip, and a View button.
  *
- * @param {PendingUpdatesListProps} props - Pending rows and recommended item for summary.
+ * @param {PendingUpdatesListProps} props - Response data, error state, and view callback.
  * @returns {JSX.Element} The rendered pending updates table.
  */
 export function PendingUpdatesList({
-  pendingRows,
-  recommendedItem,
+  data,
+  isError,
+  onView,
 }: PendingUpdatesListProps): JSX.Element {
-  const securityCount = pendingRows.filter((r) => r.updateType === "security").length;
-  const regularCount = pendingRows.filter((r) => r.updateType === "regular").length;
+  const theme = useTheme();
 
-  if (pendingRows.length === 0) {
+  if (isError) {
     return (
-      <Box sx={{ py: 4, textAlign: "center" }}>
-        <Typography variant="body1" color="text.secondary">
-          No pending updates found for this product and version.
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          py: 5,
+        }}
+      >
+        <ErrorStateIcon style={{ width: 200, height: "auto" }} />
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Failed to load pending updates.
         </Typography>
       </Box>
     );
   }
 
+  const entries = data ? Object.entries(data).sort(([a], [b]) => Number(a) - Number(b)) : [];
+
+  const securityCount = entries.filter(([, e]) => e.updateType === "security").length;
+  const regularCount = entries.filter(([, e]) => e.updateType === "regular").length;
+  const mixedCount = entries.filter(([, e]) => e.updateType === "mixed").length;
+
+  if (entries.length === 0) {
+    return (
+      <EmptyState description="No pending updates found for this product and version." />
+    );
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {recommendedItem && (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          There are <strong>{pendingRows.length}</strong> updates with{" "}
-          <strong>{securityCount}</strong> security updates and{" "}
-          <strong>{regularCount}</strong> regular updates.
-        </Typography>
-      )}
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        There are <strong>{entries.length}</strong> updates with{" "}
+        <strong>{securityCount}</strong> security, <strong>{regularCount}</strong> regular
+        {mixedCount > 0 && (
+          <>
+            , and <strong>{mixedCount}</strong> mixed
+          </>
+        )}{" "}
+        updates.
+      </Typography>
 
-      <TableContainer component={Paper} variant="outlined">
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: "grey.50" }}>
-                <TableCell sx={{ fontWeight: 600, textTransform: "uppercase", fontSize: "0.75rem" }}>
-                  Update Level
-                </TableCell>
-                <TableCell sx={{ fontWeight: 600, textTransform: "uppercase", fontSize: "0.75rem" }}>
-                  Update Type
-                </TableCell>
-                <TableCell sx={{ fontWeight: 600, textTransform: "uppercase", fontSize: "0.75rem" }}>
-                  Details
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {pendingRows.map((row) => (
-                <TableRow key={row.updateLevel} hover>
-                  <TableCell>{row.updateLevel}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
-                      --
+      <TableContainer component={Paper}>
+        <Table
+          sx={{
+            minWidth: 650,
+            width: "100%",
+            tableLayout: "fixed",
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell
+                align="left"
+                sx={{
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                  width: "33.33%",
+                  textAlign: "left",
+                }}
+              >
+                Update Level
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                  width: "33.33%",
+                  textAlign: "center",
+                }}
+              >
+                Update Type
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                  width: "33.33%",
+                  textAlign: "right",
+                }}
+              >
+                Details
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {entries.map(([levelKey, entry]) => {
+              const chipColor = getUpdateTypeChipColor(entry.updateType);
+              return (
+                <TableRow
+                  key={levelKey}
+                  hover
+                  sx={{
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
+                >
+                  <TableCell align="left" sx={{ textAlign: "left" }}>
+                    <Typography variant="body2" color="text.primary">
+                      {levelKey}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center" sx={{ textAlign: "center" }}>
                     <Box
-                      component="button"
                       sx={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Chip
+                        label={
+                          entry.updateType.charAt(0).toUpperCase() +
+                          entry.updateType.slice(1)
+                        }
+                        size="small"
+                        sx={{
+                          height: 22,
+                          fontSize: "0.72rem",
+                          fontWeight: 600,
+                          bgcolor: alpha(theme.palette[chipColor].main, 0.15),
+                          color: theme.palette[chipColor].dark,
+                          border: `1px solid ${alpha(theme.palette[chipColor].main, 0.35)}`,
+                        }}
+                      />
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right" sx={{ textAlign: "right" }}>
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() => onView(levelKey)}
+                      sx={{
                         color: "warning.main",
                         fontWeight: 500,
                         p: 0,
+                        minWidth: 0,
+                        textTransform: "none",
                         "&:hover": {
+                          bgcolor: "transparent",
                           textDecoration: "underline",
+                          color: "warning.dark",
                         },
                       }}
                     >
                       View
-                    </Box>
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              );
+            })}
+          </TableBody>
+        </Table>
       </TableContainer>
     </Box>
   );

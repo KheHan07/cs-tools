@@ -161,6 +161,14 @@ export interface CreateProjectContactRequest {
   isSecurityContact: boolean;
 }
 
+// Request body for POST /updates/levels/search.
+export interface UpdateLevelsSearchRequest {
+  startingUpdateLevel: number;
+  endingUpdateLevel: number;
+  productName: string;
+  productVersion: string;
+}
+
 // Request body for project time cards search (POST /projects/:projectId/time-cards/search).
 export interface TimeCardSearchRequest {
   filters?: {

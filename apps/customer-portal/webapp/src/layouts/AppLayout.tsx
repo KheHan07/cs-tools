@@ -58,8 +58,14 @@ export default function AppLayout({ children }: AppLayoutProps): JSX.Element {
   const isPendingUpdatesPage = /\/[^/]+\/updates\/pending$/.test(
     location.pathname,
   );
+  const isUpdateLevelDetailsPage = /\/[^/]+\/updates\/pending\/level\/[^/]+$/.test(
+    location.pathname,
+  );
   const isDetailsStylePage =
-    isCaseDetailsPage || isVulnerabilityDetailsPage || isPendingUpdatesPage;
+    isCaseDetailsPage ||
+    isVulnerabilityDetailsPage ||
+    isPendingUpdatesPage ||
+    isUpdateLevelDetailsPage;
 
   return (
     <IdleTimeoutProvider>

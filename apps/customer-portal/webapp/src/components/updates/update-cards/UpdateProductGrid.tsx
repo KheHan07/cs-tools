@@ -17,6 +17,8 @@
 import { Box, Grid, Typography } from "@wso2/oxygen-ui";
 import { useNavigate } from "react-router";
 import type { JSX } from "react";
+import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
+import EmptyState from "@components/common/empty-state/EmptyState";
 import type { RecommendedUpdateLevelItem } from "@models/responses";
 import { UpdateProductCard } from "@update-cards/UpdateProductCard";
 import { UpdateProductCardSkeleton } from "@update-cards/UpdateProductCardSkeleton";
@@ -44,10 +46,17 @@ export function UpdateProductGrid({
 
   if (isError) {
     return (
-      <Box sx={{ mt: 4, textAlign: "center" }}>
-        <Typography variant="body1" color="error">
-          Failed to load product updates.
-        </Typography>
+      <Box
+        sx={{
+          mt: 4,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          py: 5,
+        }}
+      >
+        <ErrorStateIcon style={{ width: 200, height: "auto" }} />
       </Box>
     );
   }
@@ -69,6 +78,8 @@ export function UpdateProductGrid({
       </Typography>
       {isLoading || !data ? (
         renderSkeletons()
+      ) : data.length === 0 ? (
+        <EmptyState description="No product updates found." />
       ) : (
         <Grid container spacing={2}>
           {data.map((item) => (
@@ -84,6 +95,8 @@ export function UpdateProductGrid({
                         const params = new URLSearchParams({
                           productName: item.productName,
                           productBaseVersion: item.productBaseVersion,
+                          startingUpdateLevel: String(item.startingUpdateLevel),
+                          endingUpdateLevel: String(item.recommendedUpdateLevel),
                         });
                         navigate(`/${projectId}/updates/pending?${params}`);
                       }

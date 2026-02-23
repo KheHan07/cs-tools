@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Stack, Typography } from "@wso2/oxygen-ui";
+import { Box, Stack } from "@wso2/oxygen-ui";
 import { useParams } from "react-router";
 import { useState, useEffect, useRef, type JSX } from "react";
 import TabBar from "@components/common/tab-bar/TabBar";
 import { UpdatesStatsGrid } from "@components/updates/stat-card-row/UpdatesStatsGrid";
 import { UpdateProductGrid } from "@update-cards/UpdateProductGrid";
+import AllUpdatesTab from "@components/updates/all-updates/AllUpdatesTab";
 import { useGetRecommendedUpdateLevels } from "@api/useGetRecommendedUpdateLevels";
-import { useGetProductUpdateLevels } from "@api/useGetProductUpdateLevels";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useLogger } from "@hooks/useLogger";
@@ -45,8 +45,6 @@ export default function UpdatesPage(): JSX.Element {
   const hasShownErrorRef = useRef(false);
 
   const { data, isLoading, isError } = useGetRecommendedUpdateLevels();
-  // Prefetch in background for pending updates detail page.
-  useGetProductUpdateLevels();
 
   const isUpdatesLoading = isLoading || (!data && !isError);
 
@@ -94,11 +92,7 @@ export default function UpdatesPage(): JSX.Element {
         </Stack>
       );
     }
-    return (
-      <Typography variant="body1" color="text.secondary">
-        All updates content
-      </Typography>
-    );
+    return <AllUpdatesTab />;
   };
 
   return (
