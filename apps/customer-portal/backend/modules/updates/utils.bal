@@ -54,25 +54,63 @@ public isolated function processProductUpdateLevels() returns types:ProductUpdat
         };
 }
 
+# Check if the given update description level is a security update.
+#
+# + description - The update description level to check
+# + return - true if the update description level is a security update, false otherwise
+isolated function isSecurityUpdate(types:UpdateDescription description) returns boolean =>
+    description.updateType == UPDATE_TYPE_SECURITY;
+
+# Group update description levels by their update level and determine the overall update type for each group.
+#
+# + updateDescriptions - An array of update descriptions to be grouped
+# + return - A map where the key is the update level and the value is an object containing the overall update 
+# type and the list of update description levels for that update level
+isolated function groupByUpdateLevel(types:UpdateDescription[] updateDescriptions)
+    returns map<types:UpdateLevelGroup> {
+
+    map<types:UpdateLevelGroup> groupedUpdateLevels = {};
+    foreach types:UpdateDescription description in updateDescriptions {
+        string levelKey = description.updateLevel.toString();
+
+        if !groupedUpdateLevels.hasKey(levelKey) {
+            groupedUpdateLevels[levelKey] = {
+                updateType: isSecurityUpdate(description) ? UPDATE_TYPE_SECURITY : UPDATE_TYPE_REGULAR,
+                updateDescriptionLevels: []
+            };
+        }
+        types:UpdateDescription[]? existingLevels = groupedUpdateLevels[levelKey]?.updateDescriptionLevels;
+        if existingLevels is types:UpdateDescription[] {
+            existingLevels.push(description);
+        }
+
+        if isSecurityUpdate(description) {
+            groupedUpdateLevels[levelKey].updateType = UPDATE_TYPE_SECURITY;
+        }
+    }
+
+    return groupedUpdateLevels;
+}
+
 # Process search for updates between specified update levels.
 #
 # + email - Email of the user
 # + payload - Payload containing the update levels to search between
 # + return - Update description for the specified update levels, or an error if the operation fails
 public isolated function processSearchUpdatesBetweenUpdateLevels(string email, types:UpdateDescriptionPayload payload)
-    returns types:UpdateDescription[]|error {
+    returns map<types:UpdateLevelGroup>|error {
 
     UpdateDescriptionRequest requestPayload = {
         product\-name: payload.productName,
         product\-version: payload.productVersion,
-        channel: payload.channel,
+        channel: CHANNEL,
         starting\-update\-level: payload.startingUpdateLevel,
         ending\-update\-level: payload.endingUpdateLevel,
         user\-email: email
     };
 
     UpdateDescription[] response = check searchUpdatesBetweenUpdateLevels(requestPayload);
-    return from UpdateDescription description in response
+    types:UpdateDescription[] updateDescriptions = from UpdateDescription description in response
         let DependantRelease[]? dependantReleases = description?.dependant\-releases
         select {
             productName: description.product\-name,
@@ -106,4 +144,5 @@ public isolated function processSearchUpdatesBetweenUpdateLevels(string email, t
                         releaseVersion: release.release\-version
                     }
         };
+    return groupByUpdateLevel(updateDescriptions);
 }
