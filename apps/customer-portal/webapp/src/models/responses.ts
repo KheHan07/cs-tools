@@ -728,3 +728,44 @@ export interface CreateCallResponse {
 
 /** Alias for create/update call request response (shared shape). */
 export type CallRequestResponse = CreateCallResponse;
+
+// Security advisory item inside an update description level.
+export interface SecurityAdvisory {
+  id: string;
+  overview: string;
+  severity: string;
+  description: string;
+  impact: string;
+  solution: string;
+  notes: string;
+  credits: string;
+}
+
+// Single update description entry within an update level.
+export interface UpdateDescriptionLevel {
+  updateLevel: number;
+  productName: string;
+  productVersion: string;
+  channel: string;
+  updateType: string;
+  updateNumber: number;
+  description: string;
+  instructions: string;
+  bugFixes: string;
+  filesAdded: string;
+  filesModified: string;
+  filesRemoved: string;
+  bundlesInfoChanges: string | null;
+  dependantReleases: string | null;
+  timestamp: number;
+  securityAdvisories: SecurityAdvisory[];
+}
+
+// Entry for a single update level key from POST /updates/levels/search.
+export interface UpdateLevelEntry {
+  updateType: string;
+  updateDescriptionLevels: UpdateDescriptionLevel[];
+}
+
+// Response for POST /updates/levels/search (map keyed by update level string).
+export type UpdateLevelsSearchResponse = Record<string, UpdateLevelEntry>;

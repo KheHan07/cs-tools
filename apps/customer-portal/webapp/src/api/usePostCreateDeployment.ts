@@ -67,6 +67,12 @@ export function usePostCreateDeployment(
           `[usePostCreateDeployment] Response status: ${response.status}`,
         );
 
+        if (response.status === 409) {
+          throw new Error(
+            `Deployment name "${body.name}" is already taken. Please choose a different name.`,
+          );
+        }
+
         if (!response.ok) {
           const text = await response.text();
           throw new Error(
@@ -83,10 +89,10 @@ export function usePostCreateDeployment(
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      void queryClient.refetchQueries({
         queryKey: ["project-deployments", projectId],
       });
-      queryClient.invalidateQueries({
+      void queryClient.refetchQueries({
         queryKey: [ApiQueryKeys.DEPLOYMENTS, projectId],
       });
     },
