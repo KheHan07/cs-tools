@@ -30,6 +30,23 @@ import {
 } from "@constants/projectDetailsConstants";
 
 /**
+ * Get the theme color path for a time card state chip (e.g. Approved, Submitted).
+ * Use with resolveColorFromTheme for SupportOverviewCard-style chips.
+ *
+ * @param {string} state - The time card state.
+ * @returns {string} Theme palette path (e.g. "success.main", "info.main").
+ */
+export const getTimeCardStateColorPath = (
+  state: string | null | undefined,
+): string => {
+  const normalized = state?.toLowerCase();
+  if (normalized === "approved") return "success.main";
+  if (normalized === "submitted") return "info.main";
+  if (normalized === "rejected" || normalized === "draft") return "warning.main";
+  return "text.secondary";
+};
+
+/**
  * Get the palette color key for a time tracking badge type.
  *
  * @param {TimeTrackingBadgeType | string} type - The badge type.

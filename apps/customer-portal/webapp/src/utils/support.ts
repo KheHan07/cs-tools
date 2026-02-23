@@ -33,7 +33,7 @@ import {
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment } from "@models/responses";
-import type { Theme } from "@wso2/oxygen-ui";
+import { alpha, type Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
 import { createElement, type ComponentType, type ReactNode } from "react";
 
@@ -361,6 +361,38 @@ export function getChatStatusColor(status: string): string {
     default:
       return "secondary.main";
   }
+}
+
+/**
+ * Returns sx object for SupportOverviewCard-style colored chips.
+ *
+ * @param {string} colorPath - Theme palette path (e.g. "success.main", "info.main").
+ * @param {Theme} theme - Oxygen UI theme.
+ * @returns {object} MUI sx object for Chip.
+ */
+export function getSupportOverviewChipSx(
+  colorPath: string,
+  theme: Theme,
+): Record<string, unknown> {
+  const resolvedColor = resolveColorFromTheme(colorPath, theme);
+  return {
+    bgcolor: alpha(resolvedColor, 0.1),
+    color: resolvedColor,
+    height: 20,
+    fontSize: "0.75rem",
+  };
+}
+
+/**
+ * Returns sx object for plain (non-colored) chips.
+ *
+ * @returns {object} MUI sx object for Chip.
+ */
+export function getPlainChipSx(): Record<string, unknown> {
+  return {
+    height: 20,
+    fontSize: "0.75rem",
+  };
 }
 
 /**

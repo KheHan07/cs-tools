@@ -68,6 +68,7 @@ interface ChatMessageForClassification {
  * @returns {JSX.Element} The rendered CreateCasePage.
  */
 export interface RelatedCaseState {
+  parentCaseId?: string;
   number: string;
   title: string;
   description: string;
@@ -419,6 +420,9 @@ export default function CreateCasePage(): JSX.Element {
       projectId,
       severityKey,
       title,
+      ...(relatedCase?.parentCaseId && {
+        parentCaseId: relatedCase.parentCaseId,
+      }),
     };
 
     postCase(payload, {
