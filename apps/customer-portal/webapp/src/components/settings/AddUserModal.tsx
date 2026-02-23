@@ -18,6 +18,7 @@ import { useState, useCallback, useEffect, useRef, type JSX } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -30,99 +31,135 @@ import {
   Select,
   Typography,
 } from "@wso2/oxygen-ui";
-import { Code, ShieldCheck, X } from "@wso2/oxygen-ui-icons-react";
+import { Code, Crown, X } from "@wso2/oxygen-ui-icons-react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
 import type { CreateProjectContactRequest } from "@models/requests";
+import { useValidateProjectContact } from "@api/useValidateProjectContact";
 
-export type ContactRole = "developer" | "security";
+type ContactRole = "portal_user" | "system_user";
 
 const ROLES: { id: ContactRole; label: string; Icon: typeof Code }[] = [
-  { id: "developer", label: "Developer", Icon: Code },
-  { id: "security", label: "Security", Icon: ShieldCheck },
+  { id: "portal_user", label: "Portal User", Icon: Crown },
+  { id: "system_user", label: "System User", Icon: Code },
 ];
 
 /** Basic email format validation: local@domain.tld */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type ModalStep = "email" | "details";
+
 export interface AddUserModalProps {
   open: boolean;
+  projectId: string;
   onClose: () => void;
   onSubmit: (data: CreateProjectContactRequest) => void;
   isSubmitting?: boolean;
 }
 
 /**
- * Modal to add a new user (contact) to the project.
+ * Two-step modal to add a new user (contact) to the project.
+ * Enter and validate email address.
+ * Fill in full name and role, then send invitation.
  *
  * @param {AddUserModalProps} props - Modal props.
  * @returns {JSX.Element} The modal.
  */
 export default function AddUserModal({
   open,
+  projectId,
   onClose,
   onSubmit,
   isSubmitting = false,
 }: AddUserModalProps): JSX.Element {
-  const [fullName, setFullName] = useState("");
+  const [step, setStep] = useState<ModalStep>("email");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [role, setRole] = useState<ContactRole>("developer");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState<ContactRole>("portal_user");
   const emailInputRef = useRef<HTMLInputElement>(null);
 
+  const validateContact = useValidateProjectContact(projectId);
+
   const resetForm = useCallback(() => {
-    setFullName("");
+    setStep("email");
     setEmail("");
     setEmailError("");
-    setRole("developer");
+    setFirstName("");
+    setLastName("");
+    setRole("portal_user");
   }, []);
 
   useEffect(() => {
-    if (!open) resetForm();
+    if (!open) {
+      resetForm();
+      validateContact.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, resetForm]);
 
+  const isBusy = isSubmitting || validateContact.isPending;
+
   const handleClose = useCallback(() => {
-    if (isSubmitting) return;
+    if (isBusy) return;
     resetForm();
     onClose();
-  }, [isSubmitting, resetForm, onClose]);
+  }, [isBusy, resetForm, onClose]);
 
-  /** Parses full name into firstName and lastName; preserves multi-word surnames. */
-  const parseName = useCallback((trimmed: string): { firstName: string; lastName: string } => {
-    if (!trimmed) return { firstName: "", lastName: "" };
-    const firstSpaceIdx = trimmed.indexOf(" ");
-    if (firstSpaceIdx === -1) return { firstName: trimmed, lastName: "" };
-    return {
-      firstName: trimmed.slice(0, firstSpaceIdx),
-      lastName: trimmed.slice(firstSpaceIdx + 1),
-    };
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    const trimmed = fullName.trim();
-    const { firstName, lastName } = parseName(trimmed);
+  const handleEmailNext = useCallback(() => {
     const trimmedEmail = email.trim();
-
     setEmailError("");
-    if (!trimmedEmail || !firstName) return;
+
+    if (!trimmedEmail) {
+      setEmailError("Email address is required");
+      emailInputRef.current?.focus();
+      return;
+    }
     if (!EMAIL_REGEX.test(trimmedEmail)) {
       setEmailError("Enter a valid email address (e.g. user@company.com)");
       emailInputRef.current?.focus();
       return;
     }
 
+    validateContact.mutate(
+      { contactEmail: trimmedEmail },
+      {
+        onSuccess: () => {
+          setStep("details");
+        },
+        onError: (err) => {
+          setEmailError(err.message || "Email validation failed. Please try again.");
+        },
+      },
+    );
+  }, [email, validateContact]);
+
+  const handleBackToEmail = useCallback(() => {
+    setStep("email");
+    setFirstName("");
+    setLastName("");
+    setRole("portal_user");
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail || !trimmedFirst) return;
+
     onSubmit({
       contactEmail: trimmedEmail,
-      contactFirstName: firstName,
-      contactLastName: lastName,
-      isCsIntegrationUser: role === "developer",
-      isSecurityContact: role === "security",
+      contactFirstName: trimmedFirst,
+      contactLastName: trimmedLast,
+      isCsIntegrationUser: role === "system_user",
+      isSecurityContact: false,
     });
-  }, [fullName, email, role, onSubmit, parseName]);
+  }, [firstName, lastName, email, role, onSubmit]);
 
-  const isValid =
-    fullName.trim().length > 0 &&
-    email.trim().length > 0 &&
-    EMAIL_REGEX.test(email.trim());
+  const isDetailsValid =
+    firstName.trim().length > 0 &&
+    email.trim().length > 0;
   const selectedRole = ROLES.find((r) => r.id === role);
 
   const handleRoleChange = useCallback((event: SelectChangeEvent<ContactRole>) => {
@@ -145,7 +182,7 @@ export default function AddUserModal({
         aria-label="Close"
         size="small"
         onClick={handleClose}
-        disabled={isSubmitting}
+        disabled={isBusy}
         sx={{
           position: "absolute",
           right: 8,
@@ -156,122 +193,188 @@ export default function AddUserModal({
         <X size={18} />
       </IconButton>
       <DialogTitle id="add-user-modal-title">Add New User</DialogTitle>
-      <DialogContent>
-        <Typography
-          id="add-user-modal-description"
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 2 }}
-        >
-          Send an invitation to a new user to access the portal
-        </Typography>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-          <Box>
-            <InputLabel
-              htmlFor="add-user-fullname"
-              sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
+      {/* ─── Email validation ─── */}
+      {step === "email" && (
+        <>
+          <DialogContent>
+            <Typography
+              id="add-user-modal-description"
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2 }}
             >
-              Full Name <span style={{ color: "var(--oxygen-palette-error-main)" }}>*</span>
-            </InputLabel>
-            <Input
-              id="add-user-fullname"
-              fullWidth
-              placeholder="Enter full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </Box>
+              Enter the email address of the user you want to add
+            </Typography>
 
-          <Box>
-            <InputLabel
-              htmlFor="add-user-email"
-              sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
-            >
-              Email Address <span style={{ color: "var(--oxygen-palette-error-main)" }}>*</span>
-            </InputLabel>
-            <Input
-              ref={emailInputRef}
-              id="add-user-email"
-              type="email"
-              fullWidth
-              placeholder="user@company.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setEmailError("");
-              }}
-              disabled={isSubmitting}
-              error={!!emailError}
-              slotProps={{
-                input: {
-                  "aria-invalid": !!emailError,
-                  "aria-errormessage": emailError ? "add-user-email-error" : undefined,
-                },
-              }}
-            />
-            {emailError && (
-              <Typography
-                id="add-user-email-error"
-                variant="caption"
-                color="error"
-                sx={{ display: "block", mt: 0.5 }}
+            <Box>
+              <InputLabel
+                htmlFor="add-user-email"
+                sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
               >
-                {emailError}
-              </Typography>
-            )}
-          </Box>
-
-          <FormControl fullWidth size="medium">
-            <InputLabel id="add-user-role-label">Role</InputLabel>
-            <Select<ContactRole>
-              labelId="add-user-role-label"
-              id="add-user-role"
-              value={role}
-              label="Role"
-              onChange={handleRoleChange}
-              disabled={isSubmitting}
-              renderValue={() => {
-                const RoleIcon = selectedRole?.Icon;
-                return RoleIcon ? (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <RoleIcon size={16} />
-                    {selectedRole?.label ?? role}
-                  </Box>
-                ) : (
-                  role
-                );
-              }}
+                Email Address <span style={{ color: "var(--oxygen-palette-error-main)" }}>*</span>
+              </InputLabel>
+              <Input
+                ref={emailInputRef}
+                id="add-user-email"
+                type="email"
+                fullWidth
+                placeholder="user@company.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError("");
+                }}
+                disabled={validateContact.isPending}
+                error={!!emailError}
+                slotProps={{
+                  input: {
+                    "aria-invalid": !!emailError,
+                    "aria-errormessage": emailError ? "add-user-email-error" : undefined,
+                  },
+                }}
+              />
+              {emailError && (
+                <Typography
+                  id="add-user-email-error"
+                  variant="caption"
+                  color="error"
+                  sx={{ display: "block", mt: 0.5 }}
+                >
+                  {emailError}
+                </Typography>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button variant="outlined" onClick={handleClose} disabled={validateContact.isPending}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handleEmailNext}
+              disabled={!email.trim() || validateContact.isPending}
+              startIcon={
+                validateContact.isPending ? <CircularProgress size={16} color="inherit" /> : undefined
+              }
             >
-              {ROLES.map((r) => {
-                const RoleIcon = r.Icon;
-                return (
-                  <MenuItem key={r.id} value={r.id}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <RoleIcon size={16} />
-                      {r.label}
-                    </Box>
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button variant="outlined" onClick={handleClose} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="warning"
-          onClick={handleSubmit}
-          disabled={!isValid || isSubmitting}
-        >
-          {isSubmitting ? "Sending..." : "Send Invitation"}
-        </Button>
-      </DialogActions>
+              {validateContact.isPending ? "Validating..." : "Next"}
+            </Button>
+          </DialogActions>
+        </>
+      )}
+
+      {/* ─── Full name, email (read-only), role ─── */}
+      {step === "details" && (
+        <>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Send an invitation to a new user to access the portal
+            </Typography>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+              <Box>
+                <InputLabel
+                  htmlFor="add-user-firstname"
+                  sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
+                >
+                  First Name <span style={{ color: "var(--oxygen-palette-error-main)" }}>*</span>
+                </InputLabel>
+                <Input
+                  id="add-user-firstname"
+                  fullWidth
+                  placeholder="Enter first name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </Box>
+
+              <Box>
+                <InputLabel
+                  htmlFor="add-user-lastname"
+                  sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
+                >
+                  Last Name
+                </InputLabel>
+                <Input
+                  id="add-user-lastname"
+                  fullWidth
+                  placeholder="Enter last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </Box>
+
+              <Box>
+                <InputLabel
+                  htmlFor="add-user-email-readonly"
+                  sx={{ display: "block", mb: 1, fontSize: "0.875rem" }}
+                >
+                  Email Address
+                </InputLabel>
+                <Input
+                  id="add-user-email-readonly"
+                  type="email"
+                  fullWidth
+                  value={email}
+                  disabled
+                />
+              </Box>
+
+              <FormControl fullWidth size="medium">
+                <InputLabel id="add-user-role-label">User Type</InputLabel>
+                <Select<ContactRole>
+                  labelId="add-user-role-label"
+                  id="add-user-role"
+                  value={role}
+                  label="User Type"
+                  onChange={handleRoleChange}
+                  disabled={isSubmitting}
+                  renderValue={() => {
+                    const RoleIcon = selectedRole?.Icon;
+                    return RoleIcon ? (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <RoleIcon size={16} />
+                        {selectedRole?.label ?? role}
+                      </Box>
+                    ) : (
+                      role
+                    );
+                  }}
+                >
+                  {ROLES.map((r) => {
+                    const RoleIcon = r.Icon;
+                    return (
+                      <MenuItem key={r.id} value={r.id}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <RoleIcon size={16} />
+                          {r.label}
+                        </Box>
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button variant="outlined" onClick={handleBackToEmail} disabled={isSubmitting}>
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handleSubmit}
+              disabled={!isDetailsValid || isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Invitation"}
+            </Button>
+          </DialogActions>
+        </>
+      )}
     </Dialog>
   );
 }
