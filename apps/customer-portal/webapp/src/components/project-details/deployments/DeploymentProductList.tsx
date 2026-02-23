@@ -22,6 +22,7 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
+  IconButton,
   Typography,
   alpha,
 } from "@wso2/oxygen-ui";
@@ -30,6 +31,7 @@ import {
   CircleAlert,
   Cpu,
   Package,
+  PencilLine,
   Plus,
   Trash2,
   Zap,
@@ -40,9 +42,11 @@ import { useGetDeploymentsProducts } from "@api/useGetDeploymentsProducts";
 import { ApiQueryKeys } from "@constants/apiConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import AddProductModal from "@components/project-details/deployments/AddProductModal";
+import ManageProductModal from "@components/project-details/deployments/ManageProductModal";
 
 interface DeploymentProductListProps {
   deploymentId: string;
+  projectId: string;
 }
 
 /**
@@ -53,9 +57,12 @@ interface DeploymentProductListProps {
  */
 export default function DeploymentProductList({
   deploymentId,
+  projectId,
 }: DeploymentProductListProps): JSX.Element {
   const queryClient = useQueryClient();
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] =
+    useState<DeploymentProductItem | null>(null);
   const { data: products = [], isLoading, isError } =
     useGetDeploymentsProducts(deploymentId);
 
@@ -100,7 +107,13 @@ export default function DeploymentProductList({
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {products.map((item) => (
-            <ProductItemRow key={item.id} item={item} />
+            <ProductItemRow
+              key={item.id}
+              item={item}
+              deploymentId={deploymentId}
+              isEditing={editingProduct?.id === item.id}
+              onEdit={() => setEditingProduct(item)}
+            />
           ))}
         </Box>
       )}
@@ -108,9 +121,22 @@ export default function DeploymentProductList({
       <AddProductModal
         open={isAddProductModalOpen}
         deploymentId={deploymentId}
+        projectId={projectId}
         onClose={() => setIsAddProductModalOpen(false)}
         onSuccess={() => {
           setIsAddProductModalOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: [ApiQueryKeys.DEPLOYMENT_PRODUCTS, deploymentId],
+          });
+        }}
+      />
+      <ManageProductModal
+        open={!!editingProduct}
+        deploymentId={deploymentId}
+        product={editingProduct}
+        onClose={() => setEditingProduct(null)}
+        onSuccess={() => {
+          setEditingProduct(null);
           queryClient.invalidateQueries({
             queryKey: [ApiQueryKeys.DEPLOYMENT_PRODUCTS, deploymentId],
           });
@@ -122,9 +148,16 @@ export default function DeploymentProductList({
 
 interface ProductItemRowProps {
   item: DeploymentProductItem;
+  deploymentId: string;
+  isEditing: boolean;
+  onEdit: () => void;
 }
 
-function ProductItemRow({ item }: ProductItemRowProps): JSX.Element {
+function ProductItemRow({
+  item,
+  isEditing,
+  onEdit,
+}: ProductItemRowProps): JSX.Element {
   const name = displayValue(item.product?.label);
   const version = displayValue(item.version);
   const description = displayValue(item.description);
@@ -167,6 +200,7 @@ function ProductItemRow({ item }: ProductItemRowProps): JSX.Element {
         >
           <Checkbox
             sx={{ p: 0.5, mt: -0.5 }}
+            checked={isEditing}
             disabled
             aria-disabled
             aria-label="Batch select (not yet implemented)"
@@ -312,14 +346,33 @@ function ProductItemRow({ item }: ProductItemRowProps): JSX.Element {
             </Box>
           </Box>
         </Box>
-        <Button
-          size="small"
-          aria-label={`Delete ${name}`}
-          disabled
-          aria-disabled
-        >
-          <Trash2 size={16} />
-        </Button>
+        <Box sx={{ display: "flex", gap: 0.25, alignItems: "center" }}>
+          <IconButton
+            size="small"
+            aria-label={`Edit ${name}`}
+            onClick={onEdit}
+            sx={{
+              color: "text.secondary",
+              "&:hover": { color: "primary.main" },
+              "&.Mui-focusVisible": { color: "primary.main" },
+            }}
+          >
+            <PencilLine size={16} aria-hidden />
+          </IconButton>
+          <IconButton
+            size="small"
+            aria-label={`Delete ${name}`}
+            disabled
+            aria-disabled
+            sx={{
+              color: "text.secondary",
+              "&:hover": { color: "primary.main" },
+              "&.Mui-focusVisible": { color: "primary.main" },
+            }}
+          >
+            <Trash2 size={16} aria-hidden />
+          </IconButton>
+        </Box>
       </Box>
     </Box>
   );

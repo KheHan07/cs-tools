@@ -17,16 +17,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProjectTimeTracking from "@time-tracking/ProjectTimeTracking";
-import useGetTimeTrackingDetails from "@api/useGetTimeTrackingDetails";
+import useSearchProjectTimeCards from "@api/useSearchProjectTimeCards";
 import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
 
-// Mock the hooks
-vi.mock("@api/useGetTimeTrackingDetails");
+vi.mock("@api/useSearchProjectTimeCards");
 vi.mock("@api/useGetProjectTimeTrackingStat");
 
-// Mock sub-components
 vi.mock("@time-tracking/TimeTrackingStatCards", () => ({
-  default: ({ isLoading, isError }: any) => (
+  default: ({ isLoading, isError }: { isLoading?: boolean; isError?: boolean }) => (
     <div data-testid="stat-cards">
       {isLoading ? "Stats Loading" : "Stats Loaded"}
       {isError ? "Stats Error" : "Stats OK"}
@@ -34,9 +32,15 @@ vi.mock("@time-tracking/TimeTrackingStatCards", () => ({
   ),
 }));
 
+vi.mock("@time-tracking/TimeCardsDateFilter", () => ({
+  default: () => <div data-testid="date-filter">Date Filter</div>,
+}));
+
 vi.mock("@time-tracking/TimeTrackingCard", () => ({
-  default: ({ log }: any) => (
-    <div data-testid="time-log-card">{log.description}</div>
+  default: ({ card }: { card: { case?: { label?: string } } }) => (
+    <div data-testid="time-card">
+      {card?.case?.label ?? "No label"}
+    </div>
   ),
 }));
 
@@ -49,7 +53,7 @@ vi.mock("@time-tracking/TimeTrackingErrorState", () => ({
 }));
 
 vi.mock("@components/common/empty-state/EmptyState", () => ({
-  default: ({ description }: any) => (
+  default: ({ description }: { description: string }) => (
     <div data-testid="empty-state">{description}</div>
   ),
 }));
@@ -61,14 +65,14 @@ describe("ProjectTimeTracking", () => {
     vi.clearAllMocks();
   });
 
-  it("should render 7 skeletons when details are loading", () => {
+  it("should render 7 skeletons when time cards are loading", () => {
     vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
     } as any);
 
-    vi.mocked(useGetTimeTrackingDetails).mockReturnValue({
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
@@ -79,14 +83,14 @@ describe("ProjectTimeTracking", () => {
     expect(screen.getAllByTestId("skeleton")).toHaveLength(7);
   });
 
-  it("should render error state when details fail to load", () => {
+  it("should render error state when time cards fail to load", () => {
     vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
     } as any);
 
-    vi.mocked(useGetTimeTrackingDetails).mockReturnValue({
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: true,
@@ -97,12 +101,33 @@ describe("ProjectTimeTracking", () => {
     expect(screen.getByTestId("error-state")).toBeInTheDocument();
   });
 
-  it("should render time log cards when data is loaded", () => {
-    const mockDetails = {
-      timeLogs: [
-        { id: "1", description: "Log 1", badges: [] },
-        { id: "2", description: "Log 2", badges: [] },
+  it("should render time cards when data is loaded", () => {
+    const mockData = {
+      timeCards: [
+        {
+          id: "1",
+          case: { label: "Log 1", number: "CS001", id: "c1" },
+          totalTime: 60,
+          state: "Approved",
+          hasBillable: false,
+          approvedBy: null,
+          project: { id: "p1", label: "Project 1" },
+          createdOn: "2025-12-10",
+        },
+        {
+          id: "2",
+          case: { label: "Log 2", number: "CS002", id: "c2" },
+          totalTime: 30,
+          state: "Submitted",
+          hasBillable: true,
+          approvedBy: null,
+          project: { id: "p1", label: "Project 1" },
+          createdOn: "2025-12-11",
+        },
       ],
+      totalRecords: 2,
+      offset: 0,
+      limit: 10,
     };
 
     vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
@@ -111,8 +136,8 @@ describe("ProjectTimeTracking", () => {
       isError: false,
     } as any);
 
-    vi.mocked(useGetTimeTrackingDetails).mockReturnValue({
-      data: mockDetails,
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
+      data: mockData,
       isLoading: false,
       isError: false,
     } as any);
@@ -121,17 +146,17 @@ describe("ProjectTimeTracking", () => {
 
     expect(screen.getByText("Log 1")).toBeInTheDocument();
     expect(screen.getByText("Log 2")).toBeInTheDocument();
-    expect(screen.getAllByTestId("time-log-card")).toHaveLength(2);
+    expect(screen.getAllByTestId("time-card")).toHaveLength(2);
   });
 
-  it("should always render stat cards regardless of details state", () => {
+  it("should always render stat cards regardless of time cards state", () => {
     vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
     } as any);
 
-    vi.mocked(useGetTimeTrackingDetails).mockReturnValue({
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
@@ -142,15 +167,33 @@ describe("ProjectTimeTracking", () => {
     expect(screen.getByTestId("stat-cards")).toBeInTheDocument();
   });
 
-  it("should render empty state when there are no time logs", () => {
+  it("should render date filter between stats and time cards", () => {
     vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
     } as any);
 
-    vi.mocked(useGetTimeTrackingDetails).mockReturnValue({
-      data: { timeLogs: [] },
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
+      data: { timeCards: [], totalRecords: 0, offset: 0, limit: 10 },
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    render(<ProjectTimeTracking projectId={projectId} />);
+
+    expect(screen.getByTestId("date-filter")).toBeInTheDocument();
+  });
+
+  it("should render empty state when there are no time cards", () => {
+    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    vi.mocked(useSearchProjectTimeCards).mockReturnValue({
+      data: { timeCards: [], totalRecords: 0, offset: 0, limit: 10 },
       isLoading: false,
       isError: false,
     } as any);
