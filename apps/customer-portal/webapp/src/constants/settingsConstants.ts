@@ -27,31 +27,18 @@ export const ROLE_CONFIG = [
     Icon: Crown,
     paletteKey: "secondary" as const,
     permissions: [
-      "Full portal access",
-      "Manage users and settings",
-      "View all cases and requests",
+      "Manage users within the assigned project",
+      "Add or remove project members",
     ],
   },
   {
-    id: "developer",
-    label: "Developer",
+    id: "system_user",
+    label: "System User",
     Icon: Code,
     paletteKey: "info" as const,
     permissions: [
-      "Create and manage cases",
-      "Access technical resources",
-      "View project details",
-    ],
-  },
-  {
-    id: "security",
-    label: "Security",
-    Icon: ShieldCheck,
-    paletteKey: "error" as const,
-    permissions: [
-      "Access security advisories",
-      "Create security cases",
-      "View vulnerability reports",
+      "Used exclusively for system to system integrations",
+      "Cannot log in to the Support Portal",
     ],
   },
 ] as const;
