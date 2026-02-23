@@ -30,7 +30,7 @@ import { Code, Crown, ShieldCheck } from "@wso2/oxygen-ui-icons-react";
  */
 export function getRoleLabel(contact: ProjectContact): string {
   if (contact.isCsAdmin) return "Admin";
-  if (contact.isCsIntegrationUser) return "Developer";
+  if (contact.isCsIntegrationUser) return "System User";
   if (contact.isSecurityContact) return "Security";
   return NULL_PLACEHOLDER;
 }

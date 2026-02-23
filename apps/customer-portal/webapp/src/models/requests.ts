@@ -180,3 +180,8 @@ export interface TimeCardSearchRequest {
     offset?: number;
   };
 }
+
+// Request body for validating a project contact (POST /projects/:projectId/contacts/validate).
+export interface ValidateContactRequest {
+  contactEmail: string;
+}
