@@ -52,6 +52,14 @@ export interface CaseClassificationRequest {
   tier: string;
 }
 
+// Request body for POST /projects/:projectId/conversations (Novera chat).
+export interface ConversationRequest {
+  message: string;
+  envProducts: Record<string, string[]>;
+  region: string;
+  tier: string;
+}
+
 // Request body for creating a support case (POST /cases).
 export interface CreateCaseRequest {
   deploymentId: string;

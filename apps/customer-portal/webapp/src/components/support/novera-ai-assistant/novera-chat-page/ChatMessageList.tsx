@@ -22,6 +22,8 @@ import type { Message } from "@pages/NoveraChatPage";
 interface ChatMessageListProps {
   messages: Message[];
   messagesEndRef: RefObject<HTMLDivElement | null>;
+  onCreateCase?: () => void;
+  isCreateCaseLoading?: boolean;
 }
 
 /**
@@ -35,6 +37,8 @@ interface ChatMessageListProps {
 export default function ChatMessageList({
   messages,
   messagesEndRef,
+  onCreateCase,
+  isCreateCaseLoading = false,
 }: ChatMessageListProps): JSX.Element {
   return (
     <Box
@@ -48,7 +52,12 @@ export default function ChatMessageList({
       }}
     >
       {messages.map((msg) => (
-        <ChatMessageBubble key={msg.id} message={msg} />
+        <ChatMessageBubble
+          key={msg.id}
+          message={msg}
+          onCreateCase={onCreateCase}
+          isCreateCaseLoading={isCreateCaseLoading}
+        />
       ))}
       <div ref={messagesEndRef} />
     </Box>

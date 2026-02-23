@@ -19,6 +19,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Stack,
   Typography,
 } from "@wso2/oxygen-ui";
@@ -26,21 +27,46 @@ import { ArrowLeft, Send } from "@wso2/oxygen-ui-icons-react";
 import { useState, useCallback, useMemo, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import Editor from "@components/common/rich-text-editor/Editor";
+import { useGetProjectDeployments } from "@api/useGetProjectDeployments";
+import { usePostConversations } from "@api/usePostConversations";
+import { useAllDeploymentProducts } from "@hooks/useAllDeploymentProducts";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import { buildEnvProducts } from "@utils/caseCreation";
 import { htmlToPlainText } from "@utils/richTextEditor";
 
 const ISSUE_PLACEHOLDER =
   "Example: I'm experiencing API Gateway timeout issues in our production environment. The errors started appearing yesterday around 3 PM, and we're seeing 504 errors intermittently...";
 
+/** Hardcoded for conversations API per requirements. */
+const REGION = "EU";
+const TIER = "Tier 1";
+
 /**
  * DescribeIssuePage lets users describe their issue before navigating to chat.
- * On submit, navigates to chat with the description as the initial user message.
+ * On submit, calls POST /projects/:projectId/conversations and navigates to
+ * chat with the API response.
  *
  * @returns {JSX.Element} The describe issue page.
  */
 export default function DescribeIssuePage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
+  const { showError } = useErrorBanner();
   const [value, setValue] = useState("");
+
+  const { data: projectDeployments } = useGetProjectDeployments(
+    projectId || "",
+  );
+  const { productsByDeploymentId } = useAllDeploymentProducts(
+    projectDeployments,
+  );
+  const envProducts = useMemo(
+    () => buildEnvProducts(productsByDeploymentId, projectDeployments),
+    [productsByDeploymentId, projectDeployments],
+  );
+
+  const { mutateAsync: postConversation, isPending: isSubmitting } =
+    usePostConversations();
 
   const handleBack = useCallback(() => {
     if (projectId) {
@@ -52,15 +78,38 @@ export default function DescribeIssuePage(): JSX.Element {
 
   const plainText = useMemo(() => htmlToPlainText(value), [value]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!plainText.trim() || !projectId) return;
 
-    navigate(`/${projectId}/support/chat`, {
-      state: { initialUserMessage: plainText.trim() },
-    });
-  }, [plainText, navigate, projectId]);
+    try {
+      const conversationResponse = await postConversation({
+        projectId,
+        message: plainText.trim(),
+        envProducts,
+        region: REGION,
+        tier: TIER,
+      });
 
-  const isSubmitDisabled = !projectId || !plainText.trim();
+      navigate(`/${projectId}/support/chat`, {
+        state: {
+          initialUserMessage: plainText.trim(),
+          conversationResponse,
+        },
+      });
+    } catch {
+      showError("Could not get help. Please try again or create a support case.");
+    }
+  }, [
+    plainText,
+    projectId,
+    envProducts,
+    postConversation,
+    navigate,
+    showError,
+  ]);
+
+  const isSubmitDisabled =
+    !projectId || !plainText.trim() || isSubmitting;
 
   return (
     <Box
@@ -128,11 +177,17 @@ export default function DescribeIssuePage(): JSX.Element {
               <Button
                 variant="contained"
                 color="warning"
-                startIcon={<Send size={18} />}
+                startIcon={
+                  isSubmitting ? (
+                    <CircularProgress color="inherit" size={18} />
+                  ) : (
+                    <Send size={18} />
+                  )
+                }
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
               >
-                Submit & Get Help
+                {isSubmitting ? "Getting help…" : "Submit & Get Help"}
               </Button>
             </Box>
           </Stack>

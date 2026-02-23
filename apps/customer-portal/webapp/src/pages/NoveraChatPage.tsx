@@ -40,6 +40,7 @@ export interface Message {
   text: string;
   sender: "user" | "bot";
   timestamp: Date;
+  showCreateCaseAction?: boolean;
 }
 
 /**
@@ -51,8 +52,12 @@ export default function NoveraChatPage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const location = useLocation();
-  const initialUserMessage = (location.state as { initialUserMessage?: string } | null)
-    ?.initialUserMessage;
+  const navState = location.state as {
+    initialUserMessage?: string;
+    conversationResponse?: { message: string; actions: unknown };
+  } | null;
+  const initialUserMessage = navState?.initialUserMessage;
+  const conversationResponse = navState?.conversationResponse;
 
   const handleBack = () => {
     if (projectId) {
@@ -82,6 +87,25 @@ export default function NoveraChatPage(): JSX.Element {
       sender: "bot",
       timestamp: new Date(),
     };
+    // Coming from describe-issue with API response: show user message + bot response.
+    if (conversationResponse?.message) {
+      return [
+        botWelcome,
+        {
+          id: "2",
+          text: initialUserMessage?.trim() ?? "",
+          sender: "user",
+          timestamp: new Date(),
+        },
+        {
+          id: "3",
+          text: conversationResponse.message,
+          sender: "bot",
+          timestamp: new Date(),
+          showCreateCaseAction: conversationResponse.actions != null,
+        },
+      ];
+    }
     if (initialUserMessage?.trim()) {
       return [
         botWelcome,
@@ -227,6 +251,8 @@ export default function NoveraChatPage(): JSX.Element {
           <ChatMessageList
             messages={messages}
             messagesEndRef={messagesEndRef}
+            onCreateCase={handleCreateCase}
+            isCreateCaseLoading={isCreateCaseLoading}
           />
 
           <Divider />
