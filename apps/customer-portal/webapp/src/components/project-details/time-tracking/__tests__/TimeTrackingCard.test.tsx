@@ -15,96 +15,62 @@
 // under the License.
 
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import TimeTrackingCard from "@time-tracking/TimeTrackingCard";
-import { type TimeTrackingLog } from "@models/responses";
-import { TIME_TRACKING_BADGE_TYPES } from "@constants/projectDetailsConstants";
-
-// Mock @wso2/oxygen-ui-icons-react
-vi.mock("@wso2/oxygen-ui-icons-react", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@wso2/oxygen-ui-icons-react")>();
-  return {
-    ...actual,
-    User: () => <div data-testid="user-icon" />,
-    Shield: () => <div data-testid="shield-icon" />,
-    Calendar: () => <div data-testid="calendar-icon" />,
-  };
-});
-
-// Mock useTheme and alpha
-vi.mock("@wso2/oxygen-ui", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@wso2/oxygen-ui")>();
-  return {
-    ...actual,
-    useTheme: () => ({
-      palette: {
-        warning: { main: "#ff9800" },
-        success: { main: "#4caf50" },
-        info: { main: "#2196f3" },
-        secondary: { main: "#9c27b0" },
-        primary: { main: "#3f51b5" },
-      },
-    }),
-    alpha: (color: string, opacity: number) => `rgba(${color}, ${opacity})`,
-  };
-});
+import type { TimeCard } from "@models/responses";
 
 describe("TimeTrackingCard", () => {
-  const mockLog: TimeTrackingLog = {
+  const mockCard: TimeCard = {
     id: "1",
-    badges: [
-      { text: "Support", type: TIME_TRACKING_BADGE_TYPES.SUPPORT },
-      { text: "Billable", type: TIME_TRACKING_BADGE_TYPES.BILLABLE },
-    ],
-    description: "Test description",
-    user: "Test User",
-    role: "Test Role",
-    date: "2026-01-16",
-    hours: 4.5,
+    totalTime: 60,
+    createdOn: "2025-12-10 03:47:10",
+    hasBillable: true,
+    state: "Approved",
+    approvedBy: { id: "a1", label: "Dileepa Peiris (Intern)" },
+    project: { id: "p1", label: "Customer 3 Project 1" },
+    case: {
+      number: "CS0437343",
+      id: "c1",
+      label: "test - image upload in Desc",
+    },
   };
 
   it("should render card with all information", () => {
-    render(<TimeTrackingCard log={mockLog} />);
+    render(<TimeTrackingCard card={mockCard} />);
 
-    expect(screen.getByText("Test description")).toBeInTheDocument();
-    expect(screen.getByText("Test User")).toBeInTheDocument();
-    expect(screen.getByText("Test Role")).toBeInTheDocument();
-    expect(screen.getByText("2026-01-16")).toBeInTheDocument();
-    expect(screen.getByText("4.5h")).toBeInTheDocument();
-    expect(screen.getByText("Support")).toBeInTheDocument();
+    expect(screen.getByText("test - image upload in Desc")).toBeInTheDocument();
+    expect(screen.getByText("Approved")).toBeInTheDocument();
     expect(screen.getByText("Billable")).toBeInTheDocument();
+    expect(screen.getByText("CS0437343")).toBeInTheDocument();
+    expect(screen.getByText("60h")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Approved by: Dileepa Peiris \(Intern\)/),
+    ).toBeInTheDocument();
   });
 
   it("should show fallback '--' for missing values", () => {
-    const incompleteLog: TimeTrackingLog = {
-      id: "2",
-      badges: [],
-      description: null,
-      user: null,
-      role: null,
-      date: null,
-      hours: null,
+    const incompleteCard: TimeCard = {
+      ...mockCard,
+      state: "",
+      approvedBy: null,
+      case: { number: "", id: "c1", label: "" },
+      totalTime: 0,
     };
 
-    render(<TimeTrackingCard log={incompleteLog} />);
+    render(<TimeTrackingCard card={incompleteCard} />);
 
-    const fallbacks = screen.getAllByText("--");
-    expect(fallbacks.length).toBeGreaterThan(0);
+    expect(screen.getByText(/Approved by: --/)).toBeInTheDocument();
   });
 
-  it("should correctly render badge types with different colors", () => {
-    const badgeLog: TimeTrackingLog = {
-      ...mockLog,
-      badges: [
-        { text: "Case", type: TIME_TRACKING_BADGE_TYPES.CASE },
-        { text: "Maintenance", type: TIME_TRACKING_BADGE_TYPES.MAINTENANCE },
-      ],
+  it("should not render Billable chip when hasBillable is false", () => {
+    const nonBillableCard: TimeCard = {
+      ...mockCard,
+      hasBillable: false,
     };
 
-    render(<TimeTrackingCard log={badgeLog} />);
+    render(<TimeTrackingCard card={nonBillableCard} />);
 
-    expect(screen.getByText("Case")).toBeInTheDocument();
-    expect(screen.getByText("Maintenance")).toBeInTheDocument();
+    expect(screen.queryByText("Billable")).not.toBeInTheDocument();
+    expect(screen.getByText("test - image upload in Desc")).toBeInTheDocument();
   });
 });

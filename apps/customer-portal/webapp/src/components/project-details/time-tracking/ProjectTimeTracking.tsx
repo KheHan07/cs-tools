@@ -15,10 +15,11 @@
 // under the License.
 
 import { Box, Grid } from "@wso2/oxygen-ui";
-import { type JSX } from "react";
-import useGetTimeTrackingDetails from "@api/useGetTimeTrackingDetails";
+import { useState, useMemo, type JSX } from "react";
+import useSearchProjectTimeCards from "@api/useSearchProjectTimeCards";
 import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
 import TimeTrackingStatCards from "@time-tracking/TimeTrackingStatCards";
+import TimeCardsDateFilter from "@time-tracking/TimeCardsDateFilter";
 import TimeTrackingCard from "@time-tracking/TimeTrackingCard";
 import TimeTrackingCardSkeleton from "@time-tracking/TimeTrackingCardSkeleton";
 import TimeTrackingErrorState from "@time-tracking/TimeTrackingErrorState";
@@ -28,9 +29,24 @@ interface ProjectTimeTrackingProps {
   projectId: string;
 }
 
+/** Format date as YYYY-MM-DD for API. */
+function formatDateForApi(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** Default start: 12 months ago; default end: today. */
+function getDefaultDateRange(): { startDate: string; endDate: string } {
+  const end = new Date();
+  const start = new Date();
+  start.setFullYear(start.getFullYear() - 1);
+  return {
+    startDate: formatDateForApi(start),
+    endDate: formatDateForApi(end),
+  };
+}
+
 /**
- * ProjectTimeTracking component manages the display of time tracking statistics and logs.
- * It handles loading skeletons and error reporting via a dedicated error state.
+ * ProjectTimeTracking component manages the display of time tracking statistics, date filter, and time cards.
  *
  * @param {ProjectTimeTrackingProps} props - Component props.
  * @returns {JSX.Element} The rendered component.
@@ -38,6 +54,13 @@ interface ProjectTimeTrackingProps {
 export default function ProjectTimeTracking({
   projectId,
 }: ProjectTimeTrackingProps): JSX.Element {
+  const { startDate: defaultStart, endDate: defaultEnd } = useMemo(
+    getDefaultDateRange,
+    [],
+  );
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate, setEndDate] = useState(defaultEnd);
+
   const {
     data: stats,
     isLoading: isStatsLoading,
@@ -45,12 +68,19 @@ export default function ProjectTimeTracking({
   } = useGetProjectTimeTrackingStat(projectId);
 
   const {
-    data: details,
-    isLoading: isDetailsLoading,
-    isError: isDetailsError,
-  } = useGetTimeTrackingDetails(projectId);
+    data: timeCardsData,
+    isLoading: isTimeCardsLoading,
+    isError: isTimeCardsError,
+  } = useSearchProjectTimeCards({
+    projectId,
+    startDate,
+    endDate,
+    limit: 50,
+    offset: 0,
+  });
 
-  const timeLogs = details?.timeLogs || [];
+  const timeCards = timeCardsData?.timeCards ?? [];
+  const totalRecords = timeCardsData?.totalRecords ?? 0;
 
   return (
     <Box>
@@ -60,24 +90,36 @@ export default function ProjectTimeTracking({
         isError={isStatsError}
       />
 
-      {isDetailsError ? (
+      <Box sx={{ mb: 3 }}>
+        <TimeCardsDateFilter
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          shownCount={timeCards.length}
+          totalCount={totalRecords}
+          isLoading={isTimeCardsLoading}
+        />
+      </Box>
+
+      {isTimeCardsError ? (
         <TimeTrackingErrorState />
       ) : (
         <Grid container spacing={3}>
-          {isDetailsLoading ? (
+          {isTimeCardsLoading ? (
             Array.from({ length: 7 }).map((_, index) => (
               <Grid key={`skeleton-${index}`} size={12}>
                 <TimeTrackingCardSkeleton />
               </Grid>
             ))
-          ) : timeLogs.length === 0 ? (
+          ) : timeCards.length === 0 ? (
             <Grid size={12}>
               <EmptyState description="No time logs available." />
             </Grid>
           ) : (
-            timeLogs.map((log) => (
-              <Grid key={log.id} size={12}>
-                <TimeTrackingCard log={log} />
+            timeCards.map((card) => (
+              <Grid key={card.id} size={12}>
+                <TimeTrackingCard card={card} />
               </Grid>
             ))
           )}

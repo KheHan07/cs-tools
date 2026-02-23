@@ -28,6 +28,7 @@ import {
 import { X } from "@wso2/oxygen-ui-icons-react";
 import { useCallback, useRef, useState, type JSX } from "react";
 import { usePostAttachments } from "@api/usePostAttachments";
+import { usePostDeploymentAttachment } from "@api/usePostDeploymentAttachment";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "@constants/supportConstants";
 import UploadAttachmentDropZone from "@case-details-attachments/UploadAttachmentDropZone";
 import SelectedFileDisplay from "@case-details-attachments/SelectedFileDisplay";
@@ -36,27 +37,37 @@ export { MAX_ATTACHMENT_SIZE_BYTES } from "@constants/supportConstants";
 
 export interface UploadAttachmentModalProps {
   open: boolean;
+  /** Case ID for case attachment upload. */
   caseId?: string;
+  /** Deployment ID for deployment document upload. */
+  deploymentId?: string;
   onClose: () => void;
   onSuccess?: () => void;
   onSelect?: (file: File, attachmentName?: string) => void;
 }
 
 /**
- * Modal for uploading a case attachment: drag-and-drop or file picker, optional name (defaults to file name).
- * Max file size 15 MB; shows ErrorBanner when exceeded.
+ * Modal for uploading a case attachment or deployment document: drag-and-drop or file picker.
+ * Supports caseId (case attachments) or deploymentId (deployment documents). Max file size 15 MB.
  *
- * @param {UploadAttachmentModalProps} props - open, caseId, onClose, optional onSuccess.
+ * @param {UploadAttachmentModalProps} props - open, caseId/deploymentId, onClose, optional onSuccess.
  * @returns {JSX.Element} The upload attachment modal.
  */
 export default function UploadAttachmentModal({
   open,
   caseId,
+  deploymentId,
   onClose,
   onSuccess,
   onSelect,
 }: UploadAttachmentModalProps): JSX.Element {
   const postAttachments = usePostAttachments();
+  const postDeploymentAttachment = usePostDeploymentAttachment();
+  const isDeploymentMode = !!deploymentId && !caseId;
+  const isPending =
+    isDeploymentMode
+      ? postDeploymentAttachment.isPending
+      : postAttachments.isPending;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -70,7 +81,7 @@ export default function UploadAttachmentModal({
     !!file &&
     !fileTooLarge &&
     !!displayName &&
-    (!!onSelect || (!postAttachments.isPending && !!caseId));
+    (!!onSelect || (!isPending && (!!caseId || !!deploymentId)));
 
   const reset = useCallback(() => {
     setFile(null);
@@ -141,37 +152,50 @@ export default function UploadAttachmentModal({
       return;
     }
 
-    if (!caseId) return;
+    if (!caseId && !deploymentId) return;
 
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = typeof reader.result === "string" ? reader.result : "";
       const commaIndex = base64.indexOf(",");
       const content = commaIndex >= 0 ? base64.slice(commaIndex + 1) : base64;
-      postAttachments.mutate(
-        {
-          caseId,
-          body: {
-            name: attachmentName,
-            type: file.type || "application/octet-stream",
-            content,
+      const body = {
+        name: attachmentName,
+        type: file.type || "application/octet-stream",
+        content,
+      };
+
+      if (deploymentId) {
+        postDeploymentAttachment.mutate(
+          { deploymentId, body },
+          {
+            onSuccess: () => {
+              handleClose();
+              onSuccess?.();
+            },
           },
-        },
-        {
-          onSuccess: () => {
-            handleClose();
-            onSuccess?.();
+        );
+      } else if (caseId) {
+        postAttachments.mutate(
+          { caseId, body },
+          {
+            onSuccess: () => {
+              handleClose();
+              onSuccess?.();
+            },
           },
-        },
-      );
+        );
+      }
     };
     reader.readAsDataURL(file);
   }, [
     caseId,
+    deploymentId,
     file,
     name,
     fileTooLarge,
     postAttachments,
+    postDeploymentAttachment,
     handleClose,
     onSuccess,
     onSelect,
@@ -189,7 +213,7 @@ export default function UploadAttachmentModal({
         id="upload-attachment-dialog-title"
         sx={{ pr: 6, position: "relative" }}
       >
-        Upload Attachment
+        {isDeploymentMode ? "Add Document" : "Upload Attachment"}
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -232,7 +256,7 @@ export default function UploadAttachmentModal({
 
         <TextField
           fullWidth
-          label="Attachment name"
+          label={isDeploymentMode ? "Document name" : "Attachment name"}
           placeholder="Leave empty to use file name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -240,10 +264,10 @@ export default function UploadAttachmentModal({
         />
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, pt: 1 }}>
-        <Button onClick={handleClose} disabled={postAttachments.isPending}>
+        <Button onClick={handleClose} disabled={isPending}>
           Cancel
         </Button>
-        {postAttachments.isPending ? (
+        {isPending ? (
           <Button
             variant="outlined"
             startIcon={<CircularProgress color="inherit" size={16} />}
