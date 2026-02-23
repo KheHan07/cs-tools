@@ -54,14 +54,43 @@ vi.mock("@wso2/oxygen-ui", () => ({
   },
 }));
 
+vi.mock("@components/common/rich-text-editor/Editor", () => ({
+  default: ({
+    value,
+    onChange,
+    placeholder,
+    onSubmitKeyDown,
+  }: any) => (
+    <input
+      data-testid="chat-editor-input"
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange?.(typeof e === "object" && e?.target ? e.target.value : e)}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          onSubmitKeyDown?.();
+        }
+      }}
+    />
+  ),
+}));
+
+vi.mock("@utils/richTextEditor", () => ({
+  htmlToPlainText: (html: string) =>
+    (html || "").replace(/<[^>]*>/g, "").trim() || html || "",
+}));
+
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   Bot: () => <svg data-testid="bot-icon" />,
+  User: () => <svg data-testid="user-icon" />,
   ArrowLeft: () => <svg data-testid="back-icon" />,
   Send: () => <svg data-testid="send-icon" />,
   CircleAlert: () => <svg data-testid="alert-icon" />,
   Sparkles: () => <svg data-testid="sparkles-icon" />,
   FileText: () => <svg data-testid="file-text-icon" />,
+  Copy: () => <svg data-testid="copy-icon" />,
 }));
 
 const { useAllDeploymentProductsMock } = vi.hoisted(() => ({
@@ -76,6 +105,24 @@ vi.mock("@api/usePostCaseClassifications", () => ({
   usePostCaseClassifications: () => ({
     mutateAsync: vi.fn().mockResolvedValue({}),
     isPending: false,
+  }),
+}));
+
+const mockConversationResponse = {
+  message: "Mock AI response from API",
+  conversationId: "conv-123",
+  actions: "createCase",
+};
+
+vi.mock("@api/usePostConversations", () => ({
+  usePostConversations: () => ({
+    mutateAsync: vi.fn().mockResolvedValue(mockConversationResponse),
+  }),
+}));
+
+vi.mock("@api/usePostConversationMessages", () => ({
+  usePostConversationMessages: () => ({
+    mutateAsync: vi.fn().mockResolvedValue(mockConversationResponse),
   }),
 }));
 
@@ -172,7 +219,7 @@ describe("NoveraChatPage", () => {
       screen.getByText(/Hi! I'm Novera, your AI support assistant/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("Type your message..."),
+      screen.getByPlaceholderText(/Type your message/),
     ).toBeInTheDocument();
   });
 
@@ -185,44 +232,31 @@ describe("NoveraChatPage", () => {
     expect(screen.getByText("Support Page")).toBeInTheDocument();
   });
 
-  it("should show escalation banner after sending several messages", async () => {
+  it("should send and display multiple messages", async () => {
     renderWithRouter();
 
-    const input = screen.getByPlaceholderText("Type your message...");
+    const input = screen.getByPlaceholderText(/Type your message/);
     const sendButton = screen.getByTestId("send-icon").parentElement!;
 
-    // Send 1st message (Total: 2)
-    fireEvent.change(input, { target: { value: "Message 1" } });
-    fireEvent.click(sendButton);
+    for (let i = 1; i <= 4; i++) {
+      fireEvent.change(input, { target: { value: `Message ${i}` } });
+      fireEvent.click(sendButton);
+      await waitFor(
+        () =>
+          expect(screen.getAllByText("Mock AI response from API").length).toBe(
+            i,
+          ),
+        { timeout: 2000 },
+      );
+    }
 
-    // Send 2nd message (Total: 3 - Bot haven't replied yet, but wait, the test doesn't wait for bot)
-    fireEvent.change(input, { target: { value: "Message 2" } });
-    fireEvent.click(sendButton);
-
-    // Send 3rd message (Total: 4)
-    fireEvent.change(input, { target: { value: "Message 3" } });
-    fireEvent.click(sendButton);
-
-    // Send 4th message (Total: 5)
-    fireEvent.change(input, { target: { value: "Message 4" } });
-    fireEvent.click(sendButton);
-
-    // Now messages container has 5 items. Escalation banner should appear.
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Thank you for describing the issue/i),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Create Case")).toBeInTheDocument();
-    });
-
-    // Branding should still be visible as per latest manual changes
     expect(screen.getByText("Chat with Novera")).toBeInTheDocument();
   });
 
   it("should send a message and receive a bot response", async () => {
     renderWithRouter();
 
-    const input = screen.getByPlaceholderText("Type your message...");
+    const input = screen.getByPlaceholderText(/Type your message/);
     const sendButton = screen.getByTestId("send-icon").parentElement!;
 
     fireEvent.change(input, { target: { value: "Hello Novera!" } });
@@ -230,14 +264,9 @@ describe("NoveraChatPage", () => {
 
     expect(screen.getByText("Hello Novera!")).toBeInTheDocument();
 
-    // Wait for the simulated bot response
     await waitFor(
       () => {
-        expect(
-          screen.getByText(
-            "Response from support assistant will appear here when the API is connected.",
-          ),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Mock AI response from API")).toBeInTheDocument();
       },
       { timeout: 2000 },
     );
@@ -264,23 +293,33 @@ describe("NoveraChatPage", () => {
               path="/:projectId/support/chat"
               element={<NoveraChatPage />}
             />
+            <Route
+              path="/:projectId/support/chat/create-case"
+              element={<div>Create Case Page</div>}
+            />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
-    const input = getByPlaceholderText("Type your message...");
+    const input = getByPlaceholderText(/Type your message/);
     const sendButton = getByTestId("send-icon").parentElement!;
 
-    for (let i = 0; i < 5; i++) {
-      fireEvent.change(input, { target: { value: `Message ${i}` } });
-      fireEvent.click(sendButton);
-    }
+    fireEvent.change(input, { target: { value: "Message" } });
+    fireEvent.click(sendButton);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByText("Mock AI response from API"),
+        ).toBeInTheDocument(),
+      { timeout: 2000 },
+    );
 
     const createCaseButton = await findByText("Create Case");
     fireEvent.click(createCaseButton);
     expect(getByTestId("circular-progress")).toBeInTheDocument();
 
     fireEvent.change(input, { target: { value: "Trigger update" } });
+    expect(await findByText("Create Case Page")).toBeInTheDocument();
   });
 });

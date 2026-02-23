@@ -208,7 +208,23 @@ public type ProjectCaseStats record {|
     # Average response time
     decimal averageResponseTime;
     # Resolved case count breakdown
-    entity:ResolvedCaseCount resolvedCases;
+    record {|
+        # Total resolved count
+        int total;
+        # Current month resolved count
+        int currentMonth;
+        # Past thirty days resolved count
+        int pastThirtyDays;
+        json...;
+    |} resolvedCases;
+    # Change rate of engagements past thirty days breakdown
+    record {|
+        # Change rate of resolved engagements
+        decimal resolvedEngagements;
+        # Change rate of average response time
+        decimal averageResponseTime;
+        json...;
+    |} changeRate;
     # Count of cases by state
     ReferenceItem[] stateCount;
     # Count of cases by severity

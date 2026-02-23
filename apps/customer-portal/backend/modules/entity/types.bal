@@ -405,15 +405,6 @@ public type OutstandingCasesCount record {|
     json...;
 |};
 
-# Resolved case count breakdown.
-public type ResolvedCaseCount record {|
-    # Total resolved count
-    int total;
-    # Current month resolved count
-    int currentMonth;
-    json...;
-|};
-
 # Cases trend by time unit.
 public type CasesTrend record {|
     # Time unit identifier (e.g., "2025 - Q1", "2025 - M1")
@@ -430,7 +421,23 @@ public type ProjectCaseStatsResponse record {|
     # Average response time
     decimal averageResponseTime;
     # Resolved case count breakdown
-    ResolvedCaseCount resolvedCount;
+    record {|
+        # Total resolved count
+        int total;
+        # Current month resolved count
+        int currentMonth;
+        # Past thirty days resolved count
+        int pastThirtyDays;
+        json...;
+    |} resolvedCount;
+    # Change rate of engagements past thirty days breakdown
+    record {|
+        # Change rate of resolved engagements
+        decimal resolvedEngagements;
+        # Change rate of average response time
+        decimal averageResponseTime;
+        json...;
+    |} changeRate;
     # Count of cases by state
     ChoiceListItem[] stateCount;
     # Count of cases by severity
@@ -1252,5 +1259,16 @@ public type ConversationResponse record {|
     string updatedOn;
     # User who updated the conversation
     string updatedBy;
+    json...;
+|};
+
+# Project time cards statistics response.
+public type ProjectTimeCardStatsResponse record {|
+    # Total hours logged
+    decimal totalHours;
+    # Billable hours
+    decimal billableHours;
+    # Non-billable hours
+    decimal nonBillableHours;
     json...;
 |};

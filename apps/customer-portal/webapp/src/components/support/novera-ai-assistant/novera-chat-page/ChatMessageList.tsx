@@ -17,6 +17,7 @@
 import { Box } from "@wso2/oxygen-ui";
 import { type JSX, type RefObject } from "react";
 import ChatMessageBubble from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageBubble";
+import LoadingDotsBubble from "@components/support/novera-ai-assistant/novera-chat-page/LoadingDotsBubble";
 import type { Message } from "@pages/NoveraChatPage";
 
 interface ChatMessageListProps {
@@ -51,14 +52,18 @@ export default function ChatMessageList({
         gap: 3,
       }}
     >
-      {messages.map((msg) => (
-        <ChatMessageBubble
-          key={msg.id}
-          message={msg}
-          onCreateCase={onCreateCase}
-          isCreateCaseLoading={isCreateCaseLoading}
-        />
-      ))}
+      {messages.map((msg) =>
+        msg.isLoading ? (
+          <LoadingDotsBubble key={msg.id} />
+        ) : (
+          <ChatMessageBubble
+            key={msg.id}
+            message={msg}
+            onCreateCase={onCreateCase}
+            isCreateCaseLoading={isCreateCaseLoading}
+          />
+        ),
+      )}
       <div ref={messagesEndRef} />
     </Box>
   );

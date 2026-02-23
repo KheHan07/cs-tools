@@ -25,11 +25,22 @@ vi.mock("@wso2/oxygen-ui", () => ({
   Typography: ({ children }: any) => (
     <span data-testid="typography">{children}</span>
   ),
+  Button: ({ children }: any) => <button>{children}</button>,
+  IconButton: ({ children }: any) => <button>{children}</button>,
+  CircularProgress: () => <span data-testid="circular-progress" />,
 }));
 
 // Mock icons
 vi.mock("@wso2/oxygen-ui-icons-react", () => ({
   Bot: () => <svg data-testid="icon-bot" />,
+  User: () => <svg data-testid="icon-user" />,
+  FileText: () => <svg data-testid="icon-filetext" />,
+  Copy: () => <svg data-testid="icon-copy" />,
+}));
+
+// Mock ReactMarkdown
+vi.mock("react-markdown", () => ({
+  default: ({ children }: any) => <span data-testid="markdown">{children}</span>,
 }));
 
 describe("ChatMessageList", () => {
@@ -43,5 +54,23 @@ describe("ChatMessageList", () => {
 
     expect(screen.getByText("Msg 1")).toBeInTheDocument();
     expect(screen.getByText("Msg 2")).toBeInTheDocument();
+  });
+
+  it("should render LoadingDotsBubble for loading messages", () => {
+    const messages: any[] = [
+      { id: "1", text: "User msg", sender: "user", timestamp: new Date() },
+      {
+        id: "2",
+        text: "",
+        sender: "bot",
+        timestamp: new Date(),
+        isLoading: true,
+      },
+    ];
+    const ref: any = { current: null };
+    render(<ChatMessageList messages={messages} messagesEndRef={ref} />);
+
+    expect(screen.getByText("User msg")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-bot")).toBeInTheDocument();
   });
 });
