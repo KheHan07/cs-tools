@@ -49,6 +49,7 @@ import {
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
   isWithinOpenRelatedCaseWindow,
+  toPresentTenseActionLabel,
 } from "@utils/support";
 import type { CaseComment } from "@models/responses";
 import { createTheme } from "@wso2/oxygen-ui";
@@ -342,6 +343,23 @@ describe("support utils", () => {
         "id-icident",
         "id-query",
       ]);
+    });
+  });
+
+  describe("toPresentTenseActionLabel", () => {
+    it("should map Closed to Close", () => {
+      expect(toPresentTenseActionLabel("Closed")).toBe("Close");
+    });
+    it("should map Reopened to Reopen", () => {
+      expect(toPresentTenseActionLabel("Reopened")).toBe("Reopen");
+    });
+    it("should map Waiting on WSO2 to Wait on WSO2", () => {
+      expect(toPresentTenseActionLabel("Waiting on WSO2")).toBe("Wait on WSO2");
+    });
+    it("should return unchanged for unmapped labels", () => {
+      expect(toPresentTenseActionLabel("Accept Solution")).toBe(
+        "Accept Solution",
+      );
     });
   });
 

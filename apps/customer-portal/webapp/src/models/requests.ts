@@ -74,6 +74,11 @@ export interface ConversationRequest extends SharedEnvContext {
   message: string;
 }
 
+// Request body for PATCH /cases/:caseId (update case state).
+export interface PatchCaseRequest {
+  stateKey: number;
+}
+
 // Request body for creating a support case (POST /cases).
 export interface CreateCaseRequest {
   deploymentId: string;

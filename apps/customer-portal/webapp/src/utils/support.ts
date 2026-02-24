@@ -816,6 +816,30 @@ export function stripHtml(html: string | null | undefined): string {
 }
 
 /**
+ * Maps action labels to present tense for display (e.g., "Closed" -> "Close").
+ *
+ * @param label - Action label (e.g., "Closed", "Reopened").
+ * @returns {string} Present tense label.
+ */
+export function toPresentTenseActionLabel(label: string): string {
+  const map: Record<string, string> = {
+    Closed: "Close",
+    Reopened: "Reopen",
+    "Waiting on WSO2": "Wait on WSO2",
+    "Waiting On WSO2": "Wait on WSO2",
+  };
+  return map[label] ?? label;
+}
+
+/** Maps action labels (from getAvailableCaseActions) to caseState labels for lookup. */
+export const ACTION_TO_CASE_STATE_LABEL: Record<string, string> = {
+  Closed: "Closed",
+  "Waiting on WSO2": "Waiting On WSO2",
+  "Accept Solution": "Closed",
+  "Reject Solution": "Waiting On WSO2",
+};
+
+/**
  * Returns the list of available action button labels based on the case status.
  *
  * @param status - Current status of the case.
