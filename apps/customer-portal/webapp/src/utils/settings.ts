@@ -55,40 +55,6 @@ export function getRoleBadges(contact: ProjectContact): RoleBadge[] {
 }
 
 /**
- * Returns the primary role label for a contact.
- *
- * @param {ProjectContact} contact - The project contact.
- * @returns {string} The role label.
- */
-export function getRoleLabel(contact: ProjectContact): string {
-  return getRoleBadges(contact).map((b) => b.label).join(", ");
-}
-
-/**
- * Returns the role icon for a contact.
- *
- * @param {ProjectContact} contact - The project contact.
- * @returns {ComponentType<{ size?: number }> | null} The icon component or null.
- */
-export function getRoleIcon(
-  contact: ProjectContact,
-): ComponentType<{ size?: number }> | null {
-  return getRoleBadges(contact)[0]?.Icon ?? null;
-}
-
-/**
- * Returns the chip color for a contact's role.
- *
- * @param {ProjectContact} contact - The project contact.
- * @returns {"primary" | "info" | "error" | "default" | "warning"} The chip color.
- */
-export function getRoleChipColor(
-  contact: ProjectContact,
-): "primary" | "info" | "error" | "default" | "warning" {
-  return getRoleBadges(contact)[0]?.chipColor ?? "default";
-}
-
-/**
  * Returns sx props for role chips based on their color category.
  *
  * @param {string} chipColor - The color key (primary, info, warning, etc).

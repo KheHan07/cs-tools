@@ -57,7 +57,6 @@ import {
   getInitials,
   getRoleBadges,
   getRoleChipSx,
-  getRoleLabel,
 } from "@utils/settings";
 import { getUserStatusColor } from "@utils/projectDetails";
 import type { CreateProjectContactRequest } from "@models/requests";
@@ -89,12 +88,18 @@ export default function SettingsUserManagement({
 
   const filteredContacts = useMemo(() => {
     if (!searchQuery.trim()) return contacts;
-    const q = searchQuery.trim().toLowerCase();
-    return contacts.filter((c) => {
-      const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
-      const email = (c.email ?? "").toLowerCase();
-      const role = getRoleLabel(c).toLowerCase();
-      return name.includes(q) || email.includes(q) || role.includes(q);
+    const normalizedQuery = searchQuery.toLowerCase();
+    return contacts.filter((contact) => {
+      const roleLabels = getRoleBadges(contact)
+        .map((badge) => badge.label)
+        .join(" ")
+        .toLowerCase();
+      return (
+        contact.email?.toLowerCase().includes(normalizedQuery) ||
+        contact.firstName?.toLowerCase().includes(normalizedQuery) ||
+        contact.lastName?.toLowerCase().includes(normalizedQuery) ||
+        roleLabels.includes(normalizedQuery)
+      );
     });
   }, [contacts, searchQuery]);
 
