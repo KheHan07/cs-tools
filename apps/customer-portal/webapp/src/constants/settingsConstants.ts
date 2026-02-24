@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Code, Crown } from "@wso2/oxygen-ui-icons-react";
+import { Code, Crown, Monitor } from "@wso2/oxygen-ui-icons-react";
 
 /** Placeholder for empty/null values in user management UI. */
 export const NULL_PLACEHOLDER = "--";
@@ -29,6 +29,16 @@ export const ROLE_CONFIG = [
     permissions: [
       "Manage users within the assigned project",
       "Add or remove project members",
+    ],
+  },
+  {
+    id: "portal_user",
+    label: "Portal User",
+    Icon: Monitor,
+    paletteKey: "info" as const,
+    permissions: [
+      "Can log in to and access the Support Portal",
+      "Create and manage support cases within assigned projects",
     ],
   },
   {

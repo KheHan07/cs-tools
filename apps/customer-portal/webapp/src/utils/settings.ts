@@ -18,12 +18,12 @@ import { colors } from "@wso2/oxygen-ui";
 import type { ComponentType } from "react";
 import { NULL_PLACEHOLDER } from "@constants/settingsConstants";
 import type { ProjectContact } from "@models/responses";
-import { Code, Crown, ShieldCheck } from "@wso2/oxygen-ui-icons-react";
+import { Code, Crown, Monitor } from "@wso2/oxygen-ui-icons-react";
 
-/** Priority: Admin > Developer > Security. Multiple role flags collapse to first match. */
+/** Priority: Admin > System User > Portal User (default). */
 
 /**
- * Returns the role label for a contact (Admin, Developer, Security, or --).
+ * Returns the role label for a contact (Admin, System User, or Portal User).
  *
  * @param {ProjectContact} contact - The project contact.
  * @returns {string} The role label.
@@ -31,8 +31,7 @@ import { Code, Crown, ShieldCheck } from "@wso2/oxygen-ui-icons-react";
 export function getRoleLabel(contact: ProjectContact): string {
   if (contact.isCsAdmin) return "Admin";
   if (contact.isCsIntegrationUser) return "System User";
-  if (contact.isSecurityContact) return "Security";
-  return NULL_PLACEHOLDER;
+  return "Portal User";
 }
 
 /**
@@ -46,8 +45,7 @@ export function getRoleIcon(
 ): ComponentType<{ size?: number }> | null {
   if (contact.isCsAdmin) return Crown;
   if (contact.isCsIntegrationUser) return Code;
-  if (contact.isSecurityContact) return ShieldCheck;
-  return null;
+  return Monitor;
 }
 
 /**
@@ -61,7 +59,6 @@ export function getRoleChipColor(
 ): "primary" | "info" | "error" | "default" {
   if (contact.isCsAdmin) return "primary";
   if (contact.isCsIntegrationUser) return "info";
-  if (contact.isSecurityContact) return "error";
   return "default";
 }
 
