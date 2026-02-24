@@ -49,6 +49,7 @@ import {
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
   isWithinOpenRelatedCaseWindow,
+  toPresentContinuousActionLabel,
   toPresentTenseActionLabel,
 } from "@utils/support";
 import type { CaseComment } from "@models/responses";
@@ -359,6 +360,25 @@ describe("support utils", () => {
     it("should return unchanged for unmapped labels", () => {
       expect(toPresentTenseActionLabel("Accept Solution")).toBe(
         "Accept Solution",
+      );
+    });
+  });
+
+  describe("toPresentContinuousActionLabel", () => {
+    it("should map Closed to Closing...", () => {
+      expect(toPresentContinuousActionLabel("Closed")).toBe("Closing...");
+    });
+    it("should map Reopened to Reopening...", () => {
+      expect(toPresentContinuousActionLabel("Reopened")).toBe("Reopening...");
+    });
+    it("should map Accept Solution to Accepting...", () => {
+      expect(toPresentContinuousActionLabel("Accept Solution")).toBe(
+        "Accepting...",
+      );
+    });
+    it("should map Reject Solution to Rejecting...", () => {
+      expect(toPresentContinuousActionLabel("Reject Solution")).toBe(
+        "Rejecting...",
       );
     });
   });

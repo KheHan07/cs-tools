@@ -29,7 +29,7 @@ import {
   type Theme,
 } from "@wso2/oxygen-ui";
 import { CirclePlay } from "@wso2/oxygen-ui-icons-react";
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
@@ -45,6 +45,7 @@ import {
   getAssignedEngineerLabel,
   getAvailableCaseActions,
   isWithinOpenRelatedCaseWindow,
+  toPresentContinuousActionLabel,
   toPresentTenseActionLabel,
 } from "@utils/support";
 
@@ -132,6 +133,9 @@ export default function CaseDetailsActionRow({
   const { showError } = useErrorBanner();
 
   const patchCase = usePatchCase(projectId, caseId);
+  const [pendingActionLabel, setPendingActionLabel] = useState<string | null>(
+    null,
+  );
 
   const availableActions = getAvailableCaseActions(statusLabel).filter(
     (label) => {
@@ -224,7 +228,8 @@ export default function CaseDetailsActionRow({
           const stateKey = getStateKeyForAction(label, caseStates);
           const isOpenRelatedCase = label === "Open Related Case";
           const canPatch = !isOpenRelatedCase && stateKey != null && !!caseId;
-          const isThisPending = !isOpenRelatedCase && patchCase.isPending;
+          const isThisPending =
+            !isOpenRelatedCase && patchCase.isPending && pendingActionLabel === label;
 
           return (
             <Button
@@ -247,7 +252,8 @@ export default function CaseDetailsActionRow({
                 isOpenRelatedCase
                   ? onOpenRelatedCase
                   : canPatch
-                    ? () =>
+                    ? () => {
+                        setPendingActionLabel(label);
                         patchCase.mutate(
                           { stateKey: stateKey! },
                           {
@@ -260,15 +266,21 @@ export default function CaseDetailsActionRow({
                                   "Failed to update case status. Please try again.",
                               );
                             },
+                            onSettled: () => {
+                              setPendingActionLabel(null);
+                            },
                           },
-                        )
+                        );
+                      }
                     : undefined
               }
               sx={
                 getActionButtonSx(theme, paletteIntent) as Record<string, unknown>
               }
             >
-              {toPresentTenseActionLabel(label)}
+              {isThisPending
+                ? toPresentContinuousActionLabel(label)
+                : toPresentTenseActionLabel(label)}
             </Button>
           );
         })}
