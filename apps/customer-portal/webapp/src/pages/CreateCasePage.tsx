@@ -231,6 +231,10 @@ export default function CreateCasePage(): JSX.Element {
     setProduct("");
   }, []);
 
+  const handleProductChange = useCallback((value: string) => {
+    setProduct(value);
+  }, []);
+
   useEffect(() => {
     if (hasInitializedRef.current) return;
     if (isFiltersLoading || isDeploymentsLoading) return;
@@ -307,7 +311,10 @@ export default function CreateCasePage(): JSX.Element {
       );
       return matched ?? prev;
     });
-    setProduct((prev) => (productLabel ? productLabel : prev));
+    if (productLabel) {
+      setClassificationProductLabel(productLabel);
+      setProduct(productLabel);
+    }
     setIssueType((prev) =>
       issueTypeLabel &&
       issueTypesList.some(
@@ -334,7 +341,6 @@ export default function CreateCasePage(): JSX.Element {
         s.label === mappedLabel,
     );
     setSeverity((prev) => (matchedSeverity ? matchedSeverity.id : prev));
-    if (productLabel) setClassificationProductLabel(productLabel);
   }, [
     classificationResponse,
     isFiltersLoading,
@@ -350,9 +356,22 @@ export default function CreateCasePage(): JSX.Element {
     setProduct((current) => {
       if (!current?.trim()) return baseProductOptions[0] ?? "";
       const match = findMatchingProductLabel(current, baseProductOptions);
-      return match ?? baseProductOptions[0] ?? "";
+      if (match) return match;
+      if (classificationProductLabel?.trim() && current?.trim()) {
+        const normalizedCurrent = current.trim().toLowerCase();
+        const normalizedClassification =
+          classificationProductLabel.trim().toLowerCase();
+        if (normalizedCurrent === normalizedClassification) {
+          return current;
+        }
+      }
+      return current ?? baseProductOptions[0] ?? "";
     });
-  }, [baseProductOptions, selectedDeploymentId]);
+  }, [
+    baseProductOptions,
+    classificationProductLabel,
+    selectedDeploymentId,
+  ]);
 
   const handleBack = () => {
     if (projectId) {
@@ -546,7 +565,7 @@ export default function CreateCasePage(): JSX.Element {
           <BasicInformationSection
             project={projectDisplay}
             product={product}
-            setProduct={setProduct}
+            setProduct={handleProductChange}
             deployment={deployment}
             setDeployment={handleDeploymentChange}
             metadata={sectionMetadata}
