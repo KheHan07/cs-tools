@@ -17,13 +17,13 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
+import useGetTimeCardsStats from "@api/useGetTimeCardsStats";
 import type { ReactNode } from "react";
 
-const mockTimeTrackingResponse = {
-  totalHours: 17.5,
-  billableHours: 15,
-  nonBillableHours: 2.5,
+const mockTimeCardsStatsResponse = {
+  totalHours: 400,
+  billableHours: 400,
+  nonBillableHours: 0,
 };
 
 vi.mock("@asgardeo/react", () => ({
@@ -38,7 +38,7 @@ vi.mock("@context/AuthApiContext", () => ({
   useAuthApiClient: () =>
     vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(mockTimeTrackingResponse),
+      json: () => Promise.resolve(mockTimeCardsStatsResponse),
     }),
 }));
 
@@ -64,7 +64,7 @@ const createWrapper = () => {
   );
 };
 
-describe("useGetProjectTimeTrackingStat", () => {
+describe("useGetTimeCardsStats", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
@@ -72,11 +72,13 @@ describe("useGetProjectTimeTrackingStat", () => {
     };
   });
 
-  it("should return time tracking stats from API", async () => {
+  it("should return time cards stats from API", async () => {
     const projectId = "project-1";
+    const startDate = "2025-01-01";
+    const endDate = "2025-12-31";
 
     const { result } = renderHook(
-      () => useGetProjectTimeTrackingStat(projectId),
+      () => useGetTimeCardsStats({ projectId, startDate, endDate }),
       {
         wrapper: createWrapper(),
       },
@@ -86,8 +88,8 @@ describe("useGetProjectTimeTrackingStat", () => {
 
     const data = result.current.data;
     expect(data).toBeDefined();
-    expect(data?.totalHours).toBe(17.5);
-    expect(data?.billableHours).toBe(15);
-    expect(data?.nonBillableHours).toBe(2.5);
+    expect(data?.totalHours).toBe(400);
+    expect(data?.billableHours).toBe(400);
+    expect(data?.nonBillableHours).toBe(0);
   });
 });
