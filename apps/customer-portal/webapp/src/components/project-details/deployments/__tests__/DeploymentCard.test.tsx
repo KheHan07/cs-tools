@@ -137,7 +137,7 @@ describe("DeploymentCard", () => {
     expect(screen.getAllByText("(0)").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("should display -- for null description", () => {
+  it("should display Not Available for null description", () => {
     const deploymentNoDesc: ProjectDeploymentItem = {
       ...mockDeployment,
       description: null,
@@ -145,7 +145,7 @@ describe("DeploymentCard", () => {
 
     renderWithProviders(<DeploymentCard deployment={deploymentNoDesc} />);
 
-    expect(screen.getByText("--")).toBeInTheDocument();
+    expect(screen.getByText("Not Available")).toBeInTheDocument();
   });
 
   it("should display Edit and Delete icon buttons", () => {

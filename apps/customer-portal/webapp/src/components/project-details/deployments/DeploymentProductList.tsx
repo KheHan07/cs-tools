@@ -219,22 +219,23 @@ function ProductItemRow({
   isEditing,
   onEdit,
 }: ProductItemRowProps): JSX.Element {
-  const name = displayValue(item.product?.label);
-  const version = displayValue(item.version);
-  const description = displayValue(item.description);
+  const emptyVal = "Not Available";
+  const name = displayValue(item.product?.label, emptyVal);
+  const version = displayValue(item.version, emptyVal);
+  const description = displayValue(item.description, emptyVal);
   const coresStr =
-    typeof item.cores === "number" ? String(item.cores) : displayValue(null);
+    typeof item.cores === "number" ? String(item.cores) : displayValue(null, emptyVal);
   const tpsStr =
     typeof item.tps === "number"
       ? item.tps.toLocaleString()
-      : displayValue(null);
+      : displayValue(null, emptyVal);
   const releasedStr = item.releasedOn
     ? formatProjectDate(item.releasedOn)
-    : displayValue(null);
+    : displayValue(null, emptyVal);
   const eolStr = item.endOfLifeOn
     ? formatProjectDate(item.endOfLifeOn)
-    : displayValue(null);
-  const updateLevelStr = displayValue(item.updateLevel);
+    : displayValue(null, emptyVal);
+  const updateLevelStr = displayValue(item.updateLevel, emptyVal);
 
   return (
     <Box

@@ -81,29 +81,33 @@ export type DisplayableValue =
   | { id?: string; label?: string };
 
 /**
- * Returns the value or "--" for null/undefined/empty string.
+ * Returns the value or fallback for null/undefined/empty string.
  * Handles API objects with {id, label} by extracting label.
  *
  * @param {DisplayableValue} value - The value to display.
- * @returns {string} The value or "--".
+ * @param {string} [fallback] - Fallback when value is empty (default "--").
+ * @returns {string} The value or fallback.
  */
-export const displayValue = (value: DisplayableValue): string => {
+export const displayValue = (
+  value: DisplayableValue,
+  fallback = "--",
+): string => {
   if (value === null || value === undefined) {
-    return "--";
+    return fallback;
   }
   if (typeof value === "object" && "label" in value) {
     const label = (value as { label?: string }).label;
     return label === null || label === undefined || label === ""
-      ? "--"
+      ? fallback
       : label;
   }
   if (typeof value === "number") {
     return String(value);
   }
   if (typeof value === "string" && value === "") {
-    return "--";
+    return fallback;
   }
-  return typeof value === "string" ? value : "--";
+  return typeof value === "string" ? value : fallback;
 };
 
 /**
