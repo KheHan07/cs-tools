@@ -92,7 +92,8 @@ describe("DeploymentProductList", () => {
       <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
     );
 
-    expect(screen.getByText("WSO2 Products (2)")).toBeInTheDocument();
+    expect(screen.getByText("WSO2 Products")).toBeInTheDocument();
+    expect(screen.getByText("(2)")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Add Product/i }),
     ).toBeInTheDocument();
@@ -126,7 +127,8 @@ describe("DeploymentProductList", () => {
       <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
     );
 
-    expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
+    expect(screen.getByText("WSO2 Products")).toBeInTheDocument();
+    expect(screen.getByText("(0)")).toBeInTheDocument();
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
@@ -164,7 +166,8 @@ describe("DeploymentProductList", () => {
       <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
     );
 
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    const skeletons = document.querySelectorAll(".MuiSkeleton-root");
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it("should show error state when products fetch fails", () => {

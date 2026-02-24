@@ -25,19 +25,27 @@ export interface ProjectListItem {
   description: string;
 }
 
-// Detailed project information including subscription details.
+/** Account nested in project details response. */
+export interface ProjectDetailsAccount {
+  id: string;
+  name: string;
+  activationDate: string;
+  deactivationDate: string;
+  supportTier: string;
+  region: string;
+}
+
+/** Detailed project information including account/subscription details. */
 export interface ProjectDetails {
+  type: string;
+  sfId?: string;
+  account: ProjectDetailsAccount;
   id: string;
   name: string;
   key: string;
-  description: string;
   createdOn: string;
-  type: string;
-  subscription: {
-    startDate: string | null;
-    endDate: string | null;
-    supportTier: string | null;
-  };
+  description: string;
+  hasSR: boolean;
 }
 
 // Project Search Response.
@@ -458,6 +466,14 @@ export interface DeploymentProduct {
   releasedDate: string;
   endOfLifeDate: string;
   updateLevel: string;
+}
+
+/** Response for GET /deployments/:deploymentId/attachments. */
+export interface DeploymentAttachmentsResponse {
+  limit: number;
+  offset: number;
+  attachments: DeploymentDocument[];
+  totalRecords: number;
 }
 
 // Document attached to a deployment.

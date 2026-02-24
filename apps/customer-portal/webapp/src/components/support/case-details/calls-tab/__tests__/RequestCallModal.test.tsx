@@ -48,7 +48,7 @@ function renderWithProviders(ui: ReactElement) {
 }
 
 describe("RequestCallModal", () => {
-  it("should render form with Preferred Time, Meeting Duration, and Additional Notes", () => {
+  it("should render form with Preferred Time, Meeting Duration, and Reason", () => {
     renderWithProviders(
       <RequestCallModal
         open
@@ -60,11 +60,7 @@ describe("RequestCallModal", () => {
 
     expect(screen.getByLabelText(/Preferred Time/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Meeting Duration/i)).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(
-        /Any specific topics or questions you'd like to discuss/i,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Request \/ Description \*/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Request Call/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument();
   });
@@ -104,5 +100,29 @@ describe("RequestCallModal", () => {
       />,
     );
     expect(screen.getByRole("button", { name: /Request Call/i })).toBeDisabled();
+  });
+
+  it("should disable submit when description is empty in reschedule mode", () => {
+    const editCall = {
+      id: "call-1",
+      case: { id: "case-1", label: "CS1" },
+      reason: "",
+      preferredTimes: ["2024-10-29T14:00:00Z"],
+      durationMin: 30,
+      scheduleTime: "2024-11-05T14:00:00Z",
+      createdOn: "2024-10-29T10:00:00Z",
+      updatedOn: "2024-10-29T10:00:00Z",
+      state: { id: "2", label: "Pending" },
+    };
+    renderWithProviders(
+      <RequestCallModal
+        open
+        projectId="proj-1"
+        caseId="case-1"
+        editCall={editCall}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Update Call Request/i })).toBeDisabled();
   });
 });

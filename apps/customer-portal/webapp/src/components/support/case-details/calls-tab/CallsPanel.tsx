@@ -86,14 +86,15 @@ export default function CallsPanel({
     setDeleteCall(null);
     setErrorMessage(null);
   }, []);
-  const handleConfirmDelete = useCallback(() => {
-    if (!deleteCall) return;
-    patchCallRequest.mutate(
-      {
-        callRequestId: deleteCall.id,
-        reason: "",
-        stateKey: CALL_REQUEST_STATE_CANCELLED,
-      },
+  const handleConfirmDelete = useCallback(
+    (reason: string) => {
+      if (!deleteCall) return;
+      patchCallRequest.mutate(
+        {
+          callRequestId: deleteCall.id,
+          reason: reason.trim(),
+          stateKey: CALL_REQUEST_STATE_CANCELLED,
+        },
       {
         onSuccess: () => {
           handleCloseDeleteModal();
@@ -106,7 +107,9 @@ export default function CallsPanel({
         },
       },
     );
-  }, [deleteCall, patchCallRequest, handleCloseDeleteModal, refetch]);
+    },
+    [deleteCall, patchCallRequest, handleCloseDeleteModal, refetch],
+  );
   const handleSuccess = useCallback(() => {
     setSuccessMessage("Call request submitted successfully.");
     refetch();
