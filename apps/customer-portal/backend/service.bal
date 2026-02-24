@@ -2244,7 +2244,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
-                        message: projectResponse.toString()
+                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
                     }
                 };
             }
