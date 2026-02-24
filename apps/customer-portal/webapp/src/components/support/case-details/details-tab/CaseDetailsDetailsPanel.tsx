@@ -216,12 +216,14 @@ export default function CaseDetailsDetailsPanel({
         <Box sx={twoColumnGridSx}>
           <Box>
             <Typography {...labelSx}>Product Name</Typography>
-            <Typography {...valueSx}>{formatValue(data?.product)}</Typography>
+            <Typography {...valueSx}>
+              {formatValue(data?.deployedProduct?.label ?? data?.product)}
+            </Typography>
           </Box>
           <Box>
             <Typography {...labelSx}>Product Version</Typography>
             <Typography {...valueSx}>
-              {formatValue(data?.deployedProduct)}
+              {formatValue(data?.deployedProduct?.version ?? null)}
             </Typography>
           </Box>
           <Box>
