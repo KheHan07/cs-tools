@@ -232,8 +232,7 @@ export default function ChatMessageBubble({
             </Box>
           )}
           {!isUser &&
-            message.showCreateCaseAction &&
-            !message.isError &&
+            (message.showCreateCaseAction || message.isError) &&
             onCreateCase &&
             (isCreateCaseLoading ? (
               <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>

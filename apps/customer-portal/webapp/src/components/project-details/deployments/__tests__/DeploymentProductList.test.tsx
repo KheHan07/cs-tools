@@ -132,7 +132,7 @@ describe("DeploymentProductList", () => {
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
-  it("should display -- for null product label", () => {
+  it("should display Not Available for null product label", () => {
     vi.mocked(useGetDeploymentsProducts).mockReturnValue({
       data: [
         {
@@ -152,7 +152,7 @@ describe("DeploymentProductList", () => {
       <DeploymentProductList deploymentId="dep-123" projectId="proj-1" />,
     );
 
-    expect(screen.getAllByText("--").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Not Available").length).toBeGreaterThan(0);
   });
 
   it("should show loading state", () => {
