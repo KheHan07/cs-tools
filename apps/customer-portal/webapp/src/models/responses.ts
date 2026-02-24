@@ -388,6 +388,7 @@ export interface CaseMetadataResponse {
   changeRequestStates?: MetadataItem[];
   changeRequestImpacts?: MetadataItem[];
   caseTypes?: MetadataItem[];
+  conversationStates?: MetadataItem[];
   severityBasedAllocationTime?: Record<string, number>;
 }
 
@@ -483,7 +484,8 @@ export interface AllCasesFilterValues {
   severityId?: string;
   issueTypes?: string;
   deploymentId?: string;
-  caseTypeIds?: string[];
+  /** Single case type ID when user selects one; when empty, default Incident+Query IDs are used. */
+  caseTypeId?: string;
 }
 
 // Product deployed in an environment.

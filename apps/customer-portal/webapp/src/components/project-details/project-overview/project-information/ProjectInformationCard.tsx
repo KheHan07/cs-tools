@@ -45,14 +45,14 @@ const ProjectInformationCard = ({
     project?.createdOn ? formatProjectDate(project.createdOn) : "--";
   const getType = () => project?.type || "--";
   const getSupportTier = () => project?.account?.supportTier || "--";
-  const getStartDate = () =>
-    project?.account?.activationDate
-      ? formatProjectDate(project.account.activationDate)
-      : "--";
-  const getEndDate = () =>
-    project?.account?.deactivationDate
-      ? formatProjectDate(project.account.deactivationDate)
-      : "--";
+  const getStartDate = () => {
+    const val = project?.account?.activationDate;
+    return val?.trim() ? formatProjectDate(val.trim()) : "--";
+  };
+  const getEndDate = () => {
+    const val = project?.account?.deactivationDate;
+    return val?.trim() ? formatProjectDate(val.trim()) : "--";
+  };
 
   return (
     <Card sx={{ height: "100%" }}>

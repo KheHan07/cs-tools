@@ -27,6 +27,7 @@ import ServiceRequestCard from "@components/support/request-cards/ServiceRequest
 import ChangeRequestCard from "@components/support/request-cards/ChangeRequestCard";
 import ChatHistoryList from "@components/support/support-overview-cards/ChatHistoryList";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
+import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectCases from "@api/useGetProjectCases";
 import { useSearchConversations } from "@api/useSearchConversations";
 import { useLogger } from "@hooks/useLogger";
@@ -34,6 +35,7 @@ import {
   SUPPORT_OVERVIEW_CASES_LIMIT,
   SUPPORT_OVERVIEW_CHAT_LIMIT,
 } from "@constants/supportConstants";
+import { getIncidentAndQueryCaseTypeIds } from "@utils/support";
 import { formatDateTime } from "@utils/support";
 import type { ChatHistoryItem } from "@models/responses";
 
@@ -54,12 +56,29 @@ export default function SupportPage(): JSX.Element {
   } = useGetProjectSupportStats(projectId || "");
 
   const {
+    data: filterMetadata,
+    isFetching: isFiltersFetching,
+    isError: isFiltersError,
+  } = useGetCasesFilters(projectId || "");
+
+  const caseTypeIds = getIncidentAndQueryCaseTypeIds(filterMetadata?.caseTypes);
+
+  const {
     data,
     isFetching: isCasesLoading,
     isError: isCasesError,
-  } = useGetProjectCases(projectId || "", {
-    sortBy: { field: "createdOn", order: "desc" },
-  });
+  } = useGetProjectCases(
+    projectId || "",
+    {
+      filters: { caseTypeIds: caseTypeIds.length > 0 ? caseTypeIds : undefined },
+      sortBy: { field: "createdOn", order: "desc" },
+    },
+    {
+      enabled:
+        !!projectId &&
+        (caseTypeIds.length > 0 || isFiltersFetching || !!isFiltersError),
+    },
+  );
 
   const {
     data: conversationsData,

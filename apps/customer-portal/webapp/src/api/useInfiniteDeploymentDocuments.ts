@@ -16,7 +16,6 @@
 
 import {
   useInfiniteQuery,
-  type UseInfiniteQueryResult,
   type InfiniteData,
 } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
@@ -37,16 +36,7 @@ const PAGE_SIZE = 10;
  * @param {string} deploymentId - The deployment ID.
  * @returns {UseInfiniteQueryResult} Infinite query result with flattened documents.
  */
-export function useInfiniteDeploymentDocuments(
-  deploymentId: string,
-): UseInfiniteQueryResult<
-  InfiniteData<DeploymentAttachmentsResponse>,
-  Error,
-  InfiniteData<DeploymentAttachmentsResponse>,
-  InfiniteData<DeploymentAttachmentsResponse>,
-  readonly (string | number)[],
-  number
-> {
+export function useInfiniteDeploymentDocuments(deploymentId: string) {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
@@ -111,5 +101,7 @@ export function flattenDeploymentDocuments(
   data: InfiniteData<DeploymentAttachmentsResponse> | undefined,
 ): DeploymentDocument[] {
   if (!data?.pages) return [];
-  return data.pages.flatMap((page) => page.attachments ?? []);
+  return data.pages.flatMap(
+    (page: DeploymentAttachmentsResponse) => page.attachments ?? [],
+  );
 }
