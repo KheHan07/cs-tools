@@ -79,7 +79,10 @@ vi.mock("@wso2/oxygen-ui", async (importOriginal) => {
       blue: { 500: "#2196F3", 700: "#1D4ED8" },
       green: { 500: "#4CAF50" },
       purple: { 500: "#9C27B0", 400: "#A78BFA" },
-      orange: { 600: "#FB8C00" },
+      orange: { 500: "#FF9800", 600: "#FB8C00" },
+      yellow: { 500: "#FFC107", 700: "#F9A825" },
+      grey: { 500: "#9E9E9E" },
+      teal: { 600: "#00897B" },
     },
     Divider: () => <hr />,
     Button: ({ children }: any) => <button>{children}</button>,
@@ -157,6 +160,21 @@ vi.mock("@api/useGetProjectSupportStats", () => ({
   useGetProjectSupportStats: (id: string) => mockUseGetProjectSupportStats(id),
 }));
 
+// Mock useGetCasesFilters (provides caseTypes so caseTypeIds are derived for cases query)
+vi.mock("@api/useGetCasesFilters", () => ({
+  __esModule: true,
+  default: () => ({
+    data: {
+      caseTypes: [
+        { id: "id-incident", label: "Incident" },
+        { id: "id-query", label: "Query" },
+      ],
+    },
+    isFetching: false,
+    isError: false,
+  }),
+}));
+
 // Mock useGetProjectCases (avoids pulling in useAsgardeo)
 vi.mock("@api/useGetProjectCases", () => ({
   __esModule: true,
@@ -169,9 +187,13 @@ vi.mock("@api/useGetProjectCases", () => ({
   }),
 }));
 
-// Mock useGetChatHistory
-vi.mock("@api/useGetChatHistory", () => ({
-  useGetChatHistory: () => ({ data: { chatHistory: [] } }),
+// Mock useSearchConversations (used for Chat History)
+vi.mock("@api/useSearchConversations", () => ({
+  useSearchConversations: () => ({
+    data: { conversations: [], totalRecords: 0, offset: 0, limit: 10 },
+    isFetching: false,
+    isError: false,
+  }),
 }));
 
 // Mock support overview card components so SupportPage renders without full Oxygen UI tree

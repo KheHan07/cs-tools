@@ -31,7 +31,7 @@ import {
   Select,
   Typography,
 } from "@wso2/oxygen-ui";
-import { Code, Crown, X } from "@wso2/oxygen-ui-icons-react";
+import { Code, X, Monitor } from "@wso2/oxygen-ui-icons-react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
 import type { CreateProjectContactRequest } from "@models/requests";
 import { useValidateProjectContact } from "@api/useValidateProjectContact";
@@ -39,7 +39,7 @@ import { useValidateProjectContact } from "@api/useValidateProjectContact";
 type ContactRole = "portal_user" | "system_user";
 
 const ROLES: { id: ContactRole; label: string; Icon: typeof Code }[] = [
-  { id: "portal_user", label: "Portal User", Icon: Crown },
+  { id: "portal_user", label: "Portal User", Icon: Monitor },
   { id: "system_user", label: "System User", Icon: Code },
 ];
 

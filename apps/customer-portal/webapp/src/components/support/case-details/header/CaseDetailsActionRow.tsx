@@ -18,6 +18,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   Paper,
   Skeleton,
@@ -28,17 +29,24 @@ import {
   type Theme,
 } from "@wso2/oxygen-ui";
 import { CirclePlay } from "@wso2/oxygen-ui-icons-react";
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import {
   CASE_STATUS_ACTIONS,
   type CaseStatusPaletteIntent,
 } from "@constants/supportConstants";
+import useGetCasesFilters from "@api/useGetCasesFilters";
+import { usePatchCase } from "@api/usePatchCase";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
 import type { AssignedEngineerValue } from "@utils/support";
 import {
+  ACTION_TO_CASE_STATE_LABEL,
   formatValue,
   getAssignedEngineerLabel,
   getAvailableCaseActions,
   isWithinOpenRelatedCaseWindow,
+  toPresentContinuousActionLabel,
+  toPresentTenseActionLabel,
 } from "@utils/support";
 
 const ACTION_BUTTON_ICON_SIZE = 12;
@@ -71,6 +79,10 @@ export interface CaseDetailsActionRowProps {
   /** When case is closed, used to hide "Open Related Case" after 2 months. */
   closedOn?: string | null;
   onOpenRelatedCase?: () => void;
+  /** Project ID for useGetCasesFilters and usePatchCase. */
+  projectId?: string;
+  /** Case ID for PATCH case state. */
+  caseId?: string;
   isLoading?: boolean;
 }
 
@@ -80,16 +92,50 @@ export interface CaseDetailsActionRowProps {
  * @param {CaseDetailsActionRowProps} props - Action display data and error state.
  * @returns {JSX.Element} The action row wrapped in Paper.
  */
+/**
+ * Resolves stateKey for an action by looking up caseState in caseStates.
+ * @param actionLabel - Action label (e.g. "Closed", "Accept Solution").
+ * @param caseStates - caseStates from useGetCasesFilters.
+ * @returns stateKey as number, or undefined if not found.
+ */
+function getStateKeyForAction(
+  actionLabel: string,
+  caseStates?: { id: string; label: string }[],
+): number | undefined {
+  if (!caseStates?.length) return undefined;
+  const stateLabel = ACTION_TO_CASE_STATE_LABEL[actionLabel];
+  if (!stateLabel) return undefined;
+  const entry = caseStates.find(
+    (s) => s.label.toLowerCase() === stateLabel.toLowerCase(),
+  );
+  if (!entry?.id) return undefined;
+  const num = Number(entry.id);
+  return Number.isNaN(num) ? undefined : num;
+}
+
 export default function CaseDetailsActionRow({
   assignedEngineer,
   engineerInitials,
   statusLabel,
   closedOn,
   onOpenRelatedCase,
+  projectId = "",
+  caseId = "",
   isLoading = false,
 }: CaseDetailsActionRowProps): JSX.Element {
   const theme = useTheme();
   const hasEngineer = !!getAssignedEngineerLabel(assignedEngineer);
+
+  const { data: filterMetadata } = useGetCasesFilters(projectId);
+  const caseStates = filterMetadata?.caseStates;
+
+  const { showSuccess } = useSuccessBanner();
+  const { showError } = useErrorBanner();
+
+  const patchCase = usePatchCase(projectId, caseId);
+  const [pendingActionLabel, setPendingActionLabel] = useState<string | null>(
+    null,
+  );
 
   const availableActions = getAvailableCaseActions(statusLabel).filter(
     (label) => {
@@ -178,22 +224,66 @@ export default function CaseDetailsActionRow({
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
         {CASE_STATUS_ACTIONS.filter((action) =>
           availableActions.includes(action.label),
-        ).map(({ label, Icon, paletteIntent }) => (
-          <Button
-            key={label}
-            variant="outlined"
-            size="small"
-            startIcon={<Icon size={ACTION_BUTTON_ICON_SIZE} />}
-            onClick={
-              label === "Open Related Case" ? onOpenRelatedCase : undefined
-            }
-            sx={
-              getActionButtonSx(theme, paletteIntent) as Record<string, unknown>
-            }
-          >
-            {label}
-          </Button>
-        ))}
+        ).map(({ label, Icon, paletteIntent }) => {
+          const stateKey = getStateKeyForAction(label, caseStates);
+          const isOpenRelatedCase = label === "Open Related Case";
+          const canPatch = !isOpenRelatedCase && stateKey != null && !!caseId;
+          const isThisPending =
+            !isOpenRelatedCase && patchCase.isPending && pendingActionLabel === label;
+
+          return (
+            <Button
+              key={label}
+              variant="outlined"
+              size="small"
+              startIcon={
+                isThisPending ? (
+                  <CircularProgress
+                    size={ACTION_BUTTON_ICON_SIZE}
+                    color="inherit"
+                    sx={{ display: "block" }}
+                  />
+                ) : (
+                  <Icon size={ACTION_BUTTON_ICON_SIZE} />
+                )
+              }
+              disabled={!isOpenRelatedCase && (patchCase.isPending || !canPatch)}
+              onClick={
+                isOpenRelatedCase
+                  ? onOpenRelatedCase
+                  : canPatch
+                    ? () => {
+                        setPendingActionLabel(label);
+                        patchCase.mutate(
+                          { stateKey: stateKey! },
+                          {
+                            onSuccess: () => {
+                              showSuccess("Case status updated successfully.");
+                            },
+                            onError: (err) => {
+                              showError(
+                                err?.message ??
+                                  "Failed to update case status. Please try again.",
+                              );
+                            },
+                            onSettled: () => {
+                              setPendingActionLabel(null);
+                            },
+                          },
+                        );
+                      }
+                    : undefined
+              }
+              sx={
+                getActionButtonSx(theme, paletteIntent) as Record<string, unknown>
+              }
+            >
+              {isThisPending
+                ? toPresentContinuousActionLabel(label)
+                : toPresentTenseActionLabel(label)}
+            </Button>
+          );
+        })}
       </Stack>
     </Paper>
   );

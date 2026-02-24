@@ -19,6 +19,30 @@ import { describe, expect, it, vi } from "vitest";
 import CaseDetailsActionRow from "@case-details/CaseDetailsActionRow";
 import { ThemeProvider, createTheme } from "@wso2/oxygen-ui";
 
+vi.mock("@api/useGetCasesFilters", () => ({
+  default: () => ({
+    data: {
+      caseStates: [
+        { id: "1", label: "Open" },
+        { id: "3", label: "Closed" },
+        { id: "1003", label: "Waiting On WSO2" },
+      ],
+    },
+  }),
+}));
+
+vi.mock("@api/usePatchCase", () => ({
+  usePatchCase: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
+vi.mock("@context/success-banner/SuccessBannerContext", () => ({
+  useSuccessBanner: () => ({ showSuccess: vi.fn() }),
+}));
+
+vi.mock("@context/error-banner/ErrorBannerContext", () => ({
+  useErrorBanner: () => ({ showError: vi.fn() }),
+}));
+
 vi.mock("@components/common/error-indicator/ErrorIndicator", () => ({
   default: ({ entityName }: { entityName: string }) => (
     <span data-testid="error-indicator">{entityName}</span>
@@ -40,7 +64,7 @@ describe("CaseDetailsActionRow", () => {
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
     expect(screen.getByText("Manage case status")).toBeInTheDocument();
     expect(screen.queryByText("Escalate Case")).not.toBeInTheDocument();
-    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.getByText("Close")).toBeInTheDocument();
   });
 
   it("should hide engineer section when assignedEngineer is null/undefined", () => {
@@ -55,7 +79,7 @@ describe("CaseDetailsActionRow", () => {
     );
     expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
     expect(screen.getByText("Manage case status")).toBeInTheDocument();
-    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.getByText("Close")).toBeInTheDocument();
   });
 
   it("should show skeletons for avatar and engineer but keep play icon, Manage case status when isLoading with engineer", () => {
@@ -72,7 +96,7 @@ describe("CaseDetailsActionRow", () => {
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
     expect(screen.getByText("Manage case status")).toBeInTheDocument();
     expect(screen.queryByText("Escalate Case")).not.toBeInTheDocument();
-    expect(screen.getByText("Closed")).toBeInTheDocument();
+    expect(screen.getByText("Close")).toBeInTheDocument();
     const skeletons = container.querySelectorAll(".MuiSkeleton-root");
     expect(skeletons.length).toBeGreaterThan(0);
   });
@@ -90,7 +114,7 @@ describe("CaseDetailsActionRow", () => {
       </ThemeProvider>,
     );
     expect(screen.getByText("Open Related Case")).toBeInTheDocument();
-    expect(screen.queryByText("Closed")).not.toBeInTheDocument();
+    expect(screen.queryByText("Close")).not.toBeInTheDocument();
   });
 
   it("should hide Open Related Case button when closed more than 2 months ago", () => {

@@ -33,6 +33,7 @@ import {
   formatFileSize,
   formatSlaResponseTime,
   deriveFilterLabels,
+  getIncidentAndQueryCaseTypeIds,
   getStatusIcon,
   getAvailableCaseActions,
   getAttachmentFileCategory,
@@ -48,6 +49,8 @@ import {
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
   isWithinOpenRelatedCaseWindow,
+  toPresentContinuousActionLabel,
+  toPresentTenseActionLabel,
 } from "@utils/support";
 import type { CaseComment } from "@models/responses";
 import { createTheme } from "@wso2/oxygen-ui";
@@ -296,6 +299,87 @@ describe("support utils", () => {
         label: "Deployment",
         allLabel: "All Deployments",
       });
+    });
+
+    it("should derive labels for caseType", () => {
+      expect(deriveFilterLabels("caseType")).toEqual({
+        label: "Case Type",
+        allLabel: "All Case Types",
+      });
+    });
+  });
+
+  describe("getIncidentAndQueryCaseTypeIds", () => {
+    it("should return Incident and Query IDs from caseTypes", () => {
+      const caseTypes = [
+        { id: "id-incident", label: "Incident" },
+        { id: "id-query", label: "Query" },
+        { id: "id-other", label: "Service Request" },
+      ];
+      expect(getIncidentAndQueryCaseTypeIds(caseTypes)).toEqual([
+        "id-incident",
+        "id-query",
+      ]);
+    });
+
+    it("should return empty array when caseTypes is empty or undefined", () => {
+      expect(getIncidentAndQueryCaseTypeIds([])).toEqual([]);
+      expect(getIncidentAndQueryCaseTypeIds(undefined)).toEqual([]);
+    });
+
+    it("should match case-insensitively", () => {
+      const caseTypes = [
+        { id: "id1", label: "INCIDENT" },
+        { id: "id2", label: "query" },
+      ];
+      expect(getIncidentAndQueryCaseTypeIds(caseTypes)).toEqual(["id1", "id2"]);
+    });
+
+    it("should accept Icident typo variant", () => {
+      const caseTypes = [
+        { id: "id-icident", label: "Icident" },
+        { id: "id-query", label: "Query" },
+      ];
+      expect(getIncidentAndQueryCaseTypeIds(caseTypes)).toEqual([
+        "id-icident",
+        "id-query",
+      ]);
+    });
+  });
+
+  describe("toPresentTenseActionLabel", () => {
+    it("should map Closed to Close", () => {
+      expect(toPresentTenseActionLabel("Closed")).toBe("Close");
+    });
+    it("should map Reopened to Reopen", () => {
+      expect(toPresentTenseActionLabel("Reopened")).toBe("Reopen");
+    });
+    it("should map Waiting on WSO2 to Wait on WSO2", () => {
+      expect(toPresentTenseActionLabel("Waiting on WSO2")).toBe("Wait on WSO2");
+    });
+    it("should return unchanged for unmapped labels", () => {
+      expect(toPresentTenseActionLabel("Accept Solution")).toBe(
+        "Accept Solution",
+      );
+    });
+  });
+
+  describe("toPresentContinuousActionLabel", () => {
+    it("should map Closed to Closing...", () => {
+      expect(toPresentContinuousActionLabel("Closed")).toBe("Closing...");
+    });
+    it("should map Reopened to Reopening...", () => {
+      expect(toPresentContinuousActionLabel("Reopened")).toBe("Reopening...");
+    });
+    it("should map Accept Solution to Accepting...", () => {
+      expect(toPresentContinuousActionLabel("Accept Solution")).toBe(
+        "Accepting...",
+      );
+    });
+    it("should map Reject Solution to Rejecting...", () => {
+      expect(toPresentContinuousActionLabel("Reject Solution")).toBe(
+        "Rejecting...",
+      );
     });
   });
 

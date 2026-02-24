@@ -68,7 +68,10 @@ export default function CallRequestCard({
     statusLabel === CallRequestStatus.CANCELLED ||
     statusLabel === CallRequestStatus.COMPLETED;
   const colorPath = getCallRequestStatusColor(statusLabel);
-  const resolvedColor = resolveColorFromTheme(colorPath, theme);
+  const resolvedColor =
+    statusLabel === CallRequestStatus.CANCELLED
+      ? theme.palette.error.main
+      : resolveColorFromTheme(colorPath, theme);
 
   return (
     <Card variant="outlined">

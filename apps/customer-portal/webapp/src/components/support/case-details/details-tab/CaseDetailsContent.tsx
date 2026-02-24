@@ -177,6 +177,8 @@ export default function CaseDetailsContent({
                 statusLabel={statusLabel}
                 closedOn={data?.closedOn}
                 onOpenRelatedCase={onOpenRelatedCase}
+                projectId={resolvedProjectId}
+                caseId={caseId}
                 isLoading={isLoading}
               />
             </>

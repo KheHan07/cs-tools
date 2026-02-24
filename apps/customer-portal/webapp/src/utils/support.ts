@@ -32,10 +32,30 @@ import {
   CaseSeverityLevel,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
-import type { CaseComment } from "@models/responses";
+import type { CaseComment, MetadataItem } from "@models/responses";
 import { alpha, type Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
 import { createElement, type ComponentType, type ReactNode } from "react";
+
+/**
+ * Extracts Incident and Query case type IDs from caseTypes metadata.
+ * Used for default caseTypeIds filter in Support overview and All Cases.
+ *
+ * @param caseTypes - Case types from useGetCasesFilters response.
+ * @returns {string[]} IDs for Incident and Query types.
+ */
+export function getIncidentAndQueryCaseTypeIds(
+  caseTypes?: MetadataItem[],
+): string[] {
+  if (!caseTypes?.length) return [];
+  const normalized = (label: string) => label.trim().toLowerCase();
+  return caseTypes
+    .filter(
+      (ct) =>
+        /^incident$|^icident$|^query$/i.test(normalized(ct.label)),
+    )
+    .map((ct) => ct.id);
+}
 
 /**
  * Normalizes UTC date string from API (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss) to ISO for parsing.
@@ -465,6 +485,9 @@ export function deriveFilterLabels(id: string): {
   label: string;
   allLabel: string;
 } {
+  if (id === "caseType") {
+    return { label: "Case Type", allLabel: "All Case Types" };
+  }
   const label = id.charAt(0).toUpperCase() + id.slice(1);
   const allLabel = `All ${
     label.endsWith("s")
@@ -791,6 +814,48 @@ export function stripHtml(html: string | null | undefined): string {
   if (!html || typeof html !== "string") return "";
   return html.replace(/<[^>]+>/g, "").trim();
 }
+
+/**
+ * Maps action labels to present tense for display (e.g., "Closed" -> "Close").
+ *
+ * @param label - Action label (e.g., "Closed", "Reopened").
+ * @returns {string} Present tense label.
+ */
+export function toPresentTenseActionLabel(label: string): string {
+  const map: Record<string, string> = {
+    Closed: "Close",
+    Reopened: "Reopen",
+    "Waiting on WSO2": "Wait on WSO2",
+    "Waiting On WSO2": "Wait on WSO2",
+  };
+  return map[label] ?? label;
+}
+
+/**
+ * Maps action labels to present continuous for loading state (e.g., "Closed" -> "Closing...").
+ *
+ * @param label - Action label (e.g., "Closed", "Accept Solution").
+ * @returns {string} Present continuous label with ellipsis.
+ */
+export function toPresentContinuousActionLabel(label: string): string {
+  const map: Record<string, string> = {
+    Closed: "Closing...",
+    Reopened: "Reopening...",
+    "Waiting on WSO2": "Waiting on WSO2...",
+    "Waiting On WSO2": "Waiting on WSO2...",
+    "Accept Solution": "Accepting...",
+    "Reject Solution": "Rejecting...",
+  };
+  return map[label] ?? `${label}...`;
+}
+
+/** Maps action labels (from getAvailableCaseActions) to caseState labels for lookup. */
+export const ACTION_TO_CASE_STATE_LABEL: Record<string, string> = {
+  Closed: "Closed",
+  "Waiting on WSO2": "Waiting On WSO2",
+  "Accept Solution": "Closed",
+  "Reject Solution": "Waiting On WSO2",
+};
 
 /**
  * Returns the list of available action button labels based on the case status.
