@@ -22,7 +22,6 @@ import { useLogger } from "@hooks/useLogger";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import useGetCasesFilters from "@api/useGetCasesFilters";
-import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import {
   DASHBOARD_CASE_TYPE_LABELS,
@@ -61,10 +60,6 @@ export default function DashboardPage(): JSX.Element {
   }, [filters]);
 
   const {
-    data: mockStats,
-    isError: isErrorMock,
-  } = useGetDashboardMockStats(projectId || "");
-  const {
     data: casesStats,
     isLoading: isCasesLoading,
     isError: isErrorCases,
@@ -72,7 +67,6 @@ export default function DashboardPage(): JSX.Element {
     enabled: !!projectId && !isFiltersLoading,
   });
 
-  // Don't block on mockStats - it always throws; dashboard needs filters + casesStats only
   const isDashboardLoading =
     isAuthLoading ||
     isFiltersLoading ||
@@ -99,15 +93,12 @@ export default function DashboardPage(): JSX.Element {
 
   useEffect(() => {
     if (
-      (isErrorMock || isErrorCases || isErrorFilters) &&
+      (isErrorCases || isErrorFilters) &&
       !hasShownErrorRef.current
     ) {
       hasShownErrorRef.current = true;
       showError("Could not load dashboard statistics.");
 
-      if (isErrorMock) {
-        logger.error(`Failed to load mock stats for project ID: ${projectId}`);
-      }
       if (isErrorCases) {
         logger.error(`Failed to load cases stats for project ID: ${projectId}`);
       }
@@ -115,10 +106,10 @@ export default function DashboardPage(): JSX.Element {
         logger.error(`Failed to load case filters for project ID: ${projectId}`);
       }
     }
-    if (!isErrorMock && !isErrorCases && !isErrorFilters) {
+    if (!isErrorCases && !isErrorFilters) {
       hasShownErrorRef.current = false;
     }
-  }, [isErrorMock, isErrorCases, isErrorFilters, showError, logger, projectId]);
+  }, [isErrorCases, isErrorFilters, showError, logger, projectId]);
 
   const activeCases = useMemo(() => {
     const open = casesStats?.stateCount.find((s) => s.label === "Open")?.count ?? 0;
@@ -207,9 +198,25 @@ export default function DashboardPage(): JSX.Element {
       {/* Dashboard stats grid */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {DASHBOARD_STATS.map((stat) => {
-          const trend = mockStats ? mockStats[stat.id]?.trend : undefined;
-          let value: string | number = 0;
+          const changeRate = casesStats?.changeRate;
+          let trend: { value: string; direction: "up" | "down"; color: "success" | "error" | "info" | "warning" } | undefined;
+          if (stat.id === "resolvedCases" && typeof changeRate?.resolvedEngagements === "number") {
+            const rate = changeRate.resolvedEngagements;
+            trend = {
+              value: `${rate >= 0 ? "+" : ""}${rate}%`,
+              direction: rate >= 0 ? "up" : "down",
+              color: rate >= 0 ? "success" : "error",
+            };
+          } else if (stat.id === "avgResponseTime" && typeof changeRate?.averageResponseTime === "number") {
+            const rate = changeRate.averageResponseTime;
+            trend = {
+              value: `${rate >= 0 ? "+" : ""}${rate}%`,
+              direction: rate >= 0 ? "up" : "down",
+              color: "success",
+            };
+          }
 
+          let value: string | number = 0;
           if (casesStats) {
             switch (stat.id) {
               case "totalCases":
@@ -224,16 +231,17 @@ export default function DashboardPage(): JSX.Element {
                 value = casesStats.resolvedCases.currentMonth;
                 break;
               case "avgResponseTime":
-                value = `${casesStats.averageResponseTime}h`;
+                value = `${casesStats.averageResponseTime} hrs`;
                 break;
               default:
                 break;
             }
           }
 
+          const showTrend = stat.id !== "totalCases" && stat.id !== "openCases";
+
           return (
             <Grid key={stat.id} size={{ xs: 12, sm: 6, md: 3 }}>
-              {/* Stat card for each statistic */}
               <StatCard
                 label={stat.label}
                 value={value}
@@ -241,12 +249,13 @@ export default function DashboardPage(): JSX.Element {
                 iconColor={stat.iconColor}
                 tooltipText={stat.tooltipText}
                 trend={trend}
+                showTrend={showTrend}
                 isLoading={
                   (isDashboardLoading || !casesStats) &&
                   !isErrorCases
                 }
                 isError={isErrorCases}
-                isTrendError={isErrorMock}
+                isTrendError={false}
               />
             </Grid>
           );
