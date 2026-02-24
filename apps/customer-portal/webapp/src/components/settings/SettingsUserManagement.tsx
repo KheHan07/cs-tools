@@ -55,9 +55,8 @@ import RemoveUserModal from "@components/settings/RemoveUserModal";
 import {
   getAvatarColor,
   getInitials,
-  getRoleChipColor,
+  getRoleBadges,
   getRoleChipSx,
-  getRoleIcon,
   getRoleLabel,
 } from "@utils/settings";
 import { getUserStatusColor } from "@utils/projectDetails";
@@ -370,20 +369,19 @@ export default function SettingsUserManagement({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    {(() => {
-                      const RoleIcon = getRoleIcon(contact);
-                      const label = getRoleLabel(contact);
-                      return (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {getRoleBadges(contact).map((badge) => (
                         <Chip
+                          key={badge.label}
                           size="small"
-                          icon={RoleIcon ? <RoleIcon size={12} /> : undefined}
-                          label={label}
+                          icon={<badge.Icon size={12} />}
+                          label={badge.label}
                           variant="outlined"
-                          color={getRoleChipColor(contact)}
-                          sx={RoleIcon ? getRoleChipSx(contact) : { typography: "caption" }}
+                          color={badge.chipColor}
+                          sx={getRoleChipSx(badge.chipColor)}
                         />
-                      );
-                    })()}
+                      ))}
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Chip

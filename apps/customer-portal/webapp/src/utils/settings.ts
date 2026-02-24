@@ -18,20 +18,50 @@ import { colors } from "@wso2/oxygen-ui";
 import type { ComponentType } from "react";
 import { NULL_PLACEHOLDER } from "@constants/settingsConstants";
 import type { ProjectContact } from "@models/responses";
-import { Code, Crown, Monitor } from "@wso2/oxygen-ui-icons-react";
+import { Code, Crown, Monitor, Users } from "@wso2/oxygen-ui-icons-react";
 
 /** Priority: Admin > System User > Portal User (default). */
 
+interface RoleBadge {
+  label: string;
+  Icon: ComponentType<{ size?: number }>;
+  chipColor: "primary" | "info" | "error" | "default" | "warning";
+}
+
 /**
- * Returns the role label for a contact (Admin, System User, or Portal User).
+ * Returns all applicable role badges for a contact.
+ *
+ * @param {ProjectContact} contact - The project contact.
+ * @returns {RoleBadge[]} Array of role badges to display.
+ */
+export function getRoleBadges(contact: ProjectContact): RoleBadge[] {
+  const badges: RoleBadge[] = [];
+
+  if (contact.isCsAdmin) {
+    badges.push({ label: "Admin", Icon: Crown, chipColor: "primary" });
+  }
+
+  if (contact.isCsIntegrationUser) {
+    badges.push({ label: "System User", Icon: Code, chipColor: "info" });
+  } else {
+    badges.push({ label: "Portal User", Icon: Monitor, chipColor: "default" });
+  }
+
+  if (contact.account?.classification === "Partner") {
+    badges.push({ label: "Partner", Icon: Users, chipColor: "warning" });
+  }
+
+  return badges;
+}
+
+/**
+ * Returns the primary role label for a contact.
  *
  * @param {ProjectContact} contact - The project contact.
  * @returns {string} The role label.
  */
 export function getRoleLabel(contact: ProjectContact): string {
-  if (contact.isCsAdmin) return "Admin";
-  if (contact.isCsIntegrationUser) return "System User";
-  return "Portal User";
+  return getRoleBadges(contact).map((b) => b.label).join(", ");
 }
 
 /**
@@ -43,47 +73,44 @@ export function getRoleLabel(contact: ProjectContact): string {
 export function getRoleIcon(
   contact: ProjectContact,
 ): ComponentType<{ size?: number }> | null {
-  if (contact.isCsAdmin) return Crown;
-  if (contact.isCsIntegrationUser) return Code;
-  return Monitor;
+  return getRoleBadges(contact)[0]?.Icon ?? null;
 }
 
 /**
- * Returns the chip color for a contact's role (aligned with ROLE_CONFIG palette).
+ * Returns the chip color for a contact's role.
  *
  * @param {ProjectContact} contact - The project contact.
- * @returns {"primary" | "info" | "error" | "default"} The chip color.
+ * @returns {"primary" | "info" | "error" | "default" | "warning"} The chip color.
  */
 export function getRoleChipColor(
   contact: ProjectContact,
-): "primary" | "info" | "error" | "default" {
-  if (contact.isCsAdmin) return "primary";
-  if (contact.isCsIntegrationUser) return "info";
-  return "default";
+): "primary" | "info" | "error" | "default" | "warning" {
+  return getRoleBadges(contact)[0]?.chipColor ?? "default";
 }
 
 /**
- * Returns sx props for role chips (typography, colors).
+ * Returns sx props for role chips based on their color category.
  *
- * @param {ProjectContact} contact - The project contact.
+ * @param {string} chipColor - The color key (primary, info, warning, etc).
  * @returns {object} MUI sx object for the chip.
  */
-export function getRoleChipSx(contact: ProjectContact): object {
+export function getRoleChipSx(chipColor: string): object {
   const purple = colors.purple?.[600] ?? "#7c3aed";
-  const iconPadding = {
+  // Base styles shared by all chips
+  const baseStyles = {
+    typography: "caption",
     "& .MuiChip-icon": { ml: 0.75, mr: 0.5 },
     "& .MuiChip-label": { pl: 0.5 },
   };
-  if (contact.isCsAdmin) {
+  if (chipColor === "primary") {
     return {
-      typography: "caption",
+      ...baseStyles,
       color: purple,
       borderColor: purple,
       "& .MuiChip-icon": { ml: 0.75, mr: 0.5, color: purple },
-      "& .MuiChip-label": { pl: 0.5 },
     };
   }
-  return { typography: "caption", ...iconPadding };
+  return baseStyles;
 }
 
 /**
