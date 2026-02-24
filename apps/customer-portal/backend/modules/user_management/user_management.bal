@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/http;
 
 # Get project contacts for the given project ID.
 #
@@ -30,7 +31,13 @@ public isolated function getProjectContacts(string projectId) returns Contact[]|
 public isolated function createProjectContact(string projectId, OnBoardContactPayload payload)
     returns Membership|error {
 
-    return userManagementClient->/projects/[projectId]/contact.post(payload);
+    http:Response userCreateResponse = check userManagementClient->/projects/[projectId]/contact.post(payload);
+    if userCreateResponse.statusCode != 200 {
+        json|error errBody = userCreateResponse.getJsonPayload();
+        json errInfo = errBody is json ? errBody : errBody.message();
+        return error(check errInfo.message);
+    }
+    return (check userCreateResponse.getJsonPayload()).cloneWithType();
 }
 
 # Remove a contact from the given project ID using the contact's email and admin email.
@@ -42,7 +49,14 @@ public isolated function createProjectContact(string projectId, OnBoardContactPa
 public isolated function removeProjectContact(string projectId, string contactEmail, string adminEmail)
     returns Membership|error {
 
-    return userManagementClient->/projects/[projectId]/contacts/[contactEmail].delete(adminEmail = adminEmail);
+    http:Response userRemoveResponse =
+        check userManagementClient->/projects/[projectId]/contacts/[contactEmail].delete(adminEmail = adminEmail);
+    if userRemoveResponse.statusCode != 200 {
+        json|error errBody = userRemoveResponse.getJsonPayload();
+        json errInfo = errBody is json ? errBody : errBody.message();
+        return error(check errInfo.message);
+    }
+    return (check userRemoveResponse.getJsonPayload()).cloneWithType();
 }
 
 # Update the membership flag of a contact in the given project ID using the contact's email and payload.
@@ -54,7 +68,13 @@ public isolated function removeProjectContact(string projectId, string contactEm
 public isolated function updateMembershipFlag(string projectId, string contactEmail, MembershipSecurityPayload payload)
     returns Membership|error {
 
-    return userManagementClient->/projects/[projectId]/contacts/[contactEmail].patch(payload);
+    http:Response userUpdateResponse = check userManagementClient->/projects/[projectId]/contacts/[contactEmail].patch(payload);
+    if userUpdateResponse.statusCode != 200 {
+        json|error errBody = userUpdateResponse.getJsonPayload();
+        json errInfo = errBody is json ? errBody : errBody.message();
+        return error(check errInfo.message);
+    }
+    return (check userUpdateResponse.getJsonPayload()).cloneWithType();
 }
 
 # Validate a project contact using the provided payload.
@@ -62,5 +82,11 @@ public isolated function updateMembershipFlag(string projectId, string contactEm
 # + payload - Payload containing information to validate the project contact
 # + return - Validated contact information or error
 public isolated function validateProjectContact(ValidationPayload payload) returns Contact?|error {
-    return userManagementClient->/validate\-project\-contact.post(payload);
+    http:Response userManagementResponse = check userManagementClient->/validate\-project\-contact.post(payload);
+    if userManagementResponse.statusCode != 200 {
+        json|error errBody = userManagementResponse.getJsonPayload();
+        json errInfo = errBody is json ? errBody : errBody.message();
+        return error(check errInfo.message);
+    }
+    return (check userManagementResponse.getJsonPayload()).cloneWithType();
 }

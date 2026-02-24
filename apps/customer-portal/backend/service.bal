@@ -2121,7 +2121,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to add project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2130,7 +2130,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2190,7 +2190,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to remove project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2199,7 +2199,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2244,7 +2244,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                        message: projectResponse.toString()
                     }
                 };
             }
@@ -2269,7 +2269,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to update project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2278,7 +2278,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2318,7 +2318,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 logForbiddenProjectAccess(id, userInfo.userId);
                 return <http:Forbidden>{
                     body: {
-                        message: ERR_MSG_PROJECT_ACCESS_FORBIDDEN
+                        message: projectResponse.toString()
                     }
                 };
             }
@@ -2344,7 +2344,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to validate project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2353,7 +2353,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2710,7 +2710,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get time card statistics for a project based on provided date range.
-    # 
+    #
     # + id - ID of the project
     # + startDate - Start date for the statistics (optional)
     # + endDate - End date for the statistics (optional)
