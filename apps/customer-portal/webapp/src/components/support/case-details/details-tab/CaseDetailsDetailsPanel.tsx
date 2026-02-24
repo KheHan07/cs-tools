@@ -217,7 +217,11 @@ export default function CaseDetailsDetailsPanel({
           <Box>
             <Typography {...labelSx}>Product Name</Typography>
             <Typography {...valueSx}>
-              {formatValue(data?.deployedProduct?.label ?? data?.product)}
+              {formatValue(
+                data?.deployedProduct?.label?.trim?.()?.length
+                  ? data.deployedProduct.label
+                  : null,
+              )}
             </Typography>
           </Box>
           <Box>
