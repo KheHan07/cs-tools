@@ -99,6 +99,12 @@ export default function SettingsUserManagement({
     });
   }, [contacts, searchQuery]);
 
+  const stats = useMemo(() => ({
+    admins: contacts.filter((c) => c.isCsAdmin).length,
+    developers: contacts.filter((c) => c.isCsIntegrationUser).length,
+    security: contacts.filter((c) => c.isSecurityContact).length,
+  }), [contacts]);
+
   const handleAddUser = useCallback(
     (data: CreateProjectContactRequest) => {
       postContact.mutate(data, {
@@ -318,13 +324,13 @@ export default function SettingsUserManagement({
               ))
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                   <ErrorIndicator entityName="users" size="medium" />
                 </TableCell>
               </TableRow>
             ) : filteredContacts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                   <Typography variant="body2" color="text.secondary">
                     No users found.
                   </Typography>
@@ -419,7 +425,7 @@ export default function SettingsUserManagement({
         }}
       >
         <Typography variant="h6" sx={{ mb: 4, display: "flex", alignItems: "center", gap: 1 }}>
-          <Shield size={20} color={theme.palette.info.main} />
+          <Shield size={20} color={theme.palette.text.primary} />
           Role Permissions
         </Typography>
         <Grid container spacing={2}>
@@ -430,7 +436,7 @@ export default function SettingsUserManagement({
                 ? (colors.purple?.[600] ?? theme.palette.primary.main)
                 : (theme.palette[role.paletteKey]?.main ?? theme.palette.text.primary);
             return (
-              <Grid key={role.id} size={{ xs: 12, md: 6 }}>
+              <Grid key={role.id} size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                     <RoleIcon size={18} color={roleColor} />
