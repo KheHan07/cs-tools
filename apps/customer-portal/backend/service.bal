@@ -1398,7 +1398,48 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CASE, id,
+                'limit, offset);
+        if commentsResponse is error {
+            string customError = "Failed to retrieve comments.";
+            log:printError(customError, commentsResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapCommentsResponse(commentsResponse);
+    }
+
+    # Get messages for a specific conversation.
+    #
+    # + id - ID of the conversation
+    # + limit - Number of messages to retrieve
+    # + offset - Offset for pagination
+    # + return - Comments response or error
+    resource function get conversations/[entity:IdString id]/messages(http:RequestContext ctx, int? 'limit, int? offset)
+        returns types:CommentsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isInvalidLimitOffset('limit, offset) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_LIMIT_OFFSET_INVALID
+                }
+            };
+        }
+
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CONVERSATION, id,
+                'limit, offset);
         if commentsResponse is error {
             string customError = "Failed to retrieve comments.";
             log:printError(customError, commentsResponse);
@@ -2710,7 +2751,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get time card statistics for a project based on provided date range.
-    # 
+    #
     # + id - ID of the project
     # + startDate - Start date for the statistics (optional)
     # + endDate - End date for the statistics (optional)
