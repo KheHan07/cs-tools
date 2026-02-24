@@ -15,6 +15,8 @@
 // under the License.
 import ballerina/http;
 
+public type CONFLICT_ERROR distinct error;
+
 # Get project contacts for the given project ID.
 #
 # + projectId - Salesforce ID of the project to get contacts for
@@ -32,7 +34,7 @@ public isolated function createProjectContact(string projectId, OnBoardContactPa
     returns Membership|error {
 
     http:Response userCreateResponse = check userManagementClient->/projects/[projectId]/contact.post(payload);
-    if userCreateResponse.statusCode != 200 {
+    if userCreateResponse.statusCode != http:STATUS_CREATED {
         json|error errBody = userCreateResponse.getJsonPayload();
         json errInfo = errBody is json ? errBody : errBody.message();
         return error(check errInfo.message);
@@ -51,7 +53,7 @@ public isolated function removeProjectContact(string projectId, string contactEm
 
     http:Response userRemoveResponse =
         check userManagementClient->/projects/[projectId]/contacts/[contactEmail].delete(adminEmail = adminEmail);
-    if userRemoveResponse.statusCode != 200 {
+    if userRemoveResponse.statusCode != http:STATUS_OK {
         json|error errBody = userRemoveResponse.getJsonPayload();
         json errInfo = errBody is json ? errBody : errBody.message();
         return error(check errInfo.message);
@@ -69,7 +71,7 @@ public isolated function updateMembershipFlag(string projectId, string contactEm
     returns Membership|error {
 
     http:Response userUpdateResponse = check userManagementClient->/projects/[projectId]/contacts/[contactEmail].patch(payload);
-    if userUpdateResponse.statusCode != 200 {
+    if userUpdateResponse.statusCode != http:STATUS_OK {
         json|error errBody = userUpdateResponse.getJsonPayload();
         json errInfo = errBody is json ? errBody : errBody.message();
         return error(check errInfo.message);
@@ -81,12 +83,25 @@ public isolated function updateMembershipFlag(string projectId, string contactEm
 #
 # + payload - Payload containing information to validate the project contact
 # + return - Validated contact information or error
-public isolated function validateProjectContact(ValidationPayload payload) returns Contact?|error {
+public isolated function validateProjectContact(ValidationPayload payload) returns Contact|error? {
     http:Response userManagementResponse = check userManagementClient->/validate\-project\-contact.post(payload);
-    if userManagementResponse.statusCode != 200 {
-        json|error errBody = userManagementResponse.getJsonPayload();
-        json errInfo = errBody is json ? errBody : errBody.message();
-        return error(check errInfo.message);
+
+    // If there's an existing Deactivated contact, return the contact details.
+    // If the contact is valid and can be onboarded, return nill.
+    if userManagementResponse.statusCode == http:STATUS_CREATED {
+        return (check userManagementResponse.getJsonPayload()).cloneWithType();
+    } else if userManagementResponse.statusCode == http:STATUS_ACCEPTED {
+        return;
     }
-    return (check userManagementResponse.getJsonPayload()).cloneWithType();
+
+    json|error errBody = userManagementResponse.getJsonPayload();
+    json errInfo = errBody is json ? errBody : errBody.message();
+
+    // If there's an existing Active contact, return a conflict error with the contact details.
+    if userManagementResponse.statusCode == http:STATUS_CONFLICT {
+        return error CONFLICT_ERROR(check errInfo.message);
+    }
+
+    // For any other error status code, return a generic error with the error message.
+    return error(check errInfo.message);
 }
