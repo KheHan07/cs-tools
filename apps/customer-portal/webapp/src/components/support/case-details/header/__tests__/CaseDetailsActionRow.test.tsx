@@ -35,6 +35,14 @@ vi.mock("@api/usePatchCase", () => ({
   usePatchCase: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
+vi.mock("@context/success-banner/SuccessBannerContext", () => ({
+  useSuccessBanner: () => ({ showSuccess: vi.fn() }),
+}));
+
+vi.mock("@context/error-banner/ErrorBannerContext", () => ({
+  useErrorBanner: () => ({ showError: vi.fn() }),
+}));
+
 vi.mock("@components/common/error-indicator/ErrorIndicator", () => ({
   default: ({ entityName }: { entityName: string }) => (
     <span data-testid="error-indicator">{entityName}</span>

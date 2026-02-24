@@ -18,6 +18,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   Paper,
   Skeleton,
@@ -35,6 +36,8 @@ import {
 } from "@constants/supportConstants";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import { usePatchCase } from "@api/usePatchCase";
+import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
+import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
 import type { AssignedEngineerValue } from "@utils/support";
 import {
   ACTION_TO_CASE_STATE_LABEL,
@@ -124,6 +127,9 @@ export default function CaseDetailsActionRow({
 
   const { data: filterMetadata } = useGetCasesFilters(projectId);
   const caseStates = filterMetadata?.caseStates;
+
+  const { showSuccess } = useSuccessBanner();
+  const { showError } = useErrorBanner();
 
   const patchCase = usePatchCase(projectId, caseId);
 
@@ -218,19 +224,44 @@ export default function CaseDetailsActionRow({
           const stateKey = getStateKeyForAction(label, caseStates);
           const isOpenRelatedCase = label === "Open Related Case";
           const canPatch = !isOpenRelatedCase && stateKey != null && !!caseId;
+          const isThisPending = !isOpenRelatedCase && patchCase.isPending;
 
           return (
             <Button
               key={label}
               variant="outlined"
               size="small"
-              startIcon={<Icon size={ACTION_BUTTON_ICON_SIZE} />}
+              startIcon={
+                isThisPending ? (
+                  <CircularProgress
+                    size={ACTION_BUTTON_ICON_SIZE}
+                    color="inherit"
+                    sx={{ display: "block" }}
+                  />
+                ) : (
+                  <Icon size={ACTION_BUTTON_ICON_SIZE} />
+                )
+              }
               disabled={!isOpenRelatedCase && (patchCase.isPending || !canPatch)}
               onClick={
                 isOpenRelatedCase
                   ? onOpenRelatedCase
                   : canPatch
-                    ? () => patchCase.mutate({ stateKey: stateKey! })
+                    ? () =>
+                        patchCase.mutate(
+                          { stateKey: stateKey! },
+                          {
+                            onSuccess: () => {
+                              showSuccess("Case status updated successfully.");
+                            },
+                            onError: (err) => {
+                              showError(
+                                err?.message ??
+                                  "Failed to update case status. Please try again.",
+                              );
+                            },
+                          },
+                        )
                     : undefined
               }
               sx={
