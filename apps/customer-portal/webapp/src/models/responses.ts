@@ -146,6 +146,12 @@ export interface ProjectCasesStats {
   resolvedCases: {
     total: number;
     currentMonth: number;
+    pastThirtyDays?: number;
+  };
+  /** Percentage change vs last period for trend display. */
+  changeRate?: {
+    resolvedEngagements?: number;
+    averageResponseTime?: number;
   };
   stateCount: CaseState[];
   severityCount: CaseSeverity[];
@@ -390,6 +396,32 @@ export interface ChatHistoryItem {
 // Response for project chat history list.
 export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
+}
+
+// Conversation from POST /projects/:projectId/conversations/search.
+export interface Conversation {
+  id: string;
+  number: string;
+  initialMessage: string;
+  messageCount: number;
+  createdOn: string;
+  createdBy: string;
+  project: { id: string; label: string };
+  case: { id: string; number: string; label: string } | null;
+  state: { id: string; label: string };
+}
+
+// Response for conversations search.
+export interface ConversationSearchResponse {
+  conversations: Conversation[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
+}
+
+// Filter values for conversations search (state filter uses statuses from filters API).
+export interface AllConversationsFilterValues {
+  stateId?: string;
 }
 
 // Interface for items in the time tracking logs.

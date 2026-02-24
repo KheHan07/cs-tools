@@ -41,6 +41,7 @@ import type {
   ProjectCasesStats,
   CaseMetadataResponse,
   AllCasesFilterValues,
+  AllConversationsFilterValues,
 } from "@models/responses";
 
 // Chat actions for the history list.
@@ -363,6 +364,52 @@ export interface AllCasesFilterDefinition {
   filterKey: keyof AllCasesFilterValues;
   useLabelAsValue?: boolean;
 }
+
+/**
+ * Valid keys for all conversations statistics (no values yet).
+ */
+export type AllConversationsStatKey =
+  | "resolved"
+  | "open"
+  | "abandoned"
+  | "totalChats";
+
+/**
+ * Configuration for the all conversations statistics cards (no values displayed yet).
+ */
+export const ALL_CONVERSATIONS_STAT_CONFIGS: SupportStatConfig<AllConversationsStatKey>[] =
+  [
+    { icon: CircleCheck, iconColor: "success", key: "resolved", label: "Resolved" },
+    { icon: Clock, iconColor: "info", key: "open", label: "Still Open" },
+    {
+      icon: CircleAlert,
+      iconColor: "warning",
+      key: "abandoned",
+      label: "Abandoned",
+    },
+    { icon: Bot, iconColor: "info", key: "totalChats", label: "Total Chats" },
+  ];
+
+/**
+ * Interface for conversations filter configuration.
+ */
+export interface AllConversationsFilterDefinition {
+  id: string;
+  metadataKey: keyof CaseMetadataResponse;
+  filterKey: keyof AllConversationsFilterValues;
+}
+
+/**
+ * Configuration for the all conversations filters (state only).
+ */
+export const ALL_CONVERSATIONS_FILTER_DEFINITIONS: AllConversationsFilterDefinition[] =
+  [
+    {
+      filterKey: "stateId",
+      id: "state",
+      metadataKey: "statuses",
+    },
+  ];
 
 /**
  * Configuration for the all cases filters.
