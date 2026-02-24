@@ -189,7 +189,15 @@ export default function AddProductModal({
           },
         }}
       >
-        <Box sx={{ mt: 2, mb: 2 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 2,
+            mt: 2,
+            mb: 2,
+          }}
+        >
           <TextField
             select
             fullWidth
@@ -212,16 +220,6 @@ export default function AddProductModal({
               </MenuItem>
             ))}
           </TextField>
-        </Box>
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 2,
-            mb: 2,
-          }}
-        >
           <TextField
             select
             fullWidth
@@ -246,6 +244,16 @@ export default function AddProductModal({
               </MenuItem>
             ))}
           </TextField>
+        </Box>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 2,
+            mb: 2,
+          }}
+        >
           <TextField
             id="product-cores"
             label="Core Count"
@@ -258,21 +266,19 @@ export default function AddProductModal({
             disabled={isSubmitting}
             inputProps={{ min: 0 }}
           />
+          <TextField
+            id="product-tps"
+            label="TPS (Transactions Per Second)"
+            placeholder="e.g., 5000"
+            type="number"
+            value={form.tps}
+            onChange={handleTextChange("tps")}
+            fullWidth
+            size="small"
+            disabled={isSubmitting}
+            inputProps={{ min: 0 }}
+          />
         </Box>
-
-        <TextField
-          id="product-tps"
-          label="TPS (Transactions Per Second)"
-          placeholder="e.g., 5000"
-          type="number"
-          value={form.tps}
-          onChange={handleTextChange("tps")}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-          disabled={isSubmitting}
-          inputProps={{ min: 0 }}
-        />
 
         <TextField
           id="product-description"

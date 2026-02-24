@@ -215,8 +215,9 @@ interface DocumentRowProps {
 function DocumentRow({ doc }: DocumentRowProps): JSX.Element {
   const sizeBytes = doc.sizeBytes ?? doc.size ?? 0;
   const dateStr = formatProjectDate(doc.uploadedAt ?? doc.createdOn ?? "");
-  const name = displayValue(doc.name);
-  const uploadedBy = displayValue(doc.uploadedBy ?? doc.createdBy);
+  const emptyVal = "Not Available";
+  const name = displayValue(doc.name, emptyVal);
+  const uploadedBy = displayValue(doc.uploadedBy ?? doc.createdBy, emptyVal);
   const sizeStr = formatBytes(sizeBytes);
   const category = doc.category;
   const FileIcon = getFileTypeIcon(name);
