@@ -1398,9 +1398,85 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CASE, id,
+                'limit, offset);
         if commentsResponse is error {
+            if getStatusCode(commentsResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(commentsResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access comments for case with ID: ${
+                        id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the comments for the requested case. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
             string customError = "Failed to retrieve comments.";
+            log:printError(customError, commentsResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapCommentsResponse(commentsResponse);
+    }
+
+    # Get messages for a specific conversation.
+    #
+    # + id - ID of the conversation
+    # + limit - Number of messages to retrieve
+    # + offset - Offset for pagination
+    # + return - Comments response or error
+    resource function get conversations/[entity:IdString id]/messages(http:RequestContext ctx, int? 'limit, int? offset)
+        returns types:CommentsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isInvalidLimitOffset('limit, offset) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_LIMIT_OFFSET_INVALID
+                }
+            };
+        }
+
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CONVERSATION, id,
+                'limit, offset);
+        if commentsResponse is error {
+            if getStatusCode(commentsResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(commentsResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${
+                        userInfo.userId} is forbidden to access messages for conversation with ID: ${id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the messages for the requested conversation."
+                    }
+                };
+            }
+            string customError = "Failed to retrieve messages.";
             log:printError(customError, commentsResponse);
             return <http:InternalServerError>{
                 body: {
@@ -2710,7 +2786,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get time card statistics for a project based on provided date range.
-    # 
+    #
     # + id - ID of the project
     # + startDate - Start date for the statistics (optional)
     # + endDate - End date for the statistics (optional)

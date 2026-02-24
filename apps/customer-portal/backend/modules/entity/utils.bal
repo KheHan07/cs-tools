@@ -24,16 +24,17 @@ isolated function generateHeaders(string token) returns map<string|string[]> => 
 # Get comments for a given entity ID with pagination.
 #
 # + idToken - ID token for authorization
+# + referenceType - Reference type (e.g., CASE, DEPLOYMENT)
 # + id - Entity ID to filter comments
 # + limit - Number of comments to retrieve
 # + offset - Offset for pagination
 # + return - Comments response or error
-public isolated function getComments(string idToken, string id, int? 'limit, int? offset)
+public isolated function getComments(string idToken, ReferenceType referenceType, string id, int? 'limit, int? offset)
     returns CommentsResponse|error {
 
     ReferenceSearchPayload payload = {
         referenceId: id,
-        referenceType: CASE,
+        referenceType,
         pagination: {
             'limit: 'limit ?: DEFAULT_LIMIT,
             offset: offset ?: DEFAULT_OFFSET
