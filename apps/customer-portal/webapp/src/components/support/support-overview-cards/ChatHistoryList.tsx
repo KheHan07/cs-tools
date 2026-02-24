@@ -26,20 +26,15 @@ import {
   alpha,
   type Theme,
 } from "@wso2/oxygen-ui";
-import {
-  Bot,
-  CircleCheck,
-  Clock,
-  ExternalLink,
-  Play,
-} from "@wso2/oxygen-ui-icons-react";
+import { Bot, ExternalLink, Play } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { ChatHistoryItem } from "@models/responses";
 import { ChatAction } from "@constants/supportConstants";
 import {
   getChatActionColor,
   getChatStatusAction,
-  getChatStatusColor,
+  getStatusColor,
+  getStatusIcon,
   resolveColorFromTheme,
 } from "@utils/support";
 import ChatHistorySkeleton from "@components/support/support-overview-cards/ChatHistorySkeleton";
@@ -86,8 +81,8 @@ export default function ChatHistoryList({
     >
       {items.map((item) => {
         const action = getChatStatusAction(item.status);
-        const StatusIcon = action === ChatAction.VIEW ? CircleCheck : Clock;
-        const chipColorPath = getChatStatusColor(item.status);
+        const StatusIcon = getStatusIcon(item.status);
+        const chipColorPath = getStatusColor(item.status);
 
         return (
           <Form.CardButton

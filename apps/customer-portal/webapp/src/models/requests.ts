@@ -44,6 +44,19 @@ export interface CaseSearchRequest {
   };
 }
 
+// Request body for POST /projects/:projectId/conversations/search.
+export interface ConversationSearchRequest {
+  filters?: {
+    searchQuery?: string;
+    stateKeys?: number[];
+  };
+  pagination: PaginationRequest;
+  sortBy?: {
+    field: string;
+    order: "asc" | "desc";
+  };
+}
+
 /** Shared env context for conversations and case classification APIs. */
 export interface SharedEnvContext {
   envProducts: Record<string, string[]>;

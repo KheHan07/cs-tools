@@ -82,6 +82,7 @@ export default function EditDeploymentModal({
   const isValid =
     form.name.trim() !== "" &&
     form.typeKey !== "" &&
+    form.description.trim() !== "" &&
     !!projectId &&
     !!deployment?.id;
 
@@ -242,7 +243,7 @@ export default function EditDeploymentModal({
 
         <TextField
           id="edit-deployment-description"
-          label="Description"
+          label="Description *"
           placeholder="Describe this deployment environment..."
           value={form.description}
           onChange={handleTextChange("description")}

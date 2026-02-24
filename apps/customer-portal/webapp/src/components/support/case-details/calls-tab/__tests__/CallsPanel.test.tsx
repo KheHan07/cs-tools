@@ -141,7 +141,7 @@ describe("CallsPanel", () => {
     ).toBeInTheDocument();
   });
 
-  it("should show delete confirmation modal and call patch on confirm", () => {
+  it("should show delete confirmation modal and call patch on confirm with reason", () => {
     const mockCall = {
       id: "call-1",
       case: { id: "case-1", label: "CS0438719" },
@@ -171,14 +171,19 @@ describe("CallsPanel", () => {
 
     expect(screen.getByText(/Are you sure you want to cancel/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Go Back/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Confirm/i })).toBeInTheDocument();
+    const confirmBtn = screen.getByRole("button", { name: /Confirm/i });
+    expect(confirmBtn).toBeInTheDocument();
+    expect(confirmBtn).toBeDisabled();
+
+    const reasonInput = screen.getByLabelText(/Reason \*/i);
+    fireEvent.change(reasonInput, { target: { value: "No longer needed" } });
 
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
     expect(mockPatchMutate).toHaveBeenCalledWith(
       expect.objectContaining({
         callRequestId: "call-1",
-        reason: "",
+        reason: "No longer needed",
         stateKey: CALL_REQUEST_STATE_CANCELLED,
       }),
       expect.any(Object),
@@ -245,7 +250,7 @@ describe("CallsPanel", () => {
     expect(screen.getByLabelText(/Meeting Duration/i)).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText(
-        /Any specific topics or questions you'd like to discuss/i,
+        /Describe your call request or topics you'd like to discuss/i,
       ),
     ).toBeInTheDocument();
   });

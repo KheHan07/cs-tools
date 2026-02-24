@@ -64,6 +64,9 @@ const useGetUserDetails = (): UseQueryResult<UserDetails, Error> => {
       }
     },
     enabled: isSignedIn && !isAuthLoading,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 

@@ -28,6 +28,7 @@ export const ApiQueryKeys = {
   CASE_COMMENTS: "case-comments",
   CASE_ATTACHMENTS: "case-attachments",
   CHAT_HISTORY: "chat-history",
+  CONVERSATIONS_SEARCH: "conversations-search",
   DEPLOYMENTS: "deployments",
   DEPLOYMENT_ATTACHMENTS: "deployment-attachments",
   PRODUCTS: "products",
