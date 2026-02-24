@@ -70,7 +70,7 @@ export default function DeploymentCard({
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {displayValue(name)}
+                {displayValue(name, "Not Available")}
               </Typography>
               <ErrorIndicator entityName="status and version" size="small" />
             </Box>
@@ -87,7 +87,7 @@ export default function DeploymentCard({
                 </Link>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  {displayValue(url)}
+                  {displayValue(url, "Not Available")}
                 </Typography>
               )}
             </Box>
@@ -126,7 +126,7 @@ export default function DeploymentCard({
 
         <Divider />
         <Typography variant="body2" color="text.secondary">
-          {displayValue(description)}
+          {displayValue(description, "Not Available")}
         </Typography>
         <Divider />
 
