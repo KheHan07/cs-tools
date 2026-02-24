@@ -102,7 +102,7 @@ export default function DeleteDeploymentModal({
         </Button>
         <Button
           variant="contained"
-          color="warning"
+          color="error"
           onClick={onConfirm}
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={16} color="inherit" /> : undefined}

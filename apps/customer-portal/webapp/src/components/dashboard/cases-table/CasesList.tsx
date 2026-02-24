@@ -35,11 +35,13 @@ import type { CaseSearchResponse, CaseListItem } from "@models/responses";
 import {
   formatValue,
   getInitials,
-  getSeverityColor,
   getStatusColor,
   mapSeverityToDisplay,
 } from "@utils/support";
-import { getCaseTypeChipConfig } from "@constants/dashboardConstants";
+import {
+  getCaseTypeChipConfig,
+  getSeverityLegendColor,
+} from "@constants/dashboardConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import CasesTableSkeleton from "@components/dashboard/cases-table/CasesTableSkeleton";
 
@@ -235,16 +237,31 @@ const CasesList = ({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={mapSeverityToDisplay(row.severity?.label)}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        color: getSeverityColor(row.severity?.label),
-                        borderColor: getSeverityColor(row.severity?.label),
-                        fontWeight: 500,
-                      }}
-                    />
+                    {(() => {
+                      const severityColor = getSeverityLegendColor(
+                        row.severity?.label,
+                      );
+                      return (
+                        <Chip
+                          label={mapSeverityToDisplay(row.severity?.label)}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            bgcolor: alpha(severityColor, 0.1),
+                            color: severityColor,
+                            borderColor: alpha(severityColor, 0.3),
+                            fontWeight: 500,
+                            px: 0,
+                            height: 20,
+                            fontSize: "0.75rem",
+                            "& .MuiChip-label": {
+                              pl: "6px",
+                              pr: "6px",
+                            },
+                          }}
+                        />
+                      );
+                    })()}
                   </TableCell>
                 </TableRow>
               ))
