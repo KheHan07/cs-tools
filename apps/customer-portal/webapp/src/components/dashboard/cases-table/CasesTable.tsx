@@ -15,9 +15,10 @@
 // under the License.
 
 import { ListingTable } from "@wso2/oxygen-ui";
-import { type JSX, useState, useMemo } from "react";
+import { type JSX, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useAsgardeo } from "@asgardeo/react";
+import { getNoveraChatEnabled } from "@utils/settingsStorage";
 import { useGetProjectCasesPage } from "@api/useGetProjectCasesPage";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import FilterPopover, {
@@ -178,6 +179,16 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
     options: field.options,
   }));
 
+  const handleCreateCase = useCallback(() => {
+    if (getNoveraChatEnabled()) {
+      navigate(`/${projectId}/support/chat/describe-issue`);
+    } else {
+      navigate(`/${projectId}/support/chat/create-case`, {
+        state: { skipChat: true },
+      });
+    }
+  }, [navigate, projectId]);
+
   const getDisplayValue = (fieldId: string, value: any): string => {
     if (!value) return "";
     const field = dynamicFilterFields.find((f) => f.id === fieldId);
@@ -212,7 +223,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
         onClearAll={handleClearFilters}
         onFilterClick={() => setIsFilterOpen(true)}
         onAllCases={() => navigate(`/${projectId}/support/cases`)}
-        onCreateCase={() => navigate(`/${projectId}/support/chat/create-case`)}
+        onCreateCase={handleCreateCase}
       />
 
       {/* Cases list */}

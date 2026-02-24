@@ -831,6 +831,24 @@ export function toPresentTenseActionLabel(label: string): string {
   return map[label] ?? label;
 }
 
+/**
+ * Maps action labels to present continuous for loading state (e.g., "Closed" -> "Closing...").
+ *
+ * @param label - Action label (e.g., "Closed", "Accept Solution").
+ * @returns {string} Present continuous label with ellipsis.
+ */
+export function toPresentContinuousActionLabel(label: string): string {
+  const map: Record<string, string> = {
+    Closed: "Closing...",
+    Reopened: "Reopening...",
+    "Waiting on WSO2": "Waiting on WSO2...",
+    "Waiting On WSO2": "Waiting on WSO2...",
+    "Accept Solution": "Accepting...",
+    "Reject Solution": "Rejecting...",
+  };
+  return map[label] ?? `${label}...`;
+}
+
 /** Maps action labels (from getAvailableCaseActions) to caseState labels for lookup. */
 export const ACTION_TO_CASE_STATE_LABEL: Record<string, string> = {
   Closed: "Closed",
