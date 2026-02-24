@@ -14,7 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys } from "@constants/apiConstants";
@@ -98,5 +101,7 @@ export function flattenDeploymentDocuments(
   data: InfiniteData<DeploymentAttachmentsResponse> | undefined,
 ): DeploymentDocument[] {
   if (!data?.pages) return [];
-  return data.pages.flatMap((page) => page.attachments ?? []);
+  return data.pages.flatMap(
+    (page: DeploymentAttachmentsResponse) => page.attachments ?? [],
+  );
 }

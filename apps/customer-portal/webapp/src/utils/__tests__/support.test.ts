@@ -332,6 +332,17 @@ describe("support utils", () => {
       ];
       expect(getIncidentAndQueryCaseTypeIds(caseTypes)).toEqual(["id1", "id2"]);
     });
+
+    it("should accept Icident typo variant", () => {
+      const caseTypes = [
+        { id: "id-icident", label: "Icident" },
+        { id: "id-query", label: "Query" },
+      ];
+      expect(getIncidentAndQueryCaseTypeIds(caseTypes)).toEqual([
+        "id-icident",
+        "id-query",
+      ]);
+    });
   });
 
   describe("getAttachmentFileCategory", () => {

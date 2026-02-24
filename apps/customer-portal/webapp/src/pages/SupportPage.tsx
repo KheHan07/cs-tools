@@ -55,7 +55,11 @@ export default function SupportPage(): JSX.Element {
     isError,
   } = useGetProjectSupportStats(projectId || "");
 
-  const { data: filterMetadata } = useGetCasesFilters(projectId || "");
+  const {
+    data: filterMetadata,
+    isFetching: isFiltersFetching,
+    isError: isFiltersError,
+  } = useGetCasesFilters(projectId || "");
 
   const caseTypeIds = getIncidentAndQueryCaseTypeIds(filterMetadata?.caseTypes);
 
@@ -69,7 +73,11 @@ export default function SupportPage(): JSX.Element {
       filters: { caseTypeIds: caseTypeIds.length > 0 ? caseTypeIds : undefined },
       sortBy: { field: "createdOn", order: "desc" },
     },
-    { enabled: !!projectId && caseTypeIds.length > 0 },
+    {
+      enabled:
+        !!projectId &&
+        (caseTypeIds.length > 0 || isFiltersFetching || !!isFiltersError),
+    },
   );
 
   const {

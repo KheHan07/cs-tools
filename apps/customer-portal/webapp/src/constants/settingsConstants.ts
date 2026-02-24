@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Code, Crown, ShieldCheck } from "@wso2/oxygen-ui-icons-react";
+import { Code, Crown } from "@wso2/oxygen-ui-icons-react";
 
 /** Placeholder for empty/null values in user management UI. */
 export const NULL_PLACEHOLDER = "--";

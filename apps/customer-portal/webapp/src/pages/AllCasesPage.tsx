@@ -96,9 +96,6 @@ export default function AllCasesPage(): JSX.Element {
     [filters, searchTerm, sortOrder, defaultCaseTypeIds],
   );
 
-  const hasCaseTypeIds =
-    (caseSearchRequest.filters?.caseTypeIds?.length ?? 0) > 0;
-
   // Fetch all cases using infinite query (runs in parallel with stats when projectId and auth are ready)
   const {
     data,
@@ -106,7 +103,7 @@ export default function AllCasesPage(): JSX.Element {
     hasNextPage,
     fetchNextPage,
   } = useGetProjectCases(projectId || "", caseSearchRequest, {
-    enabled: !!projectId && hasCaseTypeIds,
+    enabled: !!projectId,
   });
 
   const { showLoader, hideLoader } = useLoader();

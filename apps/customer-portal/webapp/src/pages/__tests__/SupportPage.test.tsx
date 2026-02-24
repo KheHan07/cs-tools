@@ -79,7 +79,7 @@ vi.mock("@wso2/oxygen-ui", async (importOriginal) => {
       blue: { 500: "#2196F3", 700: "#1D4ED8" },
       green: { 500: "#4CAF50" },
       purple: { 500: "#9C27B0", 400: "#A78BFA" },
-      orange: { 500: "#FB8C00", 600: "#FB8C00" },
+      orange: { 500: "#FF9800", 600: "#FB8C00" },
       yellow: { 500: "#FFC107", 700: "#F9A825" },
       grey: { 500: "#9E9E9E" },
       teal: { 600: "#00897B" },
@@ -171,6 +171,7 @@ vi.mock("@api/useGetCasesFilters", () => ({
       ],
     },
     isFetching: false,
+    isError: false,
   }),
 }));
 

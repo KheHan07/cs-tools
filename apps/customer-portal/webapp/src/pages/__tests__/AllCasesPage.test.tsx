@@ -257,22 +257,34 @@ describe("AllCasesPage", () => {
   });
 
   it("should handle pagination", async () => {
-    // Use mock with many cases so pagination is visible
+    const page1Cases = Array.from({ length: 10 }, (_, i) => ({
+      ...mockCases[0],
+      id: `case-${i}`,
+      number: `CS${String(i + 1).padStart(3, "0")}`,
+    }));
+    const page2Cases = Array.from({ length: 5 }, (_, i) => ({
+      ...mockCases[0],
+      id: `case-${i + 10}`,
+      number: `CS${String(i + 11).padStart(3, "0")}`,
+    }));
+
     (useGetProjectCases as any).mockReturnValue({
       data: {
         pages: [
           {
-            cases: Array.from({ length: 15 }, (_, i) => ({
-              ...mockCases[0],
-              id: `case-${i}`,
-              number: `CS${String(i + 1).padStart(3, "0")}`,
-            })),
+            cases: page1Cases,
             totalRecords: 15,
             offset: 0,
             limit: 10,
           },
+          {
+            cases: page2Cases,
+            totalRecords: 15,
+            offset: 10,
+            limit: 10,
+          },
         ],
-        pageParams: [0],
+        pageParams: [0, 10],
       },
       isFetching: false,
       hasNextPage: false,

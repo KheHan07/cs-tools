@@ -48,8 +48,12 @@ export function getIncidentAndQueryCaseTypeIds(
   caseTypes?: MetadataItem[],
 ): string[] {
   if (!caseTypes?.length) return [];
+  const normalized = (label: string) => label.trim().toLowerCase();
   return caseTypes
-    .filter((ct) => /^incident$|^query$/i.test(ct.label.trim()))
+    .filter(
+      (ct) =>
+        /^incident$|^icident$|^query$/i.test(normalized(ct.label)),
+    )
     .map((ct) => ct.id);
 }
 
