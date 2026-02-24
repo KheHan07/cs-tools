@@ -18,10 +18,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProjectTimeTracking from "@time-tracking/ProjectTimeTracking";
 import useSearchProjectTimeCards from "@api/useSearchProjectTimeCards";
-import useGetProjectTimeTrackingStat from "@api/useGetProjectTimeTrackingStat";
+import useGetTimeCardsStats from "@api/useGetTimeCardsStats";
 
 vi.mock("@api/useSearchProjectTimeCards");
-vi.mock("@api/useGetProjectTimeTrackingStat");
+vi.mock("@api/useGetTimeCardsStats");
 
 vi.mock("@time-tracking/TimeTrackingStatCards", () => ({
   default: ({ isLoading, isError }: { isLoading?: boolean; isError?: boolean }) => (
@@ -66,7 +66,7 @@ describe("ProjectTimeTracking", () => {
   });
 
   it("should render 7 skeletons when time cards are loading", () => {
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
@@ -84,7 +84,7 @@ describe("ProjectTimeTracking", () => {
   });
 
   it("should render error state when time cards fail to load", () => {
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
@@ -130,7 +130,7 @@ describe("ProjectTimeTracking", () => {
       limit: 10,
     };
 
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
@@ -150,7 +150,7 @@ describe("ProjectTimeTracking", () => {
   });
 
   it("should always render stat cards regardless of time cards state", () => {
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
@@ -168,7 +168,7 @@ describe("ProjectTimeTracking", () => {
   });
 
   it("should render date filter between stats and time cards", () => {
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,
@@ -186,7 +186,7 @@ describe("ProjectTimeTracking", () => {
   });
 
   it("should render empty state when there are no time cards", () => {
-    vi.mocked(useGetProjectTimeTrackingStat).mockReturnValue({
+    vi.mocked(useGetTimeCardsStats).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: false,

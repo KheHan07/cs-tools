@@ -19,7 +19,6 @@ import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DashboardPage from "@pages/DashboardPage";
 import { DASHBOARD_STATS } from "@constants/dashboardConstants";
-import { useGetDashboardMockStats } from "@api/useGetDashboardMockStats";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import { ErrorBannerProvider } from "@context/error-banner/ErrorBannerContext";
 import { LoaderProvider } from "@context/linear-loader/LoaderContext";
@@ -66,27 +65,6 @@ vi.mock("@context/linear-loader/LoaderContext", async (importOriginal) => {
   };
 });
 
-const mockMockStats = {
-  data: {
-    totalCases: { trend: { value: "12%", direction: "up", color: "success" } },
-    openCases: { trend: { value: "5%", direction: "down", color: "error" } },
-    resolvedCases: {
-      trend: { value: "8%", direction: "up", color: "success" },
-    },
-    avgResponseTime: {
-      trend: { value: "0.5h", direction: "down", color: "error" },
-    },
-    casesTrend: {
-      "Type A": 10,
-      "Type B": 20,
-      "Type C": 30,
-      "Type D": 40,
-    },
-  },
-  isLoading: false,
-  isError: false,
-};
-
 const mockFilters = {
   data: {
     caseTypes: [
@@ -123,10 +101,6 @@ const mockCasesStats = {
 
 vi.mock("@api/useGetCasesFilters", () => ({
   default: vi.fn(() => mockFilters),
-}));
-
-vi.mock("@api/useGetDashboardMockStats", () => ({
-  useGetDashboardMockStats: vi.fn(() => mockMockStats),
 }));
 
 vi.mock("@api/useGetProjectCasesStats", () => ({
@@ -238,21 +212,6 @@ describe("DashboardPage", () => {
       DASHBOARD_STATS.length,
     );
     expect(screen.getByTestId("chart-layout")).toBeInTheDocument();
-  });
-
-  it("should render error banner when statistics fail to load", () => {
-    vi.mocked(useGetDashboardMockStats).mockReturnValueOnce({
-      ...mockMockStats,
-      isError: true,
-      data: undefined,
-    } as any);
-
-    renderWithProviders(<DashboardPage />);
-
-    expect(screen.getByTestId("error-banner")).toBeInTheDocument();
-    expect(
-      screen.getByText("Could not load dashboard statistics."),
-    ).toBeInTheDocument();
   });
 
   it("should render error banner when cases statistics fail to load", () => {

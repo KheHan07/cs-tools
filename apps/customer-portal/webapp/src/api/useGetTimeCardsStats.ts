@@ -21,23 +21,44 @@ import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectTimeTrackingStats } from "@models/responses";
 
+export interface UseGetTimeCardsStatsParams {
+  projectId: string;
+  /** Start date in YYYY-MM-DD format. */
+  startDate: string;
+  /** End date in YYYY-MM-DD format. */
+  endDate: string;
+}
+
 /**
- * Custom hook to fetch project time tracking statistics by project ID.
+ * Fetches time card statistics for a project within a date range.
+ * GET /projects/:projectId/time-cards/stats?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
  *
- * @param {string} projectId - The ID of the project.
+ * @param {UseGetTimeCardsStatsParams} params - Project ID and date range.
  * @returns {UseQueryResult<ProjectTimeTrackingStats, Error>} The query result object.
  */
-export default function useGetProjectTimeTrackingStat(
-  projectId: string,
-): UseQueryResult<ProjectTimeTrackingStats, Error> {
+export default function useGetTimeCardsStats({
+  projectId,
+  startDate,
+  endDate,
+}: UseGetTimeCardsStatsParams): UseQueryResult<
+  ProjectTimeTrackingStats,
+  Error
+> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
   return useQuery<ProjectTimeTrackingStats, Error>({
-    queryKey: [ApiQueryKeys.TIME_TRACKING_STATS, projectId],
+    queryKey: [
+      ApiQueryKeys.TIME_TRACKING_STATS,
+      projectId,
+      startDate,
+      endDate,
+    ],
     queryFn: async (): Promise<ProjectTimeTrackingStats> => {
-      logger.debug(`Fetching time tracking stats for project ID: ${projectId}`);
+      logger.debug(
+        `[useGetTimeCardsStats] Fetching stats for project ${projectId}, ${startDate} to ${endDate}`,
+      );
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -46,29 +67,38 @@ export default function useGetProjectTimeTrackingStat(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/projects/${projectId}/timetracking/stats`;
+        const params = new URLSearchParams({
+          startDate,
+          endDate,
+        });
+        const requestUrl = `${baseUrl}/projects/${projectId}/time-cards/stats?${params.toString()}`;
 
         const response = await fetchFn(requestUrl, { method: "GET" });
 
         logger.debug(
-          `[useGetProjectTimeTrackingStat] Response status for ${projectId}: ${response.status}`,
+          `[useGetTimeCardsStats] Response status for ${projectId}: ${response.status}`,
         );
 
         if (!response.ok) {
           throw new Error(
-            `Error fetching time tracking stats: ${response.statusText}`,
+            `Error fetching time cards stats: ${response.statusText}`,
           );
         }
 
         const data: ProjectTimeTrackingStats = await response.json();
-        logger.debug("[useGetProjectTimeTrackingStat] Data received:", data);
+        logger.debug("[useGetTimeCardsStats] Data received:", data);
         return data;
       } catch (error) {
-        logger.error("[useGetProjectTimeTrackingStat] Error:", error);
+        logger.error("[useGetTimeCardsStats] Error:", error);
         throw error;
       }
     },
-    enabled: !!projectId && isSignedIn && !isAuthLoading,
+    enabled:
+      !!projectId &&
+      !!startDate &&
+      !!endDate &&
+      isSignedIn &&
+      !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

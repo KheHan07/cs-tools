@@ -38,6 +38,8 @@ interface StatCardProps {
   iconColor: StatCardColor;
   tooltipText: string;
   trend?: TrendData;
+  /** When false, hides the trend indicator (e.g. for Total/Active Engagements). */
+  showTrend?: boolean;
   isLoading?: boolean;
   isError?: boolean;
   isTrendError?: boolean;
@@ -56,6 +58,7 @@ export const StatCard = ({
   iconColor,
   tooltipText,
   trend,
+  showTrend = true,
   isLoading,
   isError,
   isTrendError,
@@ -98,12 +101,14 @@ export const StatCard = ({
           {icon}
         </Box>
 
-        {/* Trend indicator */}
-        <TrendIndicator
-          trend={trend}
-          isLoading={isLoading}
-          isError={isTrendError}
-        />
+        {/* Trend indicator - hidden when showTrend is false */}
+        {showTrend && (
+          <TrendIndicator
+            trend={trend}
+            isLoading={isLoading}
+            isError={isTrendError}
+          />
+        )}
       </Box>
 
       {/* Value and label */}
