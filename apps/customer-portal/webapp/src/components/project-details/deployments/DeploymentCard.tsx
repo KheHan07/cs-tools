@@ -17,27 +17,22 @@
 import type { ProjectDeploymentItem } from "@models/responses";
 import { displayValue, formatProjectDate } from "@utils/projectDetails";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Card,
+  CardContent,
   Divider,
   IconButton,
   Link,
   Typography,
 } from "@wso2/oxygen-ui";
-import {
-  Activity,
-  Calendar,
-  ChevronDown,
-  PencilLine,
-} from "@wso2/oxygen-ui-icons-react";
+import { Activity, Calendar, PencilLine, Trash2 } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import DeploymentDocumentList from "./DeploymentDocumentList";
 import DeploymentProductList from "./DeploymentProductList";
 import EditDeploymentModal from "./EditDeploymentModal";
+import DeleteDeploymentModal from "./DeleteDeploymentModal";
+import { usePatchDeployment } from "@api/usePatchDeployment";
 
 export interface DeploymentCardProps {
   deployment: ProjectDeploymentItem;
@@ -55,128 +50,134 @@ export default function DeploymentCard({
   const { name, url, description, createdOn } = deployment;
   const projectId = deployment.project?.id ?? "";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const patchDeployment = usePatchDeployment();
 
   const deployedAtStr = formatProjectDate(createdOn);
 
   return (
     <Card>
-      <Accordion defaultExpanded={false}>
-        <AccordionSummary expandIcon={<ChevronDown size={20} />} sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
-            <Box sx={{ flex: 1 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  mb: 0.5,
-                  flexWrap: "wrap",
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {displayValue(name)}
-                </Typography>
-                <ErrorIndicator
-                  entityName="status and version"
-                  size="small"
-                />
-                <IconButton
-                  component="div"
-                  size="small"
-                  role="button"
-                  aria-label="Edit deployment"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditModalOpen(true);
-                  }}
-                  sx={{
-                    color: "text.secondary",
-                    "&:hover": { color: "primary.main" },
-                    "&.Mui-focusVisible": { color: "primary.main" },
-                  }}
+      <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 3, flex: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                mb: 0.5,
+                flexWrap: "wrap",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {displayValue(name)}
+              </Typography>
+              <ErrorIndicator entityName="status and version" size="small" />
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {url ? (
+                <Link
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="body2"
+                  sx={{ color: "text.secondary" }}
                 >
-                  <PencilLine size={16} aria-hidden />
-                </IconButton>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {url ? (
-                  <Link
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="body2"
-                    sx={{ color: "text.secondary" }}
-                  >
-                    {url}
-                  </Link>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    {displayValue(url)}
-                  </Typography>
-                )}
-              </Box>
+                  {url}
+                </Link>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {displayValue(url)}
+                </Typography>
+              )}
             </Box>
           </Box>
-        </AccordionSummary>
-
-        <AccordionDetails
-          sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}
-        >
-          <Divider />
-          <Typography variant="body2" color="text.secondary">
-            {displayValue(description)}
-          </Typography>
-          <Divider />
-
-          <DeploymentProductList
-            deploymentId={deployment.id}
-            projectId={deployment.project?.id ?? ""}
-          />
-
-          <Divider />
-
-          <DeploymentDocumentList deploymentId={deployment.id} />
-
-          <Divider />
-          <Box sx={{ display: "flex", gap: 3 }}>
-            <Box
+          <Box sx={{ display: "flex", gap: 0.25, alignItems: "center" }}>
+            <IconButton
+              component="div"
+              size="small"
+              role="button"
+              aria-label="Edit deployment"
+              onClick={() => setIsEditModalOpen(true)}
               sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
                 color: "text.secondary",
-                flexShrink: 0,
-                fontSize: "0.75rem",
+                "&:hover": { color: "primary.main" },
+                "&.Mui-focusVisible": { color: "primary.main" },
               }}
             >
-              <Calendar
-                size={14}
-                style={{ verticalAlign: "middle", display: "inline-block" }}
-              />
-              <span style={{ verticalAlign: "middle", whiteSpace: "nowrap" }}>
-                Deployed on {deployedAtStr} •{" "}
-                <ErrorIndicator entityName="version" size="small" />
-              </span>
-            </Box>
-            <Box
+              <PencilLine size={16} aria-hidden />
+            </IconButton>
+            <IconButton
+              component="div"
+              size="small"
+              role="button"
+              aria-label="Delete deployment"
+              onClick={() => setIsDeleteModalOpen(true)}
               sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.5,
                 color: "text.secondary",
-                fontSize: "0.75rem",
+                "&:hover": { color: "primary.main" },
+                "&.Mui-focusVisible": { color: "primary.main" },
               }}
             >
-              <Activity
-                size={14}
-                style={{ verticalAlign: "middle", display: "inline-block" }}
-              />
-              <span style={{ verticalAlign: "middle" }}>Uptime: </span>
-              <ErrorIndicator entityName="uptime" size="small" />
-            </Box>
+              <Trash2 size={16} aria-hidden />
+            </IconButton>
           </Box>
-        </AccordionDetails>
-      </Accordion>
+        </Box>
+
+        <Divider />
+        <Typography variant="body2" color="text.secondary">
+          {displayValue(description)}
+        </Typography>
+        <Divider />
+
+        <DeploymentProductList
+          deploymentId={deployment.id}
+          projectId={deployment.project?.id ?? ""}
+        />
+
+        <Divider />
+
+        <DeploymentDocumentList deploymentId={deployment.id} />
+
+        <Divider />
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              color: "text.secondary",
+              flexShrink: 0,
+              fontSize: "0.75rem",
+            }}
+          >
+            <Calendar
+              size={14}
+              style={{ verticalAlign: "middle", display: "inline-block" }}
+            />
+            <span style={{ verticalAlign: "middle", whiteSpace: "nowrap" }}>
+              Deployed on {deployedAtStr} •{" "}
+              <ErrorIndicator entityName="version" size="small" />
+            </span>
+          </Box>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              color: "text.secondary",
+              fontSize: "0.75rem",
+            }}
+          >
+            <Activity
+              size={14}
+              style={{ verticalAlign: "middle", display: "inline-block" }}
+            />
+            <span style={{ verticalAlign: "middle" }}>Uptime: </span>
+            <ErrorIndicator entityName="uptime" size="small" />
+          </Box>
+        </Box>
+      </CardContent>
 
       <EditDeploymentModal
         open={isEditModalOpen}
@@ -184,6 +185,25 @@ export default function DeploymentCard({
         projectId={projectId}
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={() => setIsEditModalOpen(false)}
+      />
+
+      <DeleteDeploymentModal
+        open={isDeleteModalOpen}
+        deployment={deployment}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          patchDeployment.mutate(
+            {
+              projectId,
+              deploymentId: deployment.id,
+              body: { active: false },
+            },
+            {
+              onSuccess: () => setIsDeleteModalOpen(false),
+            },
+          );
+        }}
+        isDeleting={patchDeployment.isPending}
       />
     </Card>
   );

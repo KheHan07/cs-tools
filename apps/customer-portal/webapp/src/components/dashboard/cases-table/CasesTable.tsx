@@ -212,7 +212,7 @@ const CasesTable = ({ projectId }: CasesTableProps): JSX.Element => {
         onClearAll={handleClearFilters}
         onFilterClick={() => setIsFilterOpen(true)}
         onAllCases={() => navigate(`/${projectId}/support/cases`)}
-        onCreateCase={() => navigate(`/${projectId}/support/chat`)}
+        onCreateCase={() => navigate(`/${projectId}/support/chat/create-case`)}
       />
 
       {/* Cases list */}

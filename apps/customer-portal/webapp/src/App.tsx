@@ -25,6 +25,7 @@ import UpdatesPage from "@pages/UpdatesPage";
 import PendingUpdatesPage from "@pages/PendingUpdatesPage";
 import UpdateLevelDetailsPage from "@pages/UpdateLevelDetailsPage";
 import AllCasesPage from "@pages/AllCasesPage";
+import AllConversationsPage from "@pages/AllConversationsPage";
 import CaseDetailsPage from "@pages/CaseDetailsPage";
 import NoveraChatPage from "@pages/NoveraChatPage";
 import DescribeIssuePage from "@pages/DescribeIssuePage";
@@ -77,6 +78,9 @@ export default function App(): JSX.Element {
                         <Route path="cases">
                           <Route index element={<AllCasesPage />} />
                           <Route path=":caseId" element={<CaseDetailsPage />} />
+                        </Route>
+                        <Route path="conversations">
+                          <Route index element={<AllConversationsPage />} />
                         </Route>
                         <Route path="chat">
                           <Route index element={<NoveraChatPage />} />

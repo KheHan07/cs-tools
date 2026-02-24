@@ -21,8 +21,8 @@ import {
   Button,
   Checkbox,
   Chip,
-  CircularProgress,
   IconButton,
+  Skeleton,
   Typography,
   alpha,
 } from "@wso2/oxygen-ui";
@@ -49,6 +49,62 @@ interface DeploymentProductListProps {
   projectId: string;
 }
 
+function ProductsSkeleton(): JSX.Element {
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {[1, 2].map((i) => (
+        <Box
+          key={i}
+          sx={{
+            p: 2,
+            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.05),
+            borderRadius: "8px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, flex: 1 }}>
+              <Skeleton variant="rounded" width={20} height={20} sx={{ mt: -0.5, flexShrink: 0 }} />
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1, flexWrap: "wrap" }}>
+                  <Skeleton variant="text" width="35%" height={20} />
+                  <Skeleton variant="rounded" width={50} height={20} />
+                  <Skeleton variant="rounded" width={24} height={24} />
+                </Box>
+                <Skeleton variant="text" width="70%" height={16} sx={{ mb: 1.5 }} />
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    columnGap: 1,
+                    rowGap: 1.5,
+                    mb: 1.5,
+                  }}
+                >
+                  <Skeleton variant="text" width={70} height={16} />
+                  <Skeleton variant="text" width={60} height={16} />
+                  <Skeleton variant="text" width={100} height={16} />
+                  <Skeleton variant="text" width={50} height={16} />
+                </Box>
+                <Skeleton variant="rounded" width={120} height={20} />
+              </Box>
+            </Box>
+            <Box sx={{ display: "flex", gap: 0.25 }}>
+              <Skeleton variant="rounded" width={32} height={32} />
+              <Skeleton variant="rounded" width={32} height={32} />
+            </Box>
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 /**
  * Renders the list of products for a deployment.
  *
@@ -72,8 +128,15 @@ export default function DeploymentProductList({
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Package size={16} />
           <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-            WSO2 Products {isLoading ? "" : `(${products.length})`}
+            WSO2 Products
           </Typography>
+          {isLoading ? (
+            <Skeleton variant="rounded" width={32} height={20} sx={{ flexShrink: 0 }} />
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              ({products.length})
+            </Typography>
+          )}
         </Box>
         <Button
           variant="outlined"
@@ -86,9 +149,7 @@ export default function DeploymentProductList({
         </Button>
       </Box>
       {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-          <CircularProgress size={24} />
-        </Box>
+        <ProductsSkeleton />
       ) : isError ? (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 2 }}>
           <ErrorIndicator entityName="products" size="small" />

@@ -15,82 +15,117 @@
 // under the License.
 
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Card,
+  CardContent,
   Divider,
   Skeleton,
+  alpha,
 } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 
 /**
  * Skeleton loader for the DeploymentCard component.
- * Mimics the structure of a deployment card with an accordion.
+ * Mimics the flat deployment card layout (no accordion).
  *
  * @returns {JSX.Element} The DeploymentCardSkeleton component.
  */
 export default function DeploymentCardSkeleton(): JSX.Element {
   return (
     <Card>
-      <Accordion defaultExpanded={false}>
-        <AccordionSummary sx={{ p: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 3,
-              width: "100%",
-            }}
-          >
-            <Box sx={{ flex: 1 }}>
+      <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+              <Skeleton variant="text" width={150} height={32} />
+              <Skeleton variant="rounded" width={80} height={24} />
+              <Skeleton variant="rounded" width={24} height={24} />
+            </Box>
+            <Skeleton variant="text" width={200} height={20} />
+          </Box>
+        </Box>
+
+        <Divider />
+        <Skeleton variant="text" width="80%" height={20} />
+        <Skeleton variant="text" width="60%" height={20} />
+        <Divider />
+
+        <Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Skeleton variant="circular" width={16} height={16} />
+              <Skeleton variant="text" width={120} height={24} />
+            </Box>
+            <Skeleton variant="rounded" width={100} height={32} />
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {[1, 2].map((i) => (
               <Box
+                key={i}
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  mb: 0.5,
+                  p: 2,
+                  bgcolor: (theme) => alpha(theme.palette.grey[500], 0.05),
+                  borderRadius: "8px",
                 }}
               >
-                <Skeleton variant="text" width={150} height={32} />
-                <Skeleton variant="rounded" width={80} height={24} />
+                <Box sx={{ display: "flex", gap: 1.5, mb: 1.5 }}>
+                  <Skeleton variant="rounded" width={20} height={20} />
+                  <Skeleton variant="text" width="35%" height={20} />
+                  <Skeleton variant="rounded" width={50} height={20} />
+                </Box>
+                <Skeleton variant="text" width="70%" height={16} sx={{ mb: 1.5 }} />
+                <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5 }}>
+                  <Skeleton variant="text" width={70} height={16} />
+                  <Skeleton variant="text" width={60} height={16} />
+                  <Skeleton variant="text" width={100} height={16} />
+                  <Skeleton variant="text" width={50} height={16} />
+                </Box>
               </Box>
-              <Skeleton variant="text" width={200} height={20} />
-            </Box>
-            <Skeleton variant="rounded" width={60} height={24} />
+            ))}
           </Box>
-        </AccordionSummary>
-        <AccordionDetails
-          sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}
-        >
-          <Divider />
-          <Skeleton variant="text" width="80%" height={20} />
-          <Skeleton variant="text" width="60%" height={20} />
-          <Divider />
-          <Box>
+        </Box>
+
+        <Divider />
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {[1, 2].map((i) => (
             <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+              key={i}
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                p: 2,
+                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.05),
+              }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={24} height={24} />
-                <Skeleton variant="text" width={120} height={24} />
+              <Box sx={{ display: "flex", gap: 2, flex: 1 }}>
+                <Skeleton variant="rounded" width={20} height={20} sx={{ mt: 0.5 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", gap: 1, mb: 0.5 }}>
+                    <Skeleton variant="text" width="40%" height={20} />
+                    <Skeleton variant="rounded" width={70} height={20} />
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Skeleton variant="text" width={50} height={16} />
+                    <Skeleton variant="text" width={90} height={16} />
+                    <Skeleton variant="text" width={60} height={16} />
+                  </Box>
+                </Box>
               </Box>
-              <Skeleton variant="rounded" width={100} height={32} />
+              <Box sx={{ display: "flex", gap: 0.25 }}>
+                <Skeleton variant="rounded" width={32} height={32} />
+                <Skeleton variant="rounded" width={32} height={32} />
+              </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {[1, 2].map((i) => (
-                <Skeleton key={i} variant="rounded" width="100%" height={120} />
-              ))}
-            </Box>
-          </Box>
-          <Divider />
-          <Box sx={{ display: "flex", gap: 3 }}>
-            <Skeleton variant="text" width={120} height={20} />
-            <Skeleton variant="text" width={100} height={20} />
-          </Box>
-        </AccordionDetails>
-      </Accordion>
+          ))}
+        </Box>
+
+        <Divider />
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <Skeleton variant="text" width={140} height={20} />
+          <Skeleton variant="text" width={100} height={20} />
+        </Box>
+      </CardContent>
     </Card>
   );
 }

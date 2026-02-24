@@ -25,19 +25,27 @@ export interface ProjectListItem {
   description: string;
 }
 
-// Detailed project information including subscription details.
+/** Account nested in project details response. */
+export interface ProjectDetailsAccount {
+  id: string;
+  name: string;
+  activationDate: string;
+  deactivationDate: string;
+  supportTier: string;
+  region: string;
+}
+
+/** Detailed project information including account/subscription details. */
 export interface ProjectDetails {
+  type: string;
+  sfId?: string;
+  account: ProjectDetailsAccount;
   id: string;
   name: string;
   key: string;
-  description: string;
   createdOn: string;
-  type: string;
-  subscription: {
-    startDate: string | null;
-    endDate: string | null;
-    supportTier: string | null;
-  };
+  description: string;
+  hasSR: boolean;
 }
 
 // Project Search Response.
@@ -146,6 +154,12 @@ export interface ProjectCasesStats {
   resolvedCases: {
     total: number;
     currentMonth: number;
+    pastThirtyDays?: number;
+  };
+  /** Percentage change vs last period for trend display. */
+  changeRate?: {
+    resolvedEngagements?: number;
+    averageResponseTime?: number;
   };
   stateCount: CaseState[];
   severityCount: CaseSeverity[];
@@ -392,6 +406,32 @@ export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
 }
 
+// Conversation from POST /projects/:projectId/conversations/search.
+export interface Conversation {
+  id: string;
+  number: string;
+  initialMessage: string;
+  messageCount: number;
+  createdOn: string;
+  createdBy: string;
+  project: { id: string; label: string };
+  case: { id: string; number: string; label: string } | null;
+  state: { id: string; label: string };
+}
+
+// Response for conversations search.
+export interface ConversationSearchResponse {
+  conversations: Conversation[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
+}
+
+// Filter values for conversations search (state filter uses statuses from filters API).
+export interface AllConversationsFilterValues {
+  stateId?: string;
+}
+
 // Interface for items in the time tracking logs.
 export interface TimeTrackingLogBadge {
   text: string;
@@ -458,6 +498,14 @@ export interface DeploymentProduct {
   releasedDate: string;
   endOfLifeDate: string;
   updateLevel: string;
+}
+
+/** Response for GET /deployments/:deploymentId/attachments. */
+export interface DeploymentAttachmentsResponse {
+  limit: number;
+  offset: number;
+  attachments: DeploymentDocument[];
+  totalRecords: number;
 }
 
 // Document attached to a deployment.

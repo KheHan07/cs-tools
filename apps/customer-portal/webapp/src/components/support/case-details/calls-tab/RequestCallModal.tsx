@@ -133,6 +133,7 @@ export default function RequestCallModal({
   const isPending = postCallRequest.isPending || patchCallRequest.isPending;
   const isValid =
     form.preferredDateTimeLocal.trim() !== "" &&
+    form.notes.trim() !== "" &&
     (isEdit || form.durationInMinutes > 0);
 
   const handleClose = useCallback(() => {
@@ -194,7 +195,7 @@ export default function RequestCallModal({
       postMutate(
         {
           durationInMinutes: form.durationInMinutes,
-          reason: form.notes.trim() || "[CUSTOMER] Call request",
+          reason: form.notes.trim(),
           utcTimes,
         },
         {
@@ -289,8 +290,12 @@ export default function RequestCallModal({
 
         <TextField
           id="additional-notes"
-          label="Additional Notes (Optional)"
-          placeholder="Any specific topics or questions you'd like to discuss."
+          label="Reason *"
+          placeholder={
+            isEdit
+              ? "Describe your reschedule request..."
+              : "Describe your call request or topics you'd like to discuss."
+          }
           value={form.notes}
           onChange={handleTextChange("notes")}
           fullWidth

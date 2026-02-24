@@ -63,19 +63,34 @@ vi.mock("@api/usePatchDeploymentProduct", () => ({
   }),
 }));
 
-vi.mock("@api/useGetDeploymentDocuments", () => ({
-  useGetDeploymentDocuments: () => ({
-    data: [],
+vi.mock("@api/useInfiniteDeploymentDocuments", () => ({
+  useInfiniteDeploymentDocuments: () => ({
+    data: { pages: [{ attachments: [], totalRecords: 0 }], pageParams: [0] },
     isLoading: false,
     isError: false,
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isFetchingNextPage: false,
   }),
+  flattenDeploymentDocuments: () => [],
 }));
 
 vi.mock("@case-details-attachments/UploadAttachmentModal", () => ({
   default: () => null,
 }));
 
+vi.mock("@api/usePatchDeployment", () => ({
+  usePatchDeployment: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock("@components/project-details/deployments/EditDeploymentModal", () => ({
+  default: () => null,
+}));
+
+vi.mock("@components/project-details/deployments/DeleteDeploymentModal", () => ({
   default: () => null,
 }));
 
@@ -104,22 +119,22 @@ describe("DeploymentCard", () => {
   it("should render products section", () => {
     renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(screen.getByText("WSO2 Products (0)")).toBeInTheDocument();
+    expect(screen.getByText("WSO2 Products")).toBeInTheDocument();
+    expect(screen.getAllByText("(0)").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("No products added yet")).toBeInTheDocument();
   });
 
   it("should render documents section with Upload button", () => {
     renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Production/ }));
-    fireEvent.click(screen.getByText(/Documents/));
     expect(screen.getByRole("button", { name: /Upload/ })).toBeInTheDocument();
   });
 
   it("should render documents section", () => {
     renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(screen.getByText("Documents (0)")).toBeInTheDocument();
+    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getAllByText("(0)").length).toBeGreaterThanOrEqual(1);
   });
 
   it("should display -- for null description", () => {
@@ -133,11 +148,10 @@ describe("DeploymentCard", () => {
     expect(screen.getByText("--")).toBeInTheDocument();
   });
 
-  it("should display Edit deployment button", () => {
+  it("should display Edit and Delete icon buttons", () => {
     renderWithProviders(<DeploymentCard deployment={mockDeployment} />);
 
-    expect(
-      screen.getByRole("button", { name: "Edit deployment" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit deployment" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete deployment" })).toBeInTheDocument();
   });
 });

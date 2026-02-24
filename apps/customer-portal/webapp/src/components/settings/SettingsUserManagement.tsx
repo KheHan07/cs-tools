@@ -18,7 +18,6 @@ import { useState, useMemo, useCallback, type JSX } from "react";
 import {
   Box,
   Button,
-  Card,
   Chip,
   Grid,
   IconButton,
@@ -39,22 +38,20 @@ import {
   useTheme,
 } from "@wso2/oxygen-ui";
 import {
-  Code,
-  Crown,
-  Pencil,
   Plus,
   Search,
   Shield,
-  ShieldCheck,
   Trash2,
 } from "@wso2/oxygen-ui-icons-react";
 import useGetProjectContacts from "@api/useGetProjectContacts";
 import { usePostProjectContact } from "@api/usePostProjectContact";
+import { useDeleteProjectContact } from "@api/useDeleteProjectContact";
 import { NULL_PLACEHOLDER, ROLE_CONFIG } from "@constants/settingsConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import { useSuccessBanner } from "@context/success-banner/SuccessBannerContext";
 import AddUserModal from "@components/settings/AddUserModal";
+import RemoveUserModal from "@components/settings/RemoveUserModal";
 import {
   getAvatarColor,
   getInitials,
@@ -65,6 +62,7 @@ import {
 } from "@utils/settings";
 import { getUserStatusColor } from "@utils/projectDetails";
 import type { CreateProjectContactRequest } from "@models/requests";
+import type { ProjectContact } from "@models/responses";
 
 export interface SettingsUserManagementProps {
   projectId: string;
@@ -82,9 +80,11 @@ export default function SettingsUserManagement({
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<ProjectContact | null>(null);
 
   const { data: contacts = [], isLoading, error } = useGetProjectContacts(projectId);
   const postContact = usePostProjectContact(projectId);
+  const deleteContact = useDeleteProjectContact(projectId);
   const { showError } = useErrorBanner();
   const { showSuccess } = useSuccessBanner();
 
@@ -120,12 +120,26 @@ export default function SettingsUserManagement({
     [postContact, showSuccess, showError],
   );
 
+  const handleRemoveUser = useCallback(() => {
+    if (!removeTarget?.email) return;
+
+    deleteContact.mutate(removeTarget.email, {
+      onSuccess: () => {
+        setRemoveTarget(null);
+        showSuccess("User removed successfully");
+      },
+      onError: (err) => {
+        showError(err?.message ?? "Failed to remove user. Please try again.");
+      },
+    });
+  }, [removeTarget, deleteContact, showSuccess, showError]);
+
   const isEffectiveLoading = isLoading;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {/* Stat cards */}
-      <Grid container spacing={2}>
+      {/* <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ p: 2, height: "100%" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
@@ -144,9 +158,9 @@ export default function SettingsUserManagement({
                 ) : (
                   <Crown size={20} />
                 )}
-              </Box>
-              <Box>
-                <Typography variant="h4">
+              </Box> */}
+              {/* <Box> */}
+                {/* <Typography variant="h4">
                   {isEffectiveLoading ? (
                     <Skeleton variant="text" width={24} height={32} />
                   ) : error ? (
@@ -154,16 +168,16 @@ export default function SettingsUserManagement({
                   ) : (
                     stats.admins
                   )}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
+                </Typography> */}
+                {/* <Typography variant="caption" color="text.secondary">
                   {isEffectiveLoading ? (
                     <Skeleton variant="text" width={48} height={16} />
                   ) : (
                     "Admins"
                   )}
-                </Typography>
-              </Box>
-            </Box>
+                </Typography> */}
+              {/* </Box> */}
+            {/* </Box>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
@@ -246,7 +260,7 @@ export default function SettingsUserManagement({
             </Box>
           </Card>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* Search and Add User */}
       <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
@@ -283,8 +297,6 @@ export default function SettingsUserManagement({
               <TableCell>User</TableCell>
               <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Notifications</TableCell>
-              <TableCell>Last Active</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -303,11 +315,8 @@ export default function SettingsUserManagement({
                   </TableCell>
                   <TableCell><Skeleton variant="rounded" width={70} height={24} /></TableCell>
                   <TableCell><Skeleton variant="rounded" width={60} height={24} /></TableCell>
-                  <TableCell><Skeleton variant="text" width={24} /></TableCell>
-                  <TableCell><Skeleton variant="text" width={80} /></TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
-                      <Skeleton variant="circular" width={32} height={32} />
                       <Skeleton variant="circular" width={32} height={32} />
                     </Box>
                   </TableCell>
@@ -385,19 +394,15 @@ export default function SettingsUserManagement({
                       sx={{ typography: "caption" }}
                     />
                   </TableCell>
-                  <TableCell>{NULL_PLACEHOLDER}</TableCell>
-                  <TableCell>{NULL_PLACEHOLDER}</TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Edit (coming soon)">
+                    <Tooltip title="Remove user">
                       <span>
-                        <IconButton size="small" aria-label="Edit user" disabled>
-                          <Pencil size={16} />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                    <Tooltip title="Remove (coming soon)">
-                      <span>
-                        <IconButton size="small" color="error" aria-label="Remove user" disabled>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          aria-label="Remove user"
+                          onClick={() => setRemoveTarget(contact)}
+                        >
                           <Trash2 size={16} />
                         </IconButton>
                       </span>
@@ -431,7 +436,7 @@ export default function SettingsUserManagement({
                 ? (colors.purple?.[600] ?? theme.palette.primary.main)
                 : (theme.palette[role.paletteKey]?.main ?? theme.palette.text.primary);
             return (
-              <Grid key={role.id} size={{ xs: 12, md: 4 }}>
+              <Grid key={role.id} size={{ xs: 12, md: 6 }}>
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                     <RoleIcon size={18} color={roleColor} />
@@ -455,9 +460,18 @@ export default function SettingsUserManagement({
 
       <AddUserModal
         open={isAddModalOpen}
+        projectId={projectId}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddUser}
         isSubmitting={postContact.isPending}
+      />
+
+      <RemoveUserModal
+        open={removeTarget !== null}
+        contact={removeTarget}
+        isDeleting={deleteContact.isPending}
+        onClose={() => setRemoveTarget(null)}
+        onConfirm={handleRemoveUser}
       />
     </Box>
   );

@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-/** Default region for conversations and case classification APIs. TODO: Replace with projectDetails.subscription when multi-region support is added. */
+/** Default region for conversations and case classification APIs. TODO: Replace with projectDetails.account.region when multi-region support is added. */
 export const DEFAULT_CONVERSATION_REGION = "EU";
 
 /** Default tier for conversations and case classification APIs. TODO: Replace with dynamic values when multi-tier support is added. */

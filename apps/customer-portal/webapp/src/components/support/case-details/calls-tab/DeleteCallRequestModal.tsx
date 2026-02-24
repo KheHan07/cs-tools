@@ -22,10 +22,17 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  TextField,
   Typography,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
-import { useCallback, type JSX } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type JSX,
+} from "react";
 import type { CallRequest } from "@models/responses";
 import { formatUtcToLocal } from "@utils/support";
 
@@ -33,13 +40,15 @@ export interface DeleteCallRequestModalProps {
   open: boolean;
   call: CallRequest | null;
   onClose: () => void;
-  onConfirm: () => void;
+  /** Called with the mandatory reason when user confirms. Payload should include state and reason only (no utc time). */
+  onConfirm: (reason: string) => void;
   isDeleting?: boolean;
 }
 
 /**
  * Confirmation modal before deleting (cancelling) a call request.
  * Delete is implemented as PATCH with CALL_REQUEST_STATE_CANCELLED.
+ * User must enter a mandatory reason before confirming.
  *
  * @param {DeleteCallRequestModalProps} props - open, call, onClose, onConfirm, isDeleting.
  * @returns {JSX.Element} The confirmation modal.
@@ -51,13 +60,39 @@ export default function DeleteCallRequestModal({
   onConfirm,
   isDeleting = false,
 }: DeleteCallRequestModalProps): JSX.Element {
+  const [reason, setReason] = useState("");
+
   const handleDialogClose = useCallback(
     (_event: object, _reason: string) => {
       if (isDeleting) return;
       onClose();
+      setReason("");
     },
     [isDeleting, onClose],
   );
+
+  const handleClose = useCallback(() => {
+    onClose();
+    setReason("");
+  }, [onClose]);
+
+  const handleReasonChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setReason(event.target.value);
+    },
+    [],
+  );
+
+  const handleConfirm = useCallback(() => {
+    if (reason.trim() === "" || isDeleting) return;
+    onConfirm(reason.trim());
+  }, [reason, isDeleting, onConfirm]);
+
+  useEffect(() => {
+    if (!open) setReason("");
+  }, [open]);
+
+  const canConfirm = reason.trim() !== "";
 
   return (
     <Dialog
@@ -76,7 +111,7 @@ export default function DeleteCallRequestModal({
       <IconButton
         aria-label="Close"
         size="small"
-        onClick={onClose}
+        onClick={handleClose}
         disabled={isDeleting}
         sx={{
           position: "absolute",
@@ -96,16 +131,30 @@ export default function DeleteCallRequestModal({
             ? `Are you sure you want to cancel the call request scheduled for ${formatUtcToLocal(call.scheduleTime, "short")}? This action cannot be undone.`
             : "Are you sure you want to cancel this call request? This action cannot be undone."}
         </Typography>
+        <TextField
+          id="cancel-call-reason"
+          label="Reason *"
+          placeholder="Enter reason for cancellation..."
+          value={reason}
+          onChange={handleReasonChange}
+          fullWidth
+          size="small"
+          multiline
+          rows={3}
+          sx={{ mt: 2 }}
+          disabled={isDeleting}
+          required
+        />
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button variant="outlined" onClick={onClose} disabled={isDeleting}>
+        <Button variant="outlined" onClick={handleClose} disabled={isDeleting}>
           Go Back
         </Button>
         <Button
           variant="contained"
           color="warning"
-          onClick={onConfirm}
-          disabled={isDeleting}
+          onClick={handleConfirm}
+          disabled={isDeleting || !canConfirm}
           startIcon={isDeleting ? <CircularProgress size={16} color="inherit" /> : undefined}
         >
           {isDeleting ? "Cancelling..." : "Confirm"}

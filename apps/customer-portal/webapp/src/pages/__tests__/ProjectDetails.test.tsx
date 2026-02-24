@@ -68,9 +68,9 @@ vi.mock("@api/useGetProjectStat", () => ({
   useGetProjectStat: () => mockUseGetProjectStat(),
 }));
 
-const mockUseGetProjectTimeTrackingStat = vi.fn();
-vi.mock("@api/useGetProjectTimeTrackingStat", () => ({
-  default: () => mockUseGetProjectTimeTrackingStat(),
+const mockUseGetTimeCardsStats = vi.fn();
+vi.mock("@api/useGetTimeCardsStats", () => ({
+  default: () => mockUseGetTimeCardsStats(),
 }));
 
 // Mock Child Components
@@ -137,7 +137,7 @@ describe("ProjectDetails", () => {
       isLoading: false,
       error: null,
     });
-    mockUseGetProjectTimeTrackingStat.mockReturnValue({
+    mockUseGetTimeCardsStats.mockReturnValue({
       data: null,
       isLoading: false,
       error: null,

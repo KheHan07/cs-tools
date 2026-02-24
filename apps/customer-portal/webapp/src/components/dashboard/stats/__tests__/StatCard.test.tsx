@@ -23,12 +23,6 @@ vi.mock("react-router", () => ({
   useParams: () => ({ projectId: "project-1" }),
 }));
 
-// Mock useGetDashboardMockStats
-const mockUseGetDashboardMockStats = vi.fn();
-vi.mock("@/api/useGetDashboardMockStats", () => ({
-  useGetDashboardMockStats: (id: string) => mockUseGetDashboardMockStats(id),
-}));
-
 // Mock @wso2/oxygen-ui
 vi.mock("@wso2/oxygen-ui", () => ({
   Grid: ({ children, container, sx }: any) => (
@@ -128,5 +122,17 @@ describe("StatCard", () => {
   it("should display 'N/A' when value is undefined", () => {
     render(<StatCard {...defaultProps} value={undefined as any} />);
     expect(screen.getByText("N/A")).toBeInTheDocument();
+  });
+
+  it("should not render trend when showTrend is false", () => {
+    const trend = {
+      value: "12%",
+      direction: "up" as const,
+      color: "success" as const,
+    };
+    render(<StatCard {...defaultProps} trend={trend} showTrend={false} />);
+
+    expect(screen.queryByText("12%")).not.toBeInTheDocument();
+    expect(screen.queryByText("vs last month")).not.toBeInTheDocument();
   });
 });

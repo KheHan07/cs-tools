@@ -28,12 +28,14 @@ import ChangeRequestCard from "@components/support/request-cards/ChangeRequestCa
 import ChatHistoryList from "@components/support/support-overview-cards/ChatHistoryList";
 import { useGetProjectSupportStats } from "@api/useGetProjectSupportStats";
 import useGetProjectCases from "@api/useGetProjectCases";
-import { useGetChatHistory } from "@api/useGetChatHistory";
+import { useSearchConversations } from "@api/useSearchConversations";
 import { useLogger } from "@hooks/useLogger";
 import {
   SUPPORT_OVERVIEW_CASES_LIMIT,
   SUPPORT_OVERVIEW_CHAT_LIMIT,
 } from "@constants/supportConstants";
+import { formatDateTime } from "@utils/support";
+import type { ChatHistoryItem } from "@models/responses";
 
 /**
  * SupportPage component to display case details for a project.
@@ -60,17 +62,30 @@ export default function SupportPage(): JSX.Element {
   });
 
   const {
-    data: chatHistoryData,
+    data: conversationsData,
     isFetching: isChatLoading,
     isError: isChatError,
-  } = useGetChatHistory(projectId || "");
+  } = useSearchConversations(projectId || "", {
+    pagination: { limit: SUPPORT_OVERVIEW_CHAT_LIMIT, offset: 0 },
+    sortBy: { field: "updatedOn", order: "desc" },
+  });
 
   const { isLoading: isAuthLoading } = useAsgardeo();
 
   const cases =
     data?.pages?.[0]?.cases?.slice(0, SUPPORT_OVERVIEW_CASES_LIMIT) ?? [];
-  const chatItems =
-    chatHistoryData?.chatHistory?.slice(0, SUPPORT_OVERVIEW_CHAT_LIMIT) ?? [];
+
+  const chatItems: ChatHistoryItem[] = (
+    conversationsData?.conversations?.slice(0, SUPPORT_OVERVIEW_CHAT_LIMIT) ??
+    []
+  ).map((c) => ({
+    chatId: c.id,
+    title: c.initialMessage || c.number,
+    startedTime: formatDateTime(c.createdOn, "short") ?? "--",
+    messages: c.messageCount,
+    kbArticles: 0,
+    status: c.state?.label ?? "Open",
+  }));
 
   const isActuallyLoading = isAuthLoading || isFetching || (!stats && !isError);
 
@@ -123,15 +138,12 @@ export default function SupportPage(): JSX.Element {
             icon={MessageSquare}
             iconVariant="blue"
             footerButtonLabel="View all chat history"
-            onFooterClick={() => navigate("chat")}
+            onFooterClick={() => navigate("conversations")}
             isError={isChatError}
           >
             <ChatHistoryList
               items={chatItems}
               isLoading={isChatLoading}
-              onItemAction={(chatId) => {
-                navigate("chat", { state: { chatId } });
-              }}
             />
           </SupportOverviewCard>
         </Grid>

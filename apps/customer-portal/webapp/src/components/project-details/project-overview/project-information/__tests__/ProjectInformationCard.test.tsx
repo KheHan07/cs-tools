@@ -66,10 +66,13 @@ describe("ProjectInformationCard", () => {
     description: "Test Desc",
     createdOn: "2023-01-01",
     type: "Subscription",
-    subscription: {
+    account: {
+      id: "acc-1",
+      name: "Test Account",
+      activationDate: "2023-01-01",
+      deactivationDate: "2024-01-01",
       supportTier: "Gold",
-      startDate: "2023-01-01",
-      endDate: "2024-01-01",
+      region: "Americas",
     },
   };
 
