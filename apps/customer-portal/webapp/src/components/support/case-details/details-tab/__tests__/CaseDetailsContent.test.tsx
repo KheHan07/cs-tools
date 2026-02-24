@@ -47,6 +47,16 @@ const mockCaseDetails = {
   hasAutoClosed: null,
 };
 
+vi.mock("@api/useGetCasesFilters", () => ({
+  default: () => ({
+    data: { caseStates: [{ id: "3", label: "Closed" }] },
+  }),
+}));
+
+vi.mock("@api/usePatchCase", () => ({
+  usePatchCase: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
 vi.mock("@api/useGetCaseAttachments", () => ({
   default: vi.fn(() => ({
     data: { totalRecords: 3, attachments: [], limit: 50, offset: 0 },
