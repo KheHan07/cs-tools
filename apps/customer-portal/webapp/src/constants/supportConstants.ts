@@ -413,12 +413,13 @@ export const ALL_CONVERSATIONS_FILTER_DEFINITIONS: AllConversationsFilterDefinit
 
 /**
  * Configuration for the all cases filters.
+ * Uses caseStates, caseTypes, severities, issueTypes, deploymentTypes from useGetCasesFilters.
  */
 export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
   {
     filterKey: "statusId",
     id: "status",
-    metadataKey: "statuses",
+    metadataKey: "caseStates",
   },
   {
     filterKey: "severityId",
@@ -429,6 +430,11 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
     filterKey: "issueTypes",
     id: "category",
     metadataKey: "issueTypes",
+  },
+  {
+    filterKey: "caseTypeId",
+    id: "caseType",
+    metadataKey: "caseTypes",
   },
   {
     filterKey: "deploymentId",

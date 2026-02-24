@@ -121,6 +121,22 @@ export const OUTSTANDING_INCIDENTS_CHART_DATA = SEVERITY_LEGEND_ORDER;
 /** API severity labels in chart order (catastrophic, critical, high, medium, low) for casesTrend mapping. */
 export const SEVERITY_API_LABELS = SEVERITY_LEGEND_ORDER.map((item) => item.label);
 
+/**
+ * Returns the chart legend color for a severity label (same as Outstanding Engagements chart).
+ * Use for severity chips in the Outstanding Engagements table.
+ *
+ * @param label - API severity label (e.g. "Catastrophic (P0)", "High (P2)").
+ * @returns {string} Hex color from chart legend, or grey fallback.
+ */
+export function getSeverityLegendColor(label?: string): string {
+  if (!label?.trim()) return colors.grey?.[500] ?? "#6B7280";
+  const entry = SEVERITY_LEGEND_ORDER.find(
+    (item) =>
+      item.label.toLowerCase() === label.trim().toLowerCase(),
+  );
+  return entry?.color ?? colors.grey?.[500] ?? "#6B7280";
+}
+
 /** Case type entries for Outstanding Engagements chart (from caseTypeCount). */
 export const OUTSTANDING_CASE_TYPE_ENTRIES = [
   { key: "serviceRequest", label: "Service Request", displayName: "Service Request", color: colors.yellow[500] },

@@ -32,10 +32,26 @@ import {
   CaseSeverityLevel,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
-import type { CaseComment } from "@models/responses";
+import type { CaseComment, MetadataItem } from "@models/responses";
 import { alpha, type Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
 import { createElement, type ComponentType, type ReactNode } from "react";
+
+/**
+ * Extracts Incident and Query case type IDs from caseTypes metadata.
+ * Used for default caseTypeIds filter in Support overview and All Cases.
+ *
+ * @param caseTypes - Case types from useGetCasesFilters response.
+ * @returns {string[]} IDs for Incident and Query types.
+ */
+export function getIncidentAndQueryCaseTypeIds(
+  caseTypes?: MetadataItem[],
+): string[] {
+  if (!caseTypes?.length) return [];
+  return caseTypes
+    .filter((ct) => /^incident$|^query$/i.test(ct.label.trim()))
+    .map((ct) => ct.id);
+}
 
 /**
  * Normalizes UTC date string from API (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss) to ISO for parsing.
@@ -465,6 +481,9 @@ export function deriveFilterLabels(id: string): {
   label: string;
   allLabel: string;
 } {
+  if (id === "caseType") {
+    return { label: "Case Type", allLabel: "All Case Types" };
+  }
   const label = id.charAt(0).toUpperCase() + id.slice(1);
   const allLabel = `All ${
     label.endsWith("s")

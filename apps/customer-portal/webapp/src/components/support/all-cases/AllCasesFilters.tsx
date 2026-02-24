@@ -29,7 +29,7 @@ import type {
   AllCasesFilterValues,
 } from "@models/responses";
 import { ALL_CASES_FILTER_DEFINITIONS } from "@constants/supportConstants";
-import { deriveFilterLabels } from "@utils/support";
+import { deriveFilterLabels, mapSeverityToDisplay } from "@utils/support";
 
 export interface AllCasesFiltersProps {
   filters: AllCasesFilterValues;
@@ -61,7 +61,10 @@ export default function AllCasesFilters({
         const metadataOptions = filterMetadata?.[def.metadataKey];
         const options = Array.isArray(metadataOptions)
           ? metadataOptions.map((item: { label: string; id: string }) => ({
-              label: item.label,
+              label:
+                def.metadataKey === "severities"
+                  ? mapSeverityToDisplay(item.label)
+                  : item.label,
               value: def.useLabelAsValue ? item.label : item.id,
             }))
           : [];

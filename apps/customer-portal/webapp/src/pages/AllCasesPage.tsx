@@ -38,6 +38,7 @@ import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectCases from "@api/useGetProjectCases";
+import { getIncidentAndQueryCaseTypeIds } from "@utils/support";
 import type { AllCasesFilterValues } from "@models/responses";
 import AllCasesStatCards from "@components/support/all-cases/AllCasesStatCards";
 import AllCasesSearchBar from "@components/support/all-cases/AllCasesSearchBar";
@@ -69,22 +70,34 @@ export default function AllCasesPage(): JSX.Element {
   // Fetch filter metadata
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
 
+  const defaultCaseTypeIds = getIncidentAndQueryCaseTypeIds(
+    filterMetadata?.caseTypes,
+  );
+
   const caseSearchRequest = useMemo(
     () => ({
       filters: {
-        statusId: filters.statusId ? Number(filters.statusId) : undefined,
+        caseTypeIds: filters.caseTypeId
+          ? [filters.caseTypeId]
+          : defaultCaseTypeIds.length > 0
+            ? defaultCaseTypeIds
+            : undefined,
+        statusIds: filters.statusId ? [Number(filters.statusId)] : undefined,
         severityId: filters.severityId ? Number(filters.severityId) : undefined,
         issueId: filters.issueTypes ? Number(filters.issueTypes) : undefined,
         deploymentId: filters.deploymentId || undefined,
-        caseTypeIds: filters.caseTypeIds?.length ? filters.caseTypeIds : undefined,
+        searchQuery: searchTerm.trim() || undefined,
       },
       sortBy: {
         field: "createdOn",
-        order: "desc" as const,
+        order: sortOrder,
       },
     }),
-    [filters],
+    [filters, searchTerm, sortOrder, defaultCaseTypeIds],
   );
+
+  const hasCaseTypeIds =
+    (caseSearchRequest.filters?.caseTypeIds?.length ?? 0) > 0;
 
   // Fetch all cases using infinite query (runs in parallel with stats when projectId and auth are ready)
   const {
@@ -92,7 +105,9 @@ export default function AllCasesPage(): JSX.Element {
     isLoading: isCasesQueryLoading,
     hasNextPage,
     fetchNextPage,
-  } = useGetProjectCases(projectId || "", caseSearchRequest);
+  } = useGetProjectCases(projectId || "", caseSearchRequest, {
+    enabled: !!projectId && hasCaseTypeIds,
+  });
 
   const { showLoader, hideLoader } = useLoader();
 
@@ -129,30 +144,8 @@ export default function AllCasesPage(): JSX.Element {
   );
   const apiTotalRecords = data?.pages?.[0]?.totalRecords ?? 0;
 
-  // Frontend search and sort
-  const filteredAndSearchedCases = useMemo(() => {
-    let filtered = [...allCases];
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (caseItem) =>
-          caseItem.number?.toLowerCase().includes(searchLower) ||
-          caseItem.title?.toLowerCase().includes(searchLower) ||
-          caseItem.description?.toLowerCase().includes(searchLower),
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.createdOn).getTime() || 0;
-      const dateB = new Date(b.createdOn).getTime() || 0;
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-    });
-
-    return filtered;
-  }, [allCases, searchTerm, sortOrder]);
+  // API returns filtered/sorted results; no frontend filtering/sorting needed
+  const filteredAndSearchedCases = allCases;
 
   const totalItems = apiTotalRecords || filteredAndSearchedCases.length;
 

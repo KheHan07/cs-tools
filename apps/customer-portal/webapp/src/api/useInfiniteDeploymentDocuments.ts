@@ -14,11 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  useInfiniteQuery,
-  type UseInfiniteQueryResult,
-  type InfiniteData,
-} from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { ApiQueryKeys } from "@constants/apiConstants";
@@ -37,16 +33,7 @@ const PAGE_SIZE = 10;
  * @param {string} deploymentId - The deployment ID.
  * @returns {UseInfiniteQueryResult} Infinite query result with flattened documents.
  */
-export function useInfiniteDeploymentDocuments(
-  deploymentId: string,
-): UseInfiniteQueryResult<
-  InfiniteData<DeploymentAttachmentsResponse>,
-  Error,
-  InfiniteData<DeploymentAttachmentsResponse>,
-  InfiniteData<DeploymentAttachmentsResponse>,
-  readonly (string | number)[],
-  number
-> {
+export function useInfiniteDeploymentDocuments(deploymentId: string) {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
