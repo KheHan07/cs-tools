@@ -23,7 +23,7 @@ isolated function generateHeaders(string token) returns map<string|string[]> => 
 
 # Get comments for a given entity ID with pagination.
 #
-# + idToken - ID token for authorization\
+# + idToken - ID token for authorization
 # + referenceType - Reference type (e.g., CASE, DEPLOYMENT)
 # + id - Entity ID to filter comments
 # + limit - Number of comments to retrieve
