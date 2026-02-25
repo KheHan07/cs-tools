@@ -413,6 +413,13 @@ export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
 }
 
+// Conversation statistics response.
+export interface ConversationStats {
+  abandonedCount: number;
+  openCount: number;
+  resolvedCount: number;
+}
+
 // Conversation from POST /projects/:projectId/conversations/search.
 export interface Conversation {
   id: string;

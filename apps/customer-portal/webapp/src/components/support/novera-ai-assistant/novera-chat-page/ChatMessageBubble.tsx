@@ -18,13 +18,12 @@ import {
   Box,
   Button,
   CircularProgress,
-  IconButton,
   Paper,
   Typography,
 } from "@wso2/oxygen-ui";
-import { Bot, FileText, Copy, User } from "@wso2/oxygen-ui-icons-react";
+import { Bot, FileText, User } from "@wso2/oxygen-ui-icons-react";
 import ReactMarkdown from "react-markdown";
-import { type JSX, useState, useCallback, useRef, useEffect } from "react";
+import { type JSX } from "react";
 import type { Message } from "@pages/NoveraChatPage";
 import { AVATAR_ICON_COLOR } from "./chatConstants";
 
@@ -41,15 +40,6 @@ function isSafeHref(href: string | undefined): href is string {
   }
 }
 
-async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 interface ChatMessageBubbleProps {
   message: Message;
   onCreateCase?: () => void;
@@ -61,17 +51,29 @@ const markdownComponents: React.ComponentProps<
   typeof ReactMarkdown
 >["components"] = {
   h1: ({ children }) => (
-    <Typography variant="h6" component="h1" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
+    <Typography
+      variant="h6"
+      component="h1"
+      sx={{ mt: 2, mb: 1, fontWeight: 600 }}
+    >
       {children}
     </Typography>
   ),
   h2: ({ children }) => (
-    <Typography variant="subtitle1" component="h2" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
+    <Typography
+      variant="subtitle1"
+      component="h2"
+      sx={{ mt: 2, mb: 1, fontWeight: 600 }}
+    >
       {children}
     </Typography>
   ),
   h3: ({ children }) => (
-    <Typography variant="subtitle2" component="h3" sx={{ mt: 1.5, mb: 0.5, fontWeight: 600 }}>
+    <Typography
+      variant="subtitle2"
+      component="h3"
+      sx={{ mt: 1.5, mb: 0.5, fontWeight: 600 }}
+    >
       {children}
     </Typography>
   ),
@@ -91,7 +93,11 @@ const markdownComponents: React.ComponentProps<
     </Box>
   ),
   li: ({ children }) => (
-    <Typography variant="body2" component="li" sx={{ mb: 0.5, lineHeight: 1.6 }}>
+    <Typography
+      variant="body2"
+      component="li"
+      sx={{ mb: 0.5, lineHeight: 1.6 }}
+    >
       {children}
     </Typography>
   ),
@@ -125,7 +131,7 @@ const markdownComponents: React.ComponentProps<
  * Supports both user and bot messages with appropriate styling,
  * avatar display, markdown formatting for bot messages,
  * optional Create Case action when actions is not null,
- * copy button, and error state with retry.
+ * and error state with retry.
  *
  * @returns The ChatMessageBubble JSX element.
  */
@@ -135,34 +141,14 @@ export default function ChatMessageBubble({
   isCreateCaseLoading = false,
 }: ChatMessageBubbleProps): JSX.Element {
   const isUser = message.sender === "user";
-  const [copyLabel, setCopyLabel] = useState<"Copy" | "Copied">("Copy");
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const displayText = message.isError ? "Something went wrong" : message.text;
 
-  const handleCopy = useCallback(async () => {
-    const ok = await copyToClipboard(displayText);
-    if (ok) {
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-      setCopyLabel("Copied");
-      copyTimeoutRef.current = setTimeout(() => {
-        setCopyLabel("Copy");
-        copyTimeoutRef.current = null;
-      }, 1500);
-    }
-  }, [displayText]);
-
-  useEffect(
-    () => () => {
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    },
-    [],
-  );
-  const showCopy = !message.isLoading;
+  const formattedTime = message.timestamp.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   const avatarIcon = (
     <Paper
@@ -183,8 +169,6 @@ export default function ChatMessageBubble({
       )}
     </Paper>
   );
-
-  const actionButtonsJustify = isUser ? "flex-end" : "flex-start";
 
   return (
     <Box
@@ -235,7 +219,9 @@ export default function ChatMessageBubble({
             (message.showCreateCaseAction || message.isError) &&
             onCreateCase &&
             (isCreateCaseLoading ? (
-              <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
@@ -250,7 +236,15 @@ export default function ChatMessageBubble({
                 </Typography>
               </Box>
             ) : (
-              <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
@@ -266,32 +260,17 @@ export default function ChatMessageBubble({
               </Box>
             ))}
         </Paper>
-        {showCopy && (
-          <Box
-            sx={{
-              mt: 0.5,
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
-              justifyContent: actionButtonsJustify,
-              flexDirection: "row",
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={handleCopy}
-              aria-label={copyLabel}
-              sx={{ p: 0.25, minWidth: 0 }}
-            >
-              <Copy size={12} />
-            </IconButton>
-            {copyLabel === "Copied" && (
-              <Typography variant="caption" color="text.secondary">
-                Copied
-              </Typography>
-            )}
-          </Box>
-        )}
+        <Box
+          sx={{
+            mt: 0.5,
+            display: "flex",
+            justifyContent: isUser ? "flex-end" : "flex-start",
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            {formattedTime}
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );
