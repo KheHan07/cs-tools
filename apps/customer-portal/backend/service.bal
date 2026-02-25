@@ -674,7 +674,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get conversation statistics for a project by ID.
-    # 
+    #
     # + id - ID of the project
     # + return - Conversation statistics overview or error response
     resource function get projects/[entity:IdString id]/stats/conversations(http:RequestContext ctx,
@@ -761,8 +761,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         }
         types:OverallConversationStats mappedConversationStats = getConversationStats(conversationStats);
 
+        int? ongoingCases = getOngoingCasesCount(caseStats);
+
         return {
-            totalCases: caseStats is entity:ProjectCaseStatsResponse ? caseStats.totalCount : (),
+            ongoingCases: ongoingCases is int ? ongoingCases : (),
             activeChats: mappedConversationStats.activeCount,
             sessionChats: mappedConversationStats.sessionCount,
             resolvedChats: mappedConversationStats.resolvedCount

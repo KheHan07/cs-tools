@@ -260,8 +260,8 @@ public type ProjectCaseStats record {|
 
 # Project support statistics.
 public type ProjectSupportStats record {|
-    # Total cases count
-    int totalCases?;
+    # Ongoing cases count
+    int? ongoingCases?;
     # Active chats count
     int activeChats?;
     # Session chats count

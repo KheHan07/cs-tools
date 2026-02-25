@@ -1290,3 +1290,21 @@ public type ProjectTimeCardStatsResponse record {|
     decimal nonBillableHours;
     json...;
 |};
+
+# case state IDs.
+public type CaseStateIds record {|
+    # Open state ID
+    int open;
+    # Close state ID
+    int closed;
+    # Solution proposed ID
+    int solutionProposed;
+    # Work in progress state ID
+    int workInProgress;
+    # Awaiting info ID
+    int awaitingInfo;
+    # Waiting on WSO2 ID
+    int waitingOnWso2;
+    # Reopened state ID
+    int reopened;
+|};

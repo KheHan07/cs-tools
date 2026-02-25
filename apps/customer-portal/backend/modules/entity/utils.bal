@@ -15,6 +15,16 @@
 // under the License.
 import ballerina/time;
 
+public final CaseStateIds & readonly caseStateIds = {
+    open: 1,
+    closed: 3,
+    waitingOnWso2: 1003,
+    reopened: 1006,
+    awaitingInfo: 18,
+    solutionProposed: 6,
+    workInProgress: 10
+};
+
 # Generate authorization headers.
 #
 # + token - ID token for authorization
@@ -142,7 +152,8 @@ public isolated function validateDeploymentUpdatePayload(DeploymentUpdatePayload
 # + payload - Case update payload
 # + return - Error message if validation fails, nil otherwise
 public isolated function validateCaseUpdatePayload(CaseUpdatePayload payload) returns string? {
-    if payload.stateKey != CLOSED && payload.stateKey != REOPENED && payload.stateKey != WAITING_ON_WSO2 {
+    if payload.stateKey != caseStateIds.closed && payload.stateKey != caseStateIds.reopened &&
+    payload.stateKey != caseStateIds.waitingOnWso2 {
         return "Invalid status. Allowed values are Waiting on WSO2, Closed, or Reopened.";
     }
     return;

@@ -20,7 +20,8 @@ import ballerina/http;
 import ballerina/log;
 
 configurable int stateIdOpen = 1;
-configurable types:ConverstaionStateIds conversationStateIds = {open: 1, active: 2, resolved: 3, converted: 4, abandonded: 5};
+configurable types:ConverstaionStateIds conversationStateIds =
+    {open: 1, active: 2, resolved: 3, converted: 4, abandonded: 5};
 
 # Search cases for a given project.
 #
@@ -567,6 +568,28 @@ public isolated function mapConversationResponse(entity:ConversationResponse res
     };
 }
 
+# Get ongoing cases count from project case stats response.
+#
+# + response - Project case stats response from the entity service
+# + return - Count of ongoing cases, or 0 if not available
+public isolated function getOngoingCasesCount(entity:ProjectCaseStatsResponse|error response) returns int? {
+    if response is entity:ProjectCaseStatsResponse {
+        types:ReferenceItem[] stateCount = from entity:ChoiceListItem item in response.stateCount
+            where item.id != entity:caseStateIds.closed && item.id != entity:caseStateIds.solutionProposed
+            select {id: item.id.toString(), label: item.label, count: item.count};
+        if stateCount.length() > 0 {
+            int ongoingCasesCount = 0;
+            foreach types:ReferenceItem stat in stateCount {
+                int statCount = stat.count ?: 0;
+                ongoingCasesCount += statCount;
+            }
+            return ongoingCasesCount;
+        }
+        return 0;
+    }
+    return;
+}
+
 # Get conversation stats from project conversation stats response.
 #
 # + response - Project conversation stats response from the entity service
@@ -602,6 +625,7 @@ public isolated function getConversationStats(entity:ProjectConversationStatsRes
         activeCount: (),
         resolvedCount: (),
         convertedCount: (),
-        abandondedCount: ()
+        abandondedCount: (),
+        sessionCount: ()
     };
 }
