@@ -28,6 +28,7 @@ import AllCasesPage from "@pages/AllCasesPage";
 import AnnouncementsPage from "@pages/AnnouncementsPage";
 import AnnouncementDetailsPage from "@pages/AnnouncementDetailsPage";
 import AllConversationsPage from "@pages/AllConversationsPage";
+import ConversationDetailsPage from "@pages/ConversationDetailsPage";
 import CaseDetailsPage from "@pages/CaseDetailsPage";
 import NoveraChatPage from "@pages/NoveraChatPage";
 import DescribeIssuePage from "@pages/DescribeIssuePage";
@@ -83,6 +84,10 @@ export default function App(): JSX.Element {
                         </Route>
                         <Route path="conversations">
                           <Route index element={<AllConversationsPage />} />
+                          <Route
+                            path=":conversationId"
+                            element={<ConversationDetailsPage />}
+                          />
                         </Route>
                         <Route path="chat">
                           <Route index element={<NoveraChatPage />} />
