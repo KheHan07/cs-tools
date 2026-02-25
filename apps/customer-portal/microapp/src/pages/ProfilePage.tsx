@@ -14,9 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// TODO: This page currently contains placeholder values and static content.
+//       All displayed data (names, avatars, dates, etc.) will be replaced
+//       with dynamic values in the future.
+
 import { useLayoutEffect, type ReactNode } from "react";
-import { Button, Card, Divider, Stack, Switch, Typography, colors, pxToRem } from "@wso2/oxygen-ui";
-import { Bell, BookOpen, Bot, Clock4, Lock, LogOut, Mail, Phone, User } from "@wso2/oxygen-ui-icons-react";
+import { Card, Divider, Stack, Switch, Typography, colors } from "@wso2/oxygen-ui";
+import { Bell, BookOpen, Bot, Clock4, Lock, Mail, Phone, User } from "@wso2/oxygen-ui-icons-react";
 import { useLayout } from "@context/layout";
 import { SettingListItem } from "@components/features/settings";
 import { Avatar } from "@components/features/users";
@@ -26,10 +30,10 @@ export default function ProfilePage() {
 
   const AppBarSlot = () => (
     <Stack direction="row" alignItems="center" gap={1.5} mt={1}>
-      <Avatar>Lithika Damnod</Avatar>
+      <Avatar>John Smith</Avatar>
       <Stack>
         <Typography variant="h6" fontWeight="medium">
-          Lithika Damnod
+          John Smith
         </Typography>
         <Typography variant="subtitle2" fontWeight="regular" color="text.secondary">
           Customer since 2024
@@ -79,10 +83,6 @@ export default function ProfilePage() {
           suffix={<Switch defaultChecked />}
         />
       </SectionCard>
-
-      <Button variant="outlined" color="error" startIcon={<LogOut size={pxToRem(18)} />}>
-        Log Out
-      </Button>
       <Typography variant="caption" color="text.secondary" textAlign="center" sx={{ py: 1 }}>
         Version 1.0.0
       </Typography>

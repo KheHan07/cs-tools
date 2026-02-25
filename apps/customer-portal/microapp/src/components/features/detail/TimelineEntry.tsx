@@ -111,7 +111,8 @@ export function TimelineEntry({ timestamp, last = false, ...props }: TimelineEnt
                 )}
                 {props.title}
                 {props.description && (
-                  <Typography variant="subtitle2" fontWeight="regular" color="text.secondary" mt={0.2}>
+                  <Typography component="span" variant="subtitle2" fontWeight="regular" color="text.secondary" mt={0.2}>
+                    {" "}
                     {props.description}
                   </Typography>
                 )}

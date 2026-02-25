@@ -30,8 +30,8 @@ export default function SupportPage() {
   return (
     <>
       <Grid spacing={1.5} container>
-        {MOCK_METRICS.map((props) => (
-          <Grid size={3}>
+        {MOCK_METRICS.map((props, index) => (
+          <Grid key={index} size={3}>
             <MetricWidget {...props} size="small" base />
           </Grid>
         ))}

@@ -39,6 +39,7 @@ export function ProjectSelector({ open, anchorEl, onClose }: PopoverProps) {
         {MOCK_PROJECTS.map((props) => (
           <ProjectPopoverItem
             {...props}
+            key={props.id}
             active={props.id === projectId}
             onClick={() => {
               setProjectId(props.id);

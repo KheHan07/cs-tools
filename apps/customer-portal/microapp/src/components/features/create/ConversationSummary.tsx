@@ -29,9 +29,14 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
             Messages Exchanged
           </Typography>
           <Typography variant="h6" fontWeight="medium">
-            6
+            {messages.length}
           </Typography>
         </Stack>
+
+        {/* TODO: Integrate real data for troubleshooting and articles.
+            Currently hardcoded to N/A as these metrics are not yet 
+            available in the parent data source.
+        */}
         <Stack>
           <Typography variant="caption" color="text.secondary">
             Troubleshooting attempts
@@ -40,8 +45,9 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
             <Box color="success.main">
               <CircleCheck size={pxToRem(16)} />
             </Box>
+
             <Typography variant="body2" fontWeight="medium">
-              2 Steps Completed
+              N/A Steps Completed
             </Typography>
           </Stack>
         </Stack>
@@ -54,7 +60,7 @@ export function ConversationSummary({ messages }: { messages: ChatMessage[] }) {
               <BookOpen size={pxToRem(16)} />
             </Box>
             <Typography variant="body2" fontWeight="medium">
-              3 Articles Suggested
+              N/A Articles Suggested
             </Typography>
           </Stack>
         </Stack>

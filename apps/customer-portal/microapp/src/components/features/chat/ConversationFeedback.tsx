@@ -20,6 +20,7 @@ export function ConversationFeedback() {
       </Stack>
       <Stack direction="row">
         <IconButton
+          aria-label="Mark conversation as helpful"
           onClick={() => setFeedback("up")}
           sx={{ color: up ? "primary.main" : "text.secondary" }}
           disableRipple
@@ -27,6 +28,7 @@ export function ConversationFeedback() {
           <ThumbsUp size={pxToRem(18)} fill={up ? theme.palette.primary.main : "none"} />
         </IconButton>
         <IconButton
+          aria-label="Mark conversation as not helpful"
           onClick={() => setFeedback("down")}
           sx={{ color: down ? "primary.main" : "text.secondary" }}
           disableRipple

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Box, CircularProgress, SearchBar, Stack, Typography, useTheme } from "@wso2/oxygen-ui";
 import { Folder } from "@wso2/oxygen-ui-icons-react";
 import { ProjectCard } from "@components/features/projects";
@@ -48,6 +48,7 @@ function SelectProjectContent() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { setProjectId } = useProject();
+  const [search, setSearch] = useState("");
 
   // const { data } = useSuspenseQuery({
   //   queryKey: ["projects"],
@@ -66,7 +67,14 @@ function SelectProjectContent() {
         Choose a project to access your support cases, chat history, and dashboard
       </Typography>
       <Stack mt={5} gap={3}>
-        <SearchBar size="small" placeholder="Search Projects" value="" sx={{ mt: 1 }} fullWidth />
+        <SearchBar
+          size="small"
+          placeholder="Search Projects"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          sx={{ mt: 1 }}
+          fullWidth
+        />
         {MOCK_PROJECTS.map((props) => (
           <ProjectCard
             key={props.id}

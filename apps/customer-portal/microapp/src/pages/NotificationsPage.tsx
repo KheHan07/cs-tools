@@ -18,13 +18,13 @@ import { useLayoutEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button, Stack, Typography } from "@wso2/oxygen-ui";
 import { NotificationsListItem, type NotificationsListItemProps } from "@components/features/notifications";
-import type { ItemType } from "@components/features/support";
 import { useLayout } from "@context/layout";
 import { FilterAppBarSlot } from "./AllItemsPage";
 
 import { MOCK_NOTIFICATIONS } from "@src/mocks/data/notifications";
 
-export type NotificationFilter = "unread" | Exclude<ItemType, "chat">;
+const VALID_FILTERS = ["unread", "case", "service", "change"] as const;
+export type NotificationFilter = (typeof VALID_FILTERS)[number];
 
 export default function NotificationsPage() {
   const [searchParams] = useSearchParams();
@@ -34,9 +34,11 @@ export default function NotificationsPage() {
   const search = (searchParams.get("search") ?? "").toLowerCase();
 
   const items: NotificationsListItemProps[] = (
-    filter === "all" ? Object.values(MOCK_NOTIFICATIONS).flat() : MOCK_NOTIFICATIONS[filter]
+    filter === "all" || !VALID_FILTERS.includes(filter as NotificationFilter)
+      ? Object.values(MOCK_NOTIFICATIONS).flat()
+      : MOCK_NOTIFICATIONS[filter]
   ).filter(
-    (item) =>
+    (item: NotificationsListItemProps) =>
       !search ||
       item.id.toLowerCase().includes(search) ||
       item.title.toLowerCase().includes(search) ||
