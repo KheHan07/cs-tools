@@ -30,6 +30,7 @@ import {
   CaseStatus,
   CallRequestStatus,
   CaseSeverityLevel,
+  ConversationStatus,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment, MetadataItem } from "@models/responses";
@@ -241,6 +242,25 @@ export function formatDateTime(
   }).format(date);
 }
 
+/**
+ * Formats a UTC date string to display only the date (no time) in the user's local timezone.
+ *
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).
+ * @returns {string} Formatted date without time (e.g., "Feb 25, 2026").
+ */
+export function formatDateOnly(dateStr: string | null | undefined): string {
+  if (!dateStr) return "--";
+  const normalized = normalizeUtcDateString(dateStr);
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return "--";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
 export type ChatActionState =
   | "primary"
   | "info"
@@ -413,7 +433,7 @@ export function getChatStatusColor(status: string): string {
   switch (true) {
     case normalized.includes(ChatStatus.RESOLVED.toLowerCase()):
       return "success.main";
-    case normalized.includes(ChatStatus.STILL_OPEN.toLowerCase()):
+    case normalized.includes(ChatStatus.OPEN.toLowerCase()):
       return "info.main";
     case normalized.includes(ChatStatus.ABANDONED.toLowerCase()):
       return "error.main";

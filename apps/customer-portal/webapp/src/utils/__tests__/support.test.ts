@@ -63,11 +63,11 @@ import { createTheme } from "@wso2/oxygen-ui";
 
 describe("support utils", () => {
   describe("getChatStatusAction", () => {
-    it("should return resume for Still Open", () => {
-      expect(getChatStatusAction(ChatStatus.STILL_OPEN)).toBe(
+    it("should return resume for Open", () => {
+      expect(getChatStatusAction(ChatStatus.OPEN)).toBe(
         ChatAction.RESUME,
       );
-      expect(getChatStatusAction(ChatStatus.STILL_OPEN.toLowerCase())).toBe(
+      expect(getChatStatusAction(ChatStatus.OPEN.toLowerCase())).toBe(
         ChatAction.RESUME,
       );
     });
@@ -94,8 +94,8 @@ describe("support utils", () => {
       expect(getChatStatusColor(ChatStatus.RESOLVED)).toBe("success.main");
     });
 
-    it("should return info.main for Still Open", () => {
-      expect(getChatStatusColor(ChatStatus.STILL_OPEN)).toBe("info.main");
+    it("should return info.main for Open", () => {
+      expect(getChatStatusColor(ChatStatus.OPEN)).toBe("info.main");
     });
 
     it("should return error.main for Abandoned", () => {

@@ -413,6 +413,8 @@ export default function CreateCasePage(): JSX.Element {
 
   useEffect(() => {
     if (!selectedDeploymentId || !baseProductOptions.length) return;
+    // In related-case / no-AI mode, keep Product Version unselected by default.
+    if (noAiMode && relatedCase) return;
     setProduct((current) => {
       if (!current?.trim()) {
         const fromClassification = findMatchingProductId(
@@ -431,6 +433,8 @@ export default function CreateCasePage(): JSX.Element {
     });
   }, [
     baseProductOptions,
+    noAiMode,
+    relatedCase,
     classificationProductLabel,
     selectedDeploymentId,
   ]);
