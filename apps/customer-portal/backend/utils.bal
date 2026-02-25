@@ -20,8 +20,6 @@ import ballerina/http;
 import ballerina/log;
 
 configurable int stateIdOpen = 1;
-configurable types:ConverstaionStateIds conversationStateIds =
-    {open: 1, active: 2, resolved: 3, converted: 4, abandonded: 5};
 
 # Search cases for a given project.
 #
@@ -602,22 +600,23 @@ public isolated function getConversationStats(entity:ProjectConversationStatsRes
             select {id: item.id.toString(), label: item.label, count: item.count};
 
         types:ReferenceItem[] openCases = mappedConversationStats.filter(stat =>
-        stat.id == conversationStateIds.open.toString());
+        stat.id == entity:conversationStateIds.open.toString());
         types:ReferenceItem[] activeCases = mappedConversationStats.filter(stat =>
-        stat.id == conversationStateIds.active.toString());
+        stat.id == entity:conversationStateIds.active.toString());
         types:ReferenceItem[] resolvedCases = mappedConversationStats.filter(stat =>
-        stat.id == conversationStateIds.resolved.toString());
+        stat.id == entity:conversationStateIds.resolved.toString());
         types:ReferenceItem[] convertedCases = mappedConversationStats.filter(stat =>
-        stat.id == conversationStateIds.converted.toString());
+        stat.id == entity:conversationStateIds.converted.toString());
         types:ReferenceItem[] abandondedCases = mappedConversationStats.filter(stat =>
-        stat.id == conversationStateIds.abandonded.toString());
+        stat.id == entity:conversationStateIds.abandonded.toString());
+        // TODO: Add session chats after entity service supports it
 
         return {
             openCount: openCases.length() > 0 ? openCases[0].count : (),
             activeCount: activeCases.length() > 0 ? activeCases[0].count : (),
             resolvedCount: resolvedCases.length() > 0 ? resolvedCases[0].count : (),
             convertedCount: convertedCases.length() > 0 ? convertedCases[0].count : (),
-            abandondedCount: abandondedCases.length() > 0 ? abandondedCases[0].count : ()
+            abandonedCount: abandondedCases.length() > 0 ? abandondedCases[0].count : ()
         };
     }
     return {
@@ -625,7 +624,7 @@ public isolated function getConversationStats(entity:ProjectConversationStatsRes
         activeCount: (),
         resolvedCount: (),
         convertedCount: (),
-        abandondedCount: (),
+        abandonedCount: (),
         sessionCount: ()
     };
 }

@@ -994,20 +994,6 @@ public type ConversationResponse record {|
     json...;
 |};
 
-# Conversation state IDs.
-public type ConverstaionStateIds record {|
-    # Open state ID
-    int open;
-    # Active state ID
-    int active;
-    # Converted state ID
-    int converted;
-    # Resolved state ID
-    int resolved;
-    # Abandoned state ID
-    int abandonded;
-|};
-
 # Overall conversation statistics for a project.
 public type OverallConversationStats record {|
     # Chat sessions count
@@ -1017,7 +1003,7 @@ public type OverallConversationStats record {|
     # Open chats count
     int openCount?;
     # Abandoned chats count
-    int abandondedCount?;
+    int abandonedCount?;
     # Total messages count
     int totalCount?;
     # Active chats count
@@ -1033,5 +1019,5 @@ public type ConversationStats record {|
     # Open chats count
     int openCount?;
     # Abandoned chats count
-    int abandondedCount?;
+    int abandonedCount?;
 |};

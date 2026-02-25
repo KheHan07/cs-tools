@@ -724,7 +724,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return {
             openCount: mappedConversationStats.openCount,
             resolvedCount: mappedConversationStats.resolvedCount,
-            abandondedCount: mappedConversationStats.abandondedCount
+            abandonedCount: mappedConversationStats.abandonedCount
         };
     }
 

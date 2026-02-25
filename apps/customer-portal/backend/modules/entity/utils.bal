@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/time;
 
-public final CaseStateIds & readonly caseStateIds = {
+public configurable CaseStateIds & readonly caseStateIds = {
     open: 1,
     closed: 3,
     waitingOnWso2: 1003,
@@ -24,6 +24,8 @@ public final CaseStateIds & readonly caseStateIds = {
     solutionProposed: 6,
     workInProgress: 10
 };
+public configurable ConverstaionStateIds & readonly conversationStateIds =
+    {open: 1, active: 2, resolved: 3, converted: 4, abandonded: 5};
 
 # Generate authorization headers.
 #

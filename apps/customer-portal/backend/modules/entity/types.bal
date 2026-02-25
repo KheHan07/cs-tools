@@ -1308,3 +1308,17 @@ public type CaseStateIds record {|
     # Reopened state ID
     int reopened;
 |};
+
+# Conversation state IDs.
+public type ConverstaionStateIds record {|
+    # Open state ID
+    int open;
+    # Active state ID
+    int active;
+    # Converted state ID
+    int converted;
+    # Resolved state ID
+    int resolved;
+    # Abandoned state ID
+    int abandonded;
+|};
