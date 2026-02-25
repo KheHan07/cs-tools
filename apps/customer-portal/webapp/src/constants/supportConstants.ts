@@ -77,7 +77,7 @@ export type CaseStatus = (typeof CaseStatus)[keyof typeof CaseStatus];
 
 // Call request status types.
 export const CallRequestStatus = {
-  CANCELLED: "Cancelled",
+  CANCELED: "Canceled",
   COMPLETED: "Completed",
   PENDING: "Pending",
   REJECTED: "Rejected",

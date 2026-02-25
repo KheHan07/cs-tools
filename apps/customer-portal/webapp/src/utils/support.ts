@@ -625,7 +625,7 @@ export function getCallRequestStatusColor(status?: string): string {
       return "warning.main";
     case normalized.includes(CallRequestStatus.COMPLETED.toLowerCase()):
       return "success.main";
-    case normalized.includes(CallRequestStatus.CANCELLED.toLowerCase()):
+    case normalized.includes(CallRequestStatus.CANCELED.toLowerCase()):
     case normalized.includes(CallRequestStatus.REJECTED.toLowerCase()):
       return "error.main";
     default:

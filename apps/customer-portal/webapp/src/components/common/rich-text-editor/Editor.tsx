@@ -65,25 +65,26 @@ const EditableStatePlugin = ({ disabled }: { disabled: boolean }) => {
 
 /**
  * Internal component to handle initial HTML value.
+ * Injects when initialHtml is non-empty and editor root is empty (e.g. first paint or value set after mount).
  */
 const InitialValuePlugin = ({ initialHtml }: { initialHtml?: string }) => {
   const [editor] = useLexicalComposerContext();
+  const appliedRef = useRef(false);
 
   useEffect(() => {
-    if (initialHtml) {
-      editor.update(() => {
-        const root = $getRoot();
-        const currentContent = root.getTextContent();
-
-        if (currentContent.trim() === "") {
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(initialHtml, "text/html");
-          const nodes = $generateNodesFromDOM(editor, dom);
-          root.clear();
-          root.append(...nodes);
-        }
-      });
-    }
+    if (!initialHtml?.trim()) return;
+    editor.update(() => {
+      const root = $getRoot();
+      const currentContent = root.getTextContent();
+      const isEmpty = currentContent.trim() === "";
+      if (!isEmpty && appliedRef.current) return;
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(initialHtml, "text/html");
+      const nodes = $generateNodesFromDOM(editor, dom);
+      root.clear();
+      root.append(...nodes);
+      appliedRef.current = true;
+    });
   }, [editor, initialHtml]);
 
   return null;
