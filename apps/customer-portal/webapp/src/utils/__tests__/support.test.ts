@@ -732,12 +732,9 @@ describe("support utils", () => {
       expect(result).not.toMatch(/PM/);
     });
 
-    it("should format MM/DD/YYYY HH:mm:ss to date-only string", () => {
-      const result = formatDateOnly("10/29/2024 14:30:00");
-      expect(result).toContain("Oct");
-      expect(result).toContain("29");
-      expect(result).toContain("2024");
-      expect(result).not.toMatch(/14:30/);
+    it("should correctly parse year 2026 from API format", () => {
+      const result = formatDateOnly("2026-02-25 15:24:47");
+      expect(result).toBe("Feb 25, 2026");
     });
   });
 

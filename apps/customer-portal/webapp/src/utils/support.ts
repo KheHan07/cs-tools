@@ -251,29 +251,32 @@ export function formatDateTime(
 /**
  * Formats a UTC date string to display only the date (no time) in the user's local timezone.
  *
- * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss format from API or ISO format).
  * @returns {string} Formatted date without time (e.g., "Feb 25, 2026").
  */
 export function formatDateOnly(dateStr: string | null | undefined): string {
   if (!dateStr) return "--";
 
   const trimmed = dateStr.trim();
-
-  // Try to manually parse YYYY-MM-DD HH:mm:ss format for more reliable parsing
-  const yyyymmdd =
-    /^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d{1,2}):(\d{2}):(\d{2}))?$/.exec(
-      trimmed,
-    );
-  if (yyyymmdd) {
-    const [, yyyy, mm, dd, hh = "00", mi = "00", ss = "00"] = yyyymmdd;
-    const year = parseInt(yyyy!, 10);
-    const month = parseInt(mm!, 10) - 1; // JS months are 0-indexed
-    const day = parseInt(dd!, 10);
-    const hour = parseInt(hh, 10);
-    const minute = parseInt(mi, 10);
-    const second = parseInt(ss, 10);
-
-    const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+  
+  // Handle YYYY-MM-DD HH:mm:ss format (standard API format for chat history and case details)
+  const standardFormat = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (standardFormat) {
+    const [, year, month, day, hour, minute, second] = standardFormat;
+    const isoDate = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+    const date = new Date(isoDate);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+  
+  // Handle ISO format (YYYY-MM-DDTHH:mm:ssZ or similar)
+  if (/T\d{2}:\d{2}/.test(trimmed)) {
+    const date = new Date(trimmed);
     if (!Number.isNaN(date.getTime())) {
       return new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -283,40 +286,7 @@ export function formatDateOnly(dateStr: string | null | undefined): string {
     }
   }
 
-  // Try MM/DD/YYYY HH:mm:ss format
-  const mmddyyyy =
-    /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}):(\d{2}))?$/.exec(
-      trimmed,
-    );
-  if (mmddyyyy) {
-    const [, mm, dd, yyyy, hh = "00", mi = "00", ss = "00"] = mmddyyyy;
-    const year = parseInt(yyyy!, 10);
-    const month = parseInt(mm!, 10) - 1;
-    const day = parseInt(dd!, 10);
-    const hour = parseInt(hh, 10);
-    const minute = parseInt(mi, 10);
-    const second = parseInt(ss, 10);
-
-    const date = new Date(Date.UTC(year, month, day, hour, minute, second));
-    if (!Number.isNaN(date.getTime())) {
-      return new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }).format(date);
-    }
-  }
-
-  // Fallback to original normalization approach
-  const normalized = normalizeUtcDateString(trimmed);
-  const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) return "--";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
+  return "--";
 }
 
 export type ChatActionState =
