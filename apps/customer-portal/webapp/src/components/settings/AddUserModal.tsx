@@ -77,6 +77,7 @@ export default function AddUserModal({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<ContactRole>("portal_user");
+  const [isExistingContact, setIsExistingContact] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
   const validateContact = useValidateProjectContact(projectId);
@@ -88,6 +89,7 @@ export default function AddUserModal({
     setFirstName("");
     setLastName("");
     setRole("portal_user");
+    setIsExistingContact(false);
   }, []);
 
   useEffect(() => {
@@ -124,7 +126,16 @@ export default function AddUserModal({
     validateContact.mutate(
       { contactEmail: trimmedEmail },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          // Pre-fill fields if the contact already exists (deactivated)
+          if (data.contactDetails) {
+            setFirstName(data.contactDetails.firstName ?? "");
+            setLastName(data.contactDetails.lastName ?? "");
+            setRole(data.contactDetails.isCsIntegrationUser ? "system_user" : "portal_user");
+            setIsExistingContact(true);
+          } else {
+            setIsExistingContact(false);
+          }
           setStep("details");
         },
         onError: (err) => {
@@ -139,6 +150,7 @@ export default function AddUserModal({
     setFirstName("");
     setLastName("");
     setRole("portal_user");
+    setIsExistingContact(false);
   }, []);
 
   const handleSubmit = useCallback(() => {
@@ -287,7 +299,7 @@ export default function AddUserModal({
                   placeholder="Enter first name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isExistingContact}
                 />
               </Box>
 
@@ -304,7 +316,7 @@ export default function AddUserModal({
                   placeholder="Enter last name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isExistingContact}
                 />
               </Box>
 
@@ -332,7 +344,7 @@ export default function AddUserModal({
                   value={role}
                   label="User Type"
                   onChange={handleRoleChange}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isExistingContact}
                   renderValue={() => {
                     const RoleIcon = selectedRole?.Icon;
                     return RoleIcon ? (
