@@ -71,8 +71,9 @@ export default function AllCasesPage(): JSX.Element {
     [filterMetadata?.caseTypes],
   );
 
-  const defaultCaseTypeIds = getIncidentAndQueryCaseTypeIds(
-    filterMetadata?.caseTypes,
+  const defaultCaseTypeIds = useMemo(
+    () => getIncidentAndQueryCaseTypeIds(filterMetadata?.caseTypes),
+    [filterMetadata?.caseTypes],
   );
 
   const {

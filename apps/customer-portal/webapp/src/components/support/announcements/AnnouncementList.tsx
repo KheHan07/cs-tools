@@ -89,6 +89,15 @@ export default function AnnouncementList({
         return (
           <Paper
             key={caseItem.id}
+            role="button"
+            tabIndex={0}
+            aria-label={caseItem.title ? `View announcement: ${caseItem.title}` : "View announcement"}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onCaseClick?.(caseItem);
+              }
+            }}
             elevation={0}
             sx={{
               bgcolor: paperBg,
@@ -181,7 +190,7 @@ export default function AnnouncementList({
                     <Stack direction="row" spacing={0.5} alignItems="center">
                       <Calendar
                         size={16}
-                        color={theme.palette.text.disabled}
+                        color={theme.palette.text.secondary}
                         aria-hidden
                       />
                       <Typography variant="caption" color="text.secondary">
@@ -225,10 +234,12 @@ export default function AnnouncementList({
                     >
                       View Details
                     </Button>
+                    {/* TODO: Wire onMarkRead and onArchive handlers when implemented */}
                     <Button
                       variant="outlined"
                       size="small"
                       startIcon={<Eye size={16} />}
+                      disabled
                       onClick={(e) => e.stopPropagation()}
                       sx={{ textTransform: "none" }}
                     >
@@ -238,6 +249,7 @@ export default function AnnouncementList({
                       variant="outlined"
                       size="small"
                       startIcon={<Archive size={16} />}
+                      disabled
                       onClick={(e) => e.stopPropagation()}
                       sx={{ textTransform: "none" }}
                     >

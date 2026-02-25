@@ -67,23 +67,27 @@ export default function AnnouncementsPage(): JSX.Element {
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
   const announcementId = getAnnouncementCaseTypeId(filterMetadata?.caseTypes);
 
-  const closedStatusId = useMemo(() => {
-    const closed = filterMetadata?.caseStates?.find(
-      (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
-    );
-    return closed?.id ? [Number(closed.id)] : undefined;
-  }, [filterMetadata?.caseStates]);
+  const closedState = useMemo(
+    () =>
+      filterMetadata?.caseStates?.find(
+        (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
+      ),
+    [filterMetadata?.caseStates],
+  );
+
+  const closedStatusId = useMemo(
+    () => (closedState?.id ? [Number(closedState.id)] : undefined),
+    [closedState?.id],
+  );
 
   const nonClosedStatusIds = useMemo(() => {
-    const closed = filterMetadata?.caseStates?.find(
-      (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
-    );
     const rest = (filterMetadata?.caseStates ?? []).filter(
-      (s) => s.id !== closed?.id,
+      (s) => s.id !== closedState?.id,
     );
     return rest.length > 0 ? rest.map((s) => Number(s.id)) : undefined;
-  }, [filterMetadata?.caseStates]);
+  }, [filterMetadata?.caseStates, closedState?.id]);
 
+  // TODO: "unread" tab currently filters by non-closed status (active); real read/unread state not yet implemented.
   const statusIdsForTab = useMemo(() => {
     if (activeTab === "archived") return closedStatusId;
     if (activeTab === "unread") return nonClosedStatusIds;
@@ -180,7 +184,7 @@ export default function AnnouncementsPage(): JSX.Element {
         </Box>
       </Box>
 
-      <AnnouncementStatCards isError />
+      <AnnouncementStatCards />
 
       <Tabs
         value={activeTab}

@@ -59,6 +59,13 @@ export default function AnnouncementDetailsPanel({
   isError,
   onBack,
 }: AnnouncementDetailsPanelProps): JSX.Element {
+  const theme = useTheme();
+  const severityLabel = data?.severity?.label;
+  const SeverityIcon = getSeverityIcon(severityLabel);
+  const severityColor = getSeverityLegendColor(severityLabel);
+  const iconBgColor = alpha(severityColor, 0.1);
+  const chipBgColor = alpha(severityColor, 0.1);
+
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -115,12 +122,6 @@ export default function AnnouncementDetailsPanel({
       </Box>
     );
   }
-
-  const theme = useTheme();
-  const SeverityIcon = getSeverityIcon(data.severity?.label);
-  const severityColor = getSeverityLegendColor(data.severity?.label);
-  const iconBgColor = alpha(severityColor, 0.1);
-  const chipBgColor = alpha(severityColor, 0.1);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -270,7 +271,9 @@ export default function AnnouncementDetailsPanel({
           >
             Related Security Advisories:
           </Typography>
-          <ErrorIndicator entityName="related security advisories" />
+          <Typography variant="body2" color="text.secondary">
+            No data available
+          </Typography>
         </Box>
       </Paper>
 

@@ -156,16 +156,19 @@ export function isWithinOpenRelatedCaseWindow(
  *
  * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).
  * @param {"short" | "long"} [formatStr="long"] - The format style.
+ * @param {boolean} [includeTimeZoneName=true] - Include timezone suffix (e.g. +GMT).
  * @returns {string} Formatted date/time in local time.
  */
 export function formatUtcToLocal(
   dateStr: string | null | undefined,
   formatStr: "short" | "long" = "long",
+  includeTimeZoneName = true,
 ): string {
   if (!dateStr) return "--";
   const normalized = normalizeUtcDateString(dateStr);
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return "--";
+  const tzOption = includeTimeZoneName ? { timeZoneName: "short" as const } : {};
   if (formatStr === "short") {
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
@@ -173,7 +176,7 @@ export function formatUtcToLocal(
       hour: "numeric",
       minute: "numeric",
       hour12: true,
-      timeZoneName: "short",
+      ...tzOption,
     }).format(date);
   }
   return new Intl.DateTimeFormat("en-US", {
@@ -183,7 +186,7 @@ export function formatUtcToLocal(
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-    timeZoneName: "short",
+    ...tzOption,
   }).format(date);
 }
 
@@ -198,27 +201,7 @@ export function formatUtcToLocalNoTimezone(
   dateStr: string | null | undefined,
   formatStr: "short" | "long" = "long",
 ): string {
-  if (!dateStr) return "--";
-  const normalized = normalizeUtcDateString(dateStr);
-  const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) return "--";
-  if (formatStr === "short") {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }).format(date);
-  }
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  }).format(date);
+  return formatUtcToLocal(dateStr, formatStr, false);
 }
 
 /**

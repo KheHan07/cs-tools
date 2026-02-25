@@ -15,7 +15,7 @@
 // under the License.
 
 import {
-  Box,
+  Alert,
   Button,
   CircularProgress,
   Dialog,
@@ -39,7 +39,6 @@ import {
   type ChangeEvent,
 } from "react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
-import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 import { usePostCallRequest } from "@api/usePostCallRequest";
 import { usePatchCallRequest } from "@api/usePatchCallRequest";
 import type { CallRequest } from "@models/responses";
@@ -281,12 +280,14 @@ export default function RequestCallModal({
 
       <DialogContent sx={{ pt: 1 }}>
         {modalError && (
-          <Box sx={{ mb: 2 }}>
-            <ErrorBanner
-              message={modalError}
-              onClose={() => setModalError(null)}
-            />
-          </Box>
+          <Alert
+            severity="error"
+            onClose={() => setModalError(null)}
+            sx={{ mb: 2 }}
+            role="alert"
+          >
+            {modalError}
+          </Alert>
         )}
         <TextField
           id="preferred-time"

@@ -116,7 +116,7 @@ export function getDeploymentDisplayLabelForEnvironment(
     );
   });
   if (!dep) return undefined;
-  return dep.name ?? dep.type?.label ?? undefined;
+  return dep.name ?? dep.type?.label;
 }
 
 /**
@@ -285,10 +285,12 @@ export function getDeploymentProductDisplayLabel(
   item: DeploymentProductItem,
 ): string {
   const productLabel = item.product?.label?.trim() ?? "";
-  const versionLabel =
-    typeof item.version === "object" && item.version !== null && "label" in item.version
-      ? (item.version as { id: string; label: string }).label?.trim() ?? ""
-      : "";
+  let versionLabel = "";
+  if (typeof item.version === "object" && item.version !== null && "label" in item.version) {
+    versionLabel = (item.version as { id: string; label: string }).label?.trim() ?? "";
+  } else if (typeof item.version === "string") {
+    versionLabel = item.version.trim();
+  }
   const combined = [productLabel, versionLabel].filter(Boolean).join(" ");
   return combined.trim();
 }

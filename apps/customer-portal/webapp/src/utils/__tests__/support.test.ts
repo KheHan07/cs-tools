@@ -380,6 +380,17 @@ describe("support utils", () => {
         queryId: "id2",
       });
     });
+
+    it("should accept Icident typo variant", () => {
+      const caseTypes = [
+        { id: "id-icident", label: "Icident" },
+        { id: "id-query", label: "Query" },
+      ];
+      expect(getIncidentAndQueryIds(caseTypes)).toEqual({
+        incidentId: "id-icident",
+        queryId: "id-query",
+      });
+    });
   });
 
   describe("toPresentTenseActionLabel", () => {

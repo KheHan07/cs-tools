@@ -19,7 +19,6 @@ import { type JSX } from "react";
 import SupportStatGrid from "@components/common/stat-grid/SupportStatGrid";
 import {
   ANNOUNCEMENT_STAT_CONFIGS,
-  ANNOUNCEMENT_STATS_HARDCODED,
   type AnnouncementStatKey,
 } from "@constants/supportConstants";
 
@@ -47,7 +46,7 @@ export default function AnnouncementStatCards({
         isError={isError}
         entityName="announcement"
         configs={ANNOUNCEMENT_STAT_CONFIGS}
-        stats={stats ?? ANNOUNCEMENT_STATS_HARDCODED}
+        stats={stats}
       />
     </Box>
   );
