@@ -677,8 +677,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     #
     # + id - ID of the project
     # + return - Conversation statistics overview or error response
-    resource function get projects/[entity:IdString id]/stats/conversations(http:RequestContext ctx,
-            string[]? caseTypes)
+    resource function get projects/[entity:IdString id]/stats/conversations(http:RequestContext ctx)
         returns types:ConversationStats|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
@@ -2768,7 +2767,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Time card search payload containing filters and pagination info
     # + return - List of time cards matching the criteria or an error
-    resource function post projects/[string id]/time\-cards/search(http:RequestContext ctx,
+    resource function post projects/[entity:IdString id]/time\-cards/search(http:RequestContext ctx,
             types:TimeCardSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
