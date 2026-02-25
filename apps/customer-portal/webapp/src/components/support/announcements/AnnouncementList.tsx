@@ -43,7 +43,7 @@ export default function AnnouncementList({
   onCaseClick,
 }: AnnouncementListProps): JSX.Element {
   if (isLoading) {
-    return <AllCasesListSkeleton />;
+    return <AllCasesListSkeleton compact />;
   }
 
   if (cases.length === 0) {
@@ -137,7 +137,7 @@ export default function AnnouncementList({
                   color="text.secondary"
                   sx={{ lineHeight: 1 }}
                 >
-                  Created {formatUtcToLocalNoTimezone(caseItem.createdOn) || "--"}
+                  Created {formatUtcToLocalNoTimezone(caseItem.createdOn)}
                 </Typography>
               </Box>
               {caseItem.issueType?.label && (

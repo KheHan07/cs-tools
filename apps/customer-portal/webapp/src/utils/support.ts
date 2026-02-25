@@ -29,6 +29,7 @@ import {
   ChatStatus,
   CaseStatus,
   CallRequestStatus,
+  CaseSeverityLevel,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment, MetadataItem } from "@models/responses";
@@ -49,10 +50,7 @@ export function getIncidentAndQueryCaseTypeIds(
   if (!caseTypes?.length) return [];
   const normalized = (label: string) => label.trim().toLowerCase();
   return caseTypes
-    .filter(
-      (ct) =>
-        /^incident$|^icident$|^query$/i.test(normalized(ct.label)),
-    )
+    .filter((ct) => /^incident$|^icident$|^query$/i.test(normalized(ct.label)))
     .map((ct) => ct.id);
 }
 
@@ -93,9 +91,8 @@ function normalizeUtcDateString(dateStr: string): string {
   if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
     return trimmed.replace(" ", "T") + "Z";
   }
-  const mmddyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(
-    trimmed,
-  );
+  const mmddyyyy =
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
   if (mmddyyyy) {
     const [, mm, dd, yyyy, hh, mi, ss] = mmddyyyy;
     return `${yyyy}-${mm!.padStart(2, "0")}-${dd!.padStart(2, "0")}T${hh}:${mi}:${ss}Z`;
@@ -167,7 +164,9 @@ export function formatUtcToLocal(
   const normalized = normalizeUtcDateString(dateStr);
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return "--";
-  const tzOption = includeTimeZoneName ? { timeZoneName: "short" as const } : {};
+  const tzOption = includeTimeZoneName
+    ? { timeZoneName: "short" as const }
+    : {};
   if (formatStr === "short") {
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
@@ -666,14 +665,14 @@ export function getSeverityIcon(label?: string): ComponentType<{
   const display = mapSeverityToDisplay(label);
   const upper = display.toUpperCase();
   switch (upper) {
-    case "S0":
-    case "S1":
+    case CaseSeverityLevel.S0:
+    case CaseSeverityLevel.S1:
       return TriangleAlert;
-    case "S2":
+    case CaseSeverityLevel.S2:
       return CircleAlert;
-    case "S3":
+    case CaseSeverityLevel.S3:
       return Clock;
-    case "S4":
+    case CaseSeverityLevel.S4:
       return CircleCheck;
     default:
       return CircleAlert;
@@ -692,13 +691,13 @@ export function getSeverityColor(label?: string): string {
   switch (upper) {
     case "S0":
       return "error.main";
-    case "S1":
+    case CaseSeverityLevel.S1:
       return "warning.main";
-    case "S2":
+    case CaseSeverityLevel.S2:
       return "info.main";
-    case "S3":
+    case CaseSeverityLevel.S3:
       return "secondary.main";
-    case "S4":
+    case CaseSeverityLevel.S4:
       return "success.main";
     default:
       return "text.primary";
@@ -979,9 +978,7 @@ export function getAnnouncementCaseTypeId(
   caseTypes?: MetadataItem[] | null,
 ): string | undefined {
   if (!caseTypes?.length) return undefined;
-  return caseTypes.find(
-    (c) => c.label.toLowerCase() === "announcement",
-  )?.id;
+  return caseTypes.find((c) => c.label.toLowerCase() === "announcement")?.id;
 }
 
 /**
@@ -993,7 +990,7 @@ export function getAnnouncementCaseTypeId(
  * - Keeps all other case types as-is
  */
 export const normalizeCaseTypeOptions = (
-  caseTypes: { id: string; label: string }[]
+  caseTypes: { id: string; label: string }[],
 ) => {
   // Collect IDs of "Query" and "Incident" (including backend typo "icident") to merge into one "Case" option
   const caseIds = caseTypes

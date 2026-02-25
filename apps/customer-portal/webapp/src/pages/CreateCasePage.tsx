@@ -96,8 +96,13 @@ export default function CreateCasePage(): JSX.Element {
   const { data: filters, isLoading: isFiltersLoading } = useGetCasesFilters(
     projectId || "",
   );
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(() => relatedCase?.title ?? "");
+  const [description, setDescription] = useState(() => {
+    if (!relatedCase) return "";
+    const prefix =
+      "<p>-- This is the previous description (Edit or Delete if you want to alter) --</p>";
+    return prefix + (relatedCase.description ?? "");
+  });
   const [issueType, setIssueType] = useState("");
   const [product, setProduct] = useState("");
   const [deployment, setDeployment] = useState("");
@@ -416,7 +421,13 @@ export default function CreateCasePage(): JSX.Element {
   ]);
 
   const handleBack = () => {
-    navigate(-1);
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else if (projectId) {
+      navigate(`/${projectId}/support/cases`);
+    } else {
+      navigate("/");
+    }
   };
 
   const handleAttachmentClick = () => {
@@ -485,11 +496,12 @@ export default function CreateCasePage(): JSX.Element {
       showError("Please select an issue type.");
       return;
     }
-    const severityKey = parseInt(severity, 10) || 0;
-    if (!severityKey) {
+    const parsedSeverity = parseInt(severity, 10);
+    if (Number.isNaN(parsedSeverity)) {
       showError("Please select a severity.");
       return;
     }
+    const severityKey = parsedSeverity;
 
     const payload: CreateCaseRequest = {
       deploymentId: String(deploymentMatch.id),

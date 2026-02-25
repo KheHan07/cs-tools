@@ -84,6 +84,18 @@ function localToUtcIso(localValue: string): string {
   return date.toISOString();
 }
 
+/** Returns datetime-local min string (now + 1 min) so picker blocks past times. */
+function getMinDatetimeLocal(): string {
+  const now = new Date();
+  const plusOneMin = new Date(now.getTime() + 60 * 1000);
+  const y = plusOneMin.getFullYear();
+  const m = String(plusOneMin.getMonth() + 1).padStart(2, "0");
+  const d = String(plusOneMin.getDate()).padStart(2, "0");
+  const h = String(plusOneMin.getHours()).padStart(2, "0");
+  const minStr = String(plusOneMin.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${d}T${h}:${minStr}`;
+}
+
 /**
  * Modal for requesting a call for a case.
  *
@@ -107,6 +119,15 @@ export default function RequestCallModal({
 
   const [form, setForm] = useState(INITIAL_FORM);
   const [modalError, setModalError] = useState<string | null>(null);
+  const [, setMinDatetimeTick] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    const id = setInterval(() => setMinDatetimeTick((t) => t + 1), 60 * 1000);
+    return () => clearInterval(id);
+  }, [open]);
+
+  const minDatetimeLocal = getMinDatetimeLocal();
 
   const stateKeyFromCall =
     editCall && editCall.state?.id != null
@@ -168,7 +189,7 @@ export default function RequestCallModal({
       setModalError("Please enter a valid preferred time.");
       return;
     }
-    // Align with picker min (now + 1 min): reject if selected is before that boundary.
+    // Submit-time check matches picker min (now + 1 min) to avoid rejecting valid selections.
     const minAllowed = new Date(now.getTime() + 60 * 1000);
     if (selected < minAllowed) {
       setModalError(
@@ -182,7 +203,7 @@ export default function RequestCallModal({
     const handleError = (error: Error) => {
       const msg = error?.message ?? "";
       const friendlyMsg =
-        /past|utc|cannot be past/i.test(msg)
+        /\b(?:cannot be past|date.*past|time.*past|in the past)\b/i.test(msg)
           ? "The selected date and time cannot be in the past. Please choose a future date and time."
           : msg || "Failed to save call request.";
       setModalError(friendlyMsg);
@@ -294,16 +315,7 @@ export default function RequestCallModal({
           size="small"
           slotProps={{ inputLabel: { shrink: true } }}
           inputProps={{
-            min: (() => {
-              const now = new Date();
-              const plusOneMin = new Date(now.getTime() + 60 * 1000);
-              const y = plusOneMin.getFullYear();
-              const m = String(plusOneMin.getMonth() + 1).padStart(2, "0");
-              const d = String(plusOneMin.getDate()).padStart(2, "0");
-              const h = String(plusOneMin.getHours()).padStart(2, "0");
-              const min = String(plusOneMin.getMinutes()).padStart(2, "0");
-              return `${y}-${m}-${d}T${h}:${min}`;
-            })(),
+            min: minDatetimeLocal,
           }}
           sx={{ mt: 4, mb: 2 }}
           disabled={isPending}
