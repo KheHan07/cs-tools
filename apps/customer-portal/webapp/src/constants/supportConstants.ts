@@ -16,6 +16,7 @@
 
 import {
   Activity,
+  Bell,
   BookOpen,
   Bot,
   CircleAlert,
@@ -204,7 +205,7 @@ export const ALL_CASES_STAT_CONFIGS: SupportStatConfig<AllCasesStatKey>[] = [
 
 /**
  * Flattens the project cases statistics for the stat cards.
- * Derives openCases, workInProgress, waitingOnClient, waitingOnWso2 from stateCount.
+ * Total Active = totalCases; Work in Progress, Awaiting Info, Waiting on WSO2 from stateCount.
  *
  * @param {ProjectCasesStats | undefined} stats - The original stats.
  * @returns {Record<AllCasesStatKey, number | undefined>} The flattened stats.
@@ -213,17 +214,15 @@ export const getAllCasesFlattenedStats = (
   stats: ProjectCasesStats | undefined,
 ): Record<AllCasesStatKey, number | undefined> => {
   const stateCount = stats?.stateCount ?? [];
-  const openCases = stateCount
-    .filter((s) => s.label !== CaseStatus.CLOSED)
-    .reduce((sum, s) => sum + (s.count ?? 0), 0);
   const workInProgress =
     stateCount.find((s) => s.label === CaseStatus.WORK_IN_PROGRESS)?.count;
   const waitingOnClient =
     stateCount.find((s) => s.label === CaseStatus.AWAITING_INFO)?.count;
   const waitingOnWso2 =
     stateCount.find((s) => s.label === CaseStatus.WAITING_ON_WSO2)?.count;
+  const openCases = stats?.totalCases;
   return {
-    openCases: openCases > 0 ? openCases : undefined,
+    openCases: openCases != null ? openCases : undefined,
     waitingOnClient,
     waitingOnWso2,
     workInProgress,
@@ -286,13 +285,13 @@ export interface CaseStatusAction {
   paletteIntent: CaseStatusPaletteIntent;
 }
 
-// Case status actions shown in the case details action row.
+// Case status actions shown in the case details action row. Close button last.
 export const CASE_STATUS_ACTIONS: CaseStatusAction[] = [
-  { label: "Closed", Icon: CircleX, paletteIntent: "info" },
   { label: "Waiting on WSO2", Icon: CirclePause, paletteIntent: "warning" },
   { label: "Accept Solution", Icon: CircleCheck, paletteIntent: "success" },
   { label: "Reject Solution", Icon: TriangleAlert, paletteIntent: "error" },
   { label: "Open Related Case", Icon: RotateCcw, paletteIntent: "info" },
+  { label: "Closed", Icon: CircleX, paletteIntent: "info" },
 ];
 
 // Number of outstanding cases to show on support overview cards.
@@ -440,6 +439,83 @@ export const ALL_CASES_FILTER_DEFINITIONS: AllCasesFilterDefinition[] = [
     filterKey: "deploymentId",
     id: "deployment",
     metadataKey: "deploymentTypes",
+  },
+];
+
+/**
+ * Announcement page stat keys (hardcoded values for now).
+ */
+export type AnnouncementStatKey =
+  | "unread"
+  | "critical"
+  | "actionRequired"
+  | "total";
+
+/**
+ * Hardcoded announcement stats (sample values).
+ */
+export const ANNOUNCEMENT_STATS_HARDCODED: Record<
+  AnnouncementStatKey,
+  number
+> = {
+  unread: 3,
+  critical: 1,
+  actionRequired: 3,
+  total: 8,
+};
+
+/**
+ * Configuration for announcement statistics cards.
+ */
+export const ANNOUNCEMENT_STAT_CONFIGS: SupportStatConfig<AnnouncementStatKey>[] =
+  [
+    { icon: Bell, iconColor: "warning", key: "unread", label: "Unread" },
+    {
+      icon: TriangleAlert,
+      iconColor: "error",
+      key: "critical",
+      label: "Critical",
+    },
+    {
+      icon: CircleAlert,
+      iconColor: "warning",
+      key: "actionRequired",
+      label: "Action Required",
+    },
+    {
+      icon: FileText,
+      iconColor: "info",
+      key: "total",
+      label: "Total",
+    },
+  ];
+
+/**
+ * Filter values for announcements page.
+ */
+export interface AnnouncementFilterValues {
+  statusId?: string;
+  severityId?: string;
+}
+
+/**
+ * Announcement filter definitions (status, severity - same as All Cases subset).
+ */
+export const ANNOUNCEMENT_FILTER_DEFINITIONS: Array<{
+  filterKey: keyof AnnouncementFilterValues;
+  id: string;
+  metadataKey: keyof CaseMetadataResponse;
+  useLabelAsValue?: boolean;
+}> = [
+  {
+    filterKey: "statusId",
+    id: "status",
+    metadataKey: "caseStates",
+  },
+  {
+    filterKey: "severityId",
+    id: "severity",
+    metadataKey: "severities",
   },
 ];
 
