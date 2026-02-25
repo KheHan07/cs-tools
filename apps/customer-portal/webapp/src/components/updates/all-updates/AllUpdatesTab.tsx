@@ -29,17 +29,20 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { FileText } from "@wso2/oxygen-ui-icons-react";
-import { useCallback, useMemo, useState, type JSX } from "react";
+import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import { useNavigate, useParams } from "react-router";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
-import { useGetRecommendedUpdateLevels } from "@api/useGetRecommendedUpdateLevels";
+import { useGetProductUpdateLevels } from "@api/useGetProductUpdateLevels";
 import { usePostUpdateLevelsSearch } from "@api/usePostUpdateLevelsSearch";
 import { PendingUpdatesList } from "@components/updates/pending-updates/PendingUpdatesList";
 import PendingUpdatesListSkeleton from "@components/updates/pending-updates/PendingUpdatesListSkeleton";
 import EmptyState from "@components/common/empty-state/EmptyState";
 import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 import UpdateLevelsReportModal from "@components/updates/all-updates/UpdateLevelsReportModal";
-import type { RecommendedUpdateLevelItem } from "@models/responses";
+import type {
+  ProductUpdateLevelEntry,
+  ProductUpdateLevelsResponse,
+} from "@models/responses";
 import { getUpdateLevelsReportData } from "@utils/updateLevelsReportPdf";
 
 export interface AllUpdatesTabFilterState {
@@ -78,35 +81,57 @@ function isValidFilter(
 }
 
 /**
- * Derives unique product names from recommended update level data.
+ * Derives unique product names from product update levels (GET /updates/product-update-levels).
  *
- * @param {RecommendedUpdateLevelItem[] | undefined} data - Raw recommended levels.
+ * @param {ProductUpdateLevelsResponse | undefined} data - Product update levels response.
  * @returns {string[]} Sorted unique product names.
  */
-function getProductNames(data: RecommendedUpdateLevelItem[] | undefined): string[] {
+function getProductNamesFromProductLevels(
+  data: ProductUpdateLevelsResponse | undefined,
+): string[] {
   if (!data?.length) return [];
   const names = [...new Set(data.map((d) => d.productName))];
   return names.sort();
 }
 
 /**
- * Derives product versions for a selected product.
+ * Derives version entries for a selected product.
  *
- * @param {RecommendedUpdateLevelItem[] | undefined} data - Raw recommended levels.
+ * @param {ProductUpdateLevelsResponse | undefined} data - Product update levels response.
  * @param {string} productName - Selected product.
- * @returns {RecommendedUpdateLevelItem[]} Matching items.
+ * @returns {ProductUpdateLevelEntry[]} Matching version entries.
  */
-function getVersionsForProduct(
-  data: RecommendedUpdateLevelItem[] | undefined,
+function getVersionEntriesForProduct(
+  data: ProductUpdateLevelsResponse | undefined,
   productName: string,
-): RecommendedUpdateLevelItem[] {
+): ProductUpdateLevelEntry[] {
   if (!data?.length || !productName) return [];
-  return data.filter((d) => d.productName === productName);
+  const item = data.find((d) => d.productName === productName);
+  return item?.productUpdateLevels ?? [];
+}
+
+/**
+ * Returns sorted update levels for the selected product and version.
+ *
+ * @param {ProductUpdateLevelsResponse | undefined} data - Product update levels response.
+ * @param {string} productName - Selected product.
+ * @param {string} productVersion - Selected version (productBaseVersion).
+ * @returns {number[]} Sorted update levels.
+ */
+function getUpdateLevelsForProductVersion(
+  data: ProductUpdateLevelsResponse | undefined,
+  productName: string,
+  productVersion: string,
+): number[] {
+  const entries = getVersionEntriesForProduct(data, productName);
+  const entry = entries.find((e) => e.productBaseVersion === productVersion);
+  if (!entry?.updateLevels?.length) return [];
+  return [...entry.updateLevels].sort((a, b) => a - b);
 }
 
 /**
  * AllUpdatesTab displays a filter section and search results for update levels.
- * Uses GET /updates/recommended-update-levels for dropdown options and
+ * Uses GET /updates/product-update-levels for filter options and
  * POST /updates/levels/search for results.
  *
  * @returns {JSX.Element} The rendered All Updates tab content.
@@ -124,42 +149,50 @@ export default function AllUpdatesTab(): JSX.Element {
     endingUpdateLevel: number;
   } | null>(null);
 
-  const { data: recommendedData, isLoading: isRecommendedLoading, isError: isRecommendedError } = useGetRecommendedUpdateLevels();
+  const {
+    data: productLevelsData,
+    isLoading: isProductLevelsLoading,
+    isError: isProductLevelsError,
+  } = useGetProductUpdateLevels();
 
-  const { data: searchData, isLoading: isSearchLoading, isError: isSearchError } = usePostUpdateLevelsSearch(searchParams);
+  const { data: searchData, isLoading: isSearchLoading, isError: isSearchError } =
+    usePostUpdateLevelsSearch(searchParams);
 
-  const productNames = useMemo(() => getProductNames(recommendedData), [recommendedData]);
-
-  const versionItems = useMemo(
-    () => getVersionsForProduct(recommendedData, filter.productName),
-    [recommendedData, filter.productName],
+  const productNames = useMemo(
+    () => getProductNamesFromProductLevels(productLevelsData),
+    [productLevelsData],
   );
 
-  const selectedItem = useMemo(
+  const versionEntries = useMemo(
+    () => getVersionEntriesForProduct(productLevelsData, filter.productName),
+    [productLevelsData, filter.productName],
+  );
+
+  const startLevelOptions = useMemo(
     () =>
-      versionItems.find(
-        (v) => v.productName === filter.productName && v.productBaseVersion === filter.productVersion,
+      getUpdateLevelsForProductVersion(
+        productLevelsData,
+        filter.productName,
+        filter.productVersion,
       ),
-    [versionItems, filter.productName, filter.productVersion],
+    [productLevelsData, filter.productName, filter.productVersion],
   );
-
-  const startLevelOptions = useMemo(() => {
-    if (!selectedItem) return [];
-    const max = selectedItem.recommendedUpdateLevel;
-    const min = Math.min(selectedItem.startingUpdateLevel, max);
-    const opts: number[] = [];
-    for (let i = min; i <= max; i++) opts.push(i);
-    return opts;
-  }, [selectedItem]);
 
   const endLevelOptions = useMemo(() => {
-    if (!selectedItem || !filter.startLevel) return [];
+    if (!filter.startLevel || startLevelOptions.length === 0) return [];
     const start = Number(filter.startLevel);
-    const max = selectedItem.recommendedUpdateLevel;
-    const opts: number[] = [];
-    for (let i = start; i <= max; i++) opts.push(i);
-    return opts;
-  }, [selectedItem, filter.startLevel]);
+    if (!Number.isFinite(start)) return [];
+    return startLevelOptions.filter((level) => level >= start);
+  }, [startLevelOptions, filter.startLevel]);
+
+  useEffect(() => {
+    if (!filter.endLevel || endLevelOptions.length === 0) return;
+    const endNum = Number(filter.endLevel);
+    const valid = endLevelOptions.includes(endNum);
+    if (!valid) {
+      setFilter((prev) => ({ ...prev, endLevel: "" }));
+    }
+  }, [endLevelOptions, filter.endLevel]);
 
   const handleFilterChange = useCallback(
     (field: keyof AllUpdatesTabFilterState) => (e: SelectChangeEvent<string>) => {
@@ -231,7 +264,7 @@ export default function AllUpdatesTab(): JSX.Element {
 
   const canViewReport = !!reportData;
 
-  if (isRecommendedError) {
+  if (isProductLevelsError) {
     return (
       <Box
         sx={{
@@ -259,7 +292,7 @@ export default function AllUpdatesTab(): JSX.Element {
           </Typography>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small" disabled={isRecommendedLoading}>
+              <FormControl fullWidth size="small" disabled={isProductLevelsLoading}>
                 <InputLabel id="all-updates-product-label">Product Name *</InputLabel>
                 <Select
                   labelId="all-updates-product-label"
@@ -280,7 +313,7 @@ export default function AllUpdatesTab(): JSX.Element {
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small" disabled={isRecommendedLoading || !filter.productName}>
+              <FormControl fullWidth size="small" disabled={isProductLevelsLoading || !filter.productName}>
                 <InputLabel id="all-updates-version-label">Product Version *</InputLabel>
                 <Select
                   labelId="all-updates-version-label"
@@ -292,8 +325,8 @@ export default function AllUpdatesTab(): JSX.Element {
                   <MenuItem value="">
                     <Typography variant="body2">Select Version</Typography>
                   </MenuItem>
-                  {versionItems.map((v) => (
-                    <MenuItem key={`${v.productName}-${v.productBaseVersion}`} value={v.productBaseVersion}>
+                  {versionEntries.map((v) => (
+                    <MenuItem key={v.productBaseVersion} value={v.productBaseVersion}>
                       <Typography variant="body2">{v.productBaseVersion}</Typography>
                     </MenuItem>
                   ))}

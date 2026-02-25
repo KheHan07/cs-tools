@@ -282,6 +282,12 @@ export interface CaseDetailsProject {
   label: string;
 }
 
+export interface CaseDetailsDeployedProduct {
+  id: string;
+  label: string;
+  version?: string | null;
+}
+
 export interface CaseDetailsClosedBy {
   id: string;
   label?: string | null;
@@ -306,7 +312,7 @@ export interface CaseDetails {
     | null;
   project: CaseDetailsProject | null;
   type: IdLabelRef | null;
-  deployedProduct: IdLabelRef | null;
+  deployedProduct: CaseDetailsDeployedProduct | null;
   parentCase: IdLabelRef | null;
   conversation: unknown;
   issueType: IdLabelRef | null;
@@ -423,6 +429,24 @@ export interface Conversation {
 // Response for conversations search.
 export interface ConversationSearchResponse {
   conversations: Conversation[];
+  totalRecords: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ConversationMessage {
+  id: string;
+  content: string;
+  type: string;
+  createdOn: string;
+  createdBy: string;
+  isEscalated: boolean;
+  hasInlineAttachments: boolean;
+  inlineAttachments: CaseCommentInlineAttachment[];
+}
+
+export interface ConversationMessagesResponse {
+  comments: ConversationMessage[];
   totalRecords: number;
   offset: number;
   limit: number;

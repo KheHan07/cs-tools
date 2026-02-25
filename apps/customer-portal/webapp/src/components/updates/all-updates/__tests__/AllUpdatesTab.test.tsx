@@ -19,21 +19,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router";
 import AllUpdatesTab from "@components/updates/all-updates/AllUpdatesTab";
 
-vi.mock("@api/useGetRecommendedUpdateLevels", () => ({
-  useGetRecommendedUpdateLevels: () => ({
+vi.mock("@api/useGetProductUpdateLevels", () => ({
+  useGetProductUpdateLevels: () => ({
     data: [
       {
         productName: "WSO2 API Manager",
-        productBaseVersion: "4.4.0",
-        channel: "full",
-        startingUpdateLevel: 2,
-        endingUpdateLevel: 19,
-        recommendedUpdateLevel: 19,
-        installedUpdatesCount: 3,
-        installedSecurityUpdatesCount: 2,
-        availableUpdatesCount: 15,
-        availableSecurityUpdatesCount: 10,
-        timestamp: 0,
+        productUpdateLevels: [
+          {
+            productBaseVersion: "4.4.0",
+            channel: "full",
+            updateLevels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+          },
+        ],
       },
     ],
     isLoading: false,

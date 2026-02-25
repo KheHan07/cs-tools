@@ -215,20 +215,6 @@ public type Case record {|
     string? title;
     # Case description
     string? description;
-    # Assigned engineer
-    ReferenceTableItem? assignedEngineer;
-    # Associated project
-    ReferenceTableItem? project;
-    # Associated case type
-    ReferenceTableItem? caseType;
-    # Deployment information
-    ReferenceTableItem? deployment;
-    # Deployed product information
-    ReferenceTableItem? deployedProduct;
-    # Related case information (if the case is related to an existing case)
-    ReferenceTableItem? parentCase;
-    # Conversation information (if the case is related to a conversation)
-    ReferenceTableItem? conversation;
     # issue type of the case
     ChoiceListItem? issueType;
     # Status information
@@ -278,10 +264,29 @@ public type CaseSearchFilters record {|
     string deploymentId?;
 |};
 
+# Case metadata information.
+public type CaseMetaData record {|
+    *Case;
+    # Associated project
+    ReferenceTableItem? project;
+    # Case type information (eg: incident, service request, etc.)
+    ReferenceTableItem? caseType;
+    # Deployment information
+    ReferenceTableItem? deployment;
+    # Deployed product information
+    ReferenceTableItem? deployedProduct;
+    # Assigned engineer
+    ReferenceTableItem? assignedEngineer;
+    # Related case information (if the case is related to an existing case)
+    ReferenceTableItem? parentCase;
+    # Conversation information (if the case is related to a conversation)
+    ReferenceTableItem? conversation;
+|};
+
 # Cases list response with pagination.
 public type CaseSearchResponse record {|
-    # List of cases
-    Case[] cases;
+    # List of cases with associated information
+    CaseMetaData[] cases;
     # Total records count
     int totalRecords;
     *Pagination;
@@ -298,19 +303,35 @@ public type CaseSearchPayload record {|
     Pagination pagination?;
 |};
 
-# Case information.
+# Case response.
 public type CaseResponse record {|
     *Case;
     # Last updated date and time
     string updatedOn;
     # SLA response time
     string slaResponseTime;
-    # Product information
+    # Associated project
+    ReferenceTableItem? project;
+    # Case type information (eg: incident, service request, etc.)
+    ReferenceTableItem? caseType;
+    # Assigned engineer
+    ReferenceTableItem? assignedEngineer;
+    # Related case information (if the case is related to an existing case)
+    ReferenceTableItem? parentCase;
+    # Conversation information (if the case is related to a conversation)
+    ReferenceTableItem? conversation;
+    # Deployment information
     record {
         *ReferenceTableItem;
-        # Product version
+        # Deployment type
+        string? 'type;
+    }? deployment;
+    # Deployed product information
+    record {
+        *ReferenceTableItem;
+        # Deployed product version
         string? version;
-    }? product;
+    }? deployedProduct;
     # Account information
     record {
         *ReferenceTableItem;
