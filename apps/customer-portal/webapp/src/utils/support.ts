@@ -22,6 +22,7 @@ import {
   Clock,
   MessageCircle,
   RotateCcw,
+  TriangleAlert,
 } from "@wso2/oxygen-ui-icons-react";
 import {
   ChatAction,
@@ -33,7 +34,7 @@ import {
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment, MetadataItem } from "@models/responses";
-import { alpha, type Theme } from "@wso2/oxygen-ui";
+import { alpha, colors, type Theme } from "@wso2/oxygen-ui";
 import DOMPurify from "dompurify";
 import { createElement, type ComponentType, type ReactNode } from "react";
 
@@ -55,6 +56,29 @@ export function getIncidentAndQueryCaseTypeIds(
         /^incident$|^icident$|^query$/i.test(normalized(ct.label)),
     )
     .map((ct) => ct.id);
+}
+
+/**
+ * Extracts Incident and Query case type IDs separately for stats API.
+ * API expects caseType=queryId&icaseType=incidentId.
+ *
+ * @param caseTypes - Case types from useGetCasesFilters response.
+ * @returns {{ incidentId?: string; queryId?: string }} Incident and Query IDs.
+ */
+export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
+  incidentId?: string;
+  queryId?: string;
+} {
+  if (!caseTypes?.length) return {};
+  const normalized = (label: string) => label.trim().toLowerCase();
+  let incidentId: string | undefined;
+  let queryId: string | undefined;
+  for (const ct of caseTypes) {
+    const n = normalized(ct.label);
+    if (/^incident$|^icident$/i.test(n)) incidentId = ct.id;
+    else if (/^query$/i.test(n)) queryId = ct.id;
+  }
+  return { incidentId, queryId };
 }
 
 /**
@@ -110,10 +134,10 @@ export function stripCustomerPrefixFromReason(reason: string): string {
 }
 
 /**
- * Returns whether the "Open Related Case" button should be shown (within 2 months of closedOn).
+ * Returns whether the "Open Related Case" button should be shown (within 60 days of closedOn).
  *
  * @param {string | null | undefined} closedOn - Closed date from API (UTC string).
- * @returns {boolean} True if closedOn is missing/invalid (show for backward compat) or within 2 months.
+ * @returns {boolean} True if closedOn is missing/invalid (show for backward compat) or within 60 days.
  */
 export function isWithinOpenRelatedCaseWindow(
   closedOn: string | null | undefined,
@@ -122,9 +146,9 @@ export function isWithinOpenRelatedCaseWindow(
   const normalized = normalizeUtcDateString(closedOn.trim());
   const closed = new Date(normalized);
   if (Number.isNaN(closed.getTime())) return true;
-  const twoMonthsLater = new Date(closed);
-  twoMonthsLater.setMonth(twoMonthsLater.getMonth() + 2);
-  return new Date() <= twoMonthsLater;
+  const sixtyDaysLater = new Date(closed);
+  sixtyDaysLater.setDate(sixtyDaysLater.getDate() + 60);
+  return new Date() <= sixtyDaysLater;
 }
 
 /**
@@ -160,6 +184,40 @@ export function formatUtcToLocal(
     minute: "numeric",
     hour12: true,
     timeZoneName: "short",
+  }).format(date);
+}
+
+/**
+ * Formats a UTC date string for display (no timezone suffix like +GMT).
+ *
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss or MM/DD/YYYY HH:mm:ss).
+ * @param {"short" | "long"} [formatStr="long"] - The format style.
+ * @returns {string} Formatted date/time in local time.
+ */
+export function formatUtcToLocalNoTimezone(
+  dateStr: string | null | undefined,
+  formatStr: "short" | "long" = "long",
+): string {
+  if (!dateStr) return "--";
+  const normalized = normalizeUtcDateString(dateStr);
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return "--";
+  if (formatStr === "short") {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date);
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
   }).format(date);
 }
 
@@ -602,7 +660,43 @@ export function getCallRequestStatusColor(status?: string): string {
  */
 export function mapSeverityToDisplay(label?: string): string {
   if (!label) return "—";
-  return SEVERITY_LABEL_TO_DISPLAY[label] ?? label;
+  const trimmed = label.trim();
+  const direct = SEVERITY_LABEL_TO_DISPLAY[trimmed];
+  if (direct) return direct;
+  const lower = trimmed.toLowerCase();
+  const entry = Object.entries(SEVERITY_LABEL_TO_DISPLAY).find(
+    ([k]) => k.toLowerCase() === lower,
+  );
+  return entry?.[1] ?? label;
+}
+
+/**
+ * Returns the icon component for a severity label (announcement cards).
+ * S0/S1: TriangleAlert, S2: CircleAlert, S3: Clock, S4: CircleCheck.
+ *
+ * @param label - API severity label (e.g. "1 - Critical", "Critical (P1)").
+ * @returns {ComponentType} Icon component.
+ */
+export function getSeverityIcon(label?: string): ComponentType<{
+  size?: number;
+  color?: string;
+}> {
+  const display = mapSeverityToDisplay(label);
+  const upper = display.toUpperCase();
+  switch (upper) {
+    case "S0":
+      return TriangleAlert;
+    case "S1":
+      return TriangleAlert;
+    case "S2":
+      return CircleAlert;
+    case "S3":
+      return Clock;
+    case "S4":
+      return CircleCheck;
+    default:
+      return CircleAlert;
+  }
 }
 
 /**
@@ -634,29 +728,29 @@ export function getSeverityColor(label?: string): string {
 }
 
 /**
- * Returns the Oxygen UI color path for a given case status label.
+ * Returns the color (hex) for a given case status label using colors.yellow[500] style.
  *
  * @param {string} label - The case status label.
- * @returns {string} The Oxygen UI color path.
+ * @returns {string} Hex color string (e.g. colors.blue[500]).
  */
 export function getStatusColor(label?: string): string {
   switch (label) {
     case CaseStatus.OPEN:
-      return "info.main";
+      return colors.blue[500];
     case CaseStatus.WORK_IN_PROGRESS:
-      return "warning.main";
+      return colors.orange[500];
     case CaseStatus.AWAITING_INFO:
-      return "text.secondary";
+      return colors.grey?.[500] ?? "#6B7280";
     case CaseStatus.WAITING_ON_WSO2:
-      return "success.main";
+      return colors.green[500];
     case CaseStatus.SOLUTION_PROPOSED:
-      return "text.disabled";
+      return colors.yellow[800];
     case CaseStatus.CLOSED:
-      return "error.main";
+      return colors.red[500];
     case CaseStatus.REOPENED:
-      return "secondary.main";
+      return colors.purple[500];
     default:
-      return "text.secondary";
+      return colors.grey?.[500] ?? "#6B7280";
   }
 }
 
@@ -673,6 +767,18 @@ export function getStatusIconElement(
 ): ReactNode {
   const Icon = getStatusIcon(statusLabel ?? undefined);
   return createElement(Icon, { size });
+}
+
+/**
+ * Converts [code]...[/code] tags to HTML <code> elements for proper display.
+ * Handles inline usage like "Case Task [code]CSTASK0010746[/code] has been created".
+ *
+ * @param content - Raw content string.
+ * @returns {string} Content with [code] tags replaced by <code> elements.
+ */
+export function convertCodeTagsToHtml(content: string): string {
+  if (!content || typeof content !== "string") return "";
+  return content.replace(/\[code\]([\s\S]*?)\[\/code\]/gi, "<code>$1</code>");
 }
 
 /**
@@ -873,12 +979,7 @@ export function getAvailableCaseActions(
       return ["Open Related Case"];
 
     case CaseStatus.SOLUTION_PROPOSED.toLowerCase():
-      return [
-        "Closed",
-        "Waiting on WSO2",
-        "Accept Solution",
-        "Reject Solution",
-      ];
+      return ["Closed", "Accept Solution", "Reject Solution"];
 
     case CaseStatus.AWAITING_INFO.toLowerCase():
       return ["Closed", "Waiting on WSO2"];
@@ -887,6 +988,22 @@ export function getAvailableCaseActions(
       // Covers Open, Work in Progress, Waiting on WSO2, Reopened.
       return ["Closed"];
   }
+}
+
+/**
+ * Returns the Announcement case type ID from the case types metadata.
+ * Used to fetch announcements (cases with type Announcement) from the cases API.
+ *
+ * @param caseTypes - Array of case types from useGetCasesFilters.
+ * @returns {string | undefined} The Announcement type ID or undefined.
+ */
+export function getAnnouncementCaseTypeId(
+  caseTypes?: { id: string; label: string }[] | null,
+): string | undefined {
+  if (!caseTypes?.length) return undefined;
+  return caseTypes.find(
+    (c) => c.label.toLowerCase() === "announcement",
+  )?.id;
 }
 
 /**

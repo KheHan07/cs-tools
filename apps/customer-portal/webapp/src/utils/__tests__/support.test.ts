@@ -23,6 +23,7 @@ import {
   CircleX,
   Clock,
   MessageCircle,
+  TriangleAlert,
 } from "@wso2/oxygen-ui-icons-react";
 import {
   getChatStatusAction,
@@ -34,14 +35,19 @@ import {
   formatSlaResponseTime,
   deriveFilterLabels,
   getIncidentAndQueryCaseTypeIds,
+  getIncidentAndQueryIds,
   getStatusIcon,
+  getAnnouncementCaseTypeId,
   getAvailableCaseActions,
   getAttachmentFileCategory,
   stripHtml,
   resolveColorFromTheme,
   getSupportOverviewChipSx,
   getPlainChipSx,
+  mapSeverityToDisplay,
+  getSeverityIcon,
   stripCodeWrapper,
+  convertCodeTagsToHtml,
   replaceInlineImageSources,
   formatCommentDate,
   formatUtcToLocal,
@@ -347,6 +353,35 @@ describe("support utils", () => {
     });
   });
 
+  describe("getIncidentAndQueryIds", () => {
+    it("should return incidentId and queryId separately", () => {
+      const caseTypes = [
+        { id: "id-incident", label: "Incident" },
+        { id: "id-query", label: "Query" },
+      ];
+      expect(getIncidentAndQueryIds(caseTypes)).toEqual({
+        incidentId: "id-incident",
+        queryId: "id-query",
+      });
+    });
+
+    it("should return empty object when caseTypes is empty or undefined", () => {
+      expect(getIncidentAndQueryIds([])).toEqual({});
+      expect(getIncidentAndQueryIds(undefined)).toEqual({});
+    });
+
+    it("should match labels case-insensitively", () => {
+      const caseTypes = [
+        { id: "id1", label: "INCIDENT" },
+        { id: "id2", label: "query" },
+      ];
+      expect(getIncidentAndQueryIds(caseTypes)).toEqual({
+        incidentId: "id1",
+        queryId: "id2",
+      });
+    });
+  });
+
   describe("toPresentTenseActionLabel", () => {
     it("should map Closed to Close", () => {
       expect(toPresentTenseActionLabel("Closed")).toBe("Close");
@@ -475,6 +510,28 @@ describe("support utils", () => {
     it("should strip [code]...[/code] wrapper", () => {
       expect(stripCodeWrapper("[code]x[/code]")).toBe("x");
       expect(stripCodeWrapper("[code]  hello  [/code]")).toBe("hello");
+    });
+  });
+
+  describe("convertCodeTagsToHtml", () => {
+    it("should return empty string for empty or invalid input", () => {
+      expect(convertCodeTagsToHtml("")).toBe("");
+      expect(convertCodeTagsToHtml(null as unknown as string)).toBe("");
+    });
+
+    it("should convert [code]...[/code] to <code> elements", () => {
+      expect(convertCodeTagsToHtml("[code]CSTASK0010746[/code]")).toBe(
+        "<code>CSTASK0010746</code>",
+      );
+      expect(
+        convertCodeTagsToHtml("Case Task [code]CSTASK0010746[/code] has been created"),
+      ).toBe("Case Task <code>CSTASK0010746</code> has been created");
+    });
+
+    it("should convert multiple inline code tags", () => {
+      expect(
+        convertCodeTagsToHtml("Refs [code]A[/code] and [code]B[/code]"),
+      ).toBe("Refs <code>A</code> and <code>B</code>");
     });
   });
 
@@ -674,6 +731,63 @@ describe("support utils", () => {
     });
   });
 
+  describe("mapSeverityToDisplay", () => {
+    it("should map P-format severity labels to S0-S4", () => {
+      expect(mapSeverityToDisplay("Critical (P1)")).toBe("S1");
+      expect(mapSeverityToDisplay("High (P2)")).toBe("S2");
+    });
+
+    it("should map announcement format severity labels (1 - Critical, etc.)", () => {
+      expect(mapSeverityToDisplay("1 - Critical")).toBe("S1");
+      expect(mapSeverityToDisplay("2 - High")).toBe("S2");
+      expect(mapSeverityToDisplay("3 - Moderate")).toBe("S3");
+      expect(mapSeverityToDisplay("4 - Low")).toBe("S4");
+      expect(mapSeverityToDisplay("0 - Catastrophic")).toBe("S0");
+    });
+
+    it("should return original label when no match", () => {
+      expect(mapSeverityToDisplay("Unknown")).toBe("Unknown");
+    });
+  });
+
+  describe("getSeverityIcon", () => {
+    it("should return TriangleAlert for S0/S1", () => {
+      expect(getSeverityIcon("S0")).toBe(TriangleAlert);
+      expect(getSeverityIcon("S1")).toBe(TriangleAlert);
+      expect(getSeverityIcon("1 - Critical")).toBe(TriangleAlert);
+    });
+
+    it("should return CircleAlert for S2", () => {
+      expect(getSeverityIcon("S2")).toBe(CircleAlert);
+    });
+  });
+
+  describe("getAnnouncementCaseTypeId", () => {
+    it("should return Announcement id from caseTypes", () => {
+      const caseTypes = [
+        { id: "3b8b43311b58f010cb6898aebd4bcb8f", label: "Announcement" },
+        { id: "8d4b87bd1b18f010cb6898aebd4bcb59", label: "Incident" },
+      ];
+      expect(getAnnouncementCaseTypeId(caseTypes)).toBe(
+        "3b8b43311b58f010cb6898aebd4bcb8f",
+      );
+    });
+
+    it("should return undefined when Announcement not found", () => {
+      const caseTypes = [
+        { id: "1", label: "Incident" },
+        { id: "2", label: "Query" },
+      ];
+      expect(getAnnouncementCaseTypeId(caseTypes)).toBeUndefined();
+    });
+
+    it("should return undefined for empty or null input", () => {
+      expect(getAnnouncementCaseTypeId([])).toBeUndefined();
+      expect(getAnnouncementCaseTypeId(null)).toBeUndefined();
+      expect(getAnnouncementCaseTypeId(undefined)).toBeUndefined();
+    });
+  });
+
   describe("getAvailableCaseActions", () => {
     it("should return Open Related Case for Closed", () => {
       expect(getAvailableCaseActions("Closed")).toEqual(["Open Related Case"]);
@@ -683,7 +797,6 @@ describe("support utils", () => {
     it("should return all actions for Solution Proposed", () => {
       expect(getAvailableCaseActions("Solution Proposed")).toEqual([
         "Closed",
-        "Waiting on WSO2",
         "Accept Solution",
         "Reject Solution",
       ]);
