@@ -78,6 +78,13 @@ export default function ChatMessageCard({
             mb: 0.5,
           },
           "& br": { display: "block", content: '""', marginTop: "0.25em" },
+          "& code": {
+            fontFamily: "monospace",
+            fontSize: "inherit",
+            backgroundColor: "action.hover",
+            px: 0.5,
+            py: 0.25,
+          },
           ...(!isExpanded &&
             showExpandButton && {
               display: "-webkit-box",

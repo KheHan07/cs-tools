@@ -632,7 +632,7 @@ export interface DeploymentProductItem {
   description: string | null;
   product: { id: string; label: string };
   deployment: { id: string; label: string };
-  version?: string | null;
+  version?: { id: string; label: string } | string | null;
   cores?: number | null;
   tps?: number | null;
   releasedOn?: string | null;

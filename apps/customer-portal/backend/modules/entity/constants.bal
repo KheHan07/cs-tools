@@ -22,11 +22,6 @@ const DEFAULT_LIMIT = 20;
 public const PENDING_ON_WSO2 = 2;
 public const CANCELED = 6;
 
-# Valid case state values
-const WAITING_ON_WSO2 = 1003;
-const CLOSED = 3;
-const REOPENED = 1006;
-
 # Valid conversation state values
 public const ACTIVE = 2;
 public const RESOLVED = 3;

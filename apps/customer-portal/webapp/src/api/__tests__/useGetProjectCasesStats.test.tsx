@@ -111,11 +111,15 @@ describe("useGetProjectCasesStats", () => {
     });
 
     const query = queryClient.getQueryCache().findAll({
-      queryKey: ["cases-stats", "project-1", []],
+      queryKey: ["cases-stats", "project-1", undefined, undefined],
     })[0];
 
-    expect((query?.options as any).staleTime).toBe(5 * 60 * 1000);
-    expect((query?.options as any).refetchOnWindowFocus).toBe(false);
+    expect((query?.options as Record<string, unknown>).staleTime).toBe(
+      5 * 60 * 1000,
+    );
+    expect((query?.options as Record<string, unknown>).refetchOnWindowFocus).toBe(
+      false,
+    );
   });
 
   it("should not fetch if id is missing", () => {
