@@ -718,13 +718,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        types:OverallConversationStats mappedConversationStats = getConversationStats(conversationStats);
+        types:OverallConversationStats { openCount, resolvedCount,  abandonedCount} =
+            getConversationStats(conversationStats);
 
-        return {
-            openCount: mappedConversationStats.openCount,
-            resolvedCount: mappedConversationStats.resolvedCount,
-            abandonedCount: mappedConversationStats.abandonedCount
-        };
+        return { openCount, resolvedCount, abandonedCount };
     }
 
     # Get project support statistics by ID.
