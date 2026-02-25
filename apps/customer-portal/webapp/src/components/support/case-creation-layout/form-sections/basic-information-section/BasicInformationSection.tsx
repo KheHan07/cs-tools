@@ -53,6 +53,7 @@ export interface BasicInformationSectionProps {
   extraDeploymentOptions?: string[];
   extraProductOptions?: string[];
   isRelatedCaseMode?: boolean;
+  isDeploymentDisabled?: boolean;
 }
 
 /**
@@ -76,6 +77,7 @@ export function BasicInformationSection({
   extraDeploymentOptions,
   extraProductOptions,
   isRelatedCaseMode = false,
+  isDeploymentDisabled = false,
 }: BasicInformationSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const effectiveEditing = isRelatedCaseMode || isEditing;
@@ -153,9 +155,11 @@ export function BasicInformationSection({
           <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="caption">
               Deployment Type{" "}
-              <Box component="span" sx={{ color: "warning.main" }}>
-                *
-              </Box>
+              {!isDeploymentDisabled && (
+                <Box component="span" sx={{ color: "warning.main" }}>
+                  *
+                </Box>
+              )}
             </Typography>
             {!isRelatedCaseMode && isDeploymentAutoDetected && (
             <Chip
@@ -170,11 +174,16 @@ export function BasicInformationSection({
           {isDeploymentLoading ? (
             <Skeleton variant="rounded" height={40} sx={{ maxWidth: "100%" }} />
           ) : (
-            <FormControl fullWidth size="small" disabled={!effectiveEditing}>
+            <FormControl
+              fullWidth
+              size="small"
+              disabled={isDeploymentDisabled || !effectiveEditing}
+            >
               <Select
                 value={deployment}
                 onChange={(e) => setDeployment(e.target.value)}
                 displayEmpty
+                disabled={isDeploymentDisabled || !effectiveEditing}
                 renderValue={(value) =>
                   value === "" ? "Select Deployment Type..." : value
                 }

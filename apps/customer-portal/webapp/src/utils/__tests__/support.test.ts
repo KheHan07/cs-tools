@@ -113,14 +113,14 @@ describe("support utils", () => {
       expect(isWithinOpenRelatedCaseWindow(undefined)).toBe(true);
     });
 
-    it("returns true when closedOn is within 2 months", () => {
+    it("returns true when closedOn is within 60 days", () => {
       const recent = new Date();
       recent.setMonth(recent.getMonth() - 1);
       const str = recent.toISOString().replace("T", " ").slice(0, 19);
       expect(isWithinOpenRelatedCaseWindow(str)).toBe(true);
     });
 
-    it("returns false when closedOn is more than 2 months ago", () => {
+    it("returns false when closedOn is more than 60 days ago", () => {
       expect(isWithinOpenRelatedCaseWindow("2020-01-01 10:00:00")).toBe(false);
     });
   });
@@ -770,6 +770,22 @@ describe("support utils", () => {
 
     it("should return CircleAlert for S2", () => {
       expect(getSeverityIcon("S2")).toBe(CircleAlert);
+    });
+
+    it("should return Clock for S3", () => {
+      expect(getSeverityIcon("S3")).toBe(Clock);
+      expect(getSeverityIcon("3 - Moderate")).toBe(Clock);
+    });
+
+    it("should return CircleCheck for S4", () => {
+      expect(getSeverityIcon("S4")).toBe(CircleCheck);
+      expect(getSeverityIcon("4 - Low")).toBe(CircleCheck);
+    });
+
+    it("should return CircleAlert for unknown or empty input", () => {
+      expect(getSeverityIcon("bogus")).toBe(CircleAlert);
+      expect(getSeverityIcon("")).toBe(CircleAlert);
+      expect(getSeverityIcon(undefined)).toBe(CircleAlert);
     });
   });
 

@@ -116,7 +116,7 @@ export function getDeploymentDisplayLabelForEnvironment(
     );
   });
   if (!dep) return undefined;
-  return dep.name ?? dep.type?.label;
+  return dep.name || dep.type?.label;
 }
 
 /**

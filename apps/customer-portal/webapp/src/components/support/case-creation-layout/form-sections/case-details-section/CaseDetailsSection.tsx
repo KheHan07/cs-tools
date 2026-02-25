@@ -53,6 +53,8 @@ export interface CaseDetailsSectionProps {
   onAttachmentClick?: () => void;
   onAttachmentRemove?: (index: number) => void;
   isRelatedCaseMode?: boolean;
+  isTitleDisabled?: boolean;
+  relatedCaseNumber?: string;
 }
 
 /**
@@ -78,9 +80,12 @@ export function CaseDetailsSection({
   onAttachmentClick,
   onAttachmentRemove,
   isRelatedCaseMode = false,
+  isTitleDisabled = false,
+  relatedCaseNumber,
 }: CaseDetailsSectionProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const effectiveEditing = isRelatedCaseMode || isEditing;
+  const titleReadOnly = isTitleDisabled || !effectiveEditing;
   const meta = metadata as
     | {
         issueTypes?: unknown[];
@@ -166,14 +171,34 @@ export function CaseDetailsSection({
 
       {/* main form fields container */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {/* Related case (parent case number) - read-only when creating from parent */}
+        {relatedCaseNumber != null && relatedCaseNumber !== "" && (
+          <Box>
+            <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="caption">Related case</Typography>
+            </Box>
+            <TextField
+              fullWidth
+              size="small"
+              value={relatedCaseNumber}
+              disabled
+              slotProps={{
+                input: { readOnly: true },
+              }}
+            />
+          </Box>
+        )}
+
         {/* issue title field wrapper */}
         <Box>
           <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="caption">
               Title{" "}
-              <Box component="span" sx={{ color: "warning.main" }}>
-                *
-              </Box>
+              {!isTitleDisabled && (
+                <Box component="span" sx={{ color: "warning.main" }}>
+                  *
+                </Box>
+              )}
             </Typography>
             {!isRelatedCaseMode && (
             <Chip
@@ -196,7 +221,7 @@ export function CaseDetailsSection({
               placeholder={
                 isRelatedCaseMode ? "Enter related case title" : "Enter issue title"
               }
-              disabled={isLoading || !effectiveEditing}
+              disabled={isLoading || titleReadOnly}
             />
           </Box>
         </Box>

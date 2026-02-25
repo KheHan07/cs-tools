@@ -25,8 +25,6 @@ import {
   Box,
   Button,
   Stack,
-  Tabs,
-  Tab,
   Typography,
   FormControl,
   InputLabel,
@@ -39,16 +37,13 @@ import useGetCasesFilters from "@api/useGetCasesFilters";
 import { useGetProjectCasesPage } from "@api/useGetProjectCasesPage";
 import { getAnnouncementCaseTypeId } from "@utils/support";
 import type { AnnouncementFilterValues } from "@constants/supportConstants";
-import { CaseStatus } from "@constants/supportConstants";
 import AnnouncementStatCards from "@components/support/announcements/AnnouncementStatCards";
 import AnnouncementsSearchBar from "@components/support/announcements/AnnouncementsSearchBar";
 import AnnouncementList from "@components/support/announcements/AnnouncementList";
 import AllCasesListSkeleton from "@components/support/all-cases/AllCasesListSkeleton";
 
-type AnnouncementTab = "all" | "unread" | "archived";
-
 /**
- * AnnouncementsPage component to display announcements with stats, tabs, filters, and search.
+ * AnnouncementsPage component to display announcements with stats, search, and filters (filter dropdowns disabled).
  *
  * @returns {JSX.Element} The rendered Announcements page.
  */
@@ -59,40 +54,15 @@ export default function AnnouncementsPage(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<AnnouncementFilterValues>({});
-  const [activeTab, setActiveTab] = useState<AnnouncementTab>("all");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
-  const announcementId = getAnnouncementCaseTypeId(filterMetadata?.caseTypes);
-
-  const closedState = useMemo(
-    () =>
-      filterMetadata?.caseStates?.find(
-        (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
-      ),
-    [filterMetadata?.caseStates],
+  const announcementId = useMemo(
+    () => getAnnouncementCaseTypeId(filterMetadata?.caseTypes),
+    [filterMetadata?.caseTypes],
   );
-
-  const closedStatusId = useMemo(
-    () => (closedState?.id ? [Number(closedState.id)] : undefined),
-    [closedState?.id],
-  );
-
-  const nonClosedStatusIds = useMemo(() => {
-    const rest = (filterMetadata?.caseStates ?? []).filter(
-      (s) => s.id !== closedState?.id,
-    );
-    return rest.length > 0 ? rest.map((s) => Number(s.id)) : undefined;
-  }, [filterMetadata?.caseStates, closedState?.id]);
-
-  // TODO: "unread" tab currently filters by non-closed status (active); real read/unread state not yet implemented.
-  const statusIdsForTab = useMemo(() => {
-    if (activeTab === "archived") return closedStatusId;
-    if (activeTab === "unread") return nonClosedStatusIds;
-    return undefined;
-  }, [activeTab, closedStatusId, nonClosedStatusIds]);
 
   const caseSearchRequest = useMemo(
     () => ({
@@ -101,10 +71,8 @@ export default function AnnouncementsPage(): JSX.Element {
           announcementId && announcementId.trim()
             ? [announcementId]
             : undefined,
-        statusIds: filters.statusId
-          ? [Number(filters.statusId)]
-          : statusIdsForTab,
-        severityId: filters.severityId ? Number(filters.severityId) : undefined,
+        statusIds: undefined,
+        severityId: undefined,
         searchQuery: searchTerm.trim() || undefined,
       },
       sortBy: {
@@ -112,7 +80,7 @@ export default function AnnouncementsPage(): JSX.Element {
         order: sortOrder,
       },
     }),
-    [announcementId, filters, searchTerm, sortOrder, statusIdsForTab],
+    [announcementId, searchTerm, sortOrder],
   );
 
   const offset = (page - 1) * pageSize;
@@ -138,16 +106,6 @@ export default function AnnouncementsPage(): JSX.Element {
     setPage(value);
   };
 
-  const handleFilterChange = (field: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value || undefined }));
-    setPage(1);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({});
-    setPage(1);
-  };
-
   const handleSortChange = (value: "desc" | "asc") => {
     setSortOrder(value);
     setPage(1);
@@ -158,8 +116,13 @@ export default function AnnouncementsPage(): JSX.Element {
     setPage(1);
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, value: string) => {
-    setActiveTab(value as AnnouncementTab);
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value || undefined }));
+    setPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({});
     setPage(1);
   };
 
@@ -186,16 +149,6 @@ export default function AnnouncementsPage(): JSX.Element {
 
       <AnnouncementStatCards />
 
-      <Tabs
-        value={activeTab}
-        onChange={handleTabChange}
-        sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
-      >
-        <Tab label="All Announcements" value="all" />
-        <Tab label="Unread" value="unread" />
-        <Tab label="Archived" value="archived" />
-      </Tabs>
-
       <AnnouncementsSearchBar
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
@@ -205,6 +158,7 @@ export default function AnnouncementsPage(): JSX.Element {
         filterMetadata={filterMetadata}
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}
+        filtersDisabled
       />
 
       <Box

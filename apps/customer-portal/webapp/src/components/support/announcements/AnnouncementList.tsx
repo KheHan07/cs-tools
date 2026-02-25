@@ -14,34 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import {
-  Box,
-  Button,
-  Chip,
-  Paper,
-  Stack,
-  Typography,
-  alpha,
-  useTheme,
-} from "@wso2/oxygen-ui";
-import {
-  Calendar,
-  ChevronRight,
-  Eye,
-  Archive,
-  FileText,
-} from "@wso2/oxygen-ui-icons-react";
+import { Box, Form, Typography } from "@wso2/oxygen-ui";
+import { Calendar, FileText } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 import type { CaseListItem } from "@models/responses";
 import {
   formatUtcToLocalNoTimezone,
-  getSeverityIcon,
   stripHtml,
 } from "@utils/support";
-import {
-  getSeverityFriendlyLabel,
-  getSeverityLegendColor,
-} from "@constants/dashboardConstants";
 import AllCasesListSkeleton from "@components/support/all-cases/AllCasesListSkeleton";
 
 export interface AnnouncementListProps {
@@ -51,7 +31,8 @@ export interface AnnouncementListProps {
 }
 
 /**
- * Component to display announcements as cards with severity icons, colors, and action buttons.
+ * Component to display announcements using the same card layout as case list (Form.CardButton).
+ * No severity icon/chip, no View Details / Mark Read / Archive; whole card navigates to detail.
  *
  * @param {AnnouncementListProps} props - Announcements array, loading state, and handlers.
  * @returns {JSX.Element} The rendered announcement cards list.
@@ -61,8 +42,6 @@ export default function AnnouncementList({
   isLoading,
   onCaseClick,
 }: AnnouncementListProps): JSX.Element {
-  const theme = useTheme();
-
   if (isLoading) {
     return <AllCasesListSkeleton />;
   }
@@ -79,189 +58,112 @@ export default function AnnouncementList({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {cases.map((caseItem) => {
-        const SeverityIcon = getSeverityIcon(caseItem.severity?.label);
-        const severityColor = getSeverityLegendColor(caseItem.severity?.label);
-        const iconBgColor = alpha(severityColor, 0.1);
+      {cases.map((caseItem) => (
+        <Form.CardButton
+          key={caseItem.id}
+          onClick={() => onCaseClick?.(caseItem)}
+          sx={{
+            p: 3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            gap: 1,
+          }}
+        >
+          <Form.CardHeader
+            sx={{ p: 0 }}
+            title={
+              <Typography
+                variant="body2"
+                fontWeight={500}
+                color="text.primary"
+                sx={{ mb: 1 }}
+              >
+                {caseItem.number || "--"}
+              </Typography>
+            }
+          />
 
-        const paperBg = alpha(severityColor, 0.05);
+          <Form.CardContent sx={{ p: 0 }}>
+            <Typography
+              variant="h6"
+              color="text.primary"
+              sx={{ mb: 1, fontWeight: 500 }}
+            >
+              {caseItem.title || "--"}
+            </Typography>
 
-        return (
-          <Paper
-            key={caseItem.id}
-            role="button"
-            tabIndex={0}
-            aria-label={caseItem.title ? `View announcement: ${caseItem.title}` : "View announcement"}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onCaseClick?.(caseItem);
-              }
-            }}
-            elevation={0}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                mb: 2,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {stripHtml(caseItem.description) || "--"}
+            </Typography>
+          </Form.CardContent>
+
+          <Form.CardActions
             sx={{
-              bgcolor: paperBg,
-              transition: "all 0.2s",
-              "&:hover": {
-                boxShadow: 2,
-              },
-              cursor: "pointer",
+              p: 0,
+              justifyContent: "flex-start",
+              flexWrap: "wrap",
+              gap: 2,
             }}
-            onClick={() => onCaseClick?.(caseItem)}
           >
-            <Box sx={{ p: 3 }}>
-              <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  flexShrink: 0,
+                }}
+              >
+                <Calendar size={14} />
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ lineHeight: 1 }}
+                >
+                  Created {formatUtcToLocalNoTimezone(caseItem.createdOn) || "--"}
+                </Typography>
+              </Box>
+              {caseItem.issueType?.label && (
                 <Box
                   sx={{
-                    width: 48,
-                    height: 48,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    gap: 0.5,
                     flexShrink: 0,
-                    bgcolor: iconBgColor,
-                    color: severityColor,
                   }}
                 >
-                  <SeverityIcon size={24} />
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{ mb: 1, flexWrap: "wrap" }}
-                    alignItems="center"
-                  >
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={getSeverityFriendlyLabel(caseItem.severity?.label)}
-                      icon={<SeverityIcon size={12} />}
-                      sx={{
-                        bgcolor: iconBgColor,
-                        color: severityColor,
-                        height: 20,
-                        fontSize: "0.75rem",
-                        px: 0,
-                        "& .MuiChip-icon": {
-                          color: "inherit",
-                          ml: "6px",
-                          mr: "6px",
-                        },
-                        "& .MuiChip-label": {
-                          pl: 0,
-                          pr: "6px",
-                        },
-                      }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      {caseItem.number || "--"}
-                    </Typography>
-                  </Stack>
-
+                  <FileText size={14} />
                   <Typography
-                    variant="h6"
-                    color="text.primary"
-                    sx={{ mb: 1, fontWeight: 500, cursor: "pointer" }}
-                  >
-                    {caseItem.title || "--"}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
+                    variant="caption"
                     color="text.secondary"
-                    sx={{
-                      mb: 2,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
+                    sx={{ lineHeight: 1 }}
                   >
-                    {stripHtml(caseItem.description) || "--"}
+                    {caseItem.issueType.label}
                   </Typography>
-
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    alignItems="center"
-                    sx={{ mb: 2 }}
-                  >
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Calendar
-                        size={16}
-                        color={theme.palette.text.secondary}
-                        aria-hidden
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        {formatUtcToLocalNoTimezone(caseItem.createdOn) || "--"}
-                      </Typography>
-                    </Stack>
-                    {caseItem.issueType?.label && (
-                      <Stack direction="row" spacing={0.5} alignItems="center">
-                        <FileText
-                          size={16}
-                          color={theme.palette.text.secondary}
-                          aria-hidden
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          {caseItem.issueType.label}
-                        </Typography>
-                      </Stack>
-                    )}
-                  </Stack>
-
-                  <Box
-                    sx={{
-                      pt: 2,
-                      borderTop: 1,
-                      borderColor: "divider",
-                      display: "flex",
-                      gap: 1,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="warning"
-                      size="small"
-                      endIcon={<ChevronRight size={16} />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onCaseClick?.(caseItem);
-                      }}
-                      sx={{ textTransform: "none" }}
-                    >
-                      View Details
-                    </Button>
-                    {/* TODO: Wire onMarkRead and onArchive handlers when implemented */}
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<Eye size={16} />}
-                      disabled
-                      onClick={(e) => e.stopPropagation()}
-                      sx={{ textTransform: "none" }}
-                    >
-                      Mark Read
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<Archive size={16} />}
-                      disabled
-                      onClick={(e) => e.stopPropagation()}
-                      sx={{ textTransform: "none" }}
-                    >
-                      Archive
-                    </Button>
-                  </Box>
                 </Box>
-              </Stack>
+              )}
             </Box>
-          </Paper>
-        );
-      })}
+          </Form.CardActions>
+        </Form.CardButton>
+      ))}
     </Box>
   );
 }

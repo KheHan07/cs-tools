@@ -75,6 +75,9 @@ export interface RelatedCaseState {
   number: string;
   title: string;
   description: string;
+  /** Parent case deployment (development type); shown disabled in form. */
+  deploymentId?: string;
+  deploymentLabel?: string;
 }
 
 export default function CreateCasePage(): JSX.Element {
@@ -248,12 +251,14 @@ export default function CreateCasePage(): JSX.Element {
 
     queueMicrotask(() => {
       if (noAiMode) {
-        setDeployment("");
+        if (!relatedCase) {
+          setDeployment("");
+          setTitle("");
+          setDescription("");
+        }
         setProduct("");
         setIssueType("");
         setSeverity("");
-        setTitle("");
-        setDescription("");
       } else if (!classificationResponse) {
         setDeployment(initialDeployment);
         setProduct("");
@@ -271,8 +276,36 @@ export default function CreateCasePage(): JSX.Element {
     issueTypesList,
     isFiltersLoading,
     noAiMode,
+    relatedCase,
     severityLevelsList,
   ]);
+
+  // When opening a related case, prefill title, description (with prefix), and deployment from parent.
+  const hasRelatedCaseInitializedRef = useRef(false);
+  useEffect(() => {
+    if (!relatedCase) return;
+    if (hasRelatedCaseInitializedRef.current) return;
+
+    setTitle(relatedCase.title ?? "");
+    const prefix =
+      "<p>-- This is the previous description (Edit or Delete if you want to alter) --</p>";
+    setDescription(prefix + (relatedCase.description ?? ""));
+
+    hasRelatedCaseInitializedRef.current = true;
+  }, [relatedCase]);
+
+  useEffect(() => {
+    if (!relatedCase?.deploymentId && !relatedCase?.deploymentLabel) return;
+    if (!projectDeployments?.length) return;
+
+    const dep = relatedCase.deploymentId
+      ? projectDeployments.find((d) => d.id === relatedCase.deploymentId)
+      : null;
+    const displayLabel = dep
+      ? (dep.name ?? (dep as { type?: { label: string } }).type?.label)
+      : relatedCase.deploymentLabel;
+    if (displayLabel) setDeployment(displayLabel);
+  }, [relatedCase, projectDeployments]);
 
   useEffect(() => {
     if (noAiMode) return;
@@ -381,15 +414,7 @@ export default function CreateCasePage(): JSX.Element {
   ]);
 
   const handleBack = () => {
-    if (projectId) {
-      navigate(
-        skipChatMode
-          ? `/${projectId}/dashboard`
-          : `/${projectId}/support/chat`,
-      );
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
   const handleAttachmentClick = () => {
@@ -612,6 +637,7 @@ export default function CreateCasePage(): JSX.Element {
             }
             isRelatedCaseMode={noAiMode}
             extraProductOptions={extraProductOptions}
+            isDeploymentDisabled={!!relatedCase}
           />
 
           <CaseDetailsSection
@@ -633,6 +659,8 @@ export default function CreateCasePage(): JSX.Element {
               projectId ? `create-case-draft-${projectId}` : undefined
             }
             isRelatedCaseMode={noAiMode}
+            isTitleDisabled={!!relatedCase}
+            relatedCaseNumber={relatedCase?.number ?? ""}
           />
 
           {/* form actions container */}
@@ -689,7 +717,7 @@ export default function CreateCasePage(): JSX.Element {
       <CaseCreationHeader
         onBack={handleBack}
         hideAiChip={noAiMode}
-        backLabel={skipChatMode ? "Back to Dashboard" : "Back to Chat"}
+        backLabel="Back"
         subtitle={
           skipChatMode
             ? "Fill in the case details below and submit"

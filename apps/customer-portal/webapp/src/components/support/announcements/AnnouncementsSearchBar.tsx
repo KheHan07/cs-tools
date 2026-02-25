@@ -43,6 +43,7 @@ export interface AnnouncementsSearchBarProps {
   filterMetadata: CaseMetadataResponse | undefined;
   onFilterChange: (field: string, value: string) => void;
   onClearFilters: () => void;
+  filtersDisabled?: boolean;
 }
 
 /**
@@ -60,6 +61,7 @@ export default function AnnouncementsSearchBar({
   filterMetadata,
   onFilterChange,
   onClearFilters,
+  filtersDisabled = false,
 }: AnnouncementsSearchBarProps): JSX.Element {
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
@@ -115,6 +117,7 @@ export default function AnnouncementsSearchBar({
             filters={filters}
             filterMetadata={filterMetadata}
             onFilterChange={onFilterChange}
+            disabled={filtersDisabled}
           />
         </>
       )}

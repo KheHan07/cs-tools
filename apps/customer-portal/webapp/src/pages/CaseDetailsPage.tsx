@@ -83,6 +83,8 @@ export default function CaseDetailsPage(): JSX.Element {
           number: data?.number ?? "",
           title: data?.title ?? "",
           description: data?.description ?? "",
+          deploymentId: data?.deployment?.id,
+          deploymentLabel: data?.deployment?.label,
         },
       },
     });

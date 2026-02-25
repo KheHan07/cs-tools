@@ -35,6 +35,7 @@ export interface AnnouncementsFiltersProps {
   filters: AnnouncementFilterValues;
   filterMetadata: CaseMetadataResponse | undefined;
   onFilterChange: (field: string, value: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -47,6 +48,7 @@ export default function AnnouncementsFilters({
   filters,
   filterMetadata,
   onFilterChange,
+  disabled = false,
 }: AnnouncementsFiltersProps): JSX.Element {
   const handleSelectChange =
     (field: string) => (event: SelectChangeEvent<string>) => {
@@ -70,7 +72,7 @@ export default function AnnouncementsFilters({
 
         return (
           <Grid key={def.id} size={{ xs: 12, sm: 6, md: 3 }}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" disabled={disabled}>
               <InputLabel id={`${def.id}-label`}>{label}</InputLabel>
               <Select
                 labelId={`${def.id}-label`}
@@ -78,6 +80,7 @@ export default function AnnouncementsFilters({
                 value={filters[def.filterKey] || ""}
                 label={label}
                 onChange={handleSelectChange(def.filterKey)}
+                disabled={disabled}
               >
                 <MenuItem value="">
                   <Typography variant="body2">{allLabel}</Typography>

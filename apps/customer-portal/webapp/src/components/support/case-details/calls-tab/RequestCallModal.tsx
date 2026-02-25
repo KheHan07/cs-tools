@@ -164,7 +164,7 @@ export default function RequestCallModal({
 
     const now = new Date();
     const selected = new Date(form.preferredDateTimeLocal);
-    if (!form.preferredDateTimeLocal || Number.isNaN(selected.getTime())) {
+    if (Number.isNaN(selected.getTime())) {
       setModalError("Please enter a valid preferred time.");
       return;
     }
@@ -175,13 +175,7 @@ export default function RequestCallModal({
       return;
     }
 
-    const utcTimes = [localToUtcIso(form.preferredDateTimeLocal)].filter(
-      Boolean,
-    );
-    if (utcTimes.length === 0) {
-      setModalError("Invalid preferred time.");
-      return;
-    }
+    const utcTimes = [localToUtcIso(form.preferredDateTimeLocal)];
 
     const handleError = (error: Error) => {
       const msg = error?.message ?? "";
@@ -284,7 +278,6 @@ export default function RequestCallModal({
             severity="error"
             onClose={() => setModalError(null)}
             sx={{ mb: 2 }}
-            role="alert"
           >
             {modalError}
           </Alert>
@@ -298,6 +291,17 @@ export default function RequestCallModal({
           fullWidth
           size="small"
           slotProps={{ inputLabel: { shrink: true } }}
+          inputProps={{
+            min: (() => {
+              const now = new Date();
+              const y = now.getFullYear();
+              const m = String(now.getMonth() + 1).padStart(2, "0");
+              const d = String(now.getDate()).padStart(2, "0");
+              const h = String(now.getHours()).padStart(2, "0");
+              const min = String(now.getMinutes()).padStart(2, "0");
+              return `${y}-${m}-${d}T${h}:${min}`;
+            })(),
+          }}
           sx={{ mt: 4, mb: 2 }}
           disabled={isPending}
         />

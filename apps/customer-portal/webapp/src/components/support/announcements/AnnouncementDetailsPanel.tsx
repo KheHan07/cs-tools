@@ -17,12 +17,10 @@
 import {
   Box,
   Button,
-  Chip,
   Paper,
   Skeleton,
   Stack,
   Typography,
-  alpha,
   useTheme,
 } from "@wso2/oxygen-ui";
 import { ArrowLeft, Calendar, FileText } from "@wso2/oxygen-ui-icons-react";
@@ -30,13 +28,8 @@ import type { JSX } from "react";
 import type { CaseDetails } from "@models/responses";
 import {
   formatUtcToLocalNoTimezone,
-  getSeverityIcon,
   stripHtml,
 } from "@utils/support";
-import {
-  getSeverityFriendlyLabel,
-  getSeverityLegendColor,
-} from "@constants/dashboardConstants";
 import ErrorIndicator from "@components/common/error-indicator/ErrorIndicator";
 
 export interface AnnouncementDetailsPanelProps {
@@ -47,8 +40,7 @@ export interface AnnouncementDetailsPanelProps {
 }
 
 /**
- * AnnouncementDetailsPanel displays announcement details in a card layout
- * (title, severity, date, issue type, Affected Products, Related Security Advisories).
+ * AnnouncementDetailsPanel displays announcement details: Back, title, date, issue type, Description.
  *
  * @param {AnnouncementDetailsPanelProps} props - Data, loading/error state, onBack.
  * @returns {JSX.Element} The rendered announcement details panel.
@@ -60,11 +52,6 @@ export default function AnnouncementDetailsPanel({
   onBack,
 }: AnnouncementDetailsPanelProps): JSX.Element {
   const theme = useTheme();
-  const severityLabel = data?.severity?.label;
-  const SeverityIcon = getSeverityIcon(severityLabel);
-  const severityColor = getSeverityLegendColor(severityLabel);
-  const iconBgColor = alpha(severityColor, 0.1);
-  const chipBgColor = alpha(severityColor, 0.1);
 
   if (isLoading) {
     return (
@@ -78,21 +65,11 @@ export default function AnnouncementDetailsPanel({
           Back
         </Button>
         <Paper variant="outlined" sx={{ p: 4 }}>
-          <Stack direction="row" spacing={3} sx={{ mb: 3 }}>
-            <Skeleton variant="rounded" width={64} height={64} />
-            <Box sx={{ flex: 1 }}>
-              <Skeleton width="40%" height={24} sx={{ mb: 1 }} />
-              <Skeleton width="90%" height={32} sx={{ mb: 2 }} />
-              <Stack direction="row" spacing={2}>
-                <Skeleton width={120} height={20} />
-                <Skeleton width={80} height={20} />
-              </Stack>
-            </Box>
+          <Skeleton width="60%" height={28} sx={{ mb: 2 }} />
+          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+            <Skeleton width={120} height={20} />
+            <Skeleton width={80} height={20} />
           </Stack>
-          <Skeleton width="30%" height={20} sx={{ mb: 1 }} />
-          <Skeleton width="60%" height={24} sx={{ mb: 2 }} />
-          <Skeleton width="40%" height={20} sx={{ mb: 1 }} />
-          <Skeleton width={48} height={48} />
         </Paper>
         <Paper variant="outlined" sx={{ p: 4 }}>
           <Skeleton width="25%" height={24} sx={{ mb: 2 }} />
@@ -124,7 +101,7 @@ export default function AnnouncementDetailsPanel({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Button
         startIcon={<ArrowLeft size={16} />}
         onClick={onBack}
@@ -141,140 +118,52 @@ export default function AnnouncementDetailsPanel({
           p: 4,
           display: "flex",
           flexDirection: "column",
-          gap: 3,
+          gap: 1,
         }}
       >
-        <Stack direction="row" spacing={3} alignItems="flex-start">
-          <Box
-            sx={{
-              width: 64,
-              height: 64,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              bgcolor: iconBgColor,
-              color: severityColor,
-            }}
-          >
-            <SeverityIcon size={32} />
-          </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ mb: 2, flexWrap: "wrap" }}
-              alignItems="center"
-            >
-              <Chip
-                size="small"
-                variant="outlined"
-                label={getSeverityFriendlyLabel(data.severity?.label)}
-                icon={<SeverityIcon size={12} />}
-                sx={{
-                  bgcolor: chipBgColor,
-                  color: severityColor,
-                  height: 20,
-                  fontSize: "0.75rem",
-                  px: 0,
-                  "& .MuiChip-icon": {
-                    color: "inherit",
-                    ml: "6px",
-                    mr: "6px",
-                  },
-                  "& .MuiChip-label": {
-                    pl: 0,
-                    pr: "6px",
-                  },
-                }}
-              />
-              {data.number && (
-                <Typography variant="caption" color="text.secondary">
-                  {data.number}
-                </Typography>
-              )}
-            </Stack>
-
-            <Typography
-              variant="h6"
-              color="text.primary"
-              sx={{ mb: 2, fontWeight: 500 }}
-            >
-              {data.title || "--"}
-            </Typography>
-
-            <Stack
-              direction="row"
-              spacing={3}
-              alignItems="center"
-              sx={{ flexWrap: "wrap", gap: 2 }}
-            >
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Calendar
-                  size={16}
-                  color={theme.palette.text.secondary}
-                  aria-hidden
-                />
-                <Typography variant="body2" color="text.secondary">
-                  {formatUtcToLocalNoTimezone(data.createdOn) || "--"}
-                </Typography>
-              </Stack>
-              {data.issueType?.label && (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <FileText
-                    size={16}
-                    color={theme.palette.text.secondary}
-                    aria-hidden
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    {data.issueType.label}
-                  </Typography>
-                </Stack>
-              )}
-            </Stack>
-          </Box>
-        </Stack>
-
-        <Box>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 1, fontWeight: 500 }}
-          >
-            Affected Products:
+        {data.number && (
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
+            {data.number}
           </Typography>
-          {data.deployedProduct?.label ? (
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip
-                size="small"
-                variant="outlined"
-                label={
-                  data.deployedProduct.version
-                    ? `${data.deployedProduct.label} ${data.deployedProduct.version}`
-                    : data.deployedProduct.label
-                }
-                sx={{ height: 24, fontSize: "0.8rem" }}
-              />
-            </Stack>
-          ) : (
+        )}
+
+        <Typography
+          variant="h6"
+          color="text.primary"
+          sx={{ mb: 1, fontWeight: 500 }}
+        >
+          {data.title || "--"}
+        </Typography>
+
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{ flexWrap: "wrap", gap: 1 }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Calendar
+              size={16}
+              color={theme.palette.text.secondary}
+              aria-hidden
+            />
             <Typography variant="body2" color="text.secondary">
-              Nothing
+              {formatUtcToLocalNoTimezone(data.createdOn) || "--"}
             </Typography>
+          </Stack>
+          {data.issueType?.label && (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <FileText
+                size={16}
+                color={theme.palette.text.secondary}
+                aria-hidden
+              />
+              <Typography variant="body2" color="text.secondary">
+                {data.issueType.label}
+              </Typography>
+            </Stack>
           )}
-        </Box>
-
-        <Box>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 1, fontWeight: 500 }}
-          >
-            Related Security Advisories:
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            No data available
-          </Typography>
-        </Box>
+        </Stack>
       </Paper>
 
       <Paper

@@ -75,8 +75,9 @@ export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
   let queryId: string | undefined;
   for (const ct of caseTypes) {
     const n = normalized(ct.label);
-    if (/^incident$|^icident$/i.test(n)) incidentId = ct.id;
-    else if (/^query$/i.test(n)) queryId = ct.id;
+    if (/^incident$|^icident$/i.test(n) && incidentId === undefined)
+      incidentId = ct.id;
+    else if (/^query$/i.test(n) && queryId === undefined) queryId = ct.id;
   }
   return { incidentId, queryId };
 }
@@ -723,7 +724,7 @@ export function getStatusColor(label?: string): string {
     case CaseStatus.WORK_IN_PROGRESS:
       return colors.orange[500];
     case CaseStatus.AWAITING_INFO:
-      return colors.grey?.[500] ?? "#6B7280";
+      return colors.grey[500];
     case CaseStatus.WAITING_ON_WSO2:
       return colors.green[500];
     case CaseStatus.SOLUTION_PROPOSED:
@@ -733,7 +734,7 @@ export function getStatusColor(label?: string): string {
     case CaseStatus.REOPENED:
       return colors.purple[500];
     default:
-      return colors.grey?.[500] ?? "#6B7280";
+      return colors.grey[500];
   }
 }
 

@@ -121,10 +121,12 @@ export default function AllCasesPage(): JSX.Element {
   const { showLoader, hideLoader } = useLoader();
 
   // Show loader only for initial load (until first stats + cases response), not for background refetches or fetchNextPage.
+  const statsQueryExpected = !!incidentId && !!queryId;
   const hasStatsResponse = stats !== undefined;
   const hasCasesResponse = data !== undefined;
   const isStatsLoading =
-    isStatsQueryLoading || (!!projectId && !hasStatsResponse);
+    isStatsQueryLoading ||
+    (statsQueryExpected && !!projectId && !hasStatsResponse);
   const isCasesAreaLoading =
     isCasesQueryLoading || (!!projectId && !hasCasesResponse);
 
