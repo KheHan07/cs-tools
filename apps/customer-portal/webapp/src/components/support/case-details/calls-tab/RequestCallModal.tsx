@@ -15,6 +15,7 @@
 // under the License.
 
 import {
+  Alert,
   Button,
   CircularProgress,
   Dialog,
@@ -83,6 +84,18 @@ function localToUtcIso(localValue: string): string {
   return date.toISOString();
 }
 
+/** Returns datetime-local min string (now + 1 min) so picker blocks past times. */
+function getMinDatetimeLocal(): string {
+  const now = new Date();
+  const plusOneMin = new Date(now.getTime() + 60 * 1000);
+  const y = plusOneMin.getFullYear();
+  const m = String(plusOneMin.getMonth() + 1).padStart(2, "0");
+  const d = String(plusOneMin.getDate()).padStart(2, "0");
+  const h = String(plusOneMin.getHours()).padStart(2, "0");
+  const minStr = String(plusOneMin.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${d}T${h}:${minStr}`;
+}
+
 /**
  * Modal for requesting a call for a case.
  *
@@ -105,6 +118,16 @@ export default function RequestCallModal({
   const isEdit = !!editCall;
 
   const [form, setForm] = useState(INITIAL_FORM);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [, setMinDatetimeTick] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    const id = setInterval(() => setMinDatetimeTick((t) => t + 1), 60 * 1000);
+    return () => clearInterval(id);
+  }, [open]);
+
+  const minDatetimeLocal = getMinDatetimeLocal();
 
   const stateKeyFromCall =
     editCall && editCall.state?.id != null
@@ -115,6 +138,7 @@ export default function RequestCallModal({
   useEffect(() => {
     if (!open) {
       setForm(INITIAL_FORM);
+      setModalError(null);
       return;
     }
     if (editCall) {
@@ -138,6 +162,7 @@ export default function RequestCallModal({
 
   const handleClose = useCallback(() => {
     setForm(INITIAL_FORM);
+    setModalError(null);
     onClose();
   }, [onClose]);
 
@@ -155,18 +180,34 @@ export default function RequestCallModal({
   };
 
   const handleSubmit = useCallback(() => {
+    setModalError(null);
     if (!isValid) return;
 
-    const utcTimes = [localToUtcIso(form.preferredDateTimeLocal)].filter(
-      Boolean,
-    );
-    if (utcTimes.length === 0) {
-      onError?.("Invalid preferred time.");
+    const now = new Date();
+    const selected = new Date(form.preferredDateTimeLocal);
+    if (Number.isNaN(selected.getTime())) {
+      setModalError("Please enter a valid preferred time.");
+      return;
+    }
+    // Submit-time check matches picker min (now + 1 min) to avoid rejecting valid selections.
+    const minAllowed = new Date(now.getTime() + 60 * 1000);
+    if (selected < minAllowed) {
+      setModalError(
+        "The selected date and time cannot be in the past. Please choose a future date and time.",
+      );
       return;
     }
 
+    const utcTimes = [localToUtcIso(form.preferredDateTimeLocal)];
+
     const handleError = (error: Error) => {
-      onError?.(error.message ?? "Failed to save call request.");
+      const msg = error?.message ?? "";
+      const friendlyMsg =
+        /\b(?:cannot be past|date.*past|time.*past|in the past)\b/i.test(msg)
+          ? "The selected date and time cannot be in the past. Please choose a future date and time."
+          : msg || "Failed to save call request.";
+      setModalError(friendlyMsg);
+      onError?.(friendlyMsg);
     };
 
     if (isEdit && editCall) {
@@ -255,6 +296,15 @@ export default function RequestCallModal({
       </DialogTitle>
 
       <DialogContent sx={{ pt: 1 }}>
+        {modalError && (
+          <Alert
+            severity="error"
+            onClose={() => setModalError(null)}
+            sx={{ mb: 2 }}
+          >
+            {modalError}
+          </Alert>
+        )}
         <TextField
           id="preferred-time"
           label="Preferred Time *"
@@ -264,6 +314,9 @@ export default function RequestCallModal({
           fullWidth
           size="small"
           slotProps={{ inputLabel: { shrink: true } }}
+          inputProps={{
+            min: minDatetimeLocal,
+          }}
           sx={{ mt: 4, mb: 2 }}
           disabled={isPending}
         />

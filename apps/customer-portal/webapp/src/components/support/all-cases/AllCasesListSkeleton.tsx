@@ -17,12 +17,65 @@
 import { Box, Card, Stack, Skeleton } from "@wso2/oxygen-ui";
 import type { JSX } from "react";
 
+export interface AllCasesListSkeletonProps {
+  /** When true, renders a compact layout (e.g. for announcement cards). */
+  compact?: boolean;
+}
+
 /**
  * Component to display loading state for the all cases list.
  *
+ * @param {AllCasesListSkeletonProps} props - Optional compact variant for announcement-style cards.
  * @returns {JSX.Element} The rendered skeleton list.
  */
-export default function AllCasesListSkeleton(): JSX.Element {
+export default function AllCasesListSkeleton({
+  compact = false,
+}: AllCasesListSkeletonProps = {}): JSX.Element {
+  if (compact) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {[1, 2, 3].map((i) => (
+          <Card key={i} sx={{ p: 3 }}>
+            <Skeleton
+              data-testid="Skeleton"
+              variant="text"
+              width={60}
+              height={20}
+              sx={{ mb: 1 }}
+            />
+            <Skeleton
+              data-testid="Skeleton"
+              variant="text"
+              width="65%"
+              height={24}
+              sx={{ mb: 1 }}
+            />
+            <Skeleton
+              data-testid="Skeleton"
+              variant="text"
+              width="90%"
+              height={20}
+              sx={{ mb: 2 }}
+            />
+            <Stack direction="row" spacing={2}>
+              <Skeleton
+                data-testid="Skeleton"
+                variant="text"
+                width={120}
+                height={16}
+              />
+              <Skeleton
+                data-testid="Skeleton"
+                variant="text"
+                width={80}
+                height={16}
+              />
+            </Stack>
+          </Card>
+        ))}
+      </Box>
+    );
+  }
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {[1, 2, 3].map((i) => (

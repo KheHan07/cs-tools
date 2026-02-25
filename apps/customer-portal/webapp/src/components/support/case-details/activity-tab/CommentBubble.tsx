@@ -27,6 +27,7 @@ import type { CaseComment } from "@models/responses";
 import {
   getInitials,
   stripCodeWrapper,
+  convertCodeTagsToHtml,
   stripCustomerCommentAddedLabel,
   replaceInlineImageSources,
   formatCommentDate,
@@ -56,8 +57,14 @@ export default function CommentBubble({
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
   const rawContent = comment.content ?? "";
-  const stripped = stripCodeWrapper(rawContent);
-  const withoutLabel = stripCustomerCommentAddedLabel(stripped);
+  const trimmed = rawContent.trim();
+  const isFullCodeWrap =
+    trimmed.startsWith("[code]") && trimmed.endsWith("[/code]");
+  const afterCode =
+    isFullCodeWrap
+      ? stripCodeWrapper(rawContent)
+      : convertCodeTagsToHtml(rawContent);
+  const withoutLabel = stripCustomerCommentAddedLabel(afterCode);
   const withImages = replaceInlineImageSources(
     withoutLabel,
     comment.inlineAttachments,

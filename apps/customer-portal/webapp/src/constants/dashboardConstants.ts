@@ -103,6 +103,11 @@ export const SEVERITY_LABEL_TO_DISPLAY: Record<string, string> = {
   "High (P2)": "S2",
   "Medium (P3)": "S3",
   "Low (P4)": "S4",
+  "0 - Catastrophic": "S0",
+  "1 - Critical": "S1",
+  "2 - High": "S2",
+  "3 - Moderate": "S3",
+  "4 - Low": "S4",
 };
 
 // Legend display format: "S{n} - {Severity}". Same order for Outstanding Engagements and Cases Trend.
@@ -121,19 +126,63 @@ export const OUTSTANDING_INCIDENTS_CHART_DATA = SEVERITY_LEGEND_ORDER;
 /** API severity labels in chart order (catastrophic, critical, high, medium, low) for casesTrend mapping. */
 export const SEVERITY_API_LABELS = SEVERITY_LEGEND_ORDER.map((item) => item.label);
 
+/** Alternate severity labels for announcements (e.g. "1 - Critical", "2 - High") mapped to legend keys. */
+export const SEVERITY_ALT_TO_LEGEND_KEY: Record<string, string> = {
+  "0 - catastrophic": "catastrophic",
+  "1 - critical": "critical",
+  "2 - high": "high",
+  "3 - moderate": "medium",
+  "4 - low": "low",
+};
+
+/** Maps S0-S4 / legend key to friendly label for chips (Critical, High, etc.). */
+export const SEVERITY_FRIENDLY_LABEL: Record<string, string> = {
+  catastrophic: "Catastrophic",
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
+/**
+ * Returns the friendly severity label for display in chips (e.g. "Critical", "High").
+ *
+ * @param label - API severity label (e.g. "1 - Critical", "High (P2)").
+ * @returns {string} Friendly label or original.
+ */
+export function getSeverityFriendlyLabel(label?: string): string {
+  if (!label?.trim()) return "--";
+  const trimmed = label.trim().toLowerCase();
+  const entry =
+    SEVERITY_LEGEND_ORDER.find((item) => item.label.toLowerCase() === trimmed) ??
+    (SEVERITY_ALT_TO_LEGEND_KEY[trimmed]
+      ? SEVERITY_LEGEND_ORDER.find(
+          (item) => item.key === SEVERITY_ALT_TO_LEGEND_KEY[trimmed],
+        )
+      : undefined);
+  return entry ? SEVERITY_FRIENDLY_LABEL[entry.key] ?? entry.label : label;
+}
+
 /**
  * Returns the chart legend color for a severity label (same as Outstanding Engagements chart).
- * Use for severity chips in the Outstanding Engagements table.
+ * Supports "Critical (P1)", "1 - Critical", "2 - High", "3 - Moderate", etc.
  *
- * @param label - API severity label (e.g. "Catastrophic (P0)", "High (P2)").
+ * @param label - API severity label (e.g. "Catastrophic (P0)", "High (P2)", "1 - Critical").
  * @returns {string} Hex color from chart legend, or grey fallback.
  */
 export function getSeverityLegendColor(label?: string): string {
   if (!label?.trim()) return colors.grey?.[500] ?? "#6B7280";
-  const entry = SEVERITY_LEGEND_ORDER.find(
-    (item) =>
-      item.label.toLowerCase() === label.trim().toLowerCase(),
-  );
+  const trimmed = label.trim();
+  const lower = trimmed.toLowerCase();
+  const entry =
+    SEVERITY_LEGEND_ORDER.find(
+      (item) => item.label.toLowerCase() === lower,
+    ) ??
+    (SEVERITY_ALT_TO_LEGEND_KEY[lower]
+      ? SEVERITY_LEGEND_ORDER.find(
+          (item) => item.key === SEVERITY_ALT_TO_LEGEND_KEY[lower],
+        )
+      : undefined);
   return entry?.color ?? colors.grey?.[500] ?? "#6B7280";
 }
 

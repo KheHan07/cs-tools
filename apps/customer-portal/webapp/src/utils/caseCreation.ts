@@ -95,6 +95,31 @@ export function findMatchingDeploymentLabel(
 }
 
 /**
+ * Resolves classification environment (e.g. "Production") to the deployment display label
+ * by matching against project deployments' type.label or name. Use to auto-select deployment.
+ *
+ * @param {string} environmentLabel - caseInfo.environment from classification.
+ * @param {ProjectDeploymentOption[]} projectDeployments - Deployments from useGetProjectDeployments.
+ * @returns {string | undefined} Display label (name ?? type.label) for the matching deployment.
+ */
+export function getDeploymentDisplayLabelForEnvironment(
+  environmentLabel: string,
+  projectDeployments: ProjectDeploymentOption[] | undefined,
+): string | undefined {
+  if (!environmentLabel?.trim() || !projectDeployments?.length) return undefined;
+  const envLower = environmentLabel.trim().toLowerCase();
+  const dep = projectDeployments.find((d) => {
+    const typeLabel = d.type?.label?.trim();
+    const name = d.name?.trim();
+    return (
+      typeLabel?.toLowerCase() === envLower || name?.toLowerCase() === envLower
+    );
+  });
+  if (!dep) return undefined;
+  return dep.name || dep.type?.label;
+}
+
+/**
  * Resolves deployment ID from the selected deployment label by matching against project deployments.
  *
  * @param {string} deploymentLabel - Selected deployment name/label from the form.
@@ -147,21 +172,26 @@ export function resolveDeploymentMatch(
 }
 
 /**
- * Resolves product ID from the selected product label by matching against deployment products.
+ * Resolves product ID from the selected value (id or combined label) against deployment products.
  *
- * @param {string} productLabel - Selected product label from the form.
+ * @param {string} productLabelOrId - Selected deployment product id or "Product Version" label.
  * @param {DeploymentProductItem[]} allDeploymentProducts - Flat list of deployment products.
  * @returns {string} Deployment product item id or empty string if no match.
  */
 export function resolveProductId(
-  productLabel: string,
+  productLabelOrId: string,
   allDeploymentProducts: DeploymentProductItem[],
 ): string {
-  const normalized = normalizeProductLabel(productLabel);
+  if (!productLabelOrId?.trim()) return "";
+  const input = productLabelOrId.trim();
+  const byId = allDeploymentProducts.find((item) => item.id === input);
+  if (byId) return byId.id;
+  const normalized = normalizeProductLabel(input);
   if (!normalized) return "";
-
   const match = allDeploymentProducts.find(
-    (item) => normalizeProductLabel(item.product?.label) === normalized,
+    (item) =>
+      normalizeProductLabel(getDeploymentProductDisplayLabel(item)) ===
+      normalized,
   );
   return match?.id ?? "";
 }
@@ -186,10 +216,9 @@ export function resolveIssueTypeKey(
 
 /**
  * Finds a base product option that matches the given label (normalized comparison).
- * Use when the classification label format may differ from deployment product labels.
  *
- * @param {string} productLabel - Selected or classification product label.
- * @param {string[]} baseProductOptions - Product labels from deployment products.
+ * @param {string} productLabel - Selected or classification product label (e.g. "WSO2 API Manager 3.2.0").
+ * @param {string[]} baseProductOptions - Product labels from deployment products (legacy).
  * @returns {string | undefined} Matching base option label, or undefined if no match.
  */
 export function findMatchingProductLabel(
@@ -205,40 +234,83 @@ export function findMatchingProductLabel(
 }
 
 /**
+ * Finds deployment product option id that matches the given combined label (e.g. "WSO2 API Manager 1.8.0").
+ *
+ * @param {string} productLabel - Classification or display label.
+ * @param {ProductVersionOption[]} baseProductOptions - Options from getBaseProductOptions.
+ * @returns {string | undefined} Matching option id, or undefined if no match.
+ */
+export function findMatchingProductId(
+  productLabel: string,
+  baseProductOptions: ProductVersionOption[],
+): string | undefined {
+  if (!productLabel?.trim() || !baseProductOptions?.length) return undefined;
+  const normalized = normalizeProductLabel(productLabel);
+  if (!normalized) return undefined;
+  const opt = baseProductOptions.find(
+    (o) => normalizeProductLabel(o.label) === normalized,
+  );
+  return opt?.id;
+}
+
+/**
  * Returns whether the classification product should be added as an extra dropdown option.
- * Returns false if it would duplicate an existing option (same normalized label).
+ * When using ProductVersionOption[], returns false if a matching option already exists.
  *
  * @param {string} classificationProduct - Combined product label from classification.
- * @param {string[]} baseProductOptions - Product labels from deployment products.
+ * @param {ProductVersionOption[]} baseProductOptions - Options from getBaseProductOptions.
  * @returns {boolean} True if classification product should be added as extra option.
  */
 export function shouldAddClassificationProductToOptions(
   classificationProduct: string,
-  baseProductOptions: string[],
+  baseProductOptions: ProductVersionOption[],
 ): boolean {
   if (!classificationProduct?.trim()) return false;
-  const normalized = normalizeProductLabel(classificationProduct);
-  return !baseProductOptions.some(
-    (opt) => normalizeProductLabel(opt) === normalized,
-  );
+  return findMatchingProductId(classificationProduct, baseProductOptions) == null;
+}
+
+/** Option for Product Version dropdown: id is deployment product item id, label is "Product Version" display. */
+export interface ProductVersionOption {
+  id: string;
+  label: string;
 }
 
 /**
- * Builds the list of unique product labels from deployment products (for dropdown).
+ * Gets display label for a deployment product (product.label + version.label).
+ *
+ * @param {DeploymentProductItem} item - Deployment product item.
+ * @returns {string} Combined label, e.g. "WSO2 API Manager 1.8.0".
+ */
+export function getDeploymentProductDisplayLabel(
+  item: DeploymentProductItem,
+): string {
+  const productLabel = item.product?.label?.trim() ?? "";
+  let versionLabel = "";
+  if (typeof item.version === "object" && item.version !== null && "label" in item.version) {
+    versionLabel = (item.version as { id: string; label: string }).label?.trim() ?? "";
+  } else if (typeof item.version === "string") {
+    versionLabel = item.version.trim();
+  }
+  const combined = [productLabel, versionLabel].filter(Boolean).join(" ");
+  return combined.trim();
+}
+
+/**
+ * Builds Product Version options from deployment products: one option per item,
+ * label = "product.label version.label", value = item id.
  *
  * @param {DeploymentProductItem[]} allDeploymentProducts - Flat list of deployment products.
- * @returns {string[]} Unique non-empty product labels.
+ * @returns {ProductVersionOption[]} Options with id and display label.
  */
 export function getBaseProductOptions(
   allDeploymentProducts: DeploymentProductItem[],
-): string[] {
-  return Array.from(
-    new Set(
-      allDeploymentProducts
-        .map((item) => item.product?.label?.trim())
-        .filter((label): label is string => Boolean(label)),
-    ),
-  );
+): ProductVersionOption[] {
+  return allDeploymentProducts
+    .map((item) => {
+      const label = getDeploymentProductDisplayLabel(item);
+      return label ? { id: item.id, label } : null;
+    })
+    .filter((opt): opt is ProductVersionOption => opt !== null);
 }
 
 /**
@@ -263,11 +335,11 @@ export function formatChatHistoryForClassification(
 
 /**
  * Builds envProducts for classification from deployment products map.
- * Caller must fetch products per deployment and pass the map.
+ * Each value is "product.label version.label" (e.g. "WSO2 API Manager 1.8.0") so the classification API receives product and version.
  *
  * @param {Record<string, DeploymentProductItem[]>} productsByDeploymentId - Products keyed by deployment id.
  * @param {ProjectDeploymentOption[]} projectDeployments - Deployments with id and name.
- * @returns {Record<string, string[]>} envProducts: { [deploymentName]: [productLabel, ...] }
+ * @returns {Record<string, string[]>} envProducts: { [deploymentName]: [productVersionLabel, ...] }
  */
 export function buildEnvProducts(
   productsByDeploymentId: Record<string, DeploymentProductItem[]>,
@@ -282,7 +354,7 @@ export function buildEnvProducts(
     const labels = Array.from(
       new Set(
         products
-          .map((p) => p.product?.label?.trim())
+          .map((p) => getDeploymentProductDisplayLabel(p))
           .filter((l): l is string => Boolean(l)),
       ),
     );

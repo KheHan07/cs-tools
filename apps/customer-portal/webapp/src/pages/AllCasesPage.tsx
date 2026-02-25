@@ -38,7 +38,10 @@ import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import useGetProjectCases from "@api/useGetProjectCases";
-import { getIncidentAndQueryCaseTypeIds } from "@utils/support";
+import {
+  getIncidentAndQueryCaseTypeIds,
+  getIncidentAndQueryIds,
+} from "@utils/support";
 import type { AllCasesFilterValues } from "@models/responses";
 import AllCasesStatCards from "@components/support/all-cases/AllCasesStatCards";
 import AllCasesSearchBar from "@components/support/all-cases/AllCasesSearchBar";
@@ -60,19 +63,28 @@ export default function AllCasesPage(): JSX.Element {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch stats (runs in parallel with cases when projectId and auth are ready)
+  // Fetch filter metadata first to get Incident and Query IDs for stats API
+  const { data: filterMetadata } = useGetCasesFilters(projectId || "");
+
+  const { incidentId, queryId } = useMemo(
+    () => getIncidentAndQueryIds(filterMetadata?.caseTypes),
+    [filterMetadata?.caseTypes],
+  );
+
+  const defaultCaseTypeIds = useMemo(
+    () => getIncidentAndQueryCaseTypeIds(filterMetadata?.caseTypes),
+    [filterMetadata?.caseTypes],
+  );
+
   const {
     data: stats,
     isLoading: isStatsQueryLoading,
     isError: isStatsError,
-  } = useGetProjectCasesStats(projectId || "");
-
-  // Fetch filter metadata
-  const { data: filterMetadata } = useGetCasesFilters(projectId || "");
-
-  const defaultCaseTypeIds = getIncidentAndQueryCaseTypeIds(
-    filterMetadata?.caseTypes,
-  );
+  } = useGetProjectCasesStats(projectId || "", {
+    incidentId,
+    queryId,
+    enabled: !!incidentId && !!queryId,
+  });
 
   const caseSearchRequest = useMemo(
     () => ({
@@ -109,10 +121,12 @@ export default function AllCasesPage(): JSX.Element {
   const { showLoader, hideLoader } = useLoader();
 
   // Show loader only for initial load (until first stats + cases response), not for background refetches or fetchNextPage.
+  const statsQueryExpected = !!incidentId && !!queryId;
   const hasStatsResponse = stats !== undefined;
   const hasCasesResponse = data !== undefined;
   const isStatsLoading =
-    isStatsQueryLoading || (!!projectId && !hasStatsResponse);
+    isStatsQueryLoading ||
+    (statsQueryExpected && !!projectId && !hasStatsResponse);
   const isCasesAreaLoading =
     isCasesQueryLoading || (!!projectId && !hasCasesResponse);
 
