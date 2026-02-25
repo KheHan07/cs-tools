@@ -21,6 +21,10 @@ import { useAuthApiClient } from "@context/AuthApiContext";
 import type { CaseSearchRequest } from "@models/requests";
 import type { CaseSearchResponse } from "@models/responses";
 
+export interface UseGetProjectCasesPageOptions {
+  enabled?: boolean;
+}
+
 /**
  * Fetches a single page of cases (fetch-on-demand).
  * Use for dashboard Outstanding Engagements: load 10 first, fetch more only when user navigates.
@@ -29,6 +33,7 @@ import type { CaseSearchResponse } from "@models/responses";
  * @param baseRequest - Search filters (no pagination).
  * @param offset - Pagination offset.
  * @param limit - Page size.
+ * @param options - Optional { enabled } to control query execution.
  * @returns Query result with cases for the requested page.
  */
 export function useGetProjectCasesPage(
@@ -36,6 +41,7 @@ export function useGetProjectCasesPage(
   baseRequest: Omit<CaseSearchRequest, "pagination">,
   offset: number,
   limit: number,
+  options?: UseGetProjectCasesPageOptions,
 ): UseQueryResult<CaseSearchResponse, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
@@ -72,6 +78,7 @@ export function useGetProjectCasesPage(
       return response.json();
     },
     enabled:
+      (options?.enabled ?? true) &&
       !!projectId &&
       isSignedIn &&
       !isAuthLoading &&
