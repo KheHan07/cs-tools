@@ -34,11 +34,16 @@ public isolated function getProjectContacts(string projectId) returns Contact[]|
 public isolated function createProjectContact(string projectId, OnBoardContactPayload payload)
     returns Membership|error {
 
+    string customError = "An error occurred while creating the contact for the project.";
+
     http:Response userCreateResponse = check userManagementClient->/projects/[projectId]/contact.post(payload);
     if userCreateResponse.statusCode != http:STATUS_CREATED {
         json|error errBody = userCreateResponse.getJsonPayload();
-        json errInfo = errBody is json ? errBody : errBody.message();
-        return error(check errInfo.message);
+        if errBody is error {
+            log:printError(customError, errBody);
+            return error(customError);
+        }
+        return error(check errBody.message);
     }
     return (check userCreateResponse.getJsonPayload()).cloneWithType();
 }
@@ -52,12 +57,17 @@ public isolated function createProjectContact(string projectId, OnBoardContactPa
 public isolated function removeProjectContact(string projectId, string contactEmail, string adminEmail)
     returns Membership|error {
 
+    string customError = "An error occurred while removing the contact from the project.";
+
     http:Response userRemoveResponse =
         check userManagementClient->/projects/[projectId]/contacts/[contactEmail].delete(adminEmail = adminEmail);
     if userRemoveResponse.statusCode != http:STATUS_OK {
         json|error errBody = userRemoveResponse.getJsonPayload();
-        json errInfo = errBody is json ? errBody : errBody.message();
-        return error(check errInfo.message);
+        if errBody is error {
+            log:printError(customError, errBody);
+            return error(customError);
+        }
+        return error(check errBody.message);
     }
     return (check userRemoveResponse.getJsonPayload()).cloneWithType();
 }
@@ -71,11 +81,16 @@ public isolated function removeProjectContact(string projectId, string contactEm
 public isolated function updateMembershipFlag(string projectId, string contactEmail, MembershipSecurityPayload payload)
     returns Membership|error {
 
+    string customError = "An error occurred while updating the contact's membership flag.";
+
     http:Response userUpdateResponse = check userManagementClient->/projects/[projectId]/contacts/[contactEmail].patch(payload);
     if userUpdateResponse.statusCode != http:STATUS_OK {
         json|error errBody = userUpdateResponse.getJsonPayload();
-        json errInfo = errBody is json ? errBody : errBody.message();
-        return error(check errInfo.message);
+        if errBody is error {
+            log:printError(customError, errBody);
+            return error(customError);
+        }
+        return error(check errBody.message);
     }
     return (check userUpdateResponse.getJsonPayload()).cloneWithType();
 }
