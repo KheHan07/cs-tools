@@ -45,7 +45,7 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
         sortBy: payload.sortBy
     };
     entity:CaseSearchResponse casesResponse = check entity:searchCases(idToken, searchPayload);
-    types:Case[] cases = from entity:Case case in casesResponse.cases
+    types:CaseMetaData[] cases = from entity:Case case in casesResponse.cases
         let entity:ReferenceTableItem? project = case.project
         let entity:ReferenceTableItem? 'type = case.caseType
         let entity:ReferenceTableItem? deployedProduct = case.deployedProduct
@@ -486,9 +486,7 @@ public isolated function mapConversationSearchResponse(entity:ConversationSearch
 public isolated function mapCaseResponse(entity:CaseResponse response) returns types:CaseResponse {
     entity:ReferenceTableItem? project = response.project;
     entity:ReferenceTableItem? caseType = response.caseType;
-    entity:ReferenceTableItem? deployedProduct = response.deployedProduct;
     entity:ChoiceListItem? issueType = response.issueType;
-    entity:ReferenceTableItem? deployment = response.deployment;
     entity:ReferenceTableItem? assignedEngineer = response.assignedEngineer;
     entity:ReferenceTableItem? parentCase = response.parentCase;
     entity:ReferenceTableItem? conversation = response.conversation;
@@ -505,20 +503,22 @@ public isolated function mapCaseResponse(entity:CaseResponse response) returns t
         slaResponseTime: response.slaResponseTime,
         project: project != () ? {id: project.id, label: project.name} : (),
         'type: caseType != () ? {id: caseType.id, label: caseType.name} : (),
-        deployedProduct: deployedProduct != () ? {id: deployedProduct.id, label: deployedProduct.name} : (),
         issueType: issueType != () ? {id: issueType.id.toString(), label: issueType.label} : (),
-        deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
         assignedEngineer: assignedEngineer != () ? {id: assignedEngineer.id, label: assignedEngineer.name} : (),
         parentCase: parentCase != () ? {id: parentCase.id, label: parentCase.name} : (),
         conversation: conversation != () ? {id: conversation.id, label: conversation.name} : (),
         severity: severity != () ? {id: severity.id.toString(), label: severity.label} : (),
         status: state != () ? {id: state.id.toString(), label: state.label} : (),
         updatedOn: response.updatedOn,
-        product: response.product != () ? {
-                id: response.product?.id ?: "",
-                label: response?.product?.name ?: "",
-                count: response.product?.count,
-                version: response.product?.version
+        deployedProduct: response.deployedProduct != () ? {
+                id: response.deployedProduct?.id ?: "",
+                label: response.deployedProduct?.name ?: "",
+                version: response.deployedProduct?.version
+            } : (),
+        deployment: response.deployment != () ? {
+                id: response.deployment?.id ?: "",
+                label: response.deployment?.name ?: "",
+                'type: response.deployment?.'type
             } : (),
         account: response.account != () ? {
                 id: response?.account?.id ?: "",

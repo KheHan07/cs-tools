@@ -71,22 +71,8 @@ public type Case record {|
     string? title;
     # Case description
     string? description;
-    # Assigned engineer
-    ReferenceItem? assignedEngineer;
-    # Associated project
-    ReferenceItem? project;
-    # Case type
-    ReferenceItem? 'type;
-    # Deployed product information
-    ReferenceItem? deployedProduct;
-    # Related case information (if the case is related to an existing case)
-    ReferenceItem? parentCase;
-    # Related conversation information (if the case is related to a conversation)
-    ReferenceItem? conversation;
     # issueType of the case
     ReferenceItem? issueType;
-    # Deployment
-    ReferenceItem? deployment;
     # Severity of the case
     ReferenceItem? severity;
     # State of the case
@@ -100,12 +86,28 @@ public type CaseResponse record {|
     string updatedOn;
     # SLA response time
     string slaResponseTime;
-    # Product information
+    # Project
+    ReferenceItem? project;
+    # Case type information (eg: incident, service request, etc.)
+    ReferenceItem? 'type;
+    # Assigned engineer
+    ReferenceItem? assignedEngineer;
+    # Related case information (if the case is related to an existing case)
+    ReferenceItem? parentCase;
+    # Conversation information (if the case is related to a conversation)
+    ReferenceItem? conversation;
+    # Deployment information
     record {
         *ReferenceItem;
-        # Product version
+        # Deployment type
+        string? 'type;
+    }? deployment;
+    # Deployed product information
+    record {
+        *ReferenceItem;
+        # Deployed product version
         string? version;
-    }? product;
+    }? deployedProduct;
     # Account information
     record {
         *ReferenceItem;
@@ -139,10 +141,29 @@ public type ReferenceItem record {|
     int count?;
 |};
 
+# Case metadata information.
+public type CaseMetaData record {|
+    *Case;
+    # Associated project
+    ReferenceItem? project;
+    # Case type information (eg: incident, service request, etc.)
+    ReferenceItem? 'type;
+    # Deployment information
+    ReferenceItem? deployment;
+    # Deployed product information
+    ReferenceItem? deployedProduct;
+    # Assigned engineer
+    ReferenceItem? assignedEngineer;
+    # Related case information (if the case is related to an existing case)
+    ReferenceItem? parentCase;
+    # Conversation information (if the case is related to a conversation)
+    ReferenceItem? conversation;
+|};
+
 # Cases list response with pagination.
 public type CaseSearchResponse record {|
-    # List of cases
-    Case[] cases;
+    # List of cases with associated information
+    CaseMetaData[] cases;
     # Total records count
     int totalRecords;
     *entity:Pagination;

@@ -1398,9 +1398,85 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, id, 'limit, offset);
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CASE, id,
+                'limit, offset);
         if commentsResponse is error {
+            if getStatusCode(commentsResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(commentsResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${userInfo.userId} is forbidden to access comments for case with ID: ${
+                        id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the comments for the requested case. " +
+                        "Please check your access permissions or contact support."
+                    }
+                };
+            }
             string customError = "Failed to retrieve comments.";
+            log:printError(customError, commentsResponse);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+        return mapCommentsResponse(commentsResponse);
+    }
+
+    # Get messages for a specific conversation.
+    #
+    # + id - ID of the conversation
+    # + limit - Number of messages to retrieve
+    # + offset - Offset for pagination
+    # + return - Comments response or error
+    resource function get conversations/[entity:IdString id]/messages(http:RequestContext ctx, int? 'limit, int? offset)
+        returns types:CommentsResponse|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        if isInvalidLimitOffset('limit, offset) {
+            return <http:BadRequest>{
+                body: {
+                    message: ERR_LIMIT_OFFSET_INVALID
+                }
+            };
+        }
+
+        entity:CommentsResponse|error commentsResponse = entity:getComments(userInfo.idToken, entity:CONVERSATION, id,
+                'limit, offset);
+        if commentsResponse is error {
+            if getStatusCode(commentsResponse) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+            if getStatusCode(commentsResponse) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `User: ${
+                        userInfo.userId} is forbidden to access messages for conversation with ID: ${id}!`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "You're not authorized to access the messages for the requested conversation."
+                    }
+                };
+            }
+            string customError = "Failed to retrieve messages.";
             log:printError(customError, commentsResponse);
             return <http:InternalServerError>{
                 body: {
@@ -2121,7 +2197,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to add project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2130,7 +2206,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2190,7 +2266,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to remove project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2199,7 +2275,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2269,7 +2345,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to update project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2278,7 +2354,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2292,7 +2368,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + return - Contact information if valid or error response
     resource function post projects/[string id]/contacts/validate(http:RequestContext ctx,
             types:ValidationPayload payload)
-        returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+        returns http:Ok|http:Conflict|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -2332,33 +2408,50 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        user_management:Contact|error? response = user_management:validateProjectContact(
+        user_management:Contact|error? validationResponse = user_management:validateProjectContact(
                 {
                     contactEmail: payload.contactEmail,
                     adminEmail: userInfo.email,
                     projectId: projectResponse.sfId
                 });
-        if response is error {
-            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+        if validationResponse is user_management:CONFLICT_ERROR {
+            log:printWarn(string `Contact with email: ${payload.contactEmail} already exists in project with ID: ${
+                id}`);
+            return <http:Conflict>{
+                body: {
+                    message: "Contact with the provided email already exists in the project!"
+                }
+            };
+        } else if validationResponse is error {
+            if getStatusCode(validationResponse) == http:STATUS_FORBIDDEN {
                 log:printWarn(string `Access to validate project contact is forbidden for user: ${
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to validate project contact is forbidden for the user!"
+                        message: validationResponse.message()
                     }
                 };
             }
 
             string customError = "Failed to validate project contact.";
-            log:printError(customError, response);
+            log:printError(customError, validationResponse);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: validationResponse.message()
+                }
+            };
+        } else if validationResponse is user_management:Contact {
+            return <http:Ok>{
+                body: {
+                    isContactValid: true,
+                    message: "Contact is valid but already exists in the project!",
+                    contactDetails: validationResponse
                 }
             };
         }
         return <http:Ok>{
             body: {
+                isContactValid: true,
                 message: "Project contact is valid and can be added to the project!"
             }
         };
@@ -2710,7 +2803,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     }
 
     # Get time card statistics for a project based on provided date range.
-    # 
+    #
     # + id - ID of the project
     # + startDate - Start date for the statistics (optional)
     # + endDate - End date for the statistics (optional)
