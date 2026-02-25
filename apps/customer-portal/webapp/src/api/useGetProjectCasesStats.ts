@@ -24,29 +24,31 @@ import type { ProjectCasesStats } from "@models/responses";
 export { DASHBOARD_CASE_TYPE_LABELS } from "@constants/dashboardConstants";
 
 export interface UseGetProjectCasesStatsOptions {
+  incidentId?: string;
+  queryId?: string;
   /** When false, the query will not run. Use to wait for filters before fetching. */
   enabled?: boolean;
 }
 
 /**
  * Custom hook to fetch project case statistics by ID.
+ * API expects ?caseType=queryId&icaseType=incidentId (both required for filtered stats).
  *
  * @param {string} id - The ID of the project.
- * @param {string[]} [caseTypeIds] - Optional case type IDs to filter stats (e.g. from filters API).
- * @param {UseGetProjectCasesStatsOptions} [options] - Optional config (e.g. enabled).
+ * @param {UseGetProjectCasesStatsOptions} [options] - incidentId, queryId, enabled.
  * @returns {UseQueryResult<ProjectCasesStats, Error>} The query result object.
  */
 export function useGetProjectCasesStats(
   id: string,
-  caseTypeIds?: string[],
   options?: UseGetProjectCasesStatsOptions,
 ): UseQueryResult<ProjectCasesStats, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
+  const { incidentId, queryId, enabled = true } = options ?? {};
 
   return useQuery<ProjectCasesStats, Error>({
-    queryKey: [ApiQueryKeys.CASES_STATS, id, caseTypeIds ?? []],
+    queryKey: [ApiQueryKeys.CASES_STATS, id, incidentId, queryId],
     queryFn: async (): Promise<ProjectCasesStats> => {
       logger.debug(`Fetching case stats for project ID: ${id}`);
 
@@ -58,9 +60,10 @@ export function useGetProjectCasesStats(
         }
 
         let requestUrl = `${baseUrl}/projects/${id}/stats/cases`;
-        if (caseTypeIds && caseTypeIds.length > 0) {
+        if (incidentId && queryId) {
           const params = new URLSearchParams();
-          caseTypeIds.forEach((cid) => params.append("caseType", cid));
+          params.set("caseType", queryId);
+          params.set("icaseType", incidentId);
           requestUrl += `?${params.toString()}`;
         }
 
@@ -86,7 +89,7 @@ export function useGetProjectCasesStats(
       !!id &&
       isSignedIn &&
       !isAuthLoading &&
-      (options?.enabled ?? true),
+      enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnMount: false,

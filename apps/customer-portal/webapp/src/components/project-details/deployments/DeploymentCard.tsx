@@ -113,6 +113,7 @@ export default function DeploymentCard({
               role="button"
               aria-label="Delete deployment"
               onClick={() => setIsDeleteModalOpen(true)}
+              disabled={patchDeployment.isPending}
               sx={{
                 color: "text.secondary",
                 "&:hover": { color: "primary.main" },
@@ -191,6 +192,7 @@ export default function DeploymentCard({
         open={isDeleteModalOpen}
         deployment={deployment}
         onClose={() => setIsDeleteModalOpen(false)}
+        isDeleting={patchDeployment.isPending}
         onConfirm={() => {
           patchDeployment.mutate(
             {
@@ -203,7 +205,6 @@ export default function DeploymentCard({
             },
           );
         }}
-        isDeleting={patchDeployment.isPending}
       />
     </Card>
   );

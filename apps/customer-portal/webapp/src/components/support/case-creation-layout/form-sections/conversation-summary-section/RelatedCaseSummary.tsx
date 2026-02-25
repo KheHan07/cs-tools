@@ -94,7 +94,7 @@ export function RelatedCaseSummary({
               variant="body2"
               sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
             >
-              {stripHtml(description) || "--"}
+              {description.trim() ? stripHtml(description) : "--"}
             </Typography>
           </Box>
         </Box>

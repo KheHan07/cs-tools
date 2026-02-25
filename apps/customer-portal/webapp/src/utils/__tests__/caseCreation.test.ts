@@ -206,6 +206,10 @@ describe("caseCreation utils", () => {
         "",
       );
     });
+
+    it("returns id when input is already a deployment product id", () => {
+      expect(resolveProductId("1", allDeploymentProducts)).toBe("1");
+    });
   });
 
   describe("resolveIssueTypeKey", () => {
@@ -234,14 +238,16 @@ describe("caseCreation utils", () => {
   describe("shouldAddClassificationProductToOptions", () => {
     it("returns false for empty classification product", () => {
       expect(
-        shouldAddClassificationProductToOptions("", ["WSO2 API Manager 3.2.0"]),
+        shouldAddClassificationProductToOptions("", [
+          { id: "1", label: "WSO2 API Manager 3.2.0" },
+        ]),
       ).toBe(false);
     });
 
     it("returns false when classification product matches a base option (normalized)", () => {
       expect(
         shouldAddClassificationProductToOptions("WSO2 API Manager 3.2.0", [
-          "WSO2 API Manager - 3.2.0",
+          { id: "1", label: "WSO2 API Manager - 3.2.0" },
         ]),
       ).toBe(false);
     });
@@ -249,7 +255,7 @@ describe("caseCreation utils", () => {
     it("returns false when classification product matches a base option (case insensitive)", () => {
       expect(
         shouldAddClassificationProductToOptions("wso2 api manager 3.2.0", [
-          "WSO2 API Manager 3.2.0",
+          { id: "1", label: "WSO2 API Manager 3.2.0" },
         ]),
       ).toBe(false);
     });
@@ -257,7 +263,7 @@ describe("caseCreation utils", () => {
     it("returns true when classification product is not in base options", () => {
       expect(
         shouldAddClassificationProductToOptions("WSO2 Choreo 1.0", [
-          "WSO2 API Manager 3.2.0",
+          { id: "1", label: "WSO2 API Manager 3.2.0" },
         ]),
       ).toBe(true);
     });
@@ -334,27 +340,30 @@ describe("caseCreation utils", () => {
   });
 
   describe("getBaseProductOptions", () => {
-    it("returns unique product labels from deployment products", () => {
+    it("returns one option per deployment product with id and combined product+version label", () => {
       const products: DeploymentProductItem[] = [
         {
           id: "1",
           createdOn: "",
           updatedOn: "",
           description: null,
-          product: { id: "p1", label: "WSO2 API Manager 3.2.0" },
+          product: { id: "p1", label: "WSO2 API Manager" },
           deployment: { id: "d1", label: "Dev" },
+          version: { id: "v1", label: "3.2.0" },
         },
         {
           id: "2",
           createdOn: "",
           updatedOn: "",
           description: null,
-          product: { id: "p2", label: "WSO2 API Manager 3.2.0" },
+          product: { id: "p2", label: "WSO2 API Manager" },
           deployment: { id: "d2", label: "Staging" },
+          version: { id: "v2", label: "1.8.0" },
         },
       ];
       expect(getBaseProductOptions(products)).toEqual([
-        "WSO2 API Manager 3.2.0",
+        { id: "1", label: "WSO2 API Manager 3.2.0" },
+        { id: "2", label: "WSO2 API Manager 1.8.0" },
       ]);
     });
 

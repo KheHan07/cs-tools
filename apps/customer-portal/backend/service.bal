@@ -607,6 +607,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
             // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
+        types:OverallConversationStats mappedConversationStats = getConversationStats(conversationStats);
 
         // Fetch deployment stats
         entity:ProjectDeploymentStatsResponse|error deploymentStats =
@@ -627,8 +628,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             projectStats: {
                 openCases: caseStats is entity:ProjectCaseStatsResponse ?
                     getOpenCasesCountFromProjectCasesStats(caseStats) : (),
-                activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
-                    conversationStats.activeCount : (),
+                activeChats: mappedConversationStats.activeCount,
                 deployments: deploymentStats is entity:ProjectDeploymentStatsResponse ? deploymentStats.totalCount : (),
                 slaStatus: projectActivityStats is entity:ProjectStatsResponse ? projectActivityStats.slaStatus : ()
             },
@@ -673,6 +673,57 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
         return mapCaseStats(caseStats);
     }
 
+    # Get conversation statistics for a project by ID.
+    #
+    # + id - ID of the project
+    # + return - Conversation statistics overview or error response
+    resource function get projects/[entity:IdString id]/stats/conversations(http:RequestContext ctx)
+        returns types:ConversationStats|http:Unauthorized|http:Forbidden|http:InternalServerError {
+
+        authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+        if userInfo is error {
+            return <http:InternalServerError>{
+                body: {
+                    message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        entity:ProjectConversationStatsResponse|error conversationStats =
+            entity:getConversationStatsForProject(userInfo.idToken, id);
+        if conversationStats is error {
+            if getStatusCode(conversationStats) == http:STATUS_UNAUTHORIZED {
+                log:printWarn(string `User: ${userInfo.userId} is not authorized to access the customer portal!`);
+                return <http:Unauthorized>{
+                    body: {
+                        message: ERR_MSG_UNAUTHORIZED_ACCESS
+                    }
+                };
+            }
+
+            if getStatusCode(conversationStats) == http:STATUS_FORBIDDEN {
+                log:printWarn(string `Access to conversation statistics is forbidden for user: ${userInfo.userId}`);
+                return <http:Forbidden>{
+                    body: {
+                        message: "Access to conversation statistics is forbidden!"
+                    }
+                };
+            }
+            string customError = "Failed to retrieve conversation statistics for the project.";
+            log:printError(customError, conversationStats);
+            return <http:InternalServerError>{
+                body: {
+                    message: customError
+                }
+            };
+        }
+
+        types:OverallConversationStats { openCount, resolvedCount,  abandonedCount} =
+            getConversationStats(conversationStats);
+
+        return { openCount, resolvedCount, abandonedCount };
+    }
+
     # Get project support statistics by ID.
     #
     # + id - ID of the project
@@ -704,15 +755,15 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(ERR_MSG_CONVERSATION_STATISTICS, conversationStats);
             // To return other stats even if conversation stats retrieval fails, error will not be returned.
         }
+        types:OverallConversationStats mappedConversationStats = getConversationStats(conversationStats);
+
+        int? ongoingCases = getOngoingCasesCount(caseStats);
 
         return {
-            totalCases: caseStats is entity:ProjectCaseStatsResponse ? caseStats.totalCount : (),
-            activeChats: conversationStats is entity:ProjectConversationStatsResponse ?
-                conversationStats.activeCount : (),
-            sessionChats: conversationStats is entity:ProjectConversationStatsResponse ?
-                conversationStats.sessionCount : (),
-            resolvedChats: conversationStats is entity:ProjectConversationStatsResponse ?
-                conversationStats.resolvedCount : ()
+            ongoingCases: ongoingCases is int ? ongoingCases : (),
+            activeChats: mappedConversationStats.activeCount,
+            sessionChats: mappedConversationStats.sessionCount,
+            resolvedChats: mappedConversationStats.resolvedCount
         };
     }
 
@@ -1406,16 +1457,6 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                 return <http:Unauthorized>{
                     body: {
                         message: ERR_MSG_UNAUTHORIZED_ACCESS
-                    }
-                };
-            }
-            if getStatusCode(commentsResponse) == http:STATUS_FORBIDDEN {
-                log:printWarn(string `User: ${userInfo.userId} is forbidden to access comments for case with ID: ${
-                        id}!`);
-                return <http:Forbidden>{
-                    body: {
-                        message: "You're not authorized to access the comments for the requested case. " +
-                        "Please check your access permissions or contact support."
                     }
                 };
             }
@@ -2740,7 +2781,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + id - ID of the project
     # + payload - Time card search payload containing filters and pagination info
     # + return - List of time cards matching the criteria or an error
-    resource function post projects/[string id]/time\-cards/search(http:RequestContext ctx,
+    resource function post projects/[entity:IdString id]/time\-cards/search(http:RequestContext ctx,
             types:TimeCardSearchPayload payload)
         returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
@@ -2808,7 +2849,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + startDate - Start date for the statistics (optional)
     # + endDate - End date for the statistics (optional)
     # + return - Time card statistics for the project or an error
-    resource function get projects/[string id]/time\-cards/stats(http:RequestContext ctx, entity:Date? startDate,
+    resource function get projects/[string id]/stats/time\-cards(http:RequestContext ctx, entity:Date? startDate,
             entity:Date? endDate)
         returns entity:ProjectTimeCardStatsResponse|http:Unauthorized|http:Forbidden|http:InternalServerError {
 

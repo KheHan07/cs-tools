@@ -260,8 +260,8 @@ public type ProjectCaseStats record {|
 
 # Project support statistics.
 public type ProjectSupportStats record {|
-    # Total cases count
-    int totalCases?;
+    # Ongoing cases count
+    int? ongoingCases?;
     # Active chats count
     int activeChats?;
     # Session chats count
@@ -992,4 +992,32 @@ public type ConversationResponse record {|
     # User who updated the conversation
     string updatedBy;
     json...;
+|};
+
+# Overall conversation statistics for a project.
+public type OverallConversationStats record {|
+    # Chat sessions count
+    int sessionCount?;
+    # Resolved chats count
+    int resolvedCount?;
+    # Open chats count
+    int openCount?;
+    # Abandoned chats count
+    int abandonedCount?;
+    # Total messages count
+    int totalCount?;
+    # Active chats count
+    int activeCount?;
+    # Converted chats count
+    int convertedCount?;
+|};
+
+# Conversation statistics by state for a project.
+public type ConversationStats record {|
+    # Resolved chats count
+    int resolvedCount?;
+    # Open chats count
+    int openCount?;
+    # Abandoned chats count
+    int abandonedCount?;
 |};

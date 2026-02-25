@@ -19,14 +19,15 @@ import { useNavigate, useParams } from "react-router";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import useGetCaseDetails from "@api/useGetCaseDetails";
-import CaseDetailsContent from "@case-details-details/CaseDetailsContent";
+import AnnouncementDetailsPanel from "@components/support/announcements/AnnouncementDetailsPanel";
 
 /**
- * CaseDetailsPage displays details for a single support case.
+ * AnnouncementDetailsPage displays details for a single announcement (case).
+ * Fetches case details via useGetCaseDetails and renders the announcement-specific layout.
  *
- * @returns {JSX.Element} The rendered Case Details page.
+ * @returns {JSX.Element} The rendered Announcement Details page.
  */
-export default function CaseDetailsPage(): JSX.Element {
+export default function AnnouncementDetailsPage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId, caseId } = useParams<{
     projectId: string;
@@ -40,7 +41,6 @@ export default function CaseDetailsPage(): JSX.Element {
     caseId || "",
   );
 
-  // Show skeletons immediately when no data (avoid "-" flash on refresh) and when loading/refetching.
   const showSkeletons =
     isLoading || isFetching || (data === undefined && !isError);
 
@@ -54,7 +54,6 @@ export default function CaseDetailsPage(): JSX.Element {
 
   const hasShownErrorRef = useRef(false);
 
-  // Reset so error can show again when navigating to another case or when error clears.
   useEffect(() => {
     hasShownErrorRef.current = false;
   }, [caseId]);
@@ -66,39 +65,20 @@ export default function CaseDetailsPage(): JSX.Element {
     }
     if (!hasShownErrorRef.current) {
       hasShownErrorRef.current = true;
-      showError("Could not load case details.");
+      showError("Could not load announcement details.");
     }
   }, [isError, showError]);
 
   const handleBack = () => {
-    navigate(`/${projectId}/support/cases`);
-  };
-
-  const handleOpenRelatedCase = () => {
-    if (!projectId) return;
-    navigate(`/${projectId}/support/chat/create-related-case`, {
-      state: {
-        relatedCase: {
-          parentCaseId: data?.id ?? caseId ?? "",
-          number: data?.number ?? "",
-          title: data?.title ?? "",
-          description: data?.description ?? "",
-          deploymentId: data?.deployment?.id,
-          deploymentLabel: data?.deployment?.label,
-        },
-      },
-    });
+    navigate(`/${projectId}/announcements`);
   };
 
   return (
-    <CaseDetailsContent
+    <AnnouncementDetailsPanel
       data={data}
       isLoading={showSkeletons}
       isError={isError}
-      caseId={caseId || ""}
-      projectId={projectId}
       onBack={handleBack}
-      onOpenRelatedCase={handleOpenRelatedCase}
     />
   );
 }

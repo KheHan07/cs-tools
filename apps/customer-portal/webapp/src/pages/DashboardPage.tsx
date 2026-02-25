@@ -24,11 +24,11 @@ import { useErrorBanner } from "@context/error-banner/ErrorBannerContext";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import {
-  DASHBOARD_CASE_TYPE_LABELS,
   DASHBOARD_STATS,
   OUTSTANDING_ENGAGEMENTS_CHART_DATA,
   SEVERITY_API_LABELS,
 } from "@constants/dashboardConstants";
+import { getIncidentAndQueryIds } from "@utils/support";
 import { StatCard } from "@components/dashboard/stats/StatCard";
 import ChartLayout from "@components/dashboard/charts/ChartLayout";
 import CasesTable from "@components/dashboard/cases-table/CasesTable";
@@ -51,20 +51,19 @@ export default function DashboardPage(): JSX.Element {
     isError: isErrorFilters,
   } = useGetCasesFilters(projectId || "");
 
-  const caseTypeIds = useMemo(() => {
-    const types = filters?.caseTypes ?? [];
-    const labels = new Set(DASHBOARD_CASE_TYPE_LABELS);
-    return types
-      .filter((t) => labels.has(t.label as (typeof DASHBOARD_CASE_TYPE_LABELS)[number]))
-      .map((t) => t.id);
-  }, [filters]);
+  const { incidentId, queryId } = useMemo(
+    () => getIncidentAndQueryIds(filters?.caseTypes),
+    [filters?.caseTypes],
+  );
 
   const {
     data: casesStats,
     isLoading: isCasesLoading,
     isError: isErrorCases,
-  } = useGetProjectCasesStats(projectId || "", caseTypeIds, {
-    enabled: !!projectId && !isFiltersLoading,
+  } = useGetProjectCasesStats(projectId || "", {
+    incidentId,
+    queryId,
+    enabled: !!projectId && !isFiltersLoading && !!incidentId && !!queryId,
   });
 
   const isDashboardLoading =

@@ -136,7 +136,7 @@ export default function SupportOverviewCard({
         onClick={onFooterClick}
         endIcon={<ArrowRight size={16} />}
         sx={{
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           textTransform: "none",
           fontWeight: 500,
         }}

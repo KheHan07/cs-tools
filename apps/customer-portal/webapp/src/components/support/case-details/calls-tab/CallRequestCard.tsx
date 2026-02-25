@@ -64,14 +64,15 @@ export default function CallRequestCard({
 }: CallRequestCardProps): JSX.Element {
   const theme = useTheme();
   const statusLabel = call.state?.label ?? "--";
+  const statusLower = statusLabel?.toLowerCase() ?? "";
+  const isCancelled =
+    statusLower === "cancelled" || statusLower === "canceled";
   const isTerminal =
-    statusLabel === CallRequestStatus.CANCELLED ||
-    statusLabel === CallRequestStatus.COMPLETED;
+    isCancelled || statusLabel === CallRequestStatus.COMPLETED;
   const colorPath = getCallRequestStatusColor(statusLabel);
-  const resolvedColor =
-    statusLabel === CallRequestStatus.CANCELLED
-      ? theme.palette.error.main
-      : resolveColorFromTheme(colorPath, theme);
+  const resolvedColor = isCancelled
+    ? theme.palette.error.main
+    : resolveColorFromTheme(colorPath, theme);
 
   return (
     <Card variant="outlined">
@@ -189,7 +190,7 @@ export default function CallRequestCard({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr" },
+            gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr" },
             gap: 2,
             mb: 2,
           }}
@@ -204,18 +205,6 @@ export default function CallRequestCard({
             </Typography>
             <Typography variant="body2">
               {formatPreferredTimes(call.preferredTimes)}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-            >
-              Scheduled For
-            </Typography>
-            <Typography variant="body2">
-              {formatUtcToLocal(call.scheduleTime)}
             </Typography>
           </Box>
           <Box>
