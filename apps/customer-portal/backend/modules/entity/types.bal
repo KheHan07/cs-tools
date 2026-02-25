@@ -474,12 +474,9 @@ public type ProjectCaseStatsResponse record {|
 
 # Project conversation statistics response.
 public type ProjectConversationStatsResponse record {|
-    # Active chat count
-    int activeCount;
-    # Session count
-    int sessionCount;
-    # Resolved count
-    int resolvedCount;
+    # Count of conversations by state
+    ChoiceListItem[] stateCount;
+    json...;
 |};
 
 # Project deployment statistics response.

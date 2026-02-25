@@ -20,6 +20,7 @@ import ballerina/http;
 import ballerina/log;
 
 configurable int stateIdOpen = 1;
+configurable types:ConverstaionStateIds conversationStateIds = {open: 1, active: 2, resolved: 3, converted: 4, abandonded: 5};
 
 # Search cases for a given project.
 #
@@ -563,5 +564,44 @@ public isolated function mapConversationResponse(entity:ConversationResponse res
             {id: response.state?.id.toString(), label: response.state?.label ?: ""} : (),
         updatedBy: response.updatedBy,
         updatedOn: response.updatedOn
+    };
+}
+
+# Get conversation stats from project conversation stats response.
+#
+# + response - Project conversation stats response from the entity service
+# + return - Conversation stats with counts for each conversation state
+public isolated function getConversationStats(entity:ProjectConversationStatsResponse|error response)
+    returns types:OverallConversationStats {
+
+    if response is entity:ProjectConversationStatsResponse {
+        types:ReferenceItem[] mappedConversationStats = from entity:ChoiceListItem item in response.stateCount
+            select {id: item.id.toString(), label: item.label, count: item.count};
+
+        types:ReferenceItem[] openCases = mappedConversationStats.filter(stat =>
+        stat.id == conversationStateIds.open.toString());
+        types:ReferenceItem[] activeCases = mappedConversationStats.filter(stat =>
+        stat.id == conversationStateIds.active.toString());
+        types:ReferenceItem[] resolvedCases = mappedConversationStats.filter(stat =>
+        stat.id == conversationStateIds.resolved.toString());
+        types:ReferenceItem[] convertedCases = mappedConversationStats.filter(stat =>
+        stat.id == conversationStateIds.converted.toString());
+        types:ReferenceItem[] abandondedCases = mappedConversationStats.filter(stat =>
+        stat.id == conversationStateIds.abandonded.toString());
+
+        return {
+            openCount: openCases.length() > 0 ? openCases[0].count : (),
+            activeCount: activeCases.length() > 0 ? activeCases[0].count : (),
+            resolvedCount: resolvedCases.length() > 0 ? resolvedCases[0].count : (),
+            convertedCount: convertedCases.length() > 0 ? convertedCases[0].count : (),
+            abandondedCount: abandondedCases.length() > 0 ? abandondedCases[0].count : ()
+        };
+    }
+    return {
+        openCount: (),
+        activeCount: (),
+        resolvedCount: (),
+        convertedCount: (),
+        abandondedCount: ()
     };
 }

@@ -993,3 +993,45 @@ public type ConversationResponse record {|
     string updatedBy;
     json...;
 |};
+
+# Conversation state IDs.
+public type ConverstaionStateIds record {|
+    # Open state ID
+    int open;
+    # Active state ID
+    int active;
+    # Converted state ID
+    int converted;
+    # Resolved state ID
+    int resolved;
+    # Abandoned state ID
+    int abandonded;
+|};
+
+# Overall conversation statistics for a project.
+public type OverallConversationStats record {|
+    # Chat sessions count
+    int sessionCount?;
+    # Resolved chats count
+    int resolvedCount?;
+    # Open chats count
+    int openCount?;
+    # Abandoned chats count
+    int abandondedCount?;
+    # Total messages count
+    int totalCount?;
+    # Active chats count
+    int activeCount?;
+    # Converted chats count
+    int convertedCount?;
+|};
+
+# Conversation statistics by state for a project.
+public type ConversationStats record {|
+    # Resolved chats count
+    int resolvedCount?;
+    # Open chats count
+    int openCount?;
+    # Abandoned chats count
+    int abandondedCount?;
+|};
