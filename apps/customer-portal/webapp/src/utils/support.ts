@@ -88,9 +88,16 @@ export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
 export function normalizeUtcDateString(dateStr: string): string {
   const trimmed = dateStr.trim();
   if (/T\d{2}:\d{2}:\d{2}/.test(trimmed) || /Z$/i.test(trimmed)) return trimmed;
-  if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
-    return trimmed.replace(" ", "T") + "Z";
+
+  // Match YYYY-MM-DD HH:mm:ss format
+  const yyyymmdd =
+    /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (yyyymmdd) {
+    const [, yyyy, mm, dd, hh, mi, ss] = yyyymmdd;
+    return `${yyyy}-${mm!.padStart(2, "0")}-${dd!.padStart(2, "0")}T${hh!.padStart(2, "0")}:${mi}:${ss}Z`;
   }
+
+  // Match MM/DD/YYYY HH:mm:ss format
   const mmddyyyy =
     /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
   if (mmddyyyy) {
@@ -249,7 +256,59 @@ export function formatDateTime(
  */
 export function formatDateOnly(dateStr: string | null | undefined): string {
   if (!dateStr) return "--";
-  const normalized = normalizeUtcDateString(dateStr);
+
+  const trimmed = dateStr.trim();
+
+  // Try to manually parse YYYY-MM-DD HH:mm:ss format for more reliable parsing
+  const yyyymmdd =
+    /^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d{1,2}):(\d{2}):(\d{2}))?$/.exec(
+      trimmed,
+    );
+  if (yyyymmdd) {
+    const [, yyyy, mm, dd, hh = "00", mi = "00", ss = "00"] = yyyymmdd;
+    const year = parseInt(yyyy!, 10);
+    const month = parseInt(mm!, 10) - 1; // JS months are 0-indexed
+    const day = parseInt(dd!, 10);
+    const hour = parseInt(hh, 10);
+    const minute = parseInt(mi, 10);
+    const second = parseInt(ss, 10);
+
+    const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+
+  // Try MM/DD/YYYY HH:mm:ss format
+  const mmddyyyy =
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}):(\d{2}))?$/.exec(
+      trimmed,
+    );
+  if (mmddyyyy) {
+    const [, mm, dd, yyyy, hh = "00", mi = "00", ss = "00"] = mmddyyyy;
+    const year = parseInt(yyyy!, 10);
+    const month = parseInt(mm!, 10) - 1;
+    const day = parseInt(dd!, 10);
+    const hour = parseInt(hh, 10);
+    const minute = parseInt(mi, 10);
+    const second = parseInt(ss, 10);
+
+    const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+
+  // Fallback to original normalization approach
+  const normalized = normalizeUtcDateString(trimmed);
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return "--";
 

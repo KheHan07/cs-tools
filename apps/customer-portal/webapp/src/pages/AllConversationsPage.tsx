@@ -83,10 +83,10 @@ export default function AllConversationsPage(): JSX.Element {
     [searchTerm, filters.stateId, page, pageSize, sortOrder],
   );
 
-  const {
-    data,
-    isLoading: isConversationsLoading,
-  } = useSearchConversations(projectId || "", searchRequest);
+  const { data, isLoading: isConversationsLoading } = useSearchConversations(
+    projectId || "",
+    searchRequest,
+  );
 
   const {
     data: statsData,

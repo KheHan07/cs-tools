@@ -143,11 +143,24 @@ export default function ChatMessageBubble({
 
   const displayText = message.isError ? "Something went wrong" : message.text;
 
-  const formattedTime = message.timestamp.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  // Safely format timestamp with fallback for invalid dates
+  let formattedTime = "--";
+  try {
+    const dateObj =
+      message.timestamp instanceof Date
+        ? message.timestamp
+        : new Date(message.timestamp);
+
+    if (!Number.isNaN(dateObj.getTime())) {
+      formattedTime = dateObj.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+  } catch {
+    // formattedTime remains "--"
+  }
 
   const avatarIcon = (
     <Paper
