@@ -56,7 +56,7 @@ export function AppBar() {
         position="relative"
         color="transparent"
         elevation={0}
-        sx={{ backgroundColor: "background.paper", display: "flex", flexDirection: "col", gap: 1, p: 1.5, pt: 3 }}
+        sx={{ backgroundColor: "background.paper", display: "flex", flexDirection: "column", gap: 1, p: 1.5, pt: 3 }}
       >
         {config.showNotifications && (
           <Box mb={1}>
@@ -126,6 +126,7 @@ function NotificationButton({ to }: { to: string }) {
 
   return (
     <IconButton
+      aria-label="Open notifications"
       component={Link}
       to={to}
       sx={{
@@ -143,7 +144,7 @@ function NotificationButton({ to }: { to: string }) {
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
-    <IconButton onClick={onClick} sx={{ p: 0 }} disableRipple>
+    <IconButton aria-label="Go back" onClick={onClick} sx={{ p: 0 }} disableRipple>
       <ArrowLeft size={pxToRem(20)} />
     </IconButton>
   );
