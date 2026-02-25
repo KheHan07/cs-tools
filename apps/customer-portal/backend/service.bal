@@ -2197,7 +2197,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to add project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2206,7 +2206,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2266,7 +2266,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to remove project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2275,7 +2275,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2345,7 +2345,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to update project contact is forbidden for the user!"
+                        message: response.message()
                     }
                 };
             }
@@ -2354,7 +2354,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             log:printError(customError, response);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: response.message()
                 }
             };
         }
@@ -2368,7 +2368,7 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
     # + return - Contact information if valid or error response
     resource function post projects/[string id]/contacts/validate(http:RequestContext ctx,
             types:ValidationPayload payload)
-        returns http:Ok|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
+        returns http:Ok|http:Conflict|http:BadRequest|http:Unauthorized|http:Forbidden|http:InternalServerError {
 
         authorization:UserInfoPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
         if userInfo is error {
@@ -2408,33 +2408,50 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        user_management:Contact|error? response = user_management:validateProjectContact(
+        user_management:Contact|error? validationResponse = user_management:validateProjectContact(
                 {
                     contactEmail: payload.contactEmail,
                     adminEmail: userInfo.email,
                     projectId: projectResponse.sfId
                 });
-        if response is error {
-            if getStatusCode(response) == http:STATUS_FORBIDDEN {
+        if validationResponse is user_management:CONFLICT_ERROR {
+            log:printWarn(string `Contact with email: ${payload.contactEmail} already exists in project with ID: ${
+                id}`);
+            return <http:Conflict>{
+                body: {
+                    message: "Contact with the provided email already exists in the project!"
+                }
+            };
+        } else if validationResponse is error {
+            if getStatusCode(validationResponse) == http:STATUS_FORBIDDEN {
                 log:printWarn(string `Access to validate project contact is forbidden for user: ${
                         userInfo.userId}`);
                 return <http:Forbidden>{
                     body: {
-                        message: "Access to validate project contact is forbidden for the user!"
+                        message: validationResponse.message()
                     }
                 };
             }
 
             string customError = "Failed to validate project contact.";
-            log:printError(customError, response);
+            log:printError(customError, validationResponse);
             return <http:InternalServerError>{
                 body: {
-                    message: customError
+                    message: validationResponse.message()
+                }
+            };
+        } else if validationResponse is user_management:Contact {
+            return <http:Ok>{
+                body: {
+                    isContactValid: true,
+                    message: "Contact is valid but already exists in the project!",
+                    contactDetails: validationResponse
                 }
             };
         }
         return <http:Ok>{
             body: {
+                isContactValid: true,
                 message: "Project contact is valid and can be added to the project!"
             }
         };
