@@ -127,6 +127,10 @@ export default function AddUserModal({
       { contactEmail: trimmedEmail },
       {
         onSuccess: (data) => {
+          if (!data.isContactValid) {
+            setEmailError(data.message || "This email cannot be added.");
+            return;
+          }
           // Pre-fill fields if the contact already exists (deactivated)
           if (data.contactDetails) {
             setFirstName(data.contactDetails.firstName ?? "");
