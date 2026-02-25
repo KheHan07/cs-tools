@@ -60,6 +60,26 @@ import UploadAttachmentModal from "@components/support/case-details/attachments-
 const DEFAULT_CASE_TITLE = "Support case";
 const DEFAULT_CASE_DESCRIPTION = "Please describe your issue here.";
 
+const RELATED_DESCRIPTION_PREFIX_HTML =
+  "<p>-- This is the previous description (Edit or Delete if you want to alter) --</p>";
+
+const RELATED_DESCRIPTION_HTML_TAG_REGEX =
+  /<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>|<[a-zA-Z][^>]*\/>/;
+
+function buildRelatedCaseDescriptionHtml(rawDescription?: string): string {
+  const base = (rawDescription ?? "").trim();
+  if (!base) {
+    return RELATED_DESCRIPTION_PREFIX_HTML;
+  }
+
+  const isLikelyHtml = RELATED_DESCRIPTION_HTML_TAG_REGEX.test(base);
+  const normalizedBody = isLikelyHtml
+    ? base
+    : `<p>${escapeHtml(base)}</p>`;
+
+  return `${RELATED_DESCRIPTION_PREFIX_HTML}${normalizedBody}`;
+}
+
 interface ChatMessageForClassification {
   text: string;
   sender: string;
@@ -97,12 +117,9 @@ export default function CreateCasePage(): JSX.Element {
     projectId || "",
   );
   const [title, setTitle] = useState(() => relatedCase?.title ?? "");
-  const [description, setDescription] = useState(() => {
-    if (!relatedCase) return "";
-    const prefix =
-      "<p>-- This is the previous description (Edit or Delete if you want to alter) --</p>";
-    return prefix + (relatedCase.description ?? "");
-  });
+  const [description, setDescription] = useState(() =>
+    relatedCase ? buildRelatedCaseDescriptionHtml(relatedCase.description) : "",
+  );
   const [issueType, setIssueType] = useState("");
   const [product, setProduct] = useState("");
   const [deployment, setDeployment] = useState("");
@@ -292,9 +309,7 @@ export default function CreateCasePage(): JSX.Element {
     if (hasRelatedCaseInitializedRef.current) return;
 
     setTitle(relatedCase.title ?? "");
-    const prefix =
-      "<p>-- This is the previous description (Edit or Delete if you want to alter) --</p>";
-    setDescription(prefix + (relatedCase.description ?? ""));
+    setDescription(buildRelatedCaseDescriptionHtml(relatedCase.description));
 
     hasRelatedCaseInitializedRef.current = true;
   }, [relatedCase]);
@@ -670,7 +685,9 @@ export default function CreateCasePage(): JSX.Element {
             onAttachmentClick={handleAttachmentClick}
             onAttachmentRemove={handleAttachmentRemove}
             storageKey={
-              projectId ? `create-case-draft-${projectId}` : undefined
+              !relatedCase && projectId
+                ? `create-case-draft-${projectId}`
+                : undefined
             }
             isRelatedCaseMode={noAiMode}
             isTitleDisabled={!!relatedCase}

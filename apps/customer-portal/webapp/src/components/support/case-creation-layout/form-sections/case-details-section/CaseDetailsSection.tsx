@@ -244,6 +244,11 @@ export function CaseDetailsSection({
           </Box>
           <Box>
             <Editor
+              key={
+                isRelatedCaseMode
+                  ? `related-${relatedCaseNumber ?? "new"}`
+                  : "default"
+              }
               onAttachmentClick={onAttachmentClick}
               attachments={attachments}
               onAttachmentRemove={onAttachmentRemove}
