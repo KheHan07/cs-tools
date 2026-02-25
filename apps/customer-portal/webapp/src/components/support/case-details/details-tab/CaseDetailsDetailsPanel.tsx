@@ -33,6 +33,7 @@ import {
   formatValue,
   formatSlaResponseTime,
   formatUtcToLocal,
+  formatDateOnly,
   getAssignedEngineerLabel,
   getSeverityColor,
   getStatusColor,
@@ -176,7 +177,7 @@ export default function CaseDetailsDetailsPanel({
                 aria-hidden
               />
               <Typography {...valueSx}>
-                {formatValue(data?.createdOn)}
+                {formatDateOnly(data?.createdOn)}
               </Typography>
             </Stack>
           </Box>
@@ -189,7 +190,7 @@ export default function CaseDetailsDetailsPanel({
                 aria-hidden
               />
               <Typography {...valueSx}>
-                {formatValue(data?.updatedOn)}
+                {formatDateOnly(data?.updatedOn)}
               </Typography>
             </Stack>
           </Box>
@@ -263,9 +264,7 @@ export default function CaseDetailsDetailsPanel({
               <Typography {...labelSx}>Closed By</Typography>
               <Typography {...valueSx}>
                 {formatValue(
-                  data?.closedBy?.label ??
-                    data?.closedBy?.name ??
-                    null,
+                  data?.closedBy?.label ?? data?.closedBy?.name ?? null,
                 )}
               </Typography>
             </Box>

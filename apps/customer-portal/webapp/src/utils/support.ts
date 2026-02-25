@@ -85,12 +85,19 @@ export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
  * @param {string} dateStr - Raw UTC date string.
  * @returns {string} Normalized ISO string for Date constructor.
  */
-function normalizeUtcDateString(dateStr: string): string {
+export function normalizeUtcDateString(dateStr: string): string {
   const trimmed = dateStr.trim();
   if (/T\d{2}:\d{2}:\d{2}/.test(trimmed) || /Z$/i.test(trimmed)) return trimmed;
-  if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
-    return trimmed.replace(" ", "T") + "Z";
+
+  // Match YYYY-MM-DD HH:mm:ss format
+  const yyyymmdd =
+    /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (yyyymmdd) {
+    const [, yyyy, mm, dd, hh, mi, ss] = yyyymmdd;
+    return `${yyyy}-${mm!.padStart(2, "0")}-${dd!.padStart(2, "0")}T${hh!.padStart(2, "0")}:${mi}:${ss}Z`;
   }
+
+  // Match MM/DD/YYYY HH:mm:ss format
   const mmddyyyy =
     /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
   if (mmddyyyy) {
@@ -239,6 +246,47 @@ export function formatDateTime(
     minute: "numeric",
     hour12: true,
   }).format(date);
+}
+
+/**
+ * Formats a UTC date string to display only the date (no time) in the user's local timezone.
+ *
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss format from API or ISO format).
+ * @returns {string} Formatted date without time (e.g., "Feb 25, 2026").
+ */
+export function formatDateOnly(dateStr: string | null | undefined): string {
+  if (!dateStr) return "--";
+
+  const trimmed = dateStr.trim();
+  
+  // Handle YYYY-MM-DD HH:mm:ss format (standard API format for chat history and case details)
+  const standardFormat = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (standardFormat) {
+    const [, year, month, day, hour, minute, second] = standardFormat;
+    const isoDate = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+    const date = new Date(isoDate);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+  
+  // Handle ISO format (YYYY-MM-DDTHH:mm:ssZ or similar)
+  if (/T\d{2}:\d{2}/.test(trimmed)) {
+    const date = new Date(trimmed);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+
+  return "--";
 }
 
 export type ChatActionState =
@@ -413,7 +461,7 @@ export function getChatStatusColor(status: string): string {
   switch (true) {
     case normalized.includes(ChatStatus.RESOLVED.toLowerCase()):
       return "success.main";
-    case normalized.includes(ChatStatus.STILL_OPEN.toLowerCase()):
+    case normalized.includes(ChatStatus.OPEN.toLowerCase()):
       return "info.main";
     case normalized.includes(ChatStatus.ABANDONED.toLowerCase()):
       return "error.main";

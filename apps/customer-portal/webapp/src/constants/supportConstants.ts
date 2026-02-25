@@ -56,11 +56,22 @@ export type ChatAction = (typeof ChatAction)[keyof typeof ChatAction];
 // Chat status types.
 export const ChatStatus = {
   RESOLVED: "Resolved",
-  STILL_OPEN: "Still Open",
+  OPEN: "Open",
   ABANDONED: "Abandoned",
 } as const;
 
 export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus];
+
+export const ConversationStatus = {
+  ABANDONED: "Abandoned",
+  ACTIVE: "Active",
+  CONVERTED: "Converted",
+  OPEN: "Open",
+  RESOLVED: "Resolved",
+} as const;
+
+export type ConversationStatus =
+  (typeof ConversationStatus)[keyof typeof ConversationStatus];
 
 // Case status types matching API labels.
 export const CaseStatus = {
@@ -379,7 +390,7 @@ export type AllConversationsStatKey =
 export const ALL_CONVERSATIONS_STAT_CONFIGS: SupportStatConfig<AllConversationsStatKey>[] =
   [
     { icon: CircleCheck, iconColor: "success", key: "resolved", label: "Resolved" },
-    { icon: Clock, iconColor: "info", key: "open", label: "Still Open" },
+    { icon: Clock, iconColor: "info", key: "open", label: "Open" },
     {
       icon: CircleAlert,
       iconColor: "warning",

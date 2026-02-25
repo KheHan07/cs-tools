@@ -163,6 +163,23 @@ export default function SupportPage(): JSX.Element {
             <ChatHistoryList
               items={chatItems}
               isLoading={isChatLoading}
+              onItemAction={
+                projectId
+                  ? (chatId) => {
+                      const summary = chatItems.find(
+                        (item) => item.chatId === chatId,
+                      );
+
+                      if (!summary) {
+                        return;
+                      }
+
+                      navigate(`/${projectId}/support/conversations/${chatId}`, {
+                        state: { conversationSummary: summary },
+                      });
+                    }
+                  : undefined
+              }
             />
           </SupportOverviewCard>
         </Grid>
