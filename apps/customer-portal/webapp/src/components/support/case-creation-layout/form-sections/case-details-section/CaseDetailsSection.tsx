@@ -182,9 +182,6 @@ export function CaseDetailsSection({
               size="small"
               value={relatedCaseNumber}
               disabled
-              slotProps={{
-                input: { readOnly: true },
-              }}
             />
           </Box>
         )}

@@ -294,17 +294,22 @@ export default function CreateCasePage(): JSX.Element {
     hasRelatedCaseInitializedRef.current = true;
   }, [relatedCase]);
 
+  const hasRelatedCaseDeploymentInitializedRef = useRef(false);
   useEffect(() => {
     if (!relatedCase?.deploymentId && !relatedCase?.deploymentLabel) return;
     if (!projectDeployments?.length) return;
+    if (hasRelatedCaseDeploymentInitializedRef.current) return;
 
     const dep = relatedCase.deploymentId
       ? projectDeployments.find((d) => d.id === relatedCase.deploymentId)
       : null;
     const displayLabel = dep
-      ? (dep.name ?? (dep as { type?: { label: string } }).type?.label)
+      ? (dep.name ?? dep.type?.label ?? relatedCase.deploymentLabel)
       : relatedCase.deploymentLabel;
-    if (displayLabel) setDeployment(displayLabel);
+    if (displayLabel) {
+      setDeployment(displayLabel);
+      hasRelatedCaseDeploymentInitializedRef.current = true;
+    }
   }, [relatedCase, projectDeployments]);
 
   useEffect(() => {
@@ -331,10 +336,7 @@ export default function CreateCasePage(): JSX.Element {
 
     const info = classificationResponse.caseInfo;
     const deploymentLabel = info?.environment?.trim();
-    const productLabel =
-      info?.productName?.trim() && info?.productVersion?.trim()
-        ? `${info.productName.trim()} ${info.productVersion.trim()}`
-        : buildClassificationProductLabel(info);
+    const productLabel = buildClassificationProductLabel(info);
     const issueTypeLabel = classificationResponse.issueType?.trim();
     const severityLabel = classificationResponse.severityLevel?.trim();
 
@@ -718,8 +720,9 @@ export default function CreateCasePage(): JSX.Element {
         onBack={handleBack}
         hideAiChip={noAiMode}
         backLabel="Back"
+        title={relatedCase ? "Create Related Case" : undefined}
         subtitle={
-          skipChatMode
+          skipChatMode || relatedCase
             ? "Fill in the case details below and submit"
             : "Please review and edit the auto-populated information before submitting"
         }

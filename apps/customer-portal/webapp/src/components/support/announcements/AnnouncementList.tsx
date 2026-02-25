@@ -56,23 +56,22 @@ export default function AnnouncementList({
     );
   }
 
+  const cardSx = {
+    p: 3,
+    display: "flex" as const,
+    flexDirection: "column" as const,
+    alignItems: "stretch" as const,
+    gap: 1,
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {cases.map((caseItem) => (
-        <Form.CardButton
-          key={caseItem.id}
-          onClick={() => onCaseClick?.(caseItem)}
-          sx={{
-            p: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch",
-            gap: 1,
-          }}
-        >
-          <Form.CardHeader
-            sx={{ p: 0 }}
-            title={
+      {cases.map((caseItem) => {
+        const cardContent = (
+          <>
+            <Form.CardHeader
+              sx={{ p: 0 }}
+              title={
               <Typography
                 variant="body2"
                 fontWeight={500}
@@ -162,8 +161,22 @@ export default function AnnouncementList({
               )}
             </Box>
           </Form.CardActions>
-        </Form.CardButton>
-      ))}
+          </>
+        );
+        return onCaseClick ? (
+          <Form.CardButton
+            key={caseItem.id}
+            onClick={() => onCaseClick(caseItem)}
+            sx={cardSx}
+          >
+            {cardContent}
+          </Form.CardButton>
+        ) : (
+          <Box key={caseItem.id} sx={cardSx}>
+            {cardContent}
+          </Box>
+        );
+      })}
     </Box>
   );
 }

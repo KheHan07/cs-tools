@@ -30,12 +30,7 @@ import {
 } from "@wso2/oxygen-ui";
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
-
-/** Option for Product Version dropdown: value is deployment product id, label is display text. */
-export interface ProductVersionOption {
-  id: string;
-  label: string;
-}
+import type { ProductVersionOption } from "@utils/caseCreation";
 
 export interface BasicInformationSectionProps {
   project?: string;
@@ -183,7 +178,6 @@ export function BasicInformationSection({
                 value={deployment}
                 onChange={(e) => setDeployment(e.target.value)}
                 displayEmpty
-                disabled={isDeploymentDisabled || !effectiveEditing}
                 renderValue={(value) =>
                   value === "" ? "Select Deployment Type..." : value
                 }

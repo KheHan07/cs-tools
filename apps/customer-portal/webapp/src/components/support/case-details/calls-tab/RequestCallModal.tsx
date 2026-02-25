@@ -168,7 +168,9 @@ export default function RequestCallModal({
       setModalError("Please enter a valid preferred time.");
       return;
     }
-    if (selected <= now) {
+    // Align with picker min (now + 1 min): reject if selected is before that boundary.
+    const minAllowed = new Date(now.getTime() + 60 * 1000);
+    if (selected < minAllowed) {
       setModalError(
         "The selected date and time cannot be in the past. Please choose a future date and time.",
       );
@@ -294,11 +296,12 @@ export default function RequestCallModal({
           inputProps={{
             min: (() => {
               const now = new Date();
-              const y = now.getFullYear();
-              const m = String(now.getMonth() + 1).padStart(2, "0");
-              const d = String(now.getDate()).padStart(2, "0");
-              const h = String(now.getHours()).padStart(2, "0");
-              const min = String(now.getMinutes()).padStart(2, "0");
+              const plusOneMin = new Date(now.getTime() + 60 * 1000);
+              const y = plusOneMin.getFullYear();
+              const m = String(plusOneMin.getMonth() + 1).padStart(2, "0");
+              const d = String(plusOneMin.getDate()).padStart(2, "0");
+              const h = String(plusOneMin.getHours()).padStart(2, "0");
+              const min = String(plusOneMin.getMinutes()).padStart(2, "0");
               return `${y}-${m}-${d}T${h}:${min}`;
             })(),
           }}

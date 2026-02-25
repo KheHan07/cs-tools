@@ -23,6 +23,7 @@ export interface CaseCreationHeaderProps {
   hideAiChip?: boolean;
   backLabel?: string;
   subtitle?: string;
+  title?: string;
 }
 
 /**
@@ -36,7 +37,9 @@ export function CaseCreationHeader({
   hideAiChip = false,
   backLabel = "Back to Chat",
   subtitle = "Please review and edit the auto-populated information before submitting",
+  title: titleProp,
 }: CaseCreationHeaderProps): JSX.Element {
+  const title = titleProp ?? "Review Case Details";
   return (
     <Box sx={{ mb: 3 }}>
       {/* navigation button container */}
@@ -61,7 +64,7 @@ export function CaseCreationHeader({
         {/* title and description container */}
         <Box>
           <Typography variant="h5" sx={{ mb: 0.5 }}>
-            Review Case Details
+            {title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {subtitle}

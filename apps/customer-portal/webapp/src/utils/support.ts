@@ -29,8 +29,6 @@ import {
   ChatStatus,
   CaseStatus,
   CallRequestStatus,
-  CaseSeverity,
-  CaseSeverityLevel,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment, MetadataItem } from "@models/responses";
@@ -669,7 +667,6 @@ export function getSeverityIcon(label?: string): ComponentType<{
   const upper = display.toUpperCase();
   switch (upper) {
     case "S0":
-      return TriangleAlert;
     case "S1":
       return TriangleAlert;
     case "S2":
@@ -690,21 +687,18 @@ export function getSeverityIcon(label?: string): ComponentType<{
  * @returns {string} The Oxygen UI color path.
  */
 export function getSeverityColor(label?: string): string {
-  switch (label) {
-    case CaseSeverity.CATASTROPHIC:
-    case CaseSeverityLevel.S0:
+  const normalized = mapSeverityToDisplay(label);
+  const upper = normalized.toUpperCase();
+  switch (upper) {
+    case "S0":
       return "error.main";
-    case CaseSeverity.CRITICAL:
-    case CaseSeverityLevel.S1:
+    case "S1":
       return "warning.main";
-    case CaseSeverity.HIGH:
-    case CaseSeverityLevel.S2:
+    case "S2":
       return "info.main";
-    case CaseSeverity.MEDIUM:
-    case CaseSeverityLevel.S3:
+    case "S3":
       return "secondary.main";
-    case CaseSeverity.LOW:
-    case CaseSeverityLevel.S4:
+    case "S4":
       return "success.main";
     default:
       return "text.primary";
@@ -982,7 +976,7 @@ export function getAvailableCaseActions(
  * @returns {string | undefined} The Announcement type ID or undefined.
  */
 export function getAnnouncementCaseTypeId(
-  caseTypes?: { id: string; label: string }[] | null,
+  caseTypes?: MetadataItem[] | null,
 ): string | undefined {
   if (!caseTypes?.length) return undefined;
   return caseTypes.find(
@@ -1001,14 +995,19 @@ export function getAnnouncementCaseTypeId(
 export const normalizeCaseTypeOptions = (
   caseTypes: { id: string; label: string }[]
 ) => {
-  // Collect IDs of "Query" and "Incident" types to merge them into one "Case" option
+  // Collect IDs of "Query" and "Incident" (including backend typo "icident") to merge into one "Case" option
   const caseIds = caseTypes
-    .filter((c) => ["query", "incident"].includes(c.label.toLowerCase()))
+    .filter((c) =>
+      ["query", "incident", "icident"].includes(c.label.toLowerCase()),
+    )
     .map((c) => c.id);
 
-  // Keep all types except Query, Incident, and Announcement
+  // Keep all types except Query, Incident, Icident, and Announcement
   const others = caseTypes.filter(
-    (c) => !["query", "incident", "announcement"].includes(c.label.toLowerCase())
+    (c) =>
+      !["query", "incident", "icident", "announcement"].includes(
+        c.label.toLowerCase(),
+      ),
   );
 
   return [
