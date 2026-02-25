@@ -31,12 +31,21 @@ import {
 import { PencilLine, Sparkles } from "@wso2/oxygen-ui-icons-react";
 import { useState, type JSX } from "react";
 
+/** Option for Product Version dropdown: value is deployment product id, label is display text. */
+export interface ProductVersionOption {
+  id: string;
+  label: string;
+}
+
 export interface BasicInformationSectionProps {
   project?: string;
   product?: string;
   setProduct?: (value: string) => void;
   deployment?: string;
   setDeployment?: (value: string) => void;
+  productOptionList?: ProductVersionOption[];
+  isProductAutoDetected?: boolean;
+  isDeploymentAutoDetected?: boolean;
   metadata?: { deploymentTypes?: string[]; products?: string[] };
   isDeploymentLoading?: boolean;
   isProductDropdownDisabled?: boolean;
@@ -57,6 +66,9 @@ export function BasicInformationSection({
   setProduct = () => undefined,
   deployment = "",
   setDeployment = () => undefined,
+  productOptionList,
+  isProductAutoDetected = true,
+  isDeploymentAutoDetected = true,
   metadata,
   isDeploymentLoading = false,
   isProductDropdownDisabled = false,
@@ -76,13 +88,14 @@ export function BasicInformationSection({
       ].filter((value) => value && value.trim() !== ""),
     ),
   );
-  const productOptions = Array.from(
+  const productOptionsLegacy = Array.from(
     new Set(
       [...(metadata?.products ?? []), ...(extraProductOptions ?? [])].filter(
         (value) => value && value.trim() !== "",
       ),
     ),
   );
+  const useProductOptionList = Array.isArray(productOptionList) && productOptionList.length > 0;
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -144,7 +157,7 @@ export function BasicInformationSection({
                 *
               </Box>
             </Typography>
-            {!isRelatedCaseMode && (
+            {!isRelatedCaseMode && isDeploymentAutoDetected && (
             <Chip
               label="Auto detected"
               size="small"
@@ -189,7 +202,7 @@ export function BasicInformationSection({
                 *
               </Box>
             </Typography>
-            {!isRelatedCaseMode && (
+            {!isRelatedCaseMode && isProductAutoDetected && (
             <Chip
               label="Auto detected"
               size="small"
@@ -211,24 +224,35 @@ export function BasicInformationSection({
                 value={product}
                 onChange={(e) => setProduct(e.target.value)}
                 displayEmpty
-                renderValue={(value) =>
-                  value === ""
-                    ? isProductDropdownDisabled
+                renderValue={(value) => {
+                  if (value === "") {
+                    return isProductDropdownDisabled
                       ? "Select deployment first"
-                      : "Select Product Version..."
-                    : value
-                }
+                      : "Select Product Version...";
+                  }
+                  if (useProductOptionList) {
+                    const opt = productOptionList!.find((o) => o.id === value);
+                    return opt?.label ?? value;
+                  }
+                  return value;
+                }}
               >
                 <MenuItem value="" disabled>
                   {isProductDropdownDisabled
                     ? "Select deployment first"
                     : "Select Product Version..."}
                 </MenuItem>
-                {productOptions.map((p) => (
-                  <MenuItem key={p} value={p}>
-                    {p}
-                  </MenuItem>
-                ))}
+                {useProductOptionList
+                  ? productOptionList!.map((p) => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {p.label}
+                      </MenuItem>
+                    ))
+                  : productOptionsLegacy.map((p) => (
+                      <MenuItem key={p} value={p}>
+                        {p}
+                      </MenuItem>
+                    ))}
               </Select>
             </FormControl>
           )}

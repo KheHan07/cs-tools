@@ -15,6 +15,7 @@
 // under the License.
 
 import {
+  Box,
   Button,
   CircularProgress,
   Dialog,
@@ -38,6 +39,7 @@ import {
   type ChangeEvent,
 } from "react";
 import type { SelectChangeEvent } from "@wso2/oxygen-ui";
+import ErrorBanner from "@components/common/error-banner/ErrorBanner";
 import { usePostCallRequest } from "@api/usePostCallRequest";
 import { usePatchCallRequest } from "@api/usePatchCallRequest";
 import type { CallRequest } from "@models/responses";
@@ -105,6 +107,7 @@ export default function RequestCallModal({
   const isEdit = !!editCall;
 
   const [form, setForm] = useState(INITIAL_FORM);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const stateKeyFromCall =
     editCall && editCall.state?.id != null
@@ -115,6 +118,7 @@ export default function RequestCallModal({
   useEffect(() => {
     if (!open) {
       setForm(INITIAL_FORM);
+      setModalError(null);
       return;
     }
     if (editCall) {
@@ -138,6 +142,7 @@ export default function RequestCallModal({
 
   const handleClose = useCallback(() => {
     setForm(INITIAL_FORM);
+    setModalError(null);
     onClose();
   }, [onClose]);
 
@@ -155,18 +160,38 @@ export default function RequestCallModal({
   };
 
   const handleSubmit = useCallback(() => {
+    setModalError(null);
     if (!isValid) return;
+
+    const now = new Date();
+    const selected = new Date(form.preferredDateTimeLocal);
+    if (!form.preferredDateTimeLocal || Number.isNaN(selected.getTime())) {
+      setModalError("Please enter a valid preferred time.");
+      return;
+    }
+    if (selected <= now) {
+      setModalError(
+        "The selected date and time cannot be in the past. Please choose a future date and time.",
+      );
+      return;
+    }
 
     const utcTimes = [localToUtcIso(form.preferredDateTimeLocal)].filter(
       Boolean,
     );
     if (utcTimes.length === 0) {
-      onError?.("Invalid preferred time.");
+      setModalError("Invalid preferred time.");
       return;
     }
 
     const handleError = (error: Error) => {
-      onError?.(error.message ?? "Failed to save call request.");
+      const msg = error?.message ?? "";
+      const friendlyMsg =
+        /past|utc|cannot be past/i.test(msg)
+          ? "The selected date and time cannot be in the past. Please choose a future date and time."
+          : msg || "Failed to save call request.";
+      setModalError(friendlyMsg);
+      onError?.(friendlyMsg);
     };
 
     if (isEdit && editCall) {
@@ -255,6 +280,14 @@ export default function RequestCallModal({
       </DialogTitle>
 
       <DialogContent sx={{ pt: 1 }}>
+        {modalError && (
+          <Box sx={{ mb: 2 }}>
+            <ErrorBanner
+              message={modalError}
+              onClose={() => setModalError(null)}
+            />
+          </Box>
+        )}
         <TextField
           id="preferred-time"
           label="Preferred Time *"
