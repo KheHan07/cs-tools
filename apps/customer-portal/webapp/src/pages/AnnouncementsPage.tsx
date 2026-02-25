@@ -18,85 +18,89 @@ import { useParams, useNavigate } from "react-router";
 import {
   useState,
   useMemo,
-  useEffect,
   type JSX,
   type ChangeEvent,
 } from "react";
-import { useLoader } from "@context/linear-loader/LoaderContext";
 import {
   Box,
   Button,
   Stack,
-  Select,
-  MenuItem,
+  Tabs,
+  Tab,
   Typography,
   FormControl,
   InputLabel,
+  Select,
+  MenuItem,
   Pagination,
 } from "@wso2/oxygen-ui";
 import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
-import { useGetProjectCasesStats } from "@api/useGetProjectCasesStats";
 import useGetCasesFilters from "@api/useGetCasesFilters";
-import useGetProjectCases from "@api/useGetProjectCases";
-import {
-  getIncidentAndQueryCaseTypeIds,
-  getIncidentAndQueryIds,
-} from "@utils/support";
-import type { AllCasesFilterValues } from "@models/responses";
-import AllCasesStatCards from "@components/support/all-cases/AllCasesStatCards";
-import AllCasesSearchBar from "@components/support/all-cases/AllCasesSearchBar";
-import AllCasesList from "@components/support/all-cases/AllCasesList";
+import { useGetProjectCasesPage } from "@api/useGetProjectCasesPage";
+import { getAnnouncementCaseTypeId } from "@utils/support";
+import type { AnnouncementFilterValues } from "@constants/supportConstants";
+import { CaseStatus } from "@constants/supportConstants";
+import AnnouncementStatCards from "@components/support/announcements/AnnouncementStatCards";
+import AnnouncementsSearchBar from "@components/support/announcements/AnnouncementsSearchBar";
+import AnnouncementList from "@components/support/announcements/AnnouncementList";
+import AllCasesListSkeleton from "@components/support/all-cases/AllCasesListSkeleton";
+
+type AnnouncementTab = "all" | "unread" | "archived";
 
 /**
- * AllCasesPage component to display all cases with stats, filters, and search.
+ * AnnouncementsPage component to display announcements with stats, tabs, filters, and search.
  *
- * @returns {JSX.Element} The rendered All Cases page.
+ * @returns {JSX.Element} The rendered Announcements page.
  */
-export default function AllCasesPage(): JSX.Element {
+export default function AnnouncementsPage(): JSX.Element {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState<AllCasesFilterValues>({});
+  const [filters, setFilters] = useState<AnnouncementFilterValues>({});
+  const [activeTab, setActiveTab] = useState<AnnouncementTab>("all");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch filter metadata first to get Incident and Query IDs for stats API
   const { data: filterMetadata } = useGetCasesFilters(projectId || "");
+  const announcementId = getAnnouncementCaseTypeId(filterMetadata?.caseTypes);
 
-  const { incidentId, queryId } = useMemo(
-    () => getIncidentAndQueryIds(filterMetadata?.caseTypes),
-    [filterMetadata?.caseTypes],
-  );
+  const closedStatusId = useMemo(() => {
+    const closed = filterMetadata?.caseStates?.find(
+      (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
+    );
+    return closed?.id ? [Number(closed.id)] : undefined;
+  }, [filterMetadata?.caseStates]);
 
-  const defaultCaseTypeIds = getIncidentAndQueryCaseTypeIds(
-    filterMetadata?.caseTypes,
-  );
+  const nonClosedStatusIds = useMemo(() => {
+    const closed = filterMetadata?.caseStates?.find(
+      (s) => s.label.toLowerCase() === CaseStatus.CLOSED.toLowerCase(),
+    );
+    const rest = (filterMetadata?.caseStates ?? []).filter(
+      (s) => s.id !== closed?.id,
+    );
+    return rest.length > 0 ? rest.map((s) => Number(s.id)) : undefined;
+  }, [filterMetadata?.caseStates]);
 
-  const {
-    data: stats,
-    isLoading: isStatsQueryLoading,
-    isError: isStatsError,
-  } = useGetProjectCasesStats(projectId || "", {
-    incidentId,
-    queryId,
-    enabled: !!incidentId && !!queryId,
-  });
+  const statusIdsForTab = useMemo(() => {
+    if (activeTab === "archived") return closedStatusId;
+    if (activeTab === "unread") return nonClosedStatusIds;
+    return undefined;
+  }, [activeTab, closedStatusId, nonClosedStatusIds]);
 
   const caseSearchRequest = useMemo(
     () => ({
       filters: {
-        caseTypeIds: filters.caseTypeId
-          ? [filters.caseTypeId]
-          : defaultCaseTypeIds.length > 0
-            ? defaultCaseTypeIds
+        caseTypeIds:
+          announcementId && announcementId.trim()
+            ? [announcementId]
             : undefined,
-        statusIds: filters.statusId ? [Number(filters.statusId)] : undefined,
+        statusIds: filters.statusId
+          ? [Number(filters.statusId)]
+          : statusIdsForTab,
         severityId: filters.severityId ? Number(filters.severityId) : undefined,
-        issueId: filters.issueTypes ? Number(filters.issueTypes) : undefined,
-        deploymentId: filters.deploymentId || undefined,
         searchQuery: searchTerm.trim() || undefined,
       },
       sortBy: {
@@ -104,76 +108,34 @@ export default function AllCasesPage(): JSX.Element {
         order: sortOrder,
       },
     }),
-    [filters, searchTerm, sortOrder, defaultCaseTypeIds],
+    [announcementId, filters, searchTerm, sortOrder, statusIdsForTab],
   );
 
-  // Fetch all cases using infinite query (runs in parallel with stats when projectId and auth are ready)
+  const offset = (page - 1) * pageSize;
+
   const {
     data,
     isLoading: isCasesQueryLoading,
-    hasNextPage,
-    fetchNextPage,
-  } = useGetProjectCases(projectId || "", caseSearchRequest, {
-    enabled: !!projectId,
-  });
-
-  const { showLoader, hideLoader } = useLoader();
-
-  // Show loader only for initial load (until first stats + cases response), not for background refetches or fetchNextPage.
-  const hasStatsResponse = stats !== undefined;
-  const hasCasesResponse = data !== undefined;
-  const isStatsLoading =
-    isStatsQueryLoading || (!!projectId && !hasStatsResponse);
-  const isCasesAreaLoading =
-    isCasesQueryLoading || (!!projectId && !hasCasesResponse);
-
-  const isInitialPageLoading = isStatsLoading || isCasesAreaLoading;
-
-  useEffect(() => {
-    if (isInitialPageLoading) {
-      showLoader();
-      return () => hideLoader();
-    }
-    hideLoader();
-  }, [isInitialPageLoading, showLoader, hideLoader]);
-
-  // Background-load all remaining pages so search/filters work on full dataset.
-  useEffect(() => {
-    if (!data || !hasNextPage) {
-      return;
-    }
-
-    void fetchNextPage();
-  }, [data, hasNextPage, fetchNextPage]);
-
-  const allCases = useMemo(
-    () => data?.pages.flatMap((page) => page.cases) ?? [],
-    [data],
+  } = useGetProjectCasesPage(
+    projectId || "",
+    caseSearchRequest,
+    offset,
+    pageSize,
+    { enabled: !!announcementId },
   );
-  const apiTotalRecords = data?.pages?.[0]?.totalRecords ?? 0;
 
-  // API returns filtered/sorted results; no frontend filtering/sorting needed
-  const filteredAndSearchedCases = allCases;
-
-  const totalItems = apiTotalRecords || filteredAndSearchedCases.length;
-
-  // Pagination logic
-  const paginatedCases = useMemo(() => {
-    const startIndex = (page - 1) * pageSize;
-    return filteredAndSearchedCases.slice(startIndex, startIndex + pageSize);
-  }, [filteredAndSearchedCases, page]);
-
-  const totalPages = Math.ceil(totalItems / pageSize);
+  const cases = data?.cases ?? [];
+  const totalRecords = data?.totalRecords ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+  const isCasesAreaLoading =
+    isCasesQueryLoading || (!!projectId && !!announcementId && !data);
 
   const handlePageChange = (_event: ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
   const handleFilterChange = (field: string, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [field]: value || undefined,
-    }));
+    setFilters((prev) => ({ ...prev, [field]: value || undefined }));
     setPage(1);
   };
 
@@ -192,9 +154,13 @@ export default function AllCasesPage(): JSX.Element {
     setPage(1);
   };
 
+  const handleTabChange = (_event: React.SyntheticEvent, value: string) => {
+    setActiveTab(value as AnnouncementTab);
+    setPage(1);
+  };
+
   return (
     <Stack spacing={3}>
-      {/* Back button and header */}
       <Box>
         <Button
           startIcon={<ArrowLeft size={16} />}
@@ -202,26 +168,31 @@ export default function AllCasesPage(): JSX.Element {
           sx={{ mb: 2 }}
           variant="text"
         >
-          Back to Support Center
+          Back
         </Button>
         <Box>
           <Typography variant="h4" color="text.primary" sx={{ mb: 1 }}>
-            All Cases
+            Announcements
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage and track all your support cases
+            View and manage announcements for your project
           </Typography>
         </Box>
       </Box>
 
-      {/* Stat cards */}
-      <AllCasesStatCards
-        isLoading={isStatsLoading}
-        isError={isStatsError}
-        stats={stats}
-      />
+      <AnnouncementStatCards isError />
 
-      <AllCasesSearchBar
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
+      >
+        <Tab label="All Announcements" value="all" />
+        <Tab label="Unread" value="unread" />
+        <Tab label="Archived" value="archived" />
+      </Tabs>
+
+      <AnnouncementsSearchBar
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         isFiltersOpen={isFiltersOpen}
@@ -232,7 +203,6 @@ export default function AllCasesPage(): JSX.Element {
         onClearFilters={handleClearFilters}
       />
 
-      {/* Sort and results count */}
       <Box
         sx={{
           display: "flex",
@@ -241,7 +211,7 @@ export default function AllCasesPage(): JSX.Element {
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          Showing {paginatedCases.length} of {totalItems} cases
+          Showing {cases.length} of {totalRecords} announcements
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <FormControl size="small" sx={{ minWidth: 180 }}>
@@ -266,14 +236,24 @@ export default function AllCasesPage(): JSX.Element {
         </Box>
       </Box>
 
-      {/* Cases list */}
-      <AllCasesList
-        cases={paginatedCases}
-        isLoading={isCasesAreaLoading}
-        onCaseClick={(c) => navigate(`/${projectId}/support/cases/${c.id}`)}
-      />
+      {!announcementId && filterMetadata ? (
+        <Box sx={{ textAlign: "center", py: 6 }}>
+          <Typography variant="body1" color="text.secondary">
+            Announcement type not found in project filters.
+          </Typography>
+        </Box>
+      ) : isCasesAreaLoading ? (
+        <AllCasesListSkeleton />
+      ) : (
+        <AnnouncementList
+          cases={cases}
+          isLoading={false}
+          onCaseClick={(c) =>
+            navigate(`/${projectId}/announcements/${c.id}`)
+          }
+        />
+      )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
           <Pagination
