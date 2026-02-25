@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
+import ballerina/log;
 
 public type CONFLICT_ERROR distinct error;
 
@@ -84,6 +85,9 @@ public isolated function updateMembershipFlag(string projectId, string contactEm
 # + payload - Payload containing information to validate the project contact
 # + return - Validated contact information or error
 public isolated function validateProjectContact(ValidationPayload payload) returns Contact|error? {
+
+    string customError = "An error occurred while validating the project contact.";
+
     http:Response userManagementResponse = check userManagementClient->/validate\-project\-contact.post(payload);
 
     // If there's an existing Deactivated contact, return the contact details.
@@ -95,13 +99,18 @@ public isolated function validateProjectContact(ValidationPayload payload) retur
     }
 
     json|error errBody = userManagementResponse.getJsonPayload();
-    json errInfo = errBody is json ? errBody : errBody.message();
+    if errBody is error {
+        log:printError(customError, errBody);
+        return error(customError);
+    }
 
     // If there's an existing Active contact, return a conflict error with the contact details.
     if userManagementResponse.statusCode == http:STATUS_CONFLICT {
-        return error CONFLICT_ERROR(check errInfo.message);
+        log:printError(customError, info = errBody.toString());
+        return error CONFLICT_ERROR(check errBody.message);
     }
 
     // For any other error status code, return a generic error with the error message.
-    return error(check errInfo.message);
+    log:printError(customError, info = errBody.toString());
+    return error(check errBody.message);
 }
