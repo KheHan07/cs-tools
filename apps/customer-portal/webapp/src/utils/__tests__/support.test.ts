@@ -51,6 +51,7 @@ import {
   replaceInlineImageSources,
   formatCommentDate,
   formatUtcToLocal,
+  formatDateOnly,
   getInitials,
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
@@ -699,6 +700,44 @@ describe("support utils", () => {
       expect(result).toContain("Oct");
       expect(result).toContain("29");
       expect(result).not.toMatch(/\b2024\b/);
+    });
+  });
+
+  describe("formatDateOnly", () => {
+    it("should return -- for null and undefined", () => {
+      expect(formatDateOnly(null)).toBe("--");
+      expect(formatDateOnly(undefined)).toBe("--");
+    });
+
+    it("should return -- for invalid date string", () => {
+      expect(formatDateOnly("not-a-date")).toBe("--");
+      expect(formatDateOnly("")).toBe("--");
+    });
+
+    it("should format valid ISO datetime to date-only string", () => {
+      const result = formatDateOnly("2024-10-29T14:30:00Z");
+      expect(result).toContain("Oct");
+      expect(result).toContain("29");
+      expect(result).toContain("2024");
+      expect(result).not.toMatch(/14:30/);
+      expect(result).not.toMatch(/PM/);
+    });
+
+    it("should format ServiceNow-style YYYY-MM-DD HH:mm:ss to date-only string", () => {
+      const result = formatDateOnly("2024-10-29 14:30:00");
+      expect(result).toContain("Oct");
+      expect(result).toContain("29");
+      expect(result).toContain("2024");
+      expect(result).not.toMatch(/14:30/);
+      expect(result).not.toMatch(/PM/);
+    });
+
+    it("should format MM/DD/YYYY HH:mm:ss to date-only string", () => {
+      const result = formatDateOnly("10/29/2024 14:30:00");
+      expect(result).toContain("Oct");
+      expect(result).toContain("29");
+      expect(result).toContain("2024");
+      expect(result).not.toMatch(/14:30/);
     });
   });
 

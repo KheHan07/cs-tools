@@ -130,8 +130,7 @@ const markdownComponents: React.ComponentProps<
  *
  * Supports both user and bot messages with appropriate styling,
  * avatar display, markdown formatting for bot messages,
- * optional Create Case action when actions is not null,
- * and error state with retry.
+ * optional Create Case action, and displays error text when present.
  *
  * @returns The ChatMessageBubble JSX element.
  */

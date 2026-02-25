@@ -30,7 +30,6 @@ import {
   CaseStatus,
   CallRequestStatus,
   CaseSeverityLevel,
-  ConversationStatus,
 } from "@constants/supportConstants";
 import { SEVERITY_LABEL_TO_DISPLAY } from "@constants/dashboardConstants";
 import type { CaseComment, MetadataItem } from "@models/responses";
@@ -86,7 +85,7 @@ export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
  * @param {string} dateStr - Raw UTC date string.
  * @returns {string} Normalized ISO string for Date constructor.
  */
-function normalizeUtcDateString(dateStr: string): string {
+export function normalizeUtcDateString(dateStr: string): string {
   const trimmed = dateStr.trim();
   if (/T\d{2}:\d{2}:\d{2}/.test(trimmed) || /Z$/i.test(trimmed)) return trimmed;
   if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {

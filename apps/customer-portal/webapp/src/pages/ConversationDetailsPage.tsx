@@ -40,7 +40,7 @@ import ErrorStateIcon from "@components/common/error-state/ErrorStateIcon";
 import type { Message } from "@pages/NoveraChatPage";
 import ChatMessageBubble from "@components/support/novera-ai-assistant/novera-chat-page/ChatMessageBubble";
 import { alpha, useTheme } from "@wso2/oxygen-ui";
-import { formatDateOnly } from "@utils/support";
+import { formatDateOnly, normalizeUtcDateString } from "@utils/support";
 
 /**
  * ConversationDetailsPage displays the message history for a single conversation.
@@ -60,10 +60,14 @@ export default function ConversationDetailsPage(): JSX.Element {
   } | null;
   const summary = locationState?.conversationSummary;
 
-  const { data, isLoading, isError } = useGetConversationMessages(
-    conversationId || "",
-    { pageSize: 10 },
-  );
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetConversationMessages(conversationId || "", { pageSize: 10 });
 
   const messages: ConversationMessage[] =
     data?.pages?.flatMap((p) => p.comments) ?? [];
@@ -71,12 +75,15 @@ export default function ConversationDetailsPage(): JSX.Element {
   const theme = useTheme();
 
   const chatMessages: Message[] = messages.map((msg) => {
-    const isBot = msg.createdBy.toLowerCase() === "novera";
+    const isBot =
+      msg.type?.toLowerCase() === "bot" ||
+      msg.createdBy?.toLowerCase() === "novera";
+    const normalizedDate = normalizeUtcDateString(msg.createdOn);
     return {
       id: msg.id,
       text: msg.content,
       sender: isBot ? "bot" : "user",
-      timestamp: new Date(msg.createdOn),
+      timestamp: new Date(normalizedDate),
     };
   });
 
@@ -264,6 +271,17 @@ export default function ConversationDetailsPage(): JSX.Element {
                 {index < chatMessages.length - 1 && <Divider sx={{ my: 3 }} />}
               </Box>
             ))}
+            {hasNextPage && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? "Loading..." : "Load More Messages"}
+                </Button>
+              </Box>
+            )}
           </Box>
         )}
       </Paper>

@@ -190,7 +190,7 @@ export default function CaseDetailsDetailsPanel({
                 aria-hidden
               />
               <Typography {...valueSx}>
-                {formatValue(data?.updatedOn)}
+                {formatDateOnly(data?.updatedOn)}
               </Typography>
             </Stack>
           </Box>

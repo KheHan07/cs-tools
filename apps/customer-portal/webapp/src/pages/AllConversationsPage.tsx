@@ -86,7 +86,6 @@ export default function AllConversationsPage(): JSX.Element {
   const {
     data,
     isLoading: isConversationsLoading,
-    isError: isConversationsError,
   } = useSearchConversations(projectId || "", searchRequest);
 
   const {
