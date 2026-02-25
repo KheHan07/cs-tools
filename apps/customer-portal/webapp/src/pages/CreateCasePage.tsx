@@ -44,11 +44,12 @@ import { RelatedCaseSummary } from "@components/support/case-creation-layout/for
 import {
   buildClassificationProductLabel,
   findMatchingDeploymentLabel,
+  findMatchingProductId,
   getBaseDeploymentOptions,
   getBaseProductOptions,
+  getDeploymentDisplayLabelForEnvironment,
   resolveDeploymentMatch,
   resolveIssueTypeKey,
-  findMatchingProductLabel,
   resolveProductId,
   shouldAddClassificationProductToOptions,
 } from "@utils/caseCreation";
@@ -297,7 +298,10 @@ export default function CreateCasePage(): JSX.Element {
 
     const info = classificationResponse.caseInfo;
     const deploymentLabel = info?.environment?.trim();
-    const productLabel = buildClassificationProductLabel(info);
+    const productLabel =
+      info?.productName?.trim() && info?.productVersion?.trim()
+        ? `${info.productName.trim()} ${info.productVersion.trim()}`
+        : buildClassificationProductLabel(info);
     const issueTypeLabel = classificationResponse.issueType?.trim();
     const severityLabel = classificationResponse.severityLevel?.trim();
 
@@ -305,16 +309,16 @@ export default function CreateCasePage(): JSX.Element {
 
     setDeployment((prev) => {
       if (!deploymentLabel) return prev;
-      const matched = findMatchingDeploymentLabel(
-        deploymentLabel,
-        baseDeploymentOptions,
-      );
+      const matched =
+        getDeploymentDisplayLabelForEnvironment(
+          deploymentLabel,
+          projectDeployments,
+        ) ??
+        findMatchingDeploymentLabel(deploymentLabel, baseDeploymentOptions);
       return matched ?? prev;
     });
-    if (productLabel) {
-      setClassificationProductLabel(productLabel);
-      setProduct(productLabel);
-    }
+    if (productLabel) setClassificationProductLabel(productLabel);
+    // Product is auto-selected in the sync effect when products for the matched deployment load
     setIssueType((prev) =>
       issueTypeLabel &&
       issueTypesList.some(
@@ -348,24 +352,27 @@ export default function CreateCasePage(): JSX.Element {
     isDeploymentsLoading,
     baseDeploymentOptions,
     issueTypesList,
+    projectDeployments,
     severityLevelsList,
   ]);
 
   useEffect(() => {
     if (!selectedDeploymentId || !baseProductOptions.length) return;
     setProduct((current) => {
-      if (!current?.trim()) return baseProductOptions[0] ?? "";
-      const match = findMatchingProductLabel(current, baseProductOptions);
-      if (match) return match;
-      if (classificationProductLabel?.trim() && current?.trim()) {
-        const normalizedCurrent = current.trim().toLowerCase();
-        const normalizedClassification =
-          classificationProductLabel.trim().toLowerCase();
-        if (normalizedCurrent === normalizedClassification) {
-          return current;
+      if (!current?.trim()) {
+        const fromClassification = findMatchingProductId(
+          classificationProductLabel,
+          baseProductOptions,
+        );
+        if (classificationProductLabel?.trim()) {
+          return fromClassification ?? "";
         }
+        return baseProductOptions[0]?.id ?? "";
       }
-      return current ?? baseProductOptions[0] ?? "";
+      const found = baseProductOptions.some((o) => o.id === current);
+      if (found) return current;
+      const fromLabel = findMatchingProductId(current, baseProductOptions);
+      return fromLabel ?? baseProductOptions[0]?.id ?? "";
     });
   }, [
     baseProductOptions,
@@ -419,33 +426,47 @@ export default function CreateCasePage(): JSX.Element {
     e.preventDefault();
     if (!projectId) return;
 
+    const titlePlain = htmlToPlainText(title).trim();
+    const descriptionPlain = htmlToPlainText(description).trim();
+    if (!titlePlain) {
+      showError("Please enter a case title.");
+      return;
+    }
+    if (!descriptionPlain) {
+      showError("Please enter a description.");
+      return;
+    }
+
     const deploymentMatch = resolveDeploymentMatch(
       deployment,
       projectDeployments,
       undefined,
     );
     if (!deploymentMatch) {
-      showError("Please select a valid deployment.");
+      showError("Please select a deployment type.");
       return;
     }
 
-    const resolvedProductLabel =
-      findMatchingProductLabel(product, baseProductOptions) ?? product;
-    const productId = resolveProductId(
-      resolvedProductLabel,
-      allDeploymentProducts,
-    );
+    const productId = resolveProductId(product, allDeploymentProducts);
     if (!productId) {
-      showError("Please select a valid product.");
+      showError("Please select a product version.");
       return;
     }
 
     const issueTypeKey = resolveIssueTypeKey(issueType, filters?.issueTypes);
+    if (!issueTypeKey) {
+      showError("Please select an issue type.");
+      return;
+    }
     const severityKey = parseInt(severity, 10) || 0;
+    if (!severityKey) {
+      showError("Please select a severity.");
+      return;
+    }
 
     const payload: CreateCaseRequest = {
       deploymentId: String(deploymentMatch.id),
-      description: htmlToPlainText(description),
+      description: descriptionPlain,
       issueTypeKey,
       productId: String(productId),
       projectId,
@@ -526,8 +547,11 @@ export default function CreateCasePage(): JSX.Element {
           navigate(`/${projectId}/support/cases/${caseId}`);
         }
       },
-      onError: () => {
-        showError("We couldn't create your case. Please try again.");
+      onError: (error) => {
+        const msg =
+          error?.message?.trim() ||
+          "We couldn't create your case. Please check required fields and try again.";
+        showError(msg);
       },
     });
   };
@@ -545,9 +569,18 @@ export default function CreateCasePage(): JSX.Element {
     return [classificationProductLabel];
   }, [classificationProductLabel, baseProductOptions]);
 
+  const isProductAutoDetected =
+    !noAiMode &&
+    !!classificationProductLabel?.trim() &&
+    !!product?.trim();
+
+  const isDeploymentAutoDetected =
+    !noAiMode &&
+    !!classificationResponse?.caseInfo?.environment?.trim() &&
+    !!deployment?.trim();
+
   const sectionMetadata = {
     deploymentTypes: baseDeploymentOptions,
-    products: baseProductOptions,
   };
   const isProductDropdownDisabled =
     !selectedDeploymentId || deploymentProductsLoading;
@@ -568,6 +601,9 @@ export default function CreateCasePage(): JSX.Element {
             setProduct={handleProductChange}
             deployment={deployment}
             setDeployment={handleDeploymentChange}
+            productOptionList={baseProductOptions}
+            isProductAutoDetected={isProductAutoDetected}
+            isDeploymentAutoDetected={isDeploymentAutoDetected}
             metadata={sectionMetadata}
             isDeploymentLoading={isProjectLoading || isDeploymentsLoading}
             isProductDropdownDisabled={isProductDropdownDisabled}
