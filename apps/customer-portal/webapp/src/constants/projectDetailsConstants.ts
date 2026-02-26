@@ -104,31 +104,58 @@ export const statItems: Stat[] = [
 
 export const getRecentActivityItems = (
   activity?: ProjectStatsResponse["recentActivity"],
-): ActivityItem[] => [
-  {
-    label: "Total Time Logged",
-    value:
-      activity?.totalTimeLogged !== undefined
-        ? `${activity.totalTimeLogged}h`
+): ActivityItem[] => {
+  const convertMinutesToHours = (minutes: number): number => {
+    return Math.round((minutes / 60) * 100) / 100;
+  };
+
+  const formatDateTime = (dateString: string): string => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString.replace(" ", "T"));
+      if (isNaN(date.getTime())) return "";
+      const dateStr = date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+      const timeStr = date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${dateStr} at ${timeStr}`;
+    } catch {
+      return "";
+    }
+  };
+
+  return [
+    {
+      label: "Total Time Logged",
+      value:
+        activity?.totalTimeLogged !== undefined
+          ? `${convertMinutesToHours(activity.totalTimeLogged)} hrs`
+          : "N/A",
+      type: "text",
+    },
+    {
+      label: "Billable Hours",
+      value:
+        activity?.billableHours !== undefined
+          ? `${convertMinutesToHours(activity.billableHours)} hrs`
+          : "N/A",
+      type: "text",
+    },
+    {
+      label: "Last Deployment",
+      value: activity?.lastDeploymentOn
+        ? formatDateTime(activity.lastDeploymentOn)
         : "N/A",
-    type: "text",
-  },
-  {
-    label: "Billable Hours",
-    value:
-      activity?.billableHours !== undefined
-        ? `${activity.billableHours}h`
-        : "N/A",
-    type: "text",
-  },
-  {
-    label: "Last Deployment",
-    value: activity?.lastDeploymentOn
-      ? new Date(activity.lastDeploymentOn).toLocaleDateString()
-      : "N/A",
-    type: "text",
-  },
-];
+      type: "text",
+    },
+  ];
+};
 
 export const SUBSCRIPTION_STATUS = {
   EXPIRED: "Expired",
@@ -187,7 +214,7 @@ export const CASE_STATUS = {
   REOPENED: "Reopened",
 } as const;
 
-export const CASE_TYPES ={
+export const CASE_TYPES = {
   INCIDENT: "Incident",
   QUERY: "Query",
   SERVICE_REQUEST: "Service Request",

@@ -103,11 +103,11 @@ export default function SettingsUserManagement({
     });
   }, [contacts, searchQuery]);
 
-  const stats = useMemo(() => ({
-    admins: contacts.filter((c) => c.isCsAdmin).length,
-    developers: contacts.filter((c) => c.isCsIntegrationUser).length,
-    security: contacts.filter((c) => c.isSecurityContact).length,
-  }), [contacts]);
+  // const stats = useMemo(() => ({
+  //   admins: contacts.filter((c) => c.isCsAdmin).length,
+  //   developers: contacts.filter((c) => c.isCsIntegrationUser).length,
+  //   security: contacts.filter((c) => c.isSecurityContact).length,
+  // }), [contacts]);
 
   const handleAddUser = useCallback(
     (data: CreateProjectContactRequest) => {

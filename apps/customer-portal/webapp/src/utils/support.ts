@@ -56,7 +56,7 @@ export function getIncidentAndQueryCaseTypeIds(
 
 /**
  * Extracts Incident and Query case type IDs separately for stats API.
- * API expects caseType=queryId&icaseType=incidentId.
+ * API expects caseTypes=queryId&caseTypes=incidentId.
  *
  * @param caseTypes - Case types from useGetCasesFilters response.
  * @returns {{ incidentId?: string; queryId?: string }} Incident and Query IDs.
@@ -258,9 +258,10 @@ export function formatDateOnly(dateStr: string | null | undefined): string {
   if (!dateStr) return "--";
 
   const trimmed = dateStr.trim();
-  
+
   // Handle YYYY-MM-DD HH:mm:ss format (standard API format for chat history and case details)
-  const standardFormat = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  const standardFormat =
+    /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
   if (standardFormat) {
     const [, year, month, day, hour, minute, second] = standardFormat;
     const isoDate = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
@@ -273,7 +274,7 @@ export function formatDateOnly(dateStr: string | null | undefined): string {
       }).format(date);
     }
   }
-  
+
   // Handle ISO format (YYYY-MM-DDTHH:mm:ssZ or similar)
   if (/T\d{2}:\d{2}/.test(trimmed)) {
     const date = new Date(trimmed);
@@ -1060,3 +1061,40 @@ export const normalizeCaseTypeOptions = (
     ...(caseIds.length ? [{ label: "Case", value: caseIds.join(",") }] : []),
   ];
 };
+
+/**
+ * Estimates the number of display lines for given HTML content.
+ * Counts only non-empty content lines, ignoring empty lines and whitespace.
+ *
+ * @param {string} html - HTML content to analyze.
+ * @returns {number} Estimated line count.
+ */
+export function estimateLineCount(html: string): number {
+  const processed = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote|pre|ul|ol)>/gi, "\n");
+
+  // Then strip remaining HTML tags
+  const plainText = processed.replace(/<[^>]+>/g, "");
+
+  // Split by newlines and filter out empty lines
+  const lines = plainText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (lines.length === 0) {
+    return 0;
+  }
+
+  // Count lines with content, and estimate long lines that wrap
+  let totalLines = 0;
+  const CHARS_PER_LINE = 80;
+
+  for (const line of lines) {
+    // Each content line takes at least 1 line, more if it's long
+    totalLines += Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
+  }
+
+  return totalLines;
+}

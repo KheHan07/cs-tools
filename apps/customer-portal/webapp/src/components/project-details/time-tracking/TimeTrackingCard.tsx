@@ -18,10 +18,7 @@ import { Card, Box, Typography, Chip, useTheme } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import type { TimeCard } from "@models/responses";
 import { getTimeCardStateColorPath } from "@utils/projectDetails";
-import {
-  getSupportOverviewChipSx,
-  getPlainChipSx,
-} from "@utils/support";
+import { getSupportOverviewChipSx, getPlainChipSx } from "@utils/support";
 
 interface TimeTrackingCardProps {
   card: TimeCard;
@@ -42,6 +39,12 @@ export default function TimeTrackingCard({
   const label = caseData?.label?.trim() || "--";
   const caseNumber = caseData?.number?.trim() || "--";
   const approvedByName = approvedBy?.label?.trim() || "--";
+
+  // Convert totalTime from minutes to hours
+  const totalTimeInHours =
+    totalTime !== undefined && totalTime !== null
+      ? Math.round((totalTime / 60) * 100) / 100
+      : null;
 
   const stateColorPath = getTimeCardStateColorPath(state);
 
@@ -116,9 +119,7 @@ export default function TimeTrackingCard({
               color: "text.primary",
             }}
           >
-            {totalTime !== undefined && totalTime !== null
-              ? `${totalTime}h`
-              : "--"}
+            {totalTimeInHours !== null ? `${totalTimeInHours} hrs` : "--"}
           </Typography>
         </Box>
       </Box>

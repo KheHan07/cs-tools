@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { COLLAPSE_LINE_THRESHOLD } from "@/constants/supportConstants";
+import { estimateLineCount } from "@/utils/support";
 import { Box, Button, Divider, Paper } from "@wso2/oxygen-ui";
 import { ChevronDown } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-
-// Line count threshold for showing expand button (approximately 4 lines).
-const COLLAPSE_CHAR_THRESHOLD = 200;
 
 export interface ChatMessageCardProps {
   htmlContent: string;
@@ -43,8 +42,8 @@ export default function ChatMessageCard({
   isCurrentUser,
   primaryBg,
 }: ChatMessageCardProps): JSX.Element {
-  const plainLength = htmlContent.replace(/<[^>]+>/g, "").length;
-  const showExpandButton = plainLength > COLLAPSE_CHAR_THRESHOLD;
+  const lineCount = estimateLineCount(htmlContent);
+  const showExpandButton = lineCount > COLLAPSE_LINE_THRESHOLD;
 
   return (
     <Paper
@@ -52,18 +51,19 @@ export default function ChatMessageCard({
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 1.5,
-        p: 1.5,
-        maxWidth: "100%",
+        gap: 1,
+        p: 1.25,
+        width: "100%",
+        minHeight: "auto",
         bgcolor: isCurrentUser ? primaryBg : "background.paper",
       }}
     >
       <Box
         sx={{
-          fontSize: "0.75rem",
-          fontFamily: "monospace",
+          fontSize: "0.875rem",
+          lineHeight: 1.5,
           "& p": {
-            margin: "0 0 0.5em 0",
+            margin: "0 0 0.25em 0",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
           },
@@ -88,7 +88,7 @@ export default function ChatMessageCard({
           ...(!isExpanded &&
             showExpandButton && {
               display: "-webkit-box",
-              WebkitLineClamp: 4,
+              WebkitLineClamp: COLLAPSE_LINE_THRESHOLD,
               WebkitBoxOrient: "vertical" as const,
               overflow: "hidden",
             }),

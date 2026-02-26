@@ -38,8 +38,13 @@ import ChatMessageCard from "@case-details-activity/ChatMessageCard";
 export interface CommentBubbleProps {
   comment: CaseComment;
   isCurrentUser: boolean;
+  isSupportEngineer: boolean;
   primaryBg: string;
-  userDetails?: { email?: string; firstName?: string; lastName?: string } | null;
+  userDetails?: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  } | null;
 }
 
 /**
@@ -51,6 +56,7 @@ export interface CommentBubbleProps {
 export default function CommentBubble({
   comment,
   isCurrentUser,
+  isSupportEngineer,
   primaryBg,
   userDetails,
 }: CommentBubbleProps): import("react").JSX.Element {
@@ -60,17 +66,16 @@ export default function CommentBubble({
   const trimmed = rawContent.trim();
   const isFullCodeWrap =
     trimmed.startsWith("[code]") && trimmed.endsWith("[/code]");
-  const afterCode =
-    isFullCodeWrap
-      ? stripCodeWrapper(rawContent)
-      : convertCodeTagsToHtml(rawContent);
+  const afterCode = isFullCodeWrap
+    ? stripCodeWrapper(rawContent)
+    : convertCodeTagsToHtml(rawContent);
   const withoutLabel = stripCustomerCommentAddedLabel(afterCode);
   const withImages = replaceInlineImageSources(
     withoutLabel,
     comment.inlineAttachments,
   );
   const htmlContent = DOMPurify.sanitize(withImages);
-  const displayName = isCurrentUser ? null : (comment.createdBy || "Unknown");
+  const displayName = isCurrentUser ? null : comment.createdBy || "Unknown";
   const initials = useMemo(() => {
     if (isCurrentUser && userDetails) {
       const { firstName, lastName, email } = userDetails;
@@ -92,10 +97,10 @@ export default function CommentBubble({
   return (
     <Stack
       direction="row"
-      spacing={1.5}
       alignItems="flex-start"
       sx={{
         flexDirection: isRight ? "row-reverse" : "row",
+        gap: 2,
       }}
     >
       <Avatar
@@ -115,24 +120,30 @@ export default function CommentBubble({
         {initials}
       </Avatar>
       <Stack
-        spacing={1}
+        spacing={0.75}
         sx={{
-          flex: 1,
+          width: "100%",
+          maxWidth: 1000,
           minWidth: 0,
           alignItems: isRight ? "flex-end" : "flex-start",
         }}
       >
         <Stack
           direction="row"
-          spacing={1}
           alignItems="center"
           flexWrap="wrap"
           sx={{
             flexDirection: isRight ? "row-reverse" : "row",
+            gap: 1,
             minHeight: 32,
           }}
         >
-          {displayName && (
+          {isCurrentUser && (
+            <Typography variant="body2" color="text.primary" fontWeight={500}>
+              You
+            </Typography>
+          )}
+          {displayName && !isCurrentUser && (
             <Typography variant="body2" color="text.primary" fontWeight={500}>
               {displayName}
             </Typography>
@@ -140,7 +151,7 @@ export default function CommentBubble({
           <Typography variant="caption" color="text.secondary">
             {formatCommentDate(comment.createdOn)}
           </Typography>
-          {!isCurrentUser && (
+          {isSupportEngineer && (
             <Chip
               label="Support Engineer"
               size="small"

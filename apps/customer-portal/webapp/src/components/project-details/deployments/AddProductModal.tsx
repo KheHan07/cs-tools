@@ -28,7 +28,14 @@ import {
   Typography,
 } from "@wso2/oxygen-ui";
 import { X } from "@wso2/oxygen-ui-icons-react";
-import { useCallback, useEffect, useState, type ChangeEvent, type JSX } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type JSX,
+} from "react";
 import { useGetProducts } from "@api/useGetProducts";
 import { useSearchProductVersions } from "@api/useSearchProductVersions";
 import { usePostDeploymentProduct } from "@api/usePostDeploymentProduct";
@@ -66,10 +73,22 @@ export default function AddProductModal({
 }: AddProductModalProps): JSX.Element {
   const [form, setForm] = useState(INITIAL_FORM);
 
-  const { data: products = [], isLoading: isLoadingProducts } =
-    useGetProducts({ offset: 0, limit: 10 });
+  const { data: products = [], isLoading: isLoadingProducts } = useGetProducts({
+    offset: 0,
+    limit: 10,
+  });
   const { data: versions = [], isLoading: isLoadingVersions } =
     useSearchProductVersions(form.productId, { limit: 10, offset: 0 });
+
+  // Sort versions in ascending order
+  const sortedVersions = useMemo(() => {
+    return [...versions].sort((a, b) => {
+      return a.version.localeCompare(b.version, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+  }, [versions]);
 
   const postProduct = usePostDeploymentProduct();
 
@@ -103,13 +122,15 @@ export default function AddProductModal({
     [],
   );
 
-  const handleVersionChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, versionId: event.target.value }));
-  }, []);
+  const handleVersionChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, versionId: event.target.value }));
+    },
+    [],
+  );
 
   const handleTextChange =
-    (field: "cores" | "tps") =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (field: "cores" | "tps") => (event: ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -228,9 +249,7 @@ export default function AddProductModal({
             label="Version *"
             value={form.versionId}
             onChange={handleVersionChange}
-            disabled={
-              isSubmitting || !form.productId || isLoadingVersions
-            }
+            disabled={isSubmitting || !form.productId || isLoadingVersions}
             sx={{
               "& .MuiSelect-select": {
                 color: !form.versionId ? "text.secondary" : undefined,
@@ -238,7 +257,7 @@ export default function AddProductModal({
             }}
           >
             <MenuItem value="">Select</MenuItem>
-            {versions.map((v) => (
+            {sortedVersions.map((v) => (
               <MenuItem key={v.id} value={v.id}>
                 {v.version}
               </MenuItem>

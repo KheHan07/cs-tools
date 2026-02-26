@@ -32,7 +32,7 @@ export interface UseGetProjectCasesStatsOptions {
 
 /**
  * Custom hook to fetch project case statistics by ID.
- * API expects ?caseType=queryId&icaseType=incidentId (both required for filtered stats).
+ * API expects ?caseTypes=queryId&caseTypes=incidentId (both required for filtered stats).
  *
  * @param {string} id - The ID of the project.
  * @param {UseGetProjectCasesStatsOptions} [options] - incidentId, queryId, enabled.
@@ -62,8 +62,8 @@ export function useGetProjectCasesStats(
         let requestUrl = `${baseUrl}/projects/${id}/stats/cases`;
         if (incidentId && queryId) {
           const params = new URLSearchParams();
-          params.set("caseType", queryId);
-          params.set("icaseType", incidentId);
+          params.append("caseTypes", queryId);
+          params.append("caseTypes", incidentId);
           requestUrl += `?${params.toString()}`;
         }
 
@@ -85,11 +85,7 @@ export function useGetProjectCasesStats(
         throw error;
       }
     },
-    enabled:
-      !!id &&
-      isSignedIn &&
-      !isAuthLoading &&
-      enabled,
+    enabled: !!id && isSignedIn && !isAuthLoading && enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnMount: false,

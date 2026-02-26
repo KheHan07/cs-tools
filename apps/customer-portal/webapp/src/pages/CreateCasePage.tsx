@@ -53,7 +53,11 @@ import {
   resolveProductId,
   shouldAddClassificationProductToOptions,
 } from "@utils/caseCreation";
-import { CaseSeverity, CaseSeverityLevel } from "@constants/supportConstants";
+import {
+  CaseSeverity,
+  CaseSeverityLevel,
+  CaseType,
+} from "@constants/supportConstants";
 import { escapeHtml, htmlToPlainText } from "@utils/richTextEditor";
 import UploadAttachmentModal from "@components/support/case-details/attachments-tab/UploadAttachmentModal";
 
@@ -73,9 +77,7 @@ function buildRelatedCaseDescriptionHtml(rawDescription?: string): string {
   }
 
   const isLikelyHtml = RELATED_DESCRIPTION_HTML_TAG_REGEX.test(base);
-  const normalizedBody = isLikelyHtml
-    ? base
-    : `<p>${escapeHtml(base)}</p>`;
+  const normalizedBody = isLikelyHtml ? base : `<p>${escapeHtml(base)}</p>`;
 
   return `${RELATED_DESCRIPTION_PREFIX_HTML}${normalizedBody}`;
 }
@@ -153,6 +155,17 @@ export default function CreateCasePage(): JSX.Element {
     [deploymentProductsData],
   );
   const baseProductOptions = getBaseProductOptions(allDeploymentProducts);
+
+  // Sort product options in ascending order by label
+  const sortedBaseProductOptions = useMemo(() => {
+    return [...baseProductOptions].sort((a, b) => {
+      return a.label.localeCompare(b.label, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+  }, [baseProductOptions]);
+
   const { showError } = useErrorBanner();
   const { showSuccess } = useSuccessBanner();
   const { mutate: postCase, isPending: isCreatePending } = usePostCase();
@@ -266,9 +279,7 @@ export default function CreateCasePage(): JSX.Element {
     if (isFiltersLoading || isDeploymentsLoading) return;
 
     const initialDeployment = baseDeploymentOptions[0] ?? "";
-    const initialIssueType = noAiMode
-      ? ""
-      : (issueTypesList[0]?.label ?? "");
+    const initialIssueType = noAiMode ? "" : (issueTypesList[0]?.label ?? "");
     const initialSeverity = noAiMode ? "" : (severityLevelsList[0]?.id ?? "");
 
     queueMicrotask(() => {
@@ -339,9 +350,8 @@ export default function CreateCasePage(): JSX.Element {
     if (info.shortDescription?.trim()) setTitle(info.shortDescription);
     if (info.description?.trim()) {
       const text = info.description.trim();
-      const isLikelyHtml = /<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>|<[a-zA-Z][^>]*\/>/.test(
-        text,
-      );
+      const isLikelyHtml =
+        /<[a-zA-Z][^>]*>[\s\S]*<\/[a-zA-Z][^>]*>|<[a-zA-Z][^>]*\/>/.test(text);
       const html = isLikelyHtml ? text : `<p>${escapeHtml(text)}</p>`;
       setDescription(html);
     }
@@ -412,27 +422,30 @@ export default function CreateCasePage(): JSX.Element {
   ]);
 
   useEffect(() => {
-    if (!selectedDeploymentId || !baseProductOptions.length) return;
+    if (!selectedDeploymentId || !sortedBaseProductOptions.length) return;
     // In related-case / no-AI mode, keep Product Version unselected by default.
     if (noAiMode && relatedCase) return;
     setProduct((current) => {
       if (!current?.trim()) {
         const fromClassification = findMatchingProductId(
           classificationProductLabel,
-          baseProductOptions,
+          sortedBaseProductOptions,
         );
         if (classificationProductLabel?.trim()) {
           return fromClassification ?? "";
         }
-        return baseProductOptions[0]?.id ?? "";
+        return "";
       }
-      const found = baseProductOptions.some((o) => o.id === current);
+      const found = sortedBaseProductOptions.some((o) => o.id === current);
       if (found) return current;
-      const fromLabel = findMatchingProductId(current, baseProductOptions);
-      return fromLabel ?? baseProductOptions[0]?.id ?? "";
+      const fromLabel = findMatchingProductId(
+        current,
+        sortedBaseProductOptions,
+      );
+      return fromLabel ?? "";
     });
   }, [
-    baseProductOptions,
+    sortedBaseProductOptions,
     noAiMode,
     relatedCase,
     classificationProductLabel,
@@ -523,10 +536,11 @@ export default function CreateCasePage(): JSX.Element {
     const severityKey = parsedSeverity;
 
     const payload: CreateCaseRequest = {
+      caseType: CaseType.DEFAULT_CASE,
       deploymentId: String(deploymentMatch.id),
       description: descriptionPlain,
       issueTypeKey,
-      productId: String(productId),
+      deployedProductId: String(productId),
       projectId,
       severityKey,
       title,
@@ -619,18 +633,16 @@ export default function CreateCasePage(): JSX.Element {
     if (
       !shouldAddClassificationProductToOptions(
         classificationProductLabel,
-        baseProductOptions,
+        sortedBaseProductOptions,
       )
     ) {
       return [];
     }
     return [classificationProductLabel];
-  }, [classificationProductLabel, baseProductOptions]);
+  }, [classificationProductLabel, sortedBaseProductOptions]);
 
   const isProductAutoDetected =
-    !noAiMode &&
-    !!classificationProductLabel?.trim() &&
-    !!product?.trim();
+    !noAiMode && !!classificationProductLabel?.trim() && !!product?.trim();
 
   const isDeploymentAutoDetected =
     !noAiMode &&
@@ -659,7 +671,7 @@ export default function CreateCasePage(): JSX.Element {
             setProduct={handleProductChange}
             deployment={deployment}
             setDeployment={handleDeploymentChange}
-            productOptionList={baseProductOptions}
+            productOptionList={sortedBaseProductOptions}
             isProductAutoDetected={isProductAutoDetected}
             isDeploymentAutoDetected={isDeploymentAutoDetected}
             metadata={sectionMetadata}
