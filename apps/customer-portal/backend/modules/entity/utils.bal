@@ -160,3 +160,44 @@ public isolated function validateCaseUpdatePayload(CaseUpdatePayload payload) re
     }
     return;
 }
+
+# Validate case create payload based on case type.
+#
+# + payload - Case create payload
+# + return - Validation error message or null if valid
+public isolated function validateCaseCreatePayload(CaseCreatePayload payload) returns string? {
+    CaseType caseType = payload.caseType ?: DEFAULT_CASE;
+    string? title = payload.title;
+    string? description = payload.description;
+
+    if caseType == DEFAULT_CASE {
+        if title is () {
+            return "Title is required for default case.";
+        }
+        if title.trim().length() == 0 || title.length() > 500 {
+            return "Title must be between 1 and 500 characters long for default case.";
+        }
+        if description is () || description.trim().length() == 0  {
+            return "Description cannnot be epty for default case.";
+        }
+        if payload.issueTypeKey is () {
+            return "Issue type key is required for default case.";
+        }
+        if payload.severityKey is () {
+            return "Severity key is required for default case.";
+        }
+    } else if caseType == SERVICE_REQUEST {
+        if payload.catalogId is () {
+            return "Catalog ID is required for service request case.";
+        }
+        if payload.catalogItemId is () {
+            return "Catalog Item ID is required for service request case.";
+        }
+        Variable[]? variables = payload.variables;
+        if variables is () || variables.length() == 0 {
+            return "At least one variable is required for service request case.";
+        }
+    } else if caseType == ANNOUNCEMENT || caseType == SECURITY_REPORT_ANALYSIS {
+        return string `Case type ${caseType} is not supported.`;
+    }
+}
