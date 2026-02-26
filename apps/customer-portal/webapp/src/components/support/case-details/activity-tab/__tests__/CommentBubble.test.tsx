@@ -80,7 +80,7 @@ describe("CommentBubble", () => {
   });
 
   it("should not show Support Engineer chip for current user", () => {
-    renderBubble({ isCurrentUser: true, isSupportEngineer: false });
+    renderBubble({ isCurrentUser: true, isSupportEngineer: true });
     expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
   });
 

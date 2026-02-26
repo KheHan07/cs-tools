@@ -63,14 +63,20 @@ export default function SupportPage(): JSX.Element {
     filterMetadata?.caseTypes,
   );
 
+  const hasFilterIds = !!(incidentId || queryId);
+
   const {
     data: stats,
     isFetching,
     isError,
-  } = useGetProjectSupportStats(projectId || "", {
-    incidentId,
-    queryId,
-  });
+  } = useGetProjectSupportStats(
+    projectId || "",
+    {
+      incidentId,
+      queryId,
+    },
+    hasFilterIds,
+  );
 
   const {
     data,

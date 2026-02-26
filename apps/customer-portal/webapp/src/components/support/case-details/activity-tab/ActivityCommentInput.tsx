@@ -99,13 +99,16 @@ export default function ActivityCommentInput({
     });
   };
 
-  const uploadAttachments = async (): Promise<boolean> => {
-    if (attachments.length === 0) return true;
+  const uploadAttachmentsFromSnapshot = async (
+    attachmentsSnapshot: Array<{ id: string; file: File }>,
+    namesSnapshot: Map<string, string>,
+  ): Promise<boolean> => {
+    if (attachmentsSnapshot.length === 0) return true;
 
     setIsUploadingAttachments(true);
     try {
-      for (const { id, file } of attachments) {
-        const attachmentName = attachmentNamesRef.current.get(id) || file.name;
+      for (const { id, file } of attachmentsSnapshot) {
+        const attachmentName = namesSnapshot.get(id) || file.name;
 
         await new Promise<void>((resolve, reject) => {
           const reader = new FileReader();
@@ -150,17 +153,23 @@ export default function ActivityCommentInput({
   const handleSend = async () => {
     if (stripHtml(value).length === 0 || isDisabled) return;
 
+    // Snapshot attachments before posting
+    const attachmentsSnapshot = [...attachments];
+    const attachmentNamesSnapshot = new Map(attachmentNamesRef.current);
+
     postComment.mutate(
       { caseId, body: { content: value.trim(), type: CommentType.COMMENT } },
       {
         onSuccess: async () => {
-          // Upload attachments after comment is posted
-          const uploaded = await uploadAttachments();
-          if (uploaded) {
-            setValue("");
-            setResetTrigger((prev) => prev + 1);
-            setAttachments([]);
-            attachmentNamesRef.current.clear();
+          // Clear UI immediately to prevent duplicate posts
+          setValue("");
+          setResetTrigger((prev) => prev + 1);
+          setAttachments([]);
+          attachmentNamesRef.current.clear();
+
+          // Upload attachments using snapshot
+          if (attachmentsSnapshot.length > 0) {
+            await uploadAttachmentsFromSnapshot(attachmentsSnapshot, attachmentNamesSnapshot);
           }
         },
         onError: (error: unknown) => {

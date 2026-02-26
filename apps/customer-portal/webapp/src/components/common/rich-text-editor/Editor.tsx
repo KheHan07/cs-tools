@@ -208,7 +208,7 @@ const Editor = ({
   placeholder = "Enter description...",
   id,
   showKeyboardHint = false,
-  maxHeight = "120px",
+  maxHeight = "300px",
   onFocus,
   onBlur,
 }: {

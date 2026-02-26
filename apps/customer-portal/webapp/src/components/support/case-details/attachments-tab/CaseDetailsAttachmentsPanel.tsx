@@ -53,6 +53,7 @@ export default function CaseDetailsAttachmentsPanel({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    isFetchNextPageError,
   } = useInfiniteCaseAttachments(caseId);
 
   const allAttachments = useMemo(() => flattenCaseAttachments(data), [data]);
@@ -83,6 +84,7 @@ export default function CaseDetailsAttachmentsPanel({
     if (
       !isLoading &&
       !isFetchingNextPage &&
+      !isFetchNextPageError &&
       hasNextPage &&
       allAttachments.length < neededItemsCount &&
       allAttachments.length < totalRecords
@@ -97,6 +99,7 @@ export default function CaseDetailsAttachmentsPanel({
     fetchNextPage,
     isLoading,
     isFetchingNextPage,
+    isFetchNextPageError,
   ]);
 
   const handleDownload = (att: CaseAttachment) => {

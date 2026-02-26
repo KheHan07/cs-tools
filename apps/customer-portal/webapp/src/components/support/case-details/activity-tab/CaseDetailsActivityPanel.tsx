@@ -77,67 +77,52 @@ export default function CaseDetailsActivityPanel({
     [commentsSorted],
   );
 
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100%",
-        }}
-      >
-        <Box sx={{ p: 2, flex: 1, minHeight: 0, overflow: "auto" }}>
-          <Stack spacing={2}>
-            {[1, 2, 3].map((i) => (
-              <Stack
-                key={i}
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-              >
-                <Skeleton variant="circular" width={32} height={32} />
-                <Box sx={{ flex: 1 }}>
-                  <Skeleton variant="text" width="40%" height={20} />
-                  <Skeleton variant="rectangular" height={60} sx={{ mt: 1 }} />
-                </Box>
-              </Stack>
-            ))}
-          </Stack>
-        </Box>
-        <ActivityCommentInput
-          caseId={caseId}
-          focusMode={focusMode}
-          caseStatus={caseStatus}
-        />
-      </Box>
-    );
-  }
-
-  if (isError || !commentsData) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100%",
-        }}
-      >
-        <Box sx={{ p: 2, flex: 1, minHeight: 0, overflow: "auto" }}>
-          <Typography variant="body2" color="text.secondary">
-            Unable to load activity.
-          </Typography>
-        </Box>
-        <ActivityCommentInput
-          caseId={caseId}
-          focusMode={focusMode}
-          caseStatus={caseStatus}
-        />
-      </Box>
-    );
-  }
-
   const primaryLight = theme.palette.primary?.light ?? "#fa7b3f";
   const primaryBg = alpha(primaryLight, 0.1);
+
+  // Render content based on state
+  let content: JSX.Element;
+
+  if (isLoading) {
+    content = (
+      <Box sx={{ p: 2, flex: 1, minHeight: 0, overflow: "auto" }}>
+        <Stack spacing={2}>
+          {[1, 2, 3].map((i) => (
+            <Stack
+              key={i}
+              direction="row"
+              spacing={1.5}
+              alignItems="flex-start"
+            >
+              <Skeleton variant="circular" width={32} height={32} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="40%" height={20} />
+                <Skeleton variant="rectangular" height={60} sx={{ mt: 1 }} />
+              </Box>
+            </Stack>
+          ))}
+        </Stack>
+      </Box>
+    );
+  } else if (isError || !commentsData) {
+    content = (
+      <Box sx={{ p: 2, flex: 1, minHeight: 0, overflow: "auto" }}>
+        <Typography variant="body2" color="text.secondary">
+          Unable to load activity.
+        </Typography>
+      </Box>
+    );
+  } else {
+    content = (
+      <ActivityContent
+        commentsToShow={commentsToShow}
+        caseCreatedOn={caseCreatedOn}
+        currentUserEmail={currentUserEmail}
+        primaryBg={primaryBg}
+        userDetails={userDetails}
+      />
+    );
+  }
 
   return (
     <Box
@@ -147,13 +132,7 @@ export default function CaseDetailsActivityPanel({
         minHeight: "100%",
       }}
     >
-      <ActivityContent
-        commentsToShow={commentsToShow}
-        caseCreatedOn={caseCreatedOn}
-        currentUserEmail={currentUserEmail}
-        primaryBg={primaryBg}
-        userDetails={userDetails}
-      />
+      {content}
       <ActivityCommentInput
         caseId={caseId}
         focusMode={focusMode}
@@ -266,7 +245,6 @@ function ActivityContent({
             const commentCreatorEmail = comment.createdBy?.toLowerCase() ?? "";
             const isCurrentUser = commentCreatorEmail === currentUserEmail;
             const isSupportEngineer =
-              currentUserEmail.endsWith("@wso2.com") &&
               commentCreatorEmail.endsWith("@wso2.com");
 
             return (

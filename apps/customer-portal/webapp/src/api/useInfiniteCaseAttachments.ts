@@ -46,7 +46,7 @@ export function useInfiniteCaseAttachments(caseId: string) {
     number
   >({
     queryKey: [ApiQueryKeys.CASE_ATTACHMENTS, caseId, "infinite"],
-    queryFn: async ({ pageParam }): Promise<CaseAttachmentsResponse> => {
+    queryFn: async ({ pageParam, signal }): Promise<CaseAttachmentsResponse> => {
       logger.debug(
         `[useInfiniteCaseAttachments] Fetching attachments for case ${caseId}, offset: ${pageParam}`,
       );
@@ -61,8 +61,9 @@ export function useInfiniteCaseAttachments(caseId: string) {
           limit: String(PAGE_SIZE),
           offset: String(pageParam),
         });
-        const requestUrl = `${baseUrl}/cases/${caseId}/attachments?${params}`;
-        const response = await fetchFn(requestUrl, { method: "GET" });
+        const encodedCaseId = encodeURIComponent(caseId);
+        const requestUrl = `${baseUrl}/cases/${encodedCaseId}/attachments?${params}`;
+        const response = await fetchFn(requestUrl, { method: "GET", signal });
 
         logger.debug(
           `[useInfiniteCaseAttachments] Response status: ${response.status}`,
@@ -75,16 +76,20 @@ export function useInfiniteCaseAttachments(caseId: string) {
         }
 
         const data: CaseAttachmentsResponse = await response.json();
-        logger.debug("[useInfiniteCaseAttachments] Page received:", data);
+        logger.debug(
+          `[useInfiniteCaseAttachments] Page received: ${data.attachments?.length ?? 0} attachments, offset ${data.offset}, total ${data.totalRecords}`,
+        );
         return data;
       } catch (error) {
-        logger.error("[useInfiniteCaseAttachments] Error:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        logger.error(`[useInfiniteCaseAttachments] Error: ${errorMessage}`);
         throw error;
       }
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       const { offset, limit, totalRecords } = lastPage;
+      if (limit <= 0) return undefined;
       const nextOffset = offset + limit;
       return nextOffset < totalRecords ? nextOffset : undefined;
     },

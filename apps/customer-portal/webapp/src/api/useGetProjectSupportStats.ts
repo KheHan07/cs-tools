@@ -32,11 +32,13 @@ export interface UseGetProjectSupportStatsOptions {
  *
  * @param {string} id - The ID of the project.
  * @param {UseGetProjectSupportStatsOptions} options - Optional filters (incidentId, queryId, query).
+ * @param {boolean} enabled - Whether to execute the query (default: true).
  * @returns {UseQueryResult<ProjectSupportStats, Error>} The query result object.
  */
 export function useGetProjectSupportStats(
   id: string,
   options?: UseGetProjectSupportStatsOptions,
+  enabled: boolean = true,
 ): UseQueryResult<ProjectSupportStats, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
@@ -86,7 +88,7 @@ export function useGetProjectSupportStats(
         throw error;
       }
     },
-    enabled: !!id && isSignedIn && !isAuthLoading,
+    enabled: !!id && isSignedIn && !isAuthLoading && enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -88,7 +88,7 @@ export default function ChatMessageCard({
           ...(!isExpanded &&
             showExpandButton && {
               display: "-webkit-box",
-              WebkitLineClamp: 4,
+              WebkitLineClamp: COLLAPSE_LINE_THRESHOLD,
               WebkitBoxOrient: "vertical" as const,
               overflow: "hidden",
             }),

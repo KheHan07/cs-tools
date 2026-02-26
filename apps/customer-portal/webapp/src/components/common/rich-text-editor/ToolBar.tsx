@@ -796,7 +796,7 @@ const Toolbar = ({
         </Box>
       )}
 
-      {showKeyboardHint && (
+      {showKeyboardHint && !disabled && (
         <Typography
           variant="caption"
           sx={{
