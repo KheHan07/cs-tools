@@ -130,7 +130,7 @@ public type CaseCreatePayload record {|
     # Deployment ID
     IdString deploymentId;
     # Deployed product ID
-    IdString deployedProductId?; // TODO: Need to update as a required field after removing productId
+    IdString deployedProductId?;
     # Case title (required for DEFAULT_CASE)
     string title?;
     # Case description (required for DEFAULT_CASE)
