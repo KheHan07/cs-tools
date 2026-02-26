@@ -80,7 +80,7 @@ export default function SettingsUserManagement({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<ProjectContact | null>(null);
 
-  const { data: contacts = [], isLoading, error } = useGetProjectContacts(projectId);
+  const { data: contacts = [], isLoading, isFetching, error } = useGetProjectContacts(projectId);
   const postContact = usePostProjectContact(projectId);
   const deleteContact = useDeleteProjectContact(projectId);
   const { showError } = useErrorBanner();
@@ -138,7 +138,7 @@ export default function SettingsUserManagement({
     });
   }, [removeTarget, deleteContact, showSuccess, showError]);
 
-  const isEffectiveLoading = isLoading;
+  const isEffectiveLoading = isLoading || isFetching;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
