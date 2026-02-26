@@ -18,8 +18,47 @@ import { Box, Button, Divider, Paper } from "@wso2/oxygen-ui";
 import { ChevronDown } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
 
-// Line count threshold for showing expand button (approximately 4 lines).
-const COLLAPSE_CHAR_THRESHOLD = 200;
+// Line count threshold for showing expand button.
+const COLLAPSE_LINE_THRESHOLD = 4;
+
+/**
+ * Estimates the number of display lines for given HTML content.
+ * Counts only non-empty content lines, ignoring empty lines and whitespace.
+ *
+ * @param {string} html - HTML content to analyze.
+ * @returns {number} Estimated line count.
+ */
+function estimateLineCount(html: string): number {
+  // First, convert HTML line breaks to newlines
+  const processed = html
+    .replace(/<br\s*\/?>/gi, "\n") // Convert <br> to newline
+    .replace(/<\/(p|div|h[1-6]|li|blockquote|pre|ul|ol)>/gi, "\n"); // Convert block closings to newline
+
+  // Then strip remaining HTML tags
+  const plainText = processed.replace(/<[^>]+>/g, "");
+
+  // Split by newlines and filter out empty lines
+  const lines = plainText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0); // Only count non-empty lines
+
+  // If no lines with content, return 0
+  if (lines.length === 0) {
+    return 0;
+  }
+
+  // Count lines with content, and estimate long lines that wrap
+  let totalLines = 0;
+  const CHARS_PER_LINE = 80;
+
+  for (const line of lines) {
+    // Each content line takes at least 1 line, more if it's long
+    totalLines += Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
+  }
+
+  return totalLines;
+}
 
 export interface ChatMessageCardProps {
   htmlContent: string;
@@ -43,8 +82,8 @@ export default function ChatMessageCard({
   isCurrentUser,
   primaryBg,
 }: ChatMessageCardProps): JSX.Element {
-  const plainLength = htmlContent.replace(/<[^>]+>/g, "").length;
-  const showExpandButton = plainLength > COLLAPSE_CHAR_THRESHOLD;
+  const lineCount = estimateLineCount(htmlContent);
+  const showExpandButton = lineCount > COLLAPSE_LINE_THRESHOLD;
 
   return (
     <Paper
@@ -52,18 +91,19 @@ export default function ChatMessageCard({
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 1.5,
-        p: 1.5,
-        maxWidth: "100%",
+        gap: 1,
+        p: 1.25,
+        width: "100%",
+        minHeight: "auto",
         bgcolor: isCurrentUser ? primaryBg : "background.paper",
       }}
     >
       <Box
         sx={{
-          fontSize: "0.75rem",
-          fontFamily: "monospace",
+          fontSize: "0.875rem",
+          lineHeight: 1.5,
           "& p": {
-            margin: "0 0 0.5em 0",
+            margin: "0 0 0.25em 0",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
           },
