@@ -544,3 +544,6 @@ export const CommentType = {
   WORK_NOTE: "work_note",
 } as const;
 export type CommentType = (typeof CommentType)[keyof typeof CommentType];
+
+// Line count threshold for showing expand button in support activity section.
+export const COLLAPSE_LINE_THRESHOLD = 4;

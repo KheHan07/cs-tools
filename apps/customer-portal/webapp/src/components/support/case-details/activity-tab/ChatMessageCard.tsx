@@ -14,51 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { COLLAPSE_LINE_THRESHOLD } from "@/constants/supportConstants";
+import { estimateLineCount } from "@/utils/support";
 import { Box, Button, Divider, Paper } from "@wso2/oxygen-ui";
 import { ChevronDown } from "@wso2/oxygen-ui-icons-react";
 import type { JSX } from "react";
-
-// Line count threshold for showing expand button.
-const COLLAPSE_LINE_THRESHOLD = 4;
-
-/**
- * Estimates the number of display lines for given HTML content.
- * Counts only non-empty content lines, ignoring empty lines and whitespace.
- *
- * @param {string} html - HTML content to analyze.
- * @returns {number} Estimated line count.
- */
-function estimateLineCount(html: string): number {
-  // First, convert HTML line breaks to newlines
-  const processed = html
-    .replace(/<br\s*\/?>/gi, "\n") // Convert <br> to newline
-    .replace(/<\/(p|div|h[1-6]|li|blockquote|pre|ul|ol)>/gi, "\n"); // Convert block closings to newline
-
-  // Then strip remaining HTML tags
-  const plainText = processed.replace(/<[^>]+>/g, "");
-
-  // Split by newlines and filter out empty lines
-  const lines = plainText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0); // Only count non-empty lines
-
-  // If no lines with content, return 0
-  if (lines.length === 0) {
-    return 0;
-  }
-
-  // Count lines with content, and estimate long lines that wrap
-  let totalLines = 0;
-  const CHARS_PER_LINE = 80;
-
-  for (const line of lines) {
-    // Each content line takes at least 1 line, more if it's long
-    totalLines += Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
-  }
-
-  return totalLines;
-}
 
 export interface ChatMessageCardProps {
   htmlContent: string;
