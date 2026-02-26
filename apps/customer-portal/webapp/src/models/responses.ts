@@ -119,7 +119,7 @@ export interface CaseCreationMetadata {
 
 // Project support statistics.
 export interface ProjectSupportStats {
-  totalCases: number;
+  ongoingCases: number;
   activeChats: number;
   sessionChats: number;
   resolvedChats: number;
