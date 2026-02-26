@@ -48,8 +48,8 @@ export default function CaseDetailsTabs({
         borderBottom: 1,
         borderColor: "divider",
         mt: focusMode ? 0 : 2,
-        mx: -2,
-        mb: -2,
+        mx: focusMode ? 0 : -2,
+        mb: focusMode ? 0 : -2,
         display: "flex",
         alignItems: "center",
       }}

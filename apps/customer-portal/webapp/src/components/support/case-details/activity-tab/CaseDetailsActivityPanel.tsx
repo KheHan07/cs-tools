@@ -14,8 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box, Skeleton, Stack, Typography, alpha, useTheme } from "@wso2/oxygen-ui";
-import { useMemo, type JSX } from "react";
+import {
+  Box,
+  Skeleton,
+  Stack,
+  Typography,
+  alpha,
+  useTheme,
+} from "@wso2/oxygen-ui";
+import { useMemo, useEffect, useRef, type JSX } from "react";
 import useGetCaseComments from "@api/useGetCaseComments";
 import useGetUserDetails from "@api/useGetUserDetails";
 import type { CaseComment } from "@models/responses";
@@ -30,6 +37,8 @@ export interface CaseDetailsActivityPanelProps {
   projectId: string;
   caseId: string;
   caseCreatedOn?: string | null;
+  focusMode?: boolean;
+  caseStatus?: string | null;
 }
 
 /**
@@ -42,6 +51,8 @@ export default function CaseDetailsActivityPanel({
   projectId,
   caseId,
   caseCreatedOn,
+  focusMode = false,
+  caseStatus,
 }: CaseDetailsActivityPanelProps): JSX.Element {
   const theme = useTheme();
   const { data: userDetails } = useGetUserDetails();
@@ -93,7 +104,11 @@ export default function CaseDetailsActivityPanel({
             ))}
           </Stack>
         </Box>
-        <ActivityCommentInput caseId={caseId} />
+        <ActivityCommentInput
+          caseId={caseId}
+          focusMode={focusMode}
+          caseStatus={caseStatus}
+        />
       </Box>
     );
   }
@@ -112,7 +127,11 @@ export default function CaseDetailsActivityPanel({
             Unable to load activity.
           </Typography>
         </Box>
-        <ActivityCommentInput caseId={caseId} />
+        <ActivityCommentInput
+          caseId={caseId}
+          focusMode={focusMode}
+          caseStatus={caseStatus}
+        />
       </Box>
     );
   }
@@ -135,7 +154,11 @@ export default function CaseDetailsActivityPanel({
         primaryBg={primaryBg}
         userDetails={userDetails}
       />
-      <ActivityCommentInput caseId={caseId} />
+      <ActivityCommentInput
+        caseId={caseId}
+        focusMode={focusMode}
+        caseStatus={caseStatus}
+      />
     </Box>
   );
 }
@@ -145,7 +168,11 @@ interface ActivityContentProps {
   caseCreatedOn?: string | null;
   currentUserEmail: string;
   primaryBg: string;
-  userDetails?: { email?: string; firstName?: string; lastName?: string } | null;
+  userDetails?: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  } | null;
 }
 
 function ActivityContent({
@@ -155,80 +182,106 @@ function ActivityContent({
   primaryBg,
   userDetails,
 }: ActivityContentProps): JSX.Element {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
+  }, []); // Empty dependency array - only run on mount
+
+  // Scroll to bottom when new comments are added
+  useEffect(() => {
+    if (scrollContainerRef.current && commentsToShow.length > 0) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
+  }, [commentsToShow.length]); // Run when comments count changes
+
   return (
     <Box
-        sx={{
-          p: 2,
-          flex: 1,
-          minHeight: 0,
-          overflow: "auto",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        <Stack spacing={3}>
-          {caseCreatedOn && (
+      ref={scrollContainerRef}
+      sx={{
+        p: 2,
+        flex: 1,
+        minHeight: 0,
+        overflow: "auto",
+        WebkitOverflowScrolling: "touch",
+      }}
+    >
+      <Stack spacing={2}>
+        {caseCreatedOn && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
             <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
+                flex: 1,
+                height: 1,
+                bgcolor: "divider",
               }}
-            >
-              <Box
-                sx={{
-                  flex: 1,
-                  height: 1,
-                  bgcolor: "divider",
-                }}
-              />
-              <Typography variant="caption" color="text.secondary">
-                Case created on {formatCommentDate(caseCreatedOn)}
-              </Typography>
-              <Box
-                sx={{
-                  flex: 1,
-                  height: 1,
-                  bgcolor: "divider",
-                }}
-              />
-            </Box>
-          )}
+            />
+            <Typography variant="caption" color="text.secondary">
+              Case created on {formatCommentDate(caseCreatedOn)}
+            </Typography>
+            <Box
+              sx={{
+                flex: 1,
+                height: 1,
+                bgcolor: "divider",
+              }}
+            />
+          </Box>
+        )}
 
-          {commentsToShow.length === 0 ? (
-            <Stack
-              spacing={2}
-              alignItems="center"
-              justifyContent="center"
-              sx={{ py: 4 }}
+        {commentsToShow.length === 0 ? (
+          <Stack
+            spacing={2}
+            alignItems="center"
+            justifyContent="center"
+            sx={{ py: 4 }}
+          >
+            <Box
+              sx={{
+                width: 160,
+                maxWidth: "100%",
+                "& svg": { width: "100%", height: "auto" },
+              }}
+              aria-hidden
             >
-              <Box
-                sx={{
-                  width: 160,
-                  maxWidth: "100%",
-                  "& svg": { width: "100%", height: "auto" },
-                }}
-                aria-hidden
-              >
-                <EmptyIcon />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                No activity yet.
-              </Typography>
-            </Stack>
-          ) : (
-            commentsToShow.map((comment) => (
+              <EmptyIcon />
+            </Box>
+            <Typography variant="body2" color="text.secondary">
+              No activity yet.
+            </Typography>
+          </Stack>
+        ) : (
+          commentsToShow.map((comment) => {
+            const commentCreatorEmail = comment.createdBy?.toLowerCase() ?? "";
+            const isCurrentUser = commentCreatorEmail === currentUserEmail;
+            const isSupportEngineer =
+              currentUserEmail.endsWith("@wso2.com") &&
+              commentCreatorEmail.endsWith("@wso2.com");
+
+            return (
               <CommentBubble
                 key={comment.id}
                 comment={comment}
-                isCurrentUser={
-                  comment.createdBy?.toLowerCase() === currentUserEmail
-                }
+                isCurrentUser={isCurrentUser}
+                isSupportEngineer={isSupportEngineer}
                 primaryBg={primaryBg}
                 userDetails={userDetails}
               />
-            ))
-          )}
-        </Stack>
-      </Box>
+            );
+          })
+        )}
+      </Stack>
+    </Box>
   );
 }

@@ -90,7 +90,7 @@ describe("CasesOverviewStatCard", () => {
       activeChats: 5,
       resolvedChats: 20,
       sessionChats: 15,
-      totalCases: 10,
+      ongoingCases: 10,
     };
 
     render(<CasesOverviewStatCard isLoading={false} stats={mockStats} />);
