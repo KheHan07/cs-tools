@@ -22,22 +22,26 @@ import { useAsgardeo } from "@asgardeo/react";
 import { useLogger } from "@hooks/useLogger";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ValidateContactRequest } from "@models/requests";
+import type { ValidateContactResponse } from "@models/responses";
 
 /**
  * Hook to validate a project contact email (POST /projects/:projectId/contacts/validate).
  *
+ * Returns the parsed response on 200 OK (may include contactDetails for existing deactivated contacts).
+ * Throws on 409 Conflict (contact already exists as Invited/Registered).
+ *
  * @param {string} projectId - The ID of the project.
- * @returns {UseMutationResult<void, Error, ValidateContactRequest>} Mutation result.
+ * @returns {UseMutationResult<ValidateContactResponse, Error, ValidateContactRequest>} Mutation result.
  */
 export function useValidateProjectContact(
   projectId: string,
-): UseMutationResult<void, Error, ValidateContactRequest> {
+): UseMutationResult<ValidateContactResponse, Error, ValidateContactRequest> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
-  return useMutation<void, Error, ValidateContactRequest>({
-    mutationFn: async (body): Promise<void> => {
+  return useMutation<ValidateContactResponse, Error, ValidateContactRequest>({
+    mutationFn: async (body): Promise<ValidateContactResponse> => {
       logger.debug("[useValidateProjectContact] Request payload:", body);
 
       try {
@@ -76,6 +80,9 @@ export function useValidateProjectContact(
           }
           throw new Error(errorMessage);
         }
+
+        const data = (await response.json()) as ValidateContactResponse;
+        return data;
       } catch (error) {
         logger.error("[useValidateProjectContact] Error:", error);
         throw error;

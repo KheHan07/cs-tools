@@ -81,6 +81,26 @@ export interface ProjectUser {
   status: "Invited" | "Registered";
 }
 
+// Response from POST /projects/:projectId/contacts/validate.
+export interface ValidateContactResponse {
+  isContactValid: boolean;
+  message: string;
+  contactDetails?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isCsAdmin: boolean;
+    isCsIntegrationUser: boolean;
+    account?: {
+      id: string;
+      domainList: string | null;
+      classification: string;
+      isPartner: boolean;
+    };
+  };
+}
+
 // Project contact from GET /projects/:projectId/contacts.
 export interface ProjectContact {
   id: string;
