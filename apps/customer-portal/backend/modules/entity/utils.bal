@@ -178,7 +178,7 @@ public isolated function validateCaseCreatePayload(CaseCreatePayload payload) re
             return "Title must be between 1 and 500 characters long for default case.";
         }
         if description is () || description.trim().length() == 0  {
-            return "Description cannnot be epty for default case.";
+            return "Description cannnot be empty for default case.";
         }
         if payload.issueTypeKey is () {
             return "Issue type key is required for default case.";
