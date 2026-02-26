@@ -56,7 +56,7 @@ export function getIncidentAndQueryCaseTypeIds(
 
 /**
  * Extracts Incident and Query case type IDs separately for stats API.
- * API expects caseType=queryId&icaseType=incidentId.
+ * API expects caseTypes=queryId&caseTypes=incidentId.
  *
  * @param caseTypes - Case types from useGetCasesFilters response.
  * @returns {{ incidentId?: string; queryId?: string }} Incident and Query IDs.
@@ -85,12 +85,19 @@ export function getIncidentAndQueryIds(caseTypes?: MetadataItem[]): {
  * @param {string} dateStr - Raw UTC date string.
  * @returns {string} Normalized ISO string for Date constructor.
  */
-function normalizeUtcDateString(dateStr: string): string {
+export function normalizeUtcDateString(dateStr: string): string {
   const trimmed = dateStr.trim();
   if (/T\d{2}:\d{2}:\d{2}/.test(trimmed) || /Z$/i.test(trimmed)) return trimmed;
-  if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
-    return trimmed.replace(" ", "T") + "Z";
+
+  // Match YYYY-MM-DD HH:mm:ss format
+  const yyyymmdd =
+    /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (yyyymmdd) {
+    const [, yyyy, mm, dd, hh, mi, ss] = yyyymmdd;
+    return `${yyyy}-${mm!.padStart(2, "0")}-${dd!.padStart(2, "0")}T${hh!.padStart(2, "0")}:${mi}:${ss}Z`;
   }
+
+  // Match MM/DD/YYYY HH:mm:ss format
   const mmddyyyy =
     /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
   if (mmddyyyy) {
@@ -239,6 +246,48 @@ export function formatDateTime(
     minute: "numeric",
     hour12: true,
   }).format(date);
+}
+
+/**
+ * Formats a UTC date string to display only the date (no time) in the user's local timezone.
+ *
+ * @param {string} dateStr - UTC date string (YYYY-MM-DD HH:mm:ss format from API or ISO format).
+ * @returns {string} Formatted date without time (e.g., "Feb 25, 2026").
+ */
+export function formatDateOnly(dateStr: string | null | undefined): string {
+  if (!dateStr) return "--";
+
+  const trimmed = dateStr.trim();
+
+  // Handle YYYY-MM-DD HH:mm:ss format (standard API format for chat history and case details)
+  const standardFormat =
+    /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/.exec(trimmed);
+  if (standardFormat) {
+    const [, year, month, day, hour, minute, second] = standardFormat;
+    const isoDate = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+    const date = new Date(isoDate);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+
+  // Handle ISO format (YYYY-MM-DDTHH:mm:ssZ or similar)
+  if (/T\d{2}:\d{2}/.test(trimmed)) {
+    const date = new Date(trimmed);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(date);
+    }
+  }
+
+  return "--";
 }
 
 export type ChatActionState =
@@ -413,7 +462,7 @@ export function getChatStatusColor(status: string): string {
   switch (true) {
     case normalized.includes(ChatStatus.RESOLVED.toLowerCase()):
       return "success.main";
-    case normalized.includes(ChatStatus.STILL_OPEN.toLowerCase()):
+    case normalized.includes(ChatStatus.OPEN.toLowerCase()):
       return "info.main";
     case normalized.includes(ChatStatus.ABANDONED.toLowerCase()):
       return "error.main";
@@ -1012,3 +1061,40 @@ export const normalizeCaseTypeOptions = (
     ...(caseIds.length ? [{ label: "Case", value: caseIds.join(",") }] : []),
   ];
 };
+
+/**
+ * Estimates the number of display lines for given HTML content.
+ * Counts only non-empty content lines, ignoring empty lines and whitespace.
+ *
+ * @param {string} html - HTML content to analyze.
+ * @returns {number} Estimated line count.
+ */
+export function estimateLineCount(html: string): number {
+  const processed = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote|pre|ul|ol)>/gi, "\n");
+
+  // Then strip remaining HTML tags
+  const plainText = processed.replace(/<[^>]+>/g, "");
+
+  // Split by newlines and filter out empty lines
+  const lines = plainText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (lines.length === 0) {
+    return 0;
+  }
+
+  // Count lines with content, and estimate long lines that wrap
+  let totalLines = 0;
+  const CHARS_PER_LINE = 80;
+
+  for (const line of lines) {
+    // Each content line takes at least 1 line, more if it's long
+    totalLines += Math.max(1, Math.ceil(line.length / CHARS_PER_LINE));
+  }
+
+  return totalLines;
+}

@@ -54,10 +54,11 @@ describe("usePostCase", () => {
   );
 
   const requestBody: CreateCaseRequest = {
+    caseType: "default_case",
     deploymentId: "deploy-1",
     description: "Test case description",
     issueTypeKey: 1,
-    productId: "product-1",
+    deployedProductId: "product-1",
     projectId: "project-1",
     severityKey: 0,
     title: "Test case",

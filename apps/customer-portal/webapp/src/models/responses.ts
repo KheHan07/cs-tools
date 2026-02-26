@@ -139,7 +139,7 @@ export interface CaseCreationMetadata {
 
 // Project support statistics.
 export interface ProjectSupportStats {
-  totalCases: number;
+  ongoingCases: number;
   activeChats: number;
   sessionChats: number;
   resolvedChats: number;
@@ -431,6 +431,13 @@ export interface ChatHistoryItem {
 // Response for project chat history list.
 export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
+}
+
+// Conversation statistics response.
+export interface ConversationStats {
+  abandonedCount: number;
+  openCount: number;
+  resolvedCount: number;
 }
 
 // Conversation from POST /projects/:projectId/conversations/search.

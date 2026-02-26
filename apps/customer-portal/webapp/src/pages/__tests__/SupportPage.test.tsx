@@ -289,7 +289,7 @@ describe("SupportPage", () => {
     mockUseGetProjectSupportStats.mockReturnValue({
       isLoading: false,
       data: {
-        totalCases: 10,
+        ongoingCases: 10,
         activeChats: 5,
         sessionChats: 15,
         resolvedChats: 20,
@@ -319,7 +319,7 @@ describe("SupportPage", () => {
     mockUseGetProjectSupportStats.mockReturnValue({
       isLoading: false,
       data: {
-        totalCases: 10,
+        ongoingCases: 10,
         activeChats: 5,
         sessionChats: 15,
         resolvedChats: 20,
@@ -343,7 +343,7 @@ describe("SupportPage", () => {
     mockUseGetProjectSupportStats.mockReturnValue({
       isLoading: false,
       data: {
-        totalCases: 10,
+        ongoingCases: 10,
         activeChats: 5,
         sessionChats: 15,
         resolvedChats: 20,

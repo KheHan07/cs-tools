@@ -17,22 +17,27 @@
 import { Box } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import SupportStatGrid from "@components/common/stat-grid/SupportStatGrid";
-import { ALL_CONVERSATIONS_STAT_CONFIGS } from "@constants/supportConstants";
+import {
+  ALL_CONVERSATIONS_STAT_CONFIGS,
+  type AllConversationsStatKey,
+} from "@constants/supportConstants";
 
 export interface AllConversationsStatCardsProps {
   isLoading?: boolean;
   isError?: boolean;
+  stats?: Partial<Record<AllConversationsStatKey, number>>;
 }
 
 /**
- * AllConversationsStatCards component to display stat cards (no values yet).
+ * AllConversationsStatCards component to display conversation statistics.
  *
- * @param {AllConversationsStatCardsProps} props - Loading and error state.
+ * @param {AllConversationsStatCardsProps} props - Loading, error state, and stats data.
  * @returns {JSX.Element} The rendered stat cards grid.
  */
 export default function AllConversationsStatCards({
   isLoading = false,
   isError = false,
+  stats,
 }: AllConversationsStatCardsProps): JSX.Element {
   return (
     <Box sx={{ mb: 3 }}>
@@ -41,7 +46,7 @@ export default function AllConversationsStatCards({
         isError={isError}
         entityName="conversation"
         configs={ALL_CONVERSATIONS_STAT_CONFIGS}
-        stats={undefined}
+        stats={stats}
       />
     </Box>
   );

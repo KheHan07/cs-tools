@@ -47,6 +47,7 @@ import {
   TextField,
   Button,
   IconButton,
+  Typography,
 } from "@wso2/oxygen-ui";
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
@@ -99,10 +100,12 @@ const Toolbar = ({
   onAttachmentClick,
   disabled = false,
   variant = "full",
+  showKeyboardHint = false,
 }: {
   onAttachmentClick?: () => void;
   disabled?: boolean;
   variant?: ToolbarVariant;
+  showKeyboardHint?: boolean;
 }) => {
   const isDescribeIssue = variant === "describeIssue";
   const [editor] = useLexicalComposerContext();
@@ -124,6 +127,11 @@ const Toolbar = ({
   );
   const [linkUrl, setLinkUrl] = useState("");
   const [linkText, setLinkText] = useState("");
+
+  // Focus editor helper
+  const focusEditor = useCallback(() => {
+    editor.focus();
+  }, [editor]);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -199,16 +207,19 @@ const Toolbar = ({
   const onFormatText = (
     format: "bold" | "italic" | "underline" | "strikethrough",
   ) => {
+    focusEditor();
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
   };
 
   const onFormatAlign = (format: ElementFormatType) => {
+    focusEditor();
     editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, format);
   };
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    focusEditor();
     const file = e.target.files?.[0];
     if (file) {
       const resetInput = () => {
@@ -242,6 +253,7 @@ const Toolbar = ({
   };
 
   const onFormatCode = () => {
+    focusEditor();
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -255,13 +267,20 @@ const Toolbar = ({
   };
 
   const onBlockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    focusEditor();
     const blockType = e.target.value;
     setBlockVariant(blockType);
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         if (blockType.startsWith("h")) {
-          const level = parseInt(blockType.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6;
+          const level = parseInt(blockType.substring(1)) as
+            | 1
+            | 2
+            | 3
+            | 4
+            | 5
+            | 6;
           $setBlocksType(selection, () =>
             $createHeadingNode(
               `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
@@ -284,6 +303,7 @@ const Toolbar = ({
   };
 
   const onLinkClick = (event: React.MouseEvent<HTMLElement>) => {
+    focusEditor();
     if (isLink) {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     } else {
@@ -296,6 +316,7 @@ const Toolbar = ({
   };
 
   const onLinkSubmit = () => {
+    focusEditor();
     const sanitized = sanitizeUrl(linkUrl);
     if (sanitized) {
       editor.update(() => {
@@ -416,7 +437,10 @@ const Toolbar = ({
               size="small"
               value="undo"
               disabled={!canUndo}
-              onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(UNDO_COMMAND, undefined);
+              }}
             >
               <UndoIcon size={16} />
             </ToggleButton>
@@ -426,7 +450,10 @@ const Toolbar = ({
               size="small"
               value="redo"
               disabled={!canRedo}
-              onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(REDO_COMMAND, undefined);
+              }}
             >
               <RedoIcon size={16} />
             </ToggleButton>
@@ -463,7 +490,11 @@ const Toolbar = ({
                   >
                     {[
                       ...RICH_TEXT_BLOCK_TAGS,
-                      { value: "quote", label: "Quote", variant: "quote" as const },
+                      {
+                        value: "quote",
+                        label: "Quote",
+                        variant: "quote" as const,
+                      },
                     ].map(({ value, label }) => (
                       <option
                         key={value}
@@ -576,9 +607,10 @@ const Toolbar = ({
             <ToggleButton
               size="small"
               value="indent"
-              onClick={() =>
-                editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined)
-              }
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+              }}
             >
               <Indent size={16} />
             </ToggleButton>
@@ -588,9 +620,10 @@ const Toolbar = ({
             <ToggleButton
               size="small"
               value="outdent"
-              onClick={() =>
-                editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined)
-              }
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+              }}
             >
               <Outdent size={16} />
             </ToggleButton>
@@ -602,9 +635,13 @@ const Toolbar = ({
             <ToggleButton
               size="small"
               value="bullet"
-              onClick={() =>
-                editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
-              }
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(
+                  INSERT_UNORDERED_LIST_COMMAND,
+                  undefined,
+                );
+              }}
             >
               <List size={16} />
             </ToggleButton>
@@ -614,9 +651,10 @@ const Toolbar = ({
             <ToggleButton
               size="small"
               value="numbered"
-              onClick={() =>
-                editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
-              }
+              onClick={() => {
+                focusEditor();
+                editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+              }}
             >
               <ListOrdered size={16} />
             </ToggleButton>
@@ -722,7 +760,10 @@ const Toolbar = ({
                   size="small"
                   value="attachment"
                   disabled={!onAttachmentClick}
-                  onClick={() => onAttachmentClick?.()}
+                  onClick={() => {
+                    focusEditor();
+                    onAttachmentClick?.();
+                  }}
                 >
                   <Paperclip size={16} />
                 </ToggleButton>
@@ -753,6 +794,21 @@ const Toolbar = ({
             <ChevronRight size={16} />
           </IconButton>
         </Box>
+      )}
+
+      {showKeyboardHint && !disabled && (
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            ml: 2,
+            flexShrink: 0,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Press <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for
+          newline
+        </Typography>
       )}
     </Box>
   );

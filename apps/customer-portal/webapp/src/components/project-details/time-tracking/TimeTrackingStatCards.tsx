@@ -15,7 +15,7 @@
 // under the License.
 
 import { Box } from "@wso2/oxygen-ui";
-import { type JSX } from "react";
+import { useMemo, type JSX } from "react";
 import SupportStatGrid from "@components/common/stat-grid/SupportStatGrid";
 import { TIME_TRACKING_STAT_CONFIGS } from "@constants/supportConstants";
 import type { ProjectTimeTrackingStats } from "@models/responses";
@@ -37,6 +37,9 @@ export default function TimeTrackingStatCards({
   isError,
   stats,
 }: TimeTrackingStatCardsProps): JSX.Element {
+  // Format time values to include " hrs" suffix
+  const valueFormatter = useMemo(() => (value: number) => `${value} hrs`, []);
+
   return (
     <Box sx={{ mb: 3 }}>
       <SupportStatGrid
@@ -44,9 +47,10 @@ export default function TimeTrackingStatCards({
         isError={isError}
         entityName="time tracking"
         configs={TIME_TRACKING_STAT_CONFIGS}
-        stats={stats ?? undefined}
+        stats={stats}
         spacing={3}
         itemSize={{ xs: 12, md: 4 }}
+        valueFormatter={valueFormatter}
       />
     </Box>
   );

@@ -33,6 +33,7 @@ export interface SupportStatGridProps<T extends string> {
     lg?: number;
     xl?: number;
   };
+  valueFormatter?: (value: number) => string | number;
 }
 
 /**
@@ -49,6 +50,7 @@ export default function SupportStatGrid<T extends string>({
   entityName = "statistics",
   spacing = 2,
   itemSize = { xs: 12, sm: 6, md: 3 },
+  valueFormatter,
 }: SupportStatGridProps<T>): JSX.Element {
   return (
     <Grid container spacing={spacing}>
@@ -91,8 +93,14 @@ export default function SupportStatGrid<T extends string>({
                   ) as any)
                 ) : isError ? (
                   <ErrorIndicator entityName={entityName} />
+                ) : stats?.[stat.key] != null ? (
+                  valueFormatter ? (
+                    valueFormatter(stats[stat.key] as number)
+                  ) : (
+                    stats[stat.key]
+                  )
                 ) : (
-                  (stats?.[stat.key] ?? "--")
+                  "--"
                 )
               }
               icon={<Icon />}

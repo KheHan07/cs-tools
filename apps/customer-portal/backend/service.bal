@@ -718,10 +718,10 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             };
         }
 
-        types:OverallConversationStats { openCount, resolvedCount,  abandonedCount} =
+        types:OverallConversationStats { openCount, resolvedCount, activeCount, abandonedCount} =
             getConversationStats(conversationStats);
 
-        return { openCount, resolvedCount, abandonedCount };
+        return { openCount, resolvedCount, activeCount, abandonedCount };
     }
 
     # Get project support statistics by ID.
@@ -826,6 +826,16 @@ service http:InterceptableService / on new http:Listener(9090, listenerConf) {
             return <http:InternalServerError>{
                 body: {
                     message: ERR_MSG_USER_INFO_HEADER_NOT_FOUND
+                }
+            };
+        }
+
+        string? validateCaseCreatePayload = entity:validateCaseCreatePayload(payload);
+        if validateCaseCreatePayload is string {
+            log:printWarn(validateCaseCreatePayload);
+            return <http:BadRequest>{
+                body: {
+                    message: validateCaseCreatePayload
                 }
             };
         }

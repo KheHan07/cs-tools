@@ -30,7 +30,7 @@ vi.mock("@/hooks/useLogger", () => ({
 }));
 
 const mockSupportStatsResponse = {
-  totalCases: 47,
+  ongoingCases: 47,
   activeChats: 3,
   sessionChats: 10,
   resolvedChats: 34,
@@ -65,7 +65,11 @@ describe("useGetProjectSupportStats", () => {
       ok: true,
       json: () => Promise.resolve(mockSupportStatsResponse),
     });
-    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+    (
+      window as unknown as {
+        config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string };
+      }
+    ).config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     };
     vi.clearAllMocks();
@@ -95,7 +99,7 @@ describe("useGetProjectSupportStats", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toBeDefined();
-    expect(result.current.data?.totalCases).toBe(47);
+    expect(result.current.data?.ongoingCases).toBe(47);
   });
 
   it("should have correct query options", () => {

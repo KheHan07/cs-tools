@@ -35,7 +35,10 @@ import {
   SUPPORT_OVERVIEW_CASES_LIMIT,
   SUPPORT_OVERVIEW_CHAT_LIMIT,
 } from "@constants/supportConstants";
-import { getIncidentAndQueryCaseTypeIds } from "@utils/support";
+import {
+  getIncidentAndQueryCaseTypeIds,
+  getIncidentAndQueryIds,
+} from "@utils/support";
 import { formatDateTime } from "@utils/support";
 import type { ChatHistoryItem } from "@models/responses";
 
@@ -50,18 +53,30 @@ export default function SupportPage(): JSX.Element {
   const { projectId } = useParams<{ projectId: string }>();
 
   const {
-    data: stats,
-    isFetching,
-    isError,
-  } = useGetProjectSupportStats(projectId || "");
-
-  const {
     data: filterMetadata,
     isFetching: isFiltersFetching,
     isError: isFiltersError,
   } = useGetCasesFilters(projectId || "");
 
   const caseTypeIds = getIncidentAndQueryCaseTypeIds(filterMetadata?.caseTypes);
+  const { incidentId, queryId } = getIncidentAndQueryIds(
+    filterMetadata?.caseTypes,
+  );
+
+  const hasFilterIds = !!(incidentId || queryId);
+
+  const {
+    data: stats,
+    isFetching,
+    isError,
+  } = useGetProjectSupportStats(
+    projectId || "",
+    {
+      incidentId,
+      queryId,
+    },
+    hasFilterIds,
+  );
 
   const {
     data,
@@ -70,7 +85,9 @@ export default function SupportPage(): JSX.Element {
   } = useGetProjectCases(
     projectId || "",
     {
-      filters: { caseTypeIds: caseTypeIds.length > 0 ? caseTypeIds : undefined },
+      filters: {
+        caseTypeIds: caseTypeIds.length > 0 ? caseTypeIds : undefined,
+      },
       sortBy: { field: "createdOn", order: "desc" },
     },
     {
@@ -163,6 +180,26 @@ export default function SupportPage(): JSX.Element {
             <ChatHistoryList
               items={chatItems}
               isLoading={isChatLoading}
+              onItemAction={
+                projectId
+                  ? (chatId) => {
+                      const summary = chatItems.find(
+                        (item) => item.chatId === chatId,
+                      );
+
+                      if (!summary) {
+                        return;
+                      }
+
+                      navigate(
+                        `/${projectId}/support/conversations/${chatId}`,
+                        {
+                          state: { conversationSummary: summary },
+                        },
+                      );
+                    }
+                  : undefined
+              }
             />
           </SupportOverviewCard>
         </Grid>

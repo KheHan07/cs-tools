@@ -47,3 +47,11 @@ public enum ConversationSortField {
     CONVERSATION_CREATED_ON = "createdOn",
     CONVERSATION_UPDATED_ON = "updatedOn"
 }
+
+# Case type enum
+public enum CaseType {
+    DEFAULT_CASE = "default_case",
+    SERVICE_REQUEST = "service_request",
+    SECURITY_REPORT_ANALYSIS = "security_report_analysis",
+    ANNOUNCEMENT = "announcement"
+}
