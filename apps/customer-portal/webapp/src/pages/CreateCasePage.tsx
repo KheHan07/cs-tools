@@ -434,7 +434,6 @@ export default function CreateCasePage(): JSX.Element {
         if (classificationProductLabel?.trim()) {
           return fromClassification ?? "";
         }
-        // Don't auto-select first product - keep it empty
         return "";
       }
       const found = sortedBaseProductOptions.some((o) => o.id === current);
@@ -443,7 +442,6 @@ export default function CreateCasePage(): JSX.Element {
         current,
         sortedBaseProductOptions,
       );
-      // Don't auto-select first product if no match found
       return fromLabel ?? "";
     });
   }, [
