@@ -21,23 +21,33 @@ import { ApiQueryKeys } from "@constants/apiConstants";
 import { useAuthApiClient } from "@context/AuthApiContext";
 import type { ProjectSupportStats } from "@models/responses";
 
+export interface UseGetProjectSupportStatsOptions {
+  incidentId?: string;
+  queryId?: string;
+  query?: string;
+}
+
 /**
  * Custom hook to fetch project support statistics by ID.
  *
  * @param {string} id - The ID of the project.
+ * @param {UseGetProjectSupportStatsOptions} options - Optional filters (incidentId, queryId, query).
  * @returns {UseQueryResult<ProjectSupportStats, Error>} The query result object.
  */
 export function useGetProjectSupportStats(
   id: string,
+  options?: UseGetProjectSupportStatsOptions,
 ): UseQueryResult<ProjectSupportStats, Error> {
   const logger = useLogger();
   const { isSignedIn, isLoading: isAuthLoading } = useAsgardeo();
   const fetchFn = useAuthApiClient();
 
+  const { incidentId, queryId, query } = options ?? {};
+
   return useQuery<ProjectSupportStats, Error>({
-    queryKey: [ApiQueryKeys.SUPPORT_STATS, id],
+    queryKey: [ApiQueryKeys.SUPPORT_STATS, id, incidentId, queryId, query],
     queryFn: async (): Promise<ProjectSupportStats> => {
-      logger.debug(`Fetching support stats for project ID: ${id}`);
+      logger.debug(`Fetching support stats for project ID: ${id}`, options);
 
       try {
         const baseUrl = window.config?.CUSTOMER_PORTAL_BACKEND_BASE_URL;
@@ -46,7 +56,15 @@ export function useGetProjectSupportStats(
           throw new Error("CUSTOMER_PORTAL_BACKEND_BASE_URL is not configured");
         }
 
-        const requestUrl = `${baseUrl}/projects/${id}/stats/support`;
+        const params = new URLSearchParams();
+        if (incidentId) params.append("caseType", incidentId);
+        if (queryId) params.append("caseType", queryId);
+        if (query) params.set("query", query);
+
+        const queryString = params.toString();
+        const requestUrl = `${baseUrl}/projects/${id}/stats/support${
+          queryString ? `?${queryString}` : ""
+        }`;
 
         const response = await fetchFn(requestUrl, { method: "GET" });
 

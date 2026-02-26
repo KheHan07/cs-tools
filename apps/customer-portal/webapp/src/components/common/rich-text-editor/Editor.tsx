@@ -34,7 +34,9 @@ import { Trash, ChevronLeft, ChevronRight } from "@wso2/oxygen-ui-icons-react";
 import { getFileIcon, scrollElement } from "@utils/richTextEditor";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import Toolbar, { type ToolbarVariant } from "@components/common/rich-text-editor/ToolBar";
+import Toolbar, {
+  type ToolbarVariant,
+} from "@components/common/rich-text-editor/ToolBar";
 import type { JSX } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ImageNode } from "@components/common/rich-text-editor/ImageNode";
@@ -205,6 +207,10 @@ const Editor = ({
   onSubmitKeyDown,
   placeholder = "Enter description...",
   id,
+  showKeyboardHint = false,
+  maxHeight = "120px",
+  onFocus,
+  onBlur,
 }: {
   onAttachmentClick?: () => void;
   attachments?: File[];
@@ -220,6 +226,10 @@ const Editor = ({
   onSubmitKeyDown?: () => void;
   placeholder?: string;
   id?: string;
+  showKeyboardHint?: boolean;
+  maxHeight?: string | number;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }): JSX.Element => {
   const oxygenTheme = useTheme();
   const logger = useLogger();
@@ -292,11 +302,14 @@ const Editor = ({
               onAttachmentClick={onAttachmentClick}
               disabled={disabled}
               variant={toolbarVariant}
+              showKeyboardHint={showKeyboardHint}
             />
             <Divider sx={{ my: 1 }} />
           </>
         )}
         <Box
+          onFocus={onFocus}
+          onBlur={onBlur}
           sx={{
             position: "relative",
             minHeight,
@@ -304,8 +317,16 @@ const Editor = ({
               outline: "none",
               minHeight:
                 typeof minHeight === "number" ? `${minHeight}px` : minHeight,
+              maxHeight:
+                typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
+              overflowY: "auto",
+              padding: 0,
               ...oxygenTheme.typography.body2,
               color: disabled ? "text.disabled" : "text.primary",
+              "& p": {
+                margin: 0,
+                padding: 0,
+              },
             },
             "& .editor-text-bold": {
               fontWeight: oxygenTheme.typography.fontWeightBold || "bold",
@@ -353,10 +374,14 @@ const Editor = ({
                 sx={{
                   position: "absolute",
                   top: 0,
+                  left: 0,
                   color: "text.secondary",
                   opacity: 0.7,
                   pointerEvents: "none",
                   userSelect: "none",
+                  margin: 0,
+                  padding: 0,
+                  ...oxygenTheme.typography.body2,
                 }}
               >
                 {placeholder}
@@ -372,10 +397,7 @@ const Editor = ({
           <InitialValuePlugin initialHtml={value} />
           <OnChangeHTMLPlugin onChange={onChange} />
           <ResetPlugin resetTrigger={resetTrigger} />
-          <EnterSubmitPlugin
-            onSubmit={onSubmitKeyDown}
-            disabled={disabled}
-          />
+          <EnterSubmitPlugin onSubmit={onSubmitKeyDown} disabled={disabled} />
         </Box>
         {attachments.length > 0 && (
           <>

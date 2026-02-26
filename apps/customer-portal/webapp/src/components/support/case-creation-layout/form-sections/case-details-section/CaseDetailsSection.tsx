@@ -145,27 +145,27 @@ export function CaseDetailsSection({
       >
         <Typography variant="h6">Case Details</Typography>
         {!isRelatedCaseMode && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Tooltip
-            title={
-              isEditing
-                ? "Click here to stop modifying case details"
-                : "Click here to modify case details"
-            }
-            placement="top"
-            arrow
-          >
-            <IconButton
-              onClick={() => setIsEditing(!isEditing)}
-              aria-label={
-                isEditing ? "Stop editing case details" : "Edit case details"
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Tooltip
+              title={
+                isEditing
+                  ? "Click here to stop modifying case details"
+                  : "Click here to modify case details"
               }
-              color={isEditing ? "primary" : "default"}
+              placement="top"
+              arrow
             >
-              <PencilLine size={18} />
-            </IconButton>
-          </Tooltip>
-        </Box>
+              <IconButton
+                onClick={() => setIsEditing(!isEditing)}
+                aria-label={
+                  isEditing ? "Stop editing case details" : "Edit case details"
+                }
+                color={isEditing ? "primary" : "default"}
+              >
+                <PencilLine size={18} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         )}
       </Box>
 
@@ -198,13 +198,13 @@ export function CaseDetailsSection({
               )}
             </Typography>
             {!isRelatedCaseMode && (
-            <Chip
-              label="Generated from chat"
-              size="small"
-              variant="outlined"
-              icon={<Sparkles size={10} />}
-              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-            />
+              <Chip
+                label="Generated from chat"
+                size="small"
+                variant="outlined"
+                icon={<Sparkles size={10} />}
+                sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+              />
             )}
           </Box>
           <Box>
@@ -216,7 +216,9 @@ export function CaseDetailsSection({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={
-                isRelatedCaseMode ? "Enter related case title" : "Enter issue title"
+                isRelatedCaseMode
+                  ? "Enter related case title"
+                  : "Enter issue title"
               }
               disabled={isLoading || titleReadOnly}
             />
@@ -233,13 +235,13 @@ export function CaseDetailsSection({
               </Box>
             </Typography>
             {!isRelatedCaseMode && (
-            <Chip
-              label="From conversation"
-              size="small"
-              variant="outlined"
-              icon={<Sparkles size={10} />}
-              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-            />
+              <Chip
+                label="From conversation"
+                size="small"
+                variant="outlined"
+                icon={<Sparkles size={10} />}
+                sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+              />
             )}
           </Box>
           <Box>
@@ -255,22 +257,23 @@ export function CaseDetailsSection({
               disabled={!effectiveEditing}
               value={description}
               onChange={setDescription}
+              maxHeight="210px"
             />
           </Box>
           {!isRelatedCaseMode && (
-          <Typography
-            variant="caption"
-            color="text.disabled"
-            align="right"
-            sx={{
-              mt: 1,
-              display: "block",
-              fontStyle: "italic",
-              fontSize: "0.7rem",
-            }}
-          >
-            This includes all the information you shared with Novera
-          </Typography>
+            <Typography
+              variant="caption"
+              color="text.disabled"
+              align="right"
+              sx={{
+                mt: 1,
+                display: "block",
+                fontStyle: "italic",
+                fontSize: "0.7rem",
+              }}
+            >
+              This includes all the information you shared with Novera
+            </Typography>
           )}
         </Box>
 
@@ -278,22 +281,22 @@ export function CaseDetailsSection({
         <Grid container spacing={3}>
           <Grid size={{ xs: 12 }}>
             <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="caption">
-              Issue Type{" "}
-              <Box component="span" sx={{ color: "warning.main" }}>
-                *
-              </Box>
-            </Typography>
-            {!isRelatedCaseMode && (
-            <Chip
-              label="AI classified"
-              size="small"
-              variant="outlined"
-              icon={<Sparkles size={10} />}
-              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-            />
-            )}
-          </Box>
+              <Typography variant="caption">
+                Issue Type{" "}
+                <Box component="span" sx={{ color: "warning.main" }}>
+                  *
+                </Box>
+              </Typography>
+              {!isRelatedCaseMode && (
+                <Chip
+                  label="AI classified"
+                  size="small"
+                  variant="outlined"
+                  icon={<Sparkles size={10} />}
+                  sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+                />
+              )}
+            </Box>
             <FormControl
               fullWidth
               size="small"
@@ -335,22 +338,22 @@ export function CaseDetailsSection({
           </Grid>
           <Grid size={{ xs: 12 }}>
             <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="caption">
-              Severity Level{" "}
-              <Box component="span" sx={{ color: "warning.main" }}>
-                *
-              </Box>
-            </Typography>
-            {!isRelatedCaseMode && (
-            <Chip
-              label="AI assessed"
-              size="small"
-              variant="outlined"
-              icon={<Sparkles size={10} />}
-              sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
-            />
-            )}
-          </Box>
+              <Typography variant="caption">
+                Severity Level{" "}
+                <Box component="span" sx={{ color: "warning.main" }}>
+                  *
+                </Box>
+              </Typography>
+              {!isRelatedCaseMode && (
+                <Chip
+                  label="AI assessed"
+                  size="small"
+                  variant="outlined"
+                  icon={<Sparkles size={10} />}
+                  sx={{ height: 20, fontSize: "0.65rem", p: 0.5 }}
+                />
+              )}
+            </Box>
             <FormControl
               fullWidth
               size="small"
