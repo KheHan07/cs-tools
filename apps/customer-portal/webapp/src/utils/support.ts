@@ -56,7 +56,7 @@ export function getIncidentAndQueryCaseTypeIds(
 
 /**
  * Extracts Incident and Query case type IDs separately for stats API.
- * API expects caseType=queryId&icaseType=incidentId.
+ * API expects caseTypes=queryId&caseTypes=incidentId.
  *
  * @param caseTypes - Case types from useGetCasesFilters response.
  * @returns {{ incidentId?: string; queryId?: string }} Incident and Query IDs.

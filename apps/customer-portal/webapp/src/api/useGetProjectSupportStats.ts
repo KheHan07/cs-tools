@@ -59,8 +59,8 @@ export function useGetProjectSupportStats(
         }
 
         const params = new URLSearchParams();
-        if (incidentId) params.append("caseType", incidentId);
-        if (queryId) params.append("caseType", queryId);
+        if (incidentId) params.append("caseTypes", incidentId);
+        if (queryId) params.append("caseTypes", queryId);
         if (query) params.set("query", query);
 
         const queryString = params.toString();

@@ -151,7 +151,7 @@ export default function ActivityCommentInput({
   };
 
   const handleSend = async () => {
-    if (stripHtml(value).length === 0 || isDisabled) return;
+    if (stripHtml(value).trim().length === 0 || isDisabled) return;
 
     // Snapshot attachments before posting
     const attachmentsSnapshot = [...attachments];
@@ -231,7 +231,7 @@ export default function ActivityCommentInput({
             }}
           >
             <IconButton
-              disabled={stripHtml(value).length === 0 || isDisabled}
+              disabled={stripHtml(value).trim().length === 0 || isDisabled}
               onClick={handleSend}
               color="warning"
               aria-label="Send comment"
