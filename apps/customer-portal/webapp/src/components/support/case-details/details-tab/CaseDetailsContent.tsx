@@ -129,13 +129,13 @@ export default function CaseDetailsContent({
       <Paper
         variant="outlined"
         sx={{
-          p: 2,
+          p: focusMode ? 0 : 2,
           flexShrink: 0,
           zIndex: 10,
           borderRadius: 0,
         }}
       >
-        <CaseDetailsBackButton onClick={onBack} />
+        {!focusMode && <CaseDetailsBackButton onClick={onBack} />}
 
         {isError ? (
           <Box
@@ -215,6 +215,7 @@ export default function CaseDetailsContent({
           data={data}
           isError={isError}
           projectId={projectId}
+          focusMode={focusMode}
         />
       </Box>
     </Box>

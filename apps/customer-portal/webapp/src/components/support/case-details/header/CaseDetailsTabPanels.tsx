@@ -28,6 +28,7 @@ export interface CaseDetailsTabPanelsProps {
   data?: CaseDetails;
   isError?: boolean;
   projectId?: string;
+  focusMode?: boolean;
 }
 
 /**
@@ -42,6 +43,7 @@ export default function CaseDetailsTabPanels({
   data,
   isError = false,
   projectId = "",
+  focusMode = false,
 }: CaseDetailsTabPanelsProps): JSX.Element | null {
   switch (activeTab) {
     case 0: {
@@ -67,6 +69,8 @@ export default function CaseDetailsTabPanels({
             projectId={resolvedProjectId}
             caseId={caseId}
             caseCreatedOn={data?.createdOn}
+            focusMode={focusMode}
+            caseStatus={data?.status?.label}
           />
         </Box>
       );
@@ -84,9 +88,7 @@ export default function CaseDetailsTabPanels({
           </Typography>
         );
       }
-      return (
-        <CallsPanel projectId={resolvedProjectId} caseId={caseId} />
-      );
+      return <CallsPanel projectId={resolvedProjectId} caseId={caseId} />;
     }
     case 4:
       return (
