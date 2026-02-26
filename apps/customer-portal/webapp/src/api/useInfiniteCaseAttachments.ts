@@ -46,7 +46,10 @@ export function useInfiniteCaseAttachments(caseId: string) {
     number
   >({
     queryKey: [ApiQueryKeys.CASE_ATTACHMENTS, caseId, "infinite"],
-    queryFn: async ({ pageParam, signal }): Promise<CaseAttachmentsResponse> => {
+    queryFn: async ({
+      pageParam,
+      signal,
+    }): Promise<CaseAttachmentsResponse> => {
       logger.debug(
         `[useInfiniteCaseAttachments] Fetching attachments for case ${caseId}, offset: ${pageParam}`,
       );
@@ -81,7 +84,8 @@ export function useInfiniteCaseAttachments(caseId: string) {
         );
         return data;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         logger.error(`[useInfiniteCaseAttachments] Error: ${errorMessage}`);
         throw error;
       }

@@ -169,7 +169,10 @@ export default function ActivityCommentInput({
 
           // Upload attachments using snapshot
           if (attachmentsSnapshot.length > 0) {
-            await uploadAttachmentsFromSnapshot(attachmentsSnapshot, attachmentNamesSnapshot);
+            await uploadAttachmentsFromSnapshot(
+              attachmentsSnapshot,
+              attachmentNamesSnapshot,
+            );
           }
         },
         onError: (error: unknown) => {

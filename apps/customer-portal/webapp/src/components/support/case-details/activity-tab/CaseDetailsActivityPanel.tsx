@@ -244,8 +244,7 @@ function ActivityContent({
           commentsToShow.map((comment) => {
             const commentCreatorEmail = comment.createdBy?.toLowerCase() ?? "";
             const isCurrentUser = commentCreatorEmail === currentUserEmail;
-            const isSupportEngineer =
-              commentCreatorEmail.endsWith("@wso2.com");
+            const isSupportEngineer = commentCreatorEmail.endsWith("@wso2.com");
 
             return (
               <CommentBubble
