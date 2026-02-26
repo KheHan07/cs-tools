@@ -80,8 +80,21 @@ export default function useGetTimeCardsStats({
           );
         }
 
-        const data: ProjectTimeTrackingStats = await response.json();
-        logger.debug("[useGetTimeCardsStats] Data received:", data);
+        const rawData: ProjectTimeTrackingStats = await response.json();
+        logger.debug("[useGetTimeCardsStats] Raw data received:", rawData);
+
+        // Convert minutes to hours
+        const data: ProjectTimeTrackingStats = {
+          totalHours: Math.round((rawData.totalHours / 60) * 100) / 100,
+          billableHours: Math.round((rawData.billableHours / 60) * 100) / 100,
+          nonBillableHours:
+            Math.round((rawData.nonBillableHours / 60) * 100) / 100,
+        };
+
+        logger.debug(
+          "[useGetTimeCardsStats] Converted data (minutes to hours):",
+          data,
+        );
         return data;
       } catch (error) {
         logger.error("[useGetTimeCardsStats] Error:", error);

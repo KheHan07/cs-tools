@@ -42,7 +42,7 @@ describe("TimeTrackingCard", () => {
     expect(screen.getByText("Approved")).toBeInTheDocument();
     expect(screen.getByText("Billable")).toBeInTheDocument();
     expect(screen.getByText("CS0437343")).toBeInTheDocument();
-    expect(screen.getByText("60 hrs")).toBeInTheDocument();
+    expect(screen.getByText("1 hrs")).toBeInTheDocument(); // 60 minutes = 1 hour
     expect(
       screen.getByText(/Approved by: Dileepa Peiris \(Intern\)/),
     ).toBeInTheDocument();

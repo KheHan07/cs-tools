@@ -124,6 +124,16 @@ export const CaseSeverityLevel = {
 export type CaseSeverityLevel =
   (typeof CaseSeverityLevel)[keyof typeof CaseSeverityLevel];
 
+// Case type values for case creation.
+export const CaseType = {
+  DEFAULT_CASE: "default_case",
+  SERVICE_REQUEST: "service_request",
+  SECURITY_REPORT_ANALYSIS: "security_report_analysis",
+  ANNOUNCEMENT: "announcement",
+} as const;
+
+export type CaseType = (typeof CaseType)[keyof typeof CaseType];
+
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
 

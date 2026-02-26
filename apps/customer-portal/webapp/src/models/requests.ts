@@ -81,6 +81,7 @@ export interface PatchCaseRequest {
 
 // Request body for creating a support case (POST /cases).
 export interface CreateCaseRequest {
+  caseType?: string;
   deploymentId: string;
   description: string;
   issueTypeKey: number;

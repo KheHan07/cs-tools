@@ -40,6 +40,12 @@ export default function TimeTrackingCard({
   const caseNumber = caseData?.number?.trim() || "--";
   const approvedByName = approvedBy?.label?.trim() || "--";
 
+  // Convert totalTime from minutes to hours
+  const totalTimeInHours =
+    totalTime !== undefined && totalTime !== null
+      ? Math.round((totalTime / 60) * 100) / 100
+      : null;
+
   const stateColorPath = getTimeCardStateColorPath(state);
 
   return (
@@ -113,9 +119,7 @@ export default function TimeTrackingCard({
               color: "text.primary",
             }}
           >
-            {totalTime !== undefined && totalTime !== null
-              ? `${totalTime} hrs`
-              : "--"}
+            {totalTimeInHours !== null ? `${totalTimeInHours} hrs` : "--"}
           </Typography>
         </Box>
       </Box>

@@ -53,7 +53,11 @@ import {
   resolveProductId,
   shouldAddClassificationProductToOptions,
 } from "@utils/caseCreation";
-import { CaseSeverity, CaseSeverityLevel } from "@constants/supportConstants";
+import {
+  CaseSeverity,
+  CaseSeverityLevel,
+  CaseType,
+} from "@constants/supportConstants";
 import { escapeHtml, htmlToPlainText } from "@utils/richTextEditor";
 import UploadAttachmentModal from "@components/support/case-details/attachments-tab/UploadAttachmentModal";
 
@@ -534,6 +538,7 @@ export default function CreateCasePage(): JSX.Element {
     const severityKey = parsedSeverity;
 
     const payload: CreateCaseRequest = {
+      caseType: CaseType.DEFAULT_CASE,
       deploymentId: String(deploymentMatch.id),
       description: descriptionPlain,
       issueTypeKey,
