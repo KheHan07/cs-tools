@@ -24,11 +24,13 @@ vi.mock("@components/common/stat-grid/SupportStatGrid", () => ({
     stats,
     isLoading,
     isError,
+    valueFormatter,
   }: {
     configs: { label: string; key: string }[];
     stats: Record<string, number> | undefined;
     isLoading: boolean;
     isError?: boolean;
+    valueFormatter?: (value: number) => string | number;
   }) => (
     <div data-testid="support-stat-grid">
       {isLoading && <span data-testid="loading">Loading</span>}
@@ -38,7 +40,13 @@ vi.mock("@components/common/stat-grid/SupportStatGrid", () => ({
         configs.map((c) => (
           <div key={c.key}>
             <span>{c.label}</span>
-            <span>{stats?.[c.key] ?? 0}</span>
+            <span>
+              {stats?.[c.key] != null
+                ? valueFormatter
+                  ? valueFormatter(stats[c.key])
+                  : stats[c.key]
+                : 0}
+            </span>
           </div>
         ))}
     </div>
@@ -61,9 +69,9 @@ describe("TimeTrackingStatCards", () => {
     expect(screen.getByText("Total Hours")).toBeInTheDocument();
     expect(screen.getByText("Billable Hours")).toBeInTheDocument();
     expect(screen.getByText("Non-Billable Hours")).toBeInTheDocument();
-    expect(screen.getByText("17.5")).toBeInTheDocument();
-    expect(screen.getByText("15")).toBeInTheDocument();
-    expect(screen.getByText("2.5")).toBeInTheDocument();
+    expect(screen.getByText("17.5 hrs")).toBeInTheDocument();
+    expect(screen.getByText("15 hrs")).toBeInTheDocument();
+    expect(screen.getByText("2.5 hrs")).toBeInTheDocument();
   });
 
   it("should pass loading state to SupportStatGrid", () => {

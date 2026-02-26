@@ -56,11 +56,22 @@ export type ChatAction = (typeof ChatAction)[keyof typeof ChatAction];
 // Chat status types.
 export const ChatStatus = {
   RESOLVED: "Resolved",
-  STILL_OPEN: "Still Open",
+  OPEN: "Open",
   ABANDONED: "Abandoned",
 } as const;
 
 export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus];
+
+export const ConversationStatus = {
+  ABANDONED: "Abandoned",
+  ACTIVE: "Active",
+  CONVERTED: "Converted",
+  OPEN: "Open",
+  RESOLVED: "Resolved",
+} as const;
+
+export type ConversationStatus =
+  (typeof ConversationStatus)[keyof typeof ConversationStatus];
 
 // Case status types matching API labels.
 export const CaseStatus = {
@@ -112,6 +123,16 @@ export const CaseSeverityLevel = {
 
 export type CaseSeverityLevel =
   (typeof CaseSeverityLevel)[keyof typeof CaseSeverityLevel];
+
+// Case type values for case creation.
+export const CaseType = {
+  DEFAULT_CASE: "default_case",
+  SERVICE_REQUEST: "service_request",
+  SECURITY_REPORT_ANALYSIS: "security_report_analysis",
+  ANNOUNCEMENT: "announcement",
+} as const;
+
+export type CaseType = (typeof CaseType)[keyof typeof CaseType];
 
 // Maximum allowed attachment file size in bytes.
 export const MAX_ATTACHMENT_SIZE_BYTES = 15 * 1024 * 1024;
@@ -214,12 +235,15 @@ export const getAllCasesFlattenedStats = (
   stats: ProjectCasesStats | undefined,
 ): Record<AllCasesStatKey, number | undefined> => {
   const stateCount = stats?.stateCount ?? [];
-  const workInProgress =
-    stateCount.find((s) => s.label === CaseStatus.WORK_IN_PROGRESS)?.count;
-  const waitingOnClient =
-    stateCount.find((s) => s.label === CaseStatus.AWAITING_INFO)?.count;
-  const waitingOnWso2 =
-    stateCount.find((s) => s.label === CaseStatus.WAITING_ON_WSO2)?.count;
+  const workInProgress = stateCount.find(
+    (s) => s.label === CaseStatus.WORK_IN_PROGRESS,
+  )?.count;
+  const waitingOnClient = stateCount.find(
+    (s) => s.label === CaseStatus.AWAITING_INFO,
+  )?.count;
+  const waitingOnWso2 = stateCount.find(
+    (s) => s.label === CaseStatus.WAITING_ON_WSO2,
+  )?.count;
   const openCases = stats?.totalCases;
   return {
     openCases: openCases != null ? openCases : undefined,
@@ -234,7 +258,7 @@ export const SUPPORT_STAT_CONFIGS: SupportStatConfig[] = [
   {
     icon: FileText,
     iconColor: "error",
-    key: "totalCases",
+    key: "ongoingCases",
     label: "Ongoing Cases",
     secondaryIcon: TrendingUp,
   },
@@ -378,8 +402,13 @@ export type AllConversationsStatKey =
  */
 export const ALL_CONVERSATIONS_STAT_CONFIGS: SupportStatConfig<AllConversationsStatKey>[] =
   [
-    { icon: CircleCheck, iconColor: "success", key: "resolved", label: "Resolved" },
-    { icon: Clock, iconColor: "info", key: "open", label: "Still Open" },
+    {
+      icon: CircleCheck,
+      iconColor: "success",
+      key: "resolved",
+      label: "Resolved",
+    },
+    { icon: Clock, iconColor: "info", key: "open", label: "Open" },
     {
       icon: CircleAlert,
       iconColor: "warning",
@@ -454,15 +483,13 @@ export type AnnouncementStatKey =
 /**
  * Hardcoded announcement stats (sample values).
  */
-export const ANNOUNCEMENT_STATS_HARDCODED: Record<
-  AnnouncementStatKey,
-  number
-> = {
-  unread: 3,
-  critical: 1,
-  actionRequired: 3,
-  total: 8,
-};
+export const ANNOUNCEMENT_STATS_HARDCODED: Record<AnnouncementStatKey, number> =
+  {
+    unread: 3,
+    critical: 1,
+    actionRequired: 3,
+    total: 8,
+  };
 
 /**
  * Configuration for announcement statistics cards.
@@ -527,3 +554,6 @@ export const CommentType = {
   WORK_NOTE: "work_note",
 } as const;
 export type CommentType = (typeof CommentType)[keyof typeof CommentType];
+
+// Line count threshold for showing expand button in support activity section.
+export const COLLAPSE_LINE_THRESHOLD = 4;

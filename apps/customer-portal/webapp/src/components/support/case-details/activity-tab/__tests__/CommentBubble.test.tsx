@@ -35,15 +35,23 @@ const mockComment: CaseComment = {
   isEscalated: false,
 };
 
-function renderBubble(props: {
-  comment?: CaseComment;
-  isCurrentUser?: boolean;
-  primaryBg?: string;
-  userDetails?: { email?: string; firstName?: string; lastName?: string } | null;
-} = {}) {
+function renderBubble(
+  props: {
+    comment?: CaseComment;
+    isCurrentUser?: boolean;
+    isSupportEngineer?: boolean;
+    primaryBg?: string;
+    userDetails?: {
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+    } | null;
+  } = {},
+) {
   const defaults = {
     comment: mockComment,
     isCurrentUser: false,
+    isSupportEngineer: false,
     primaryBg: "rgba(250,123,63,0.1)",
   };
   return render(
@@ -56,7 +64,9 @@ function renderBubble(props: {
 describe("CommentBubble", () => {
   it("should render comment content", () => {
     renderBubble();
-    expect(screen.getByText(/Thanks for the detailed recommendations/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Thanks for the detailed recommendations/),
+    ).toBeInTheDocument();
   });
 
   it("should show display name for non-current-user comment", () => {
@@ -65,12 +75,12 @@ describe("CommentBubble", () => {
   });
 
   it("should show Support Engineer chip for non-current-user", () => {
-    renderBubble({ isCurrentUser: false });
+    renderBubble({ isCurrentUser: false, isSupportEngineer: true });
     expect(screen.getByText("Support Engineer")).toBeInTheDocument();
   });
 
   it("should not show Support Engineer chip for current user", () => {
-    renderBubble({ isCurrentUser: true });
+    renderBubble({ isCurrentUser: true, isSupportEngineer: true });
     expect(screen.queryByText("Support Engineer")).not.toBeInTheDocument();
   });
 

@@ -81,6 +81,26 @@ export interface ProjectUser {
   status: "Invited" | "Registered";
 }
 
+// Response from POST /projects/:projectId/contacts/validate.
+export interface ValidateContactResponse {
+  isContactValid: boolean;
+  message: string;
+  contactDetails?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isCsAdmin: boolean;
+    isCsIntegrationUser: boolean;
+    account?: {
+      id: string;
+      domainList: string | null;
+      classification: string;
+      isPartner: boolean;
+    };
+  };
+}
+
 // Project contact from GET /projects/:projectId/contacts.
 export interface ProjectContact {
   id: string;
@@ -119,7 +139,7 @@ export interface CaseCreationMetadata {
 
 // Project support statistics.
 export interface ProjectSupportStats {
-  totalCases: number;
+  ongoingCases: number;
   activeChats: number;
   sessionChats: number;
   resolvedChats: number;
@@ -411,6 +431,13 @@ export interface ChatHistoryItem {
 // Response for project chat history list.
 export interface ChatHistoryResponse {
   chatHistory: ChatHistoryItem[];
+}
+
+// Conversation statistics response.
+export interface ConversationStats {
+  abandonedCount: number;
+  openCount: number;
+  resolvedCount: number;
 }
 
 // Conversation from POST /projects/:projectId/conversations/search.

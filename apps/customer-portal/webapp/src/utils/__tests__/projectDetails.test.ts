@@ -17,6 +17,8 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import {
   formatProjectDate,
+  formatProjectDateTime,
+  convertMinutesToHours,
   getSLAStatusColor,
   getSupportTierColor,
   getProjectTypeColor,
@@ -41,6 +43,42 @@ describe("projectDetails utils", () => {
 
     it("should handle full ISO strings", () => {
       expect(formatProjectDate("2024-01-15T12:00:00Z")).toBe("Jan 15, 2024");
+    });
+  });
+
+  describe("formatProjectDateTime", () => {
+    it("should format date string with time correctly", () => {
+      const result = formatProjectDateTime("2025-09-29 03:52:00");
+      expect(result).toMatch(/Sep 29, 2025 at \d{1,2}:\d{2} [AP]M/);
+    });
+
+    it("should handle empty or null input", () => {
+      expect(formatProjectDateTime("")).toBe("");
+      // @ts-ignore - testing runtime behavior
+      expect(formatProjectDateTime(null)).toBe("");
+    });
+
+    it("should handle ISO format with T separator", () => {
+      const result = formatProjectDateTime("2026-02-12T10:08:15");
+      expect(result).toMatch(/Feb 12, 2026 at \d{1,2}:\d{2} [AP]M/);
+    });
+  });
+
+  describe("convertMinutesToHours", () => {
+    it("should convert minutes to hours correctly", () => {
+      expect(convertMinutesToHours(60)).toBe(1);
+      expect(convertMinutesToHours(120)).toBe(2);
+      expect(convertMinutesToHours(90)).toBe(1.5);
+    });
+
+    it("should round to 2 decimal places", () => {
+      expect(convertMinutesToHours(580)).toBe(9.67); // 580 / 60 = 9.666...
+      expect(convertMinutesToHours(100)).toBe(1.67); // 100 / 60 = 1.666...
+    });
+
+    it("should handle zero and non-standard values", () => {
+      expect(convertMinutesToHours(0)).toBe(0);
+      expect(convertMinutesToHours(1)).toBe(0.02);
     });
   });
 

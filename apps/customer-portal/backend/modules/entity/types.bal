@@ -123,26 +123,32 @@ public type ProjectResponse record {|
 
 # Payload for creating a case.
 public type CaseCreatePayload record {|
+    # Case type
+    CaseType caseType?;
     # Project ID
     IdString projectId;
     # Deployment ID
     IdString deploymentId;
-    # Product ID
-    IdString productId;
-    # Case title
-    @constraint:String {minLength: 1, maxLength: 500}
-    string title;
-    # Case description
-    @constraint:String {minLength: 1}
-    string description;
-    # Issue type ID
-    int issueTypeKey;
-    # Severity key
-    int severityKey;
+    # Deployed product ID
+    IdString deployedProductId?;
+    # Case title (required for DEFAULT_CASE)
+    string title?;
+    # Case description (required for DEFAULT_CASE)
+    string description?;
+    # Issue type ID (required for DEFAULT_CASE)
+    int issueTypeKey?;
+    # Severity key (required for DEFAULT_CASE)
+    int severityKey?;
     # Related case ID (if the case is related to an existing case)
     IdString parentCaseId?;
     # Conversation ID (if the case is related to a conversation)
     IdString conversationId?;
+    # Catalog ID (required for SERVICE_REQUEST)
+    IdString catalogId?;
+    # Catalog Item ID (required for SERVICE_REQUEST)
+    IdString catalogItemId?;
+    # Variables for service request (required for SERVICE_REQUEST)
+    Variable[] variables?;
 |};
 
 # Response from creating a case.
@@ -250,8 +256,8 @@ public type ReferenceTableItem record {|
 public type CaseSearchFilters record {|
     # List of project IDs to filter
     string[] projectIds?;
-    # List of case type IDs to filter
-    string[] caseTypeIds?;
+    # List of case types to filter
+    CaseType[] caseTypes?;
     # Search query for case number, title and description
     string searchQuery?;
     # List of issue types to filter
@@ -576,6 +582,8 @@ public type DeployedProduct record {|
     string updatedOn;
     # Description
     string? description;
+    # Category of the product
+    ReferenceTableItem? category;
     # Associated deployment
     ReferenceTableItem? deployment;
     # Product information
@@ -1321,4 +1329,12 @@ public type ConverstaionStateIds record {|
     int resolved;
     # Abandoned state ID
     int abandonded;
+|};
+
+# Variable data for service request.
+public type Variable record {|
+    # Variable ID
+    IdString id;
+    # Variable value
+    string value;
 |};

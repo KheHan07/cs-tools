@@ -40,7 +40,7 @@ export default function CaseDetailsBackButton({
       sx={sx}
       variant="text"
     >
-      Back to Support Center
+      Back
     </Button>
   );
 }

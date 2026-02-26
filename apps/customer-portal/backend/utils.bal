@@ -37,7 +37,7 @@ public isolated function searchCases(string idToken, string projectId, types:Cas
             searchQuery: payload.filters?.searchQuery,
             issueTypeKeys: issueId != () ? [issueId] : (),
             severityKey: payload.filters?.severityId,
-            caseTypeIds: payload.filters?.caseTypeIds,
+            caseTypes: payload.filters?.caseTypes,
             stateKeys: payload.filters?.statusIds,
             deploymentId: payload.filters?.deploymentId
         },
@@ -245,6 +245,7 @@ public isolated function mapDeployedProducts(entity:DeployedProductsResponse res
         let entity:ReferenceTableItem? associatedProduct = product.product
         let entity:ReferenceTableItem? deployment = product.deployment
         let entity:ReferenceTableItem? version = product.version
+        let entity:ReferenceTableItem? category = product.category
         select {
             id: product.id,
             createdOn: product.createdOn,
@@ -257,7 +258,8 @@ public isolated function mapDeployedProducts(entity:DeployedProductsResponse res
             updateLevel: product.updateLevel,
             product: associatedProduct != () ? {id: associatedProduct.id, label: associatedProduct.name} : (),
             deployment: deployment != () ? {id: deployment.id, label: deployment.name} : (),
-            version: version != () ? {id: version.id, label: version.name} : ()
+            version: version != () ? {id: version.id, label: version.name} : (),
+            category: category != () ? {id: category.id, label: category.name} : ()
         };
 }
 

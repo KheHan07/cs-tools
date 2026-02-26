@@ -42,7 +42,8 @@ export const getTimeCardStateColorPath = (
   const normalized = state?.toLowerCase();
   if (normalized === "approved") return "success.main";
   if (normalized === "submitted") return "info.main";
-  if (normalized === "rejected" || normalized === "draft") return "warning.main";
+  if (normalized === "rejected" || normalized === "draft")
+    return "warning.main";
   return "text.secondary";
 };
 
@@ -127,6 +128,48 @@ export const formatProjectDate = (dateString: string): string => {
     day: "numeric",
     year: "numeric",
   });
+};
+
+/**
+ * Formats a date string into "MMM DD, YYYY at H:MM AM/PM" format.
+ * Example: "Sep 29, 2025 at 3:52 AM"
+ *
+ * @param {string} dateString - The date string to format.
+ * @returns {string} The formatted date string with time.
+ */
+export const formatProjectDateTime = (dateString: string): string => {
+  if (!dateString) {
+    return "";
+  }
+  try {
+    const date = new Date(dateString.replace(" ", "T"));
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+    const dateStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${dateStr} at ${timeStr}`;
+  } catch (error) {
+    return "";
+  }
+};
+
+/**
+ * Converts minutes to hours (rounded to 2 decimal places).
+ *
+ * @param {number} minutes - The time in minutes.
+ * @returns {number} The time in hours.
+ */
+export const convertMinutesToHours = (minutes: number): number => {
+  return Math.round((minutes / 60) * 100) / 100;
 };
 
 /**

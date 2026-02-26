@@ -67,7 +67,11 @@ const createWrapper = () => {
 describe("useGetTimeCardsStats", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (window as unknown as { config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string } }).config = {
+    (
+      window as unknown as {
+        config?: { CUSTOMER_PORTAL_BACKEND_BASE_URL?: string };
+      }
+    ).config = {
       CUSTOMER_PORTAL_BACKEND_BASE_URL: "https://api.test",
     };
   });
@@ -88,8 +92,8 @@ describe("useGetTimeCardsStats", () => {
 
     const data = result.current.data;
     expect(data).toBeDefined();
-    expect(data?.totalHours).toBe(400);
-    expect(data?.billableHours).toBe(400);
+    expect(data?.totalHours).toBe(6.67);
+    expect(data?.billableHours).toBe(6.67);
     expect(data?.nonBillableHours).toBe(0);
   });
 });

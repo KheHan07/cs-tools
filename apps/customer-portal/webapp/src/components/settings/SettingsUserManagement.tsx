@@ -55,10 +55,8 @@ import RemoveUserModal from "@components/settings/RemoveUserModal";
 import {
   getAvatarColor,
   getInitials,
-  getRoleChipColor,
+  getRoleBadges,
   getRoleChipSx,
-  getRoleIcon,
-  getRoleLabel,
 } from "@utils/settings";
 import { getUserStatusColor } from "@utils/projectDetails";
 import type { CreateProjectContactRequest } from "@models/requests";
@@ -90,14 +88,26 @@ export default function SettingsUserManagement({
 
   const filteredContacts = useMemo(() => {
     if (!searchQuery.trim()) return contacts;
-    const q = searchQuery.trim().toLowerCase();
-    return contacts.filter((c) => {
-      const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
-      const email = (c.email ?? "").toLowerCase();
-      const role = getRoleLabel(c).toLowerCase();
-      return name.includes(q) || email.includes(q) || role.includes(q);
+    const normalizedQuery = searchQuery.toLowerCase();
+    return contacts.filter((contact) => {
+      const roleLabels = getRoleBadges(contact)
+        .map((badge) => badge.label)
+        .join(" ")
+        .toLowerCase();
+      return (
+        contact.email?.toLowerCase().includes(normalizedQuery) ||
+        contact.firstName?.toLowerCase().includes(normalizedQuery) ||
+        contact.lastName?.toLowerCase().includes(normalizedQuery) ||
+        roleLabels.includes(normalizedQuery)
+      );
     });
   }, [contacts, searchQuery]);
+
+  // const stats = useMemo(() => ({
+  //   admins: contacts.filter((c) => c.isCsAdmin).length,
+  //   developers: contacts.filter((c) => c.isCsIntegrationUser).length,
+  //   security: contacts.filter((c) => c.isSecurityContact).length,
+  // }), [contacts]);
 
   const handleAddUser = useCallback(
     (data: CreateProjectContactRequest) => {
@@ -318,13 +328,13 @@ export default function SettingsUserManagement({
               ))
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                   <ErrorIndicator entityName="users" size="medium" />
                 </TableCell>
               </TableRow>
             ) : filteredContacts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                   <Typography variant="body2" color="text.secondary">
                     No users found.
                   </Typography>
@@ -364,20 +374,19 @@ export default function SettingsUserManagement({
                     </Box>
                   </TableCell>
                   <TableCell>
-                    {(() => {
-                      const RoleIcon = getRoleIcon(contact);
-                      const label = getRoleLabel(contact);
-                      return (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {getRoleBadges(contact).map((badge) => (
                         <Chip
+                          key={badge.label}
                           size="small"
-                          icon={RoleIcon ? <RoleIcon size={12} /> : undefined}
-                          label={label}
+                          icon={<badge.Icon size={12} />}
+                          label={badge.label}
                           variant="outlined"
-                          color={getRoleChipColor(contact)}
-                          sx={RoleIcon ? getRoleChipSx(contact) : { typography: "caption" }}
+                          color={badge.chipColor}
+                          sx={getRoleChipSx(badge.chipColor)}
                         />
-                      );
-                    })()}
+                      ))}
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -419,7 +428,7 @@ export default function SettingsUserManagement({
         }}
       >
         <Typography variant="h6" sx={{ mb: 4, display: "flex", alignItems: "center", gap: 1 }}>
-          <Shield size={20} color={theme.palette.info.main} />
+          <Shield size={20} color={theme.palette.text.primary} />
           Role Permissions
         </Typography>
         <Grid container spacing={2}>
@@ -430,7 +439,7 @@ export default function SettingsUserManagement({
                 ? (colors.purple?.[600] ?? theme.palette.primary.main)
                 : (theme.palette[role.paletteKey]?.main ?? theme.palette.text.primary);
             return (
-              <Grid key={role.id} size={{ xs: 12, md: 6 }}>
+              <Grid key={role.id} size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                     <RoleIcon size={18} color={roleColor} />

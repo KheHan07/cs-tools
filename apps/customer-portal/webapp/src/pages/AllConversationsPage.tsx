@@ -37,7 +37,12 @@ import { ArrowLeft } from "@wso2/oxygen-ui-icons-react";
 import { useLoader } from "@context/linear-loader/LoaderContext";
 import useGetCasesFilters from "@api/useGetCasesFilters";
 import { useSearchConversations } from "@api/useSearchConversations";
-import type { AllConversationsFilterValues } from "@models/responses";
+import { useGetConversationStats } from "@api/useGetConversationStats";
+import type {
+  AllConversationsFilterValues,
+  Conversation,
+} from "@models/responses";
+import type { AllConversationsStatKey } from "@constants/supportConstants";
 import AllConversationsStatCards from "@components/support/all-conversations/AllConversationsStatCards";
 import AllConversationsSearchBar from "@components/support/all-conversations/AllConversationsSearchBar";
 import AllConversationsList from "@components/support/all-conversations/AllConversationsList";
@@ -64,9 +69,7 @@ export default function AllConversationsPage(): JSX.Element {
     () => ({
       filters: {
         searchQuery: searchTerm.trim() || undefined,
-        stateKeys: filters.stateId
-          ? [Number(filters.stateId)]
-          : undefined,
+        stateKeys: filters.stateId ? [Number(filters.stateId)] : undefined,
       },
       pagination: {
         offset: (page - 1) * pageSize,
@@ -80,11 +83,29 @@ export default function AllConversationsPage(): JSX.Element {
     [searchTerm, filters.stateId, page, pageSize, sortOrder],
   );
 
+  const { data, isLoading: isConversationsLoading } = useSearchConversations(
+    projectId || "",
+    searchRequest,
+  );
+
   const {
-    data,
-    isLoading: isConversationsLoading,
+    data: statsData,
+    isLoading: isStatsLoading,
     isError: isStatsError,
-  } = useSearchConversations(projectId || "", searchRequest);
+  } = useGetConversationStats(projectId || "");
+
+  const stats: Partial<Record<AllConversationsStatKey, number>> | undefined =
+    statsData
+      ? {
+          resolved: statsData.resolvedCount,
+          open: statsData.openCount,
+          abandoned: statsData.abandonedCount,
+          totalChats:
+            statsData.resolvedCount +
+            statsData.openCount +
+            statsData.abandonedCount,
+        }
+      : undefined;
 
   const { showLoader, hideLoader } = useLoader();
 
@@ -103,6 +124,23 @@ export default function AllConversationsPage(): JSX.Element {
   const conversations = data?.conversations ?? [];
   const totalRecords = data?.totalRecords ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+
+  const handleConversationClick = (conv: Conversation) => {
+    if (!projectId) return;
+
+    navigate(`/${projectId}/support/conversations/${conv.id}`, {
+      state: {
+        conversationSummary: {
+          chatId: conv.id,
+          title: conv.initialMessage || conv.number,
+          startedTime: conv.createdOn,
+          messages: conv.messageCount,
+          kbArticles: 0,
+          status: conv.state?.label ?? "Open",
+        },
+      },
+    });
+  };
 
   const handlePageChange = (_event: ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -153,8 +191,9 @@ export default function AllConversationsPage(): JSX.Element {
       </Box>
 
       <AllConversationsStatCards
-        isLoading={isConversationsAreaLoading}
+        isLoading={isStatsLoading}
         isError={isStatsError}
+        stats={stats}
       />
 
       <AllConversationsSearchBar
@@ -204,6 +243,7 @@ export default function AllConversationsPage(): JSX.Element {
       <AllConversationsList
         conversations={conversations}
         isLoading={isConversationsAreaLoading}
+        onConversationClick={handleConversationClick}
       />
 
       {totalPages > 1 && (

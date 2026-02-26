@@ -39,8 +39,8 @@ public type CaseSearchFilters record {|
     int issueId?;
     # Status IDs
     int[] statusIds?;
-    # List of case type IDs
-    string[] caseTypeIds?;
+    # List of case types
+    entity:CaseType[] caseTypes?;
     # Severity ID
     int severityId?;
     # Deployment ID
@@ -419,7 +419,9 @@ public type DeployedProduct record {|
     string updatedOn;
     # Description
     string? description;
-    # Associated product
+    # Category
+    ReferenceItem? category;
+    # Product
     ReferenceItem? product;
     # Deployment
     ReferenceItem? deployment;
@@ -1020,4 +1022,6 @@ public type ConversationStats record {|
     int openCount?;
     # Abandoned chats count
     int abandonedCount?;
+    # Active chats count
+    int activeCount?;
 |};

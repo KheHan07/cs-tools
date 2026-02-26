@@ -51,6 +51,7 @@ import {
   replaceInlineImageSources,
   formatCommentDate,
   formatUtcToLocal,
+  formatDateOnly,
   getInitials,
   hasDisplayableContent,
   stripCustomerPrefixFromReason,
@@ -63,11 +64,11 @@ import { createTheme } from "@wso2/oxygen-ui";
 
 describe("support utils", () => {
   describe("getChatStatusAction", () => {
-    it("should return resume for Still Open", () => {
-      expect(getChatStatusAction(ChatStatus.STILL_OPEN)).toBe(
+    it("should return resume for Open", () => {
+      expect(getChatStatusAction(ChatStatus.OPEN)).toBe(
         ChatAction.RESUME,
       );
-      expect(getChatStatusAction(ChatStatus.STILL_OPEN.toLowerCase())).toBe(
+      expect(getChatStatusAction(ChatStatus.OPEN.toLowerCase())).toBe(
         ChatAction.RESUME,
       );
     });
@@ -94,8 +95,8 @@ describe("support utils", () => {
       expect(getChatStatusColor(ChatStatus.RESOLVED)).toBe("success.main");
     });
 
-    it("should return info.main for Still Open", () => {
-      expect(getChatStatusColor(ChatStatus.STILL_OPEN)).toBe("info.main");
+    it("should return info.main for Open", () => {
+      expect(getChatStatusColor(ChatStatus.OPEN)).toBe("info.main");
     });
 
     it("should return error.main for Abandoned", () => {
@@ -699,6 +700,41 @@ describe("support utils", () => {
       expect(result).toContain("Oct");
       expect(result).toContain("29");
       expect(result).not.toMatch(/\b2024\b/);
+    });
+  });
+
+  describe("formatDateOnly", () => {
+    it("should return -- for null and undefined", () => {
+      expect(formatDateOnly(null)).toBe("--");
+      expect(formatDateOnly(undefined)).toBe("--");
+    });
+
+    it("should return -- for invalid date string", () => {
+      expect(formatDateOnly("not-a-date")).toBe("--");
+      expect(formatDateOnly("")).toBe("--");
+    });
+
+    it("should format valid ISO datetime to date-only string", () => {
+      const result = formatDateOnly("2024-10-29T14:30:00Z");
+      expect(result).toContain("Oct");
+      expect(result).toContain("29");
+      expect(result).toContain("2024");
+      expect(result).not.toMatch(/14:30/);
+      expect(result).not.toMatch(/PM/);
+    });
+
+    it("should format ServiceNow-style YYYY-MM-DD HH:mm:ss to date-only string", () => {
+      const result = formatDateOnly("2024-10-29 14:30:00");
+      expect(result).toContain("Oct");
+      expect(result).toContain("29");
+      expect(result).toContain("2024");
+      expect(result).not.toMatch(/14:30/);
+      expect(result).not.toMatch(/PM/);
+    });
+
+    it("should correctly parse year 2026 from API format", () => {
+      const result = formatDateOnly("2026-02-25 15:24:47");
+      expect(result).toBe("Feb 25, 2026");
     });
   });
 
