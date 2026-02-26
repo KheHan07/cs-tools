@@ -31,7 +31,7 @@ export interface UseGetTimeCardsStatsParams {
 
 /**
  * Fetches time card statistics for a project within a date range.
- * GET /projects/:projectId/time-cards/stats?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+ * GET /projects/:projectId/stats/time-cards?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
  *
  * @param {UseGetTimeCardsStatsParams} params - Project ID and date range.
  * @returns {UseQueryResult<ProjectTimeTrackingStats, Error>} The query result object.
@@ -49,12 +49,7 @@ export default function useGetTimeCardsStats({
   const fetchFn = useAuthApiClient();
 
   return useQuery<ProjectTimeTrackingStats, Error>({
-    queryKey: [
-      ApiQueryKeys.TIME_TRACKING_STATS,
-      projectId,
-      startDate,
-      endDate,
-    ],
+    queryKey: [ApiQueryKeys.TIME_TRACKING_STATS, projectId, startDate, endDate],
     queryFn: async (): Promise<ProjectTimeTrackingStats> => {
       logger.debug(
         `[useGetTimeCardsStats] Fetching stats for project ${projectId}, ${startDate} to ${endDate}`,
@@ -71,7 +66,7 @@ export default function useGetTimeCardsStats({
           startDate,
           endDate,
         });
-        const requestUrl = `${baseUrl}/projects/${projectId}/time-cards/stats?${params.toString()}`;
+        const requestUrl = `${baseUrl}/projects/${projectId}/stats/time-cards?${params.toString()}`;
 
         const response = await fetchFn(requestUrl, { method: "GET" });
 
@@ -94,11 +89,7 @@ export default function useGetTimeCardsStats({
       }
     },
     enabled:
-      !!projectId &&
-      !!startDate &&
-      !!endDate &&
-      isSignedIn &&
-      !isAuthLoading,
+      !!projectId && !!startDate && !!endDate && isSignedIn && !isAuthLoading,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -18,10 +18,7 @@ import { Card, Box, Typography, Chip, useTheme } from "@wso2/oxygen-ui";
 import { type JSX } from "react";
 import type { TimeCard } from "@models/responses";
 import { getTimeCardStateColorPath } from "@utils/projectDetails";
-import {
-  getSupportOverviewChipSx,
-  getPlainChipSx,
-} from "@utils/support";
+import { getSupportOverviewChipSx, getPlainChipSx } from "@utils/support";
 
 interface TimeTrackingCardProps {
   card: TimeCard;
@@ -117,7 +114,7 @@ export default function TimeTrackingCard({
             }}
           >
             {totalTime !== undefined && totalTime !== null
-              ? `${totalTime}h`
+              ? `${totalTime} hrs`
               : "--"}
           </Typography>
         </Box>

@@ -84,7 +84,7 @@ export interface CreateCaseRequest {
   deploymentId: string;
   description: string;
   issueTypeKey: number;
-  productId: string;
+  deployedProductId: string;
   projectId: string;
   severityKey: number;
   title: string;
